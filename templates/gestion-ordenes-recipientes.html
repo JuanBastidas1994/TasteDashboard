@@ -1,0 +1,36 @@
+<script id="order-recipientes-template" type="text/x-handlebars-template">
+    <div class="mb-5">
+        <div class="d-flex align-items-center">
+            <div><h2 style="padding: 0px; margin: 0px;">#{{ orden.id }}</h2></div>
+            <div class="ml-auto">
+                <div class="p-2 rounded bg-{{colorStatus estado}}">{{ orden.estado }}</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="">
+        <div>
+            <p>Escoge los recipientes que has usado para despachar este pedido.</p>
+        </div>
+        {{#each recipientes}}
+            <div class="row col-12 mb-3" style="border-bottom: 1px solid #80808047;">
+                <div class="col-7"><span style="line-height: 45px;">{{nombre}}</span></div>
+                <div class="col-4">
+                    {{#eq ../orden.estado "ENTREGADA"}}
+                    <select class="form-control mb-2 " disabled>
+                    {{else}}
+                    <select class="form-control mb-2 cmbRecipiente" data-orden="{{ ../orden.id }}" data-recipiente="{{cod_recipiente}}">
+                    {{/eq}}
+                        {{#select cantidad}}
+    						<option value="0">0</option>
+    						{{#times}}
+    							<option value="{{this}}">{{this}}</option>
+    						{{/times}}
+    					{{/select}}
+                    </select>
+                </div>
+                <div class="col-1" id="process-loading-{{cod_recipiente}}"></div>
+            </div>
+        {{/each}}
+    </div>
+</script>

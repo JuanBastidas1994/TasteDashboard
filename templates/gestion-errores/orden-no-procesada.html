@@ -1,0 +1,28 @@
+<script id="order-no-proceda-template" type="text/x-handlebars-template">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Empresa</th>
+                <th>Órdenes sin procesar</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#each this}}
+                <tr>
+                    <td>{{ nombre }}</td>
+                    <td class="text-right">{{ cantidad }}</td>
+                    <td>
+                        <ul class="list-unstyled">
+                            <li class="text-center">
+                                <a href="./ordenes_no_procesadas.php?id={{ alias }}" target="_blank">
+                                    <i data-feather="eye"></i>
+                                </a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+            {{/each}}
+        </tbody>
+    </table>
+</script>

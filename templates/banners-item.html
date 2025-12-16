@@ -1,0 +1,21 @@
+{{#each this}}
+	<div class="item-slider item-slider1">
+		<div class="banner-thumb">
+			<a href="#"><img src="{{imagen}}" alt="" /></a>
+		</div>
+		<div class="banner-info animated" data-animated="bounceIn">
+			<div class="text-center white text-uppercase">
+				<h2 class="title30">{{subtitulo}}</h2>
+				{{#diferent text_adicional ""}}
+					<h2 class="title60 font-bold animated color" data-animated="flash">{{text_adicional}}</h2>
+				{{else}}
+					<h2 class="title60 font-bold animated color" data-animated="flash">&nbsp;</h2>
+				{{/diferent}}
+				<h2 class="title30 text-uppercase font-bold">{{titulo}}</h2>
+				{{#diferent text_boton ""}}
+					<a href="{{url_boton}}" class="shop-button bg-color large" style="margin-top: 30px;">{{text_boton}}</a>
+				{{/diferent}}
+			</div>	
+		</div>
+	</div>
+{{/each}}

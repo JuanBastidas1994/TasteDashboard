@@ -1,0 +1,156 @@
+<script id="order-detalle" type="text/x-handlebars-template">
+    <div class="detalleOrden" aria-labelledby="mailHeadingThree" data-parent="#mailbox-inbox">
+        <div class="mail-content-container mailInbox" >
+            <div class="d-flex justify-content-between">
+
+                <div class="d-flex user-info">
+                    <div class="f-head">
+                        <img src="assets/img/90x90.jpg" class="user-profile" alt="avatar">
+                    </div>
+                    <div class="f-body">
+                        <div class="meta-title-tag">
+                            <h4 class="mail-usr-name" data-mailtitle="Orden"><b>#{{id}}</b> - {{usuario.nombre}}</h4>
+                        </div>
+                        <div class="meta-mail-time">
+                            <p class="user-email" data-mailto="'.$correo.'">{{usuario.correo}}</p>
+                            <p class="mail-content-meta-date current-recent-mail">{{latino.fecha}} -</p>
+                            <p class="meta-time align-self-center">{{latino.hora}}</p>
+                            '.$spanProgramado.'
+                        </div>
+                        <div style="line-height: 8px;">
+                            {{sucursal.nombre}} '.$pedProgramado.' 
+                            <span><i data-feather="smartphone"></i> {{ medio_compra }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="action-btns">
+                    <button class="btn btn-primary btnModalNotify" id="btnModalNotify"><i data-feather="bell"></i> Notificar</button>
+                    <a href="tel:{{usuario.telefono}}" data-toggle="tooltip" data-placement="top" title="Llamar">
+                        <i data-feather="phone-call"></i> {{usuario.telefono}}
+                    </a>
+                    <a href="orden_detalle.php?id={{id}}" target="_blank" title="Ver mas informacion">
+                        <i data-feather="eye"></i> Ver m&aacute;s
+                    </a>
+                    '.$btnPrint.'
+                </div>
+            </div>
+
+            <p class="mail-content" data-mailTitle="Orden" data-maildescription='{"ops":[{"insert":""}]}'> </p>
+            <input type="hidden" value={{usuario.id}} class="codusuarioOrden">
+            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                <h3 style="border-bottom: 1px solid #dee2e6;">Datos de Facturaci&oacute;n</h3>
+                <p><span><b>Nombre: </b></span>{{usuario.nombre}}</p>
+                <p><span><b>Cedula/Ruc: </b></span>{{usuario.num_documento}}</p>
+                <p><span><b>Correo: </b></span>{{usuario.correo}}</p>
+                <p><span><b>Telef&oacute;no: </b></span>{{usuario.telefono}}</p>
+                <h3>Orden</h3>
+                <div class="">
+                    <table class="table table-sm table-products-details">
+                        <thead>
+                            <tr>
+                                <th>&Iacute;tem</th>
+                                <th>Cant</th>
+                                <th>Precio</th>
+                                <th>Desc</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {{#each detalle}}
+                            <tr>
+                                <td><p class="product-name">{{ producto }}</p>
+                                    {{ descripcion }}
+                                </td>
+                                <td>{{ cantidad }}</td>
+                                <td>{{ precio }}</td>
+                                <td>{{ descuento }}</td>
+                                <td>{{ total }}</td>
+                            </tr>
+                            {{/each}}
+                    </tbody>
+                    </table>
+
+                    <div class="col-sm-12 col-12 order-sm-1 order-0">
+                        <div class="inv--total-amounts text-sm-right">
+                            <div class="row">
+                                <div class="col-sm-8 col-7">
+                                    <p class="">SubTotal: </p>
+                                </div>
+                                <div class="col-sm-4 col-5">
+                                    <p class="">${{subtotal}}</p>
+                                </div>
+                                <div class="col-sm-8 col-7">
+                                    <p class=" discount-rate">Descuento : </p>
+                                </div>
+                                <div class="col-sm-4 col-5">
+                                    <p class="">${{descuento}}</p>
+                                </div>
+                                <div class="col-sm-8 col-7">
+                                    <p class="">Envío: </p>
+                                </div>
+                                <div class="col-sm-4 col-5">
+                                    <p class="">${{envio}}</p>
+                                </div>
+                                <div class="col-sm-8 col-7">
+                                    <p class="">Impuestos: </p>
+                                </div>
+                                <div class="col-sm-4 col-5">
+                                    <p class="">${{iva}}</p>
+                                </div>
+                                
+                                <div class="col-sm-8 col-7 grand-total-title">
+                                    <h4 class="">Total : </h4>
+                                </div>
+                                <div class="col-sm-4 col-5 grand-total-amount">
+                                    <h4 class="">${{total}}</h4>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-sm-12 col-12">
+                        <h4 class=""><h6>Descuento: $'.$descuento.' <span class="badge badge-secondary">'.$cod_descuento.'</span></h6></h4>
+                    </div>
+
+                    <div class="col-sm-12 col-12 order-sm-1 order-0">
+                        <div class="col-sm-12 col-12">
+                            <h5>Formas de Pago</h5>
+                            <div class="">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Forma</th>
+                                            <th>Monto</th>
+                                            <th>Detalle</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    '.$tablaPagos.'
+                                    </tbody>
+                                </table>
+                            </div>	
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div class="col-md-12 col-sm-12 col-xs-12">
+                        <h3 style="margin-top:15px;">Historial de Pedidos</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                <h3 style="border-bottom: 1px solid #dee2e6;">Hora de Retiro</h3>
+                    Hora escogida por el cliente: '.$orden['hora_retiro'].'
+                
+                <div class="col-md-12 col-sm-12 col-xs-12" style="margin-top:25px;">
+                    <h3 style="margin-top:15px;">Entregado/Cancelado</h3>
+                    <p><textarea class="form-control" id="txt_comentario_cambio_estado" placeholder="Escribe unos comentarios"></textarea></p>
+                    <button class="btn btn-success btn-asignacion-pickup" data-value="'.$id.'" data-estado="PREPARANDO">Preparando</button>
+                    <button class="btn btn-primary btn-asignacion-pickup" data-value="'.$id.'" data-estado="ENTREGADA">Entregada</button>
+                    <button class="btn btn-danger btn-asignacion-pickup" data-usuario="'.$cod_usuario.'" data-value="'.$id.'" data-estado="CANCELADA">Cancelada</button>
+                </div>
+            </div>
+        </div> <!-- FIN COLUMNA MAPA -->
+    </div>
+</script>

@@ -1,0 +1,68 @@
+<style>
+    .item-moto-cercana{
+        cursor: pointer;
+    }
+
+    .item-moto-cercana .info-primary{
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+    }
+
+    .item-moto-cercana .info-secondary{
+        font-size: 11px;
+    }
+
+    .item-moto-cercana .info-secondary svg{
+        width: 12px;
+    }
+</style>
+
+<script id="order-mis-motorizados-template" type="text/x-handlebars-template">
+    <div>
+        <div>
+            <div id="mapaMisMotorizados" class="gllpMap" 
+                style="margin-left: 0; width: 100%; height: 350px;" >Google Maps</div>
+            </div>
+        </div>
+    
+        <div class="mt-3 px-4">
+            <div><h4>Motorizados cercanos</h4></div>
+            <div class="row">
+                {{#each motorizados}}
+                    <div class="col-12 col-md-4 mb-3 item-moto-cercana"
+                            onclick="setMotorizadoOrder({{../orden.id}}, {{id}})">
+                        <div class="d-flex align-items-center">
+                            <div>
+                                <img src="{{imagen}}" class="rounded-circle"
+                                    style="width: 50px;height: 50px;" alt="">
+                            </div>
+                            <div class="ml-3">
+                                <div class="info-primary">{{nombres}}</div>
+                                <div class="info-secondary">
+                                    <a href="tel:{{telefono}}">
+                                        <i data-feather="phone"></i>
+                                        {{telefono}}
+                                    </a>
+                                </div>
+                                <div class="info-secondary">
+                                    <span class="badge badge-{{color_badge}}">
+                                        {{decimal distance}} {{distance_unit}}
+                                    </span>
+                                    {{#each pedidos}}
+                                        <span>
+                                            <div class="badge badge-{{colorStatus estado}}"
+                                                title="{{ cantidad }} Ordenes {{ estado }}">
+                                                <i data-feather="{{ icon }}"></i>
+                                                {{ cantidad }}</div>
+                                        </span>
+                                    {{/each}}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {{/each}}
+            </div>
+        </div>
+    </div>
+</script>

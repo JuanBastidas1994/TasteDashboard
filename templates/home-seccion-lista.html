@@ -1,0 +1,75 @@
+<div class="list-product-type4">
+    <div class="row">
+        <div class="col-md-12 col-sm-12 col-xs-12">
+            <div class="product-box4 bg-white drop-shadow">
+                <h2 class="font-bold title30">{{titulo}}</h2>
+                <div class="main-content-shop">
+                    <div class="product-grid-view">
+                        <div class="row lstMasVendidos">
+			    
+                            <div class="col-md-12 col-sm-12 col-xs-12" style="text-align:center;">
+            				{{#eq tipo "anuncios"}}
+            				    {{#each items}}
+            				        <div class="col-md-3 col-sm-6 col-xs-6">
+                    				    <div class="item-product item-product1 text-center">
+                    						<div class="product-thumb">
+                    							<a href="javascript:void(0)" class="product-thumb-link">
+                    								<img src="{{image_min}}" alt="">
+                    							</a>
+                    							<a href="javascript:void(0)" class="quickview-link"><i class="fa fa-search" aria-hidden="true"></i></a>
+                    						</div>
+                    						<div class="product-info">
+                    							<h3 class="product-title"><a href="javascript:void(0)">{{titulo}}</a></h3>
+                    							<div class="product-extra-link">
+                    								
+                    							</div>
+                    						</div>
+                    					</div>
+                    				</div>	
+                				{{/each}}
+            				{{else}}
+            				    {{#each items}}
+            				        <div class="col-md-3 col-sm-6 col-xs-6">
+                				        <div class="item-product item-product-grid text-center">
+                                        	<div class="product-thumb">
+                                        	    {{#diferent promocion ""}}
+                                        	        <div class="product-label new-label">{{promocion}}</div>
+                                        	        <div style="text-align:left;">
+                                    					<div class="text-deal-timer">Finaliza en</div>
+                                    					<div class="deal-timer" data-date="{{promo_fin}}"></div>
+                                    				</div>
+                                        	    {{/diferent}}
+                                        		<a href="detalle.php?id={{alias}}" class="product-thumb-link">
+                                        			<img src="{{image_max}}" alt="">
+                                        		</a>
+                                        		<a href="detalle-producto.php?id={{alias}}" class="quickview-link fancybox fancybox.iframe" data-fancybox-type="iframe"><i class="fa fa-search" aria-hidden="true"></i></a>
+                                        	</div>
+                                        	<div class="product-info">
+                                        		<h3 class="product-title"><a href="detalle.php?id={{alias}}">{{nombre}}</a></h3>
+                                        		<div class="product-price">
+                                        		    {{#mayor precio_anterior 0}}
+                                        		        <del class="silver"><span>${{decimal precio_anterior}}</span></del>
+                                        		    {{/mayor}}
+                                        			<ins class="color"><span>${{decimal precio}}</span></ins>
+                                        		</div>
+                                        		<div class="product-extra-link">
+                                        			{{#eq open_detalle '1'}}
+                                                        <a href="detalle.php?id={{alias}}" class="addcart-link">Agregar <span class="hidden-xs">al carrito</span></a>
+                                                    {{else}}
+                                                       <a href="javascript:void(0)" class="addcart-link addDirectCart" data-value="{{cod_producto}}">Agregar <span class="hidden-xs">al carrito</span></a>
+                                                    {{/eq}}
+                                        		</div>
+                                        	</div>
+                                        </div>
+                                    </div>    
+            				    {{/each}}
+            				{{/eq}}
+            			    </div>
+
+                        </div>
+                    </div>
+                </div>
+			</div>
+		</div>
+	</div>
+</div>

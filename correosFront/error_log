@@ -1,0 +1,5 @@
+[27-Nov-2025 22:30:05 America/Chicago] PHP Notice:  Constant url_sistema already defined in /home1/digitalmind/dashboard.mie-commerce.com/correosFront/configEmail.php on line 2
+[27-Nov-2025 22:30:05 America/Chicago] PHP Notice:  Trying to access array offset on value of type null in /home1/digitalmind/dashboard.mie-commerce.com/clases/cl_sucursales.php on line 15
+[27-Nov-2025 22:30:05 America/Chicago] PHP Notice:  Trying to access array offset on value of type null in /home1/digitalmind/dashboard.mie-commerce.com/clases/cl_empresas.php on line 11
+[27-Nov-2025 23:30:05 America/Guayaquil] PHP Notice:  Undefined variable: nombre in /home1/digitalmind/dashboard.mie-commerce.com/correosFront/contactanosPages.php on line 395
+[27-Nov-2025 23:30:05 America/Guayaquil] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home1/digitalmind/dashboard.mie-commerce.com/correosFront/configEmail.php:2) in /home1/digitalmind/dashboard.mie-commerce.com/correosFront/contactanosPages.php on line 422

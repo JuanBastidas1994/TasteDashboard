@@ -1,0 +1,584 @@
+:root{
+    --color-business: #7723f6;
+    --color-red: #f00;
+    --color-white: #fff;
+}
+
+.color,
+a:focus,
+a:hover {
+    color: var(--color-business);
+}
+.btn-outline-color {
+    color: var(--color-business) !important;
+    border: 1px solid var(--color-business) !important;
+    background: transparent !important;
+}
+.bg-color {
+    background: var(--color-business) !important;
+}
+.color2 {
+    color: #333
+}
+.bg-color2 {
+    background: #333
+}
+.wishlist-button a:hover {
+    background: var(--color-business)
+}
+.popup-icon {
+    color: var(--color-business)
+}
+body .scroll-top {
+    background: var(--color-business)
+}
+.preload #loading {
+    background-color: var(--color-business)
+}
+.currency-list li a:hover,
+.dropdown-list li a:hover,
+.language-list li a:hover,
+.list-profile li a:hover {
+    background: var(--color-business);
+    color: var(--color-white)
+}
+.shop-button:hover {
+    background: var(--color-business)
+}
+.shop-button,
+.shop-button.bg-color2:hover {
+    background: var(--color-business)
+}
+.shop-button.bg-color2 {
+    background: #333
+}
+.main-nav>ul>li:hover>a,
+.search-form::after {
+    color: var(--color-business)
+}
+.main-nav.main-nav1>ul>li.current-menu-item>a {
+    background: var(--color-business)
+}
+.main-nav.main-nav3>ul>li.current-menu-item>a {
+    border: 1px solid var(--color-business);
+    color: var(--color-business)
+}
+.main-nav > ul > li.active{
+  border-bottom: 3px solid var(--color-business) !important;
+}
+.percent-sale {
+    background: #333
+}
+.owl-theme .owl-controls .owl-buttons div:hover {
+    background: var(--color-business);
+    border-color: var(--color-business)
+}
+.banner-slider .owl-theme .owl-controls .owl-buttons div:hover {
+    background: var(--color-business)
+}
+.btn-arrow.white:hover {
+    border-color: var(--color-business);
+    background: var(--color-business)
+}
+.item-service1 .service-icon a {
+    color: var(--color-business);
+    border: 1px dashed var(--color-business)
+}
+.item-service1 .service-icon a::before {
+    border: 1px dashed var(--color-business)
+}
+.gal-content3 .btn-gal,
+.product-thumb>.quickview-link {
+    background: var(--color-business)
+}
+.product-title a:hover {
+    color: var(--color-business)
+}
+.product-extra-link .addcart-link {
+    background: var(--color-business)
+}
+.product-extra-link a:hover {
+    color: var(--color-business);
+    border-color: var(--color-business)
+}
+.title-tab1 li.active a {
+    background: var(--color-business);
+    border-color: var(--color-business)
+}
+.deal-timer {
+    border: 2px solid var(--color-business);
+    color: var(--color-business)
+}
+a.post-cat {
+    background: var(--color-business)
+}
+a.post-cat:hover {
+    background: #333
+}
+.btn-arrow.color {
+    border: 2px solid var(--color-business)
+}
+.btn-arrow.color:hover {
+    background: var(--color-business)
+}
+.diet-thumb a {
+    border: 1px dashed var(--color-business)
+}
+.diet-thumb a::after,
+.list-diet .mCSB_scrollTools .mCSB_dragger .mCSB_dragger_bar {
+    background: var(--color-business)
+}
+.client-thumb a,
+.list-instagram a:hover img {
+    border: 1px solid var(--color-business)
+}
+.gal-content3 .btn-gal:hover,
+.product-extra-link .addcart-link:hover,
+.product-thumb>.quickview-link:hover {
+    background: #333
+}
+.btn-arrow.style2::after {
+    background: var(--color-business)
+}
+.line-space::after,
+.line-space::before {
+    border-top: 1px dashed var(--color-business)
+}
+.btn-viewall.color::before {
+    background: var(--color-business)
+}
+.btn-viewall.color:hover::before {
+    background: #333
+}
+.btn-viewall.color:hover {
+    color: #333
+}
+.cat-menu2 li a:hover span {
+    background: var(--color-business);
+    border-color: var(--color-business)
+}
+.title-tab-icon li a {
+    border: 1px dashed var(--color-business)
+}
+.title-tab-icon li a:hover,
+.title-tab-icon li.active a {
+    background: var(--color-business)
+}
+.days-countdown .time_circles>div .text {
+    color: var(--color-business)
+}
+.days-countdown .time_circles>div .text::before,
+.item-client2 .desc::before {
+    background: var(--color-business)
+}
+.item-client2 .client-thumb a img {
+    border: 1px dashed var(--color-business)
+}
+.item-farm .farm-info {
+    border-left: 10px solid var(--color-business)
+}
+.item-farm .top-social a {
+    color: var(--color-business)
+}
+.email-form2 input[type=submit] {
+    background: var(--color-business)
+}
+.email-form2 input[type=submit]:hover {
+    background: #333
+}
+.item-farm .top-social a:hover {
+    border-color: var(--color-business)
+}
+.email-form2::before {
+    color: var(--color-business)
+}
+.bg-color.top-header2 {
+    background: var(--color-business)
+}
+.bg-color .currency-language>li>div>a:hover,
+.bg-color .info-account>li>a:hover,
+.search-form.search-form3::after {
+    color: #333
+}
+.btn-arrow.style2.color2::after {
+    background: #333
+}
+.btn-arrow.style2.color2 {
+    border: 2px solid #333
+}
+.btn-arrow.style2.color2:hover {
+    background: var(--color-business);
+    border-color: var(--color-business)
+}
+.banner-slider3 .owl-theme .owl-controls .owl-page.active span {
+    background: #333
+}
+.item-service1 .service-icon a.color2 {
+    border-color: #333;
+    color: #333
+}
+.item-service1 .service-icon a.color2:hover {
+    background: var(--color-business);
+    border-color: var(--color-business)
+}
+.product-tab3 .title-tab1 li::after {
+    background: #333
+}
+.rotate-number.style1 {
+    border: 1px solid var(--color-business);
+    color: var(--color-business)
+}
+.rotate-number.style2 {
+    background: #333;
+    border: 1px dashed var(--color-business)
+}
+.rotate-number.style3 {
+    background: var(--color-business)
+}
+.item-popcat3:hover .popcat-info3 {
+    background: #333
+}
+.item-popcat3:hover .btn-arrow.style2.color2 {
+    color: var(--color-business);
+    border-color: var(--color-business)
+}
+.item-popcat3:hover .btn-arrow.style2.color2::after {
+    background: var(--color-business)
+}
+.policy-payment3 {
+    border-top: 1px solid var(--color-business)
+}
+.main-header.bg-color2 {
+    background: #333
+}
+.box-google-map .map-custom::before {
+    background: rgba(180, 0, 0, .5)
+}
+.btn-arrow.style2.bg-color,
+.menu-footer li::before {
+    background: var(--color-business)
+}
+.btn-arrow.style2.bg-color2,
+.btn-arrow.style2.bg-color:hover {
+    background: #333
+}
+.btn-arrow.style2.bg-color2:hover {
+    background: var(--color-business)
+}
+.top-header5 {
+    border-top: 5px solid var(--color-business)
+}
+.main-nav.main-nav5>ul>li.current-menu-item>a {
+    color: var(--color-business)
+}
+.range-filter .slider-range,
+.wg-list-tabs li a:hover {
+    background: var(--color-business)
+}
+.range-filter .ui-slider-handle.ui-state-default.ui-corner-all {
+    border: 2px solid var(--color-business)
+}
+.pagibar>a.current-page,
+.pagibar>a:hover,
+.view-bar a.active {
+    background-color: var(--color-business);
+    border-color: var(--color-business)
+}
+.blockquote p::before {
+    color: var(--color-business)
+}
+.decate-info {
+    border-color: var(--color-business)
+}
+.item-about-client .title18::before {
+    background: var(--color-business)
+}
+.about-client-slider .owl-pagination .owl-page span {
+    border: 1px solid var(--color-business)
+}
+.about-client-slider .owl-pagination .owl-page.active span {
+    background-color: var(--color-business)
+}
+.farm-slider.banner-slider .owl-theme .owl-controls .owl-buttons div:hover {
+    background-color: var(--color-business);
+    border-color: var(--color-business)
+}
+.main-header7 .search-form::after {
+    color: #333
+}
+.btn-arrow.bg-color2 {
+    background: #333
+}
+.btn-arrow.bg-color2:hover {
+    background: var(--color-business)
+}
+.list-service7 .item-service1 .service-icon a {
+    color: #333;
+    border-color: #333
+}
+.list-service7 .item-service1 .service-icon a:hover {
+    color: var(--color-business);
+    border-color: var(--color-business)
+}
+.item-product1.style2 .product-extra-link .addcart-link {
+    background: #333
+}
+.item-product1.style2 .product-extra-link .addcart-link:hover {
+    background: var(--color-business)
+}
+.btn-arrow.color2 {
+    border: 2px solid #333
+}
+.btn-arrow.color2:hover {
+    background-color: var(--color-business);
+    border-color: var(--color-business)
+}
+.main-nav.main-nav8>ul>li:hover>a {
+    background: #333
+}
+.nav-header9 .top-social a {
+    border-color: var(--color-business);
+    color: var(--color-business)
+}
+.banner-slider9 .owl-theme .owl-controls .owl-page.active span,
+.nav-header9 .top-social a:hover {
+    background: var(--color-business)
+}
+.email-form input[type=submit].bg-color {
+    background-color: var(--color-business);
+    border-color: var(--color-business)
+}
+.top-header2.bg-color2 {
+    background-color: #333
+}
+.nav-header10 .main-nav.main-nav2>ul>li.current-menu-item>a {
+    border-color: #333;
+    background-color: #333
+}
+.nav-header10 .top-social a {
+    border-color: #333
+}
+.nav-header10 .top-social a:hover {
+    background-color: #333
+}
+.item-banner10 .banner-info.style1 {
+    border: 10px solid var(--color-business)
+}
+.shop-policy11 {
+    border-bottom: 10px solid var(--color-business)
+}
+.main-nav.main-nav12>ul>li.current-menu-item>a {
+    background-color: #333
+}
+.product-block12 .title-tab1 li.active a {
+    background: #333;
+    border-color: #333
+}
+.box-product-type.dark-style .product-title a:hover,
+.product-block12 .product-title a:hover {
+    color: var(--color-business)
+}
+.item-service1.block .service-icon a:hover,
+.main-header.bg-color {
+    background: var(--color-business)
+}
+.banner-product-dealoff .banner-info h3 span,
+.banner-product-dealoff .banner-info h4 span {
+    background: rgba(180, 0, 0, .7)
+}
+.deal-count13>.time_circles>div {
+    color: var(--color-business)
+}
+.pop-cat8 {
+    border: 3px solid var(--color-business)
+}
+.adv-slider14 .owl-theme .owl-controls .owl-buttons div:hover,
+.content-block-category .item-product1.style2 .product-extra-link .addcart-link {
+    background: var(--color-business)
+}
+.content-block-category .item-product1.style2 .product-extra-link .addcart-link:hover {
+    background: #333
+}
+@media (max-width: 767px) {
+    .main-nav>ul>li:hover>a {
+        color: var(--color-business)!important
+    }
+    .main-nav .toggle-mobile-menu span,
+    .main-nav .toggle-mobile-menu::after,
+    .main-nav .toggle-mobile-menu::before {
+        background: var(--color-business)
+    }
+}
+.iconCircle{
+    width: 35px;
+    height: 35px;
+    background-color: var(--color-business);
+    display: inline-block;
+    line-height: 35px;
+    text-align: center;
+    font-size: 16px;
+    border-radius: 50%;
+    color: #2c2c2c;
+}
+.text-deal-timer{
+  position: absolute;
+    font-size: 10px;
+    z-index: 9999;
+    color: var(--color-business);
+    top: 2px;
+    left: 30px;
+}
+.btn-primary{
+    width: auto;
+    height: 40px;
+    background: var(--color-business) !important;
+    color: var(--color-white) !important;
+    border: 0;
+    border-radius: 5px;
+    padding: 0px 35px;
+}
+button.confirm {
+    background-color: var(--color-business) !important;
+}
+.nav__link--active {
+    color: var(--color-business);
+}
+
+/*SCROLL*/
+body::-webkit-scrollbar, .scroll::-webkit-scrollbar {
+    width: 4px;     /* Tamaño del scroll en vertical */
+    height: 8px;    /* Tamaño del scroll en horizontal */
+}
+
+/* Ponemos un color de fondo y redondeamos las esquinas del thumb */
+body::-webkit-scrollbar-thumb, .scroll::-webkit-scrollbar-thumb {
+    background: var(--color-business);
+    border-radius: 4px;
+}
+
+/* Ponemos un color de fondo y redondeamos las esquinas del track */
+body::-webkit-scrollbar-track, .scroll::-webkit-scrollbar-track {
+    background: #e5e5e5;
+    border-radius: 4px;
+}
+
+.owl-theme .owl-controls .owl-page.active span, .owl-theme .owl-controls.clickable .owl-page:hover span {
+    background: var(--color-business);
+}
+
+.imgProfile{
+    background-color: var(--color-business);
+    border-radius: 50%;
+    max-width: 100px;
+    padding: 1px;
+}
+#nav-lst-categorias .nav-link {
+    border: 1px solid var(--color-business) !important;
+    border-radius: 25px;
+    margin-left: 0.25rem;
+    margin-right: 0.25rem;
+}
+
+#nav-lst-categorias .nav-link.active{
+    background-color: var(--color-business) !important;
+    border-radius: 25px;
+}
+
+.nav-menu > li > a {
+    color: var(--color-black) !important;
+}
+
+.nav-dropdown > li > a {
+    color: var(--color-black) !important;
+}
+
+.nav-menu > li > a:hover {
+    color: var(--color-business) !important;
+}
+
+.nav-dropdown > li:hover > a, .nav-dropdown > li.focus > a {
+    color: var(--color-business) !important;
+}
+
+.nav-menu > li:hover > a,
+.nav-menu > li.active > a,
+.nav-menu > li.focus > a {
+  color: var(--color-business) !important;
+}
+
+.nav-menu > li:hover > a .submenu-indicator-chevron, .nav-menu > .active > a .submenu-indicator-chevron, .nav-menu > .focus > a .submenu-indicator-chevron {
+    border-color: transparent var(--color-business) var(--color-business) transparent !important;
+}
+
+footer a:hover{
+    color: var(--color-business) !important;
+}
+
+.containerCheck input:checked ~ .checkmark {
+    background-color: var(--color-business) !important;
+}
+
+/* SWEET ALERT */
+.swal2-modal .swal2-content {
+    color: var(--color-business) !important;
+}
+.swal2-confirm {
+    color: var(--color-white) !important;
+    background-color: var(--color-business) !important;
+}
+.swal2-cancel {
+    color: var(--color-business) !important;
+}
+input[type=checkbox] {
+    cursor: pointer;
+    background-color: var(--color-white);
+    background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M12.207 4.793a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L6.5 9.086l4.293-4.293a1 1 0 011.414 0z'/%3e%3c/svg%3e");
+    width: 15px;
+    height: 15px;
+    appearance: none;
+    border: 2px solid #888;
+    transition: background-color 0.3s ease-in-out;
+    border-radius: 2px;
+}
+input[type=checkbox]:checked {
+    background-color: var(--color-business) !important;
+    border: 2px solid var(--color-business) !important;
+}
+input[type=checkbox]:focus {
+    border-color: var(--color-business) !important;
+} 
+input[type=checkbox]:disabled {
+    background-color: rgb(198, 198, 198);
+    background-image: none;
+} 
+input[type=checkbox]:disabled:checked {
+    background-color: rgb(198, 198, 198);
+    background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M12.207 4.793a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L6.5 9.086l4.293-4.293a1 1 0 011.414 0z'/%3e%3c/svg%3e");
+}
+
+input[type=radio] {
+    cursor: pointer;
+    background-color: var(--color-white);
+    background-clip: content-box, padding-box;
+    padding: 1px;
+    appearance: none;
+    width: 15px;
+    height: 15px;
+    transition: background-color 0.3s ease-in-out;
+    border-radius: 50%;
+    border: 2px solid #888;
+}
+input[type=radio]:checked {
+    background-color: var(--color-business) !important;
+    border: 2px solid var(--color-business) !important;
+}
+input[type=radio]:focus {
+    border-color: var(--color-business) !important;
+} 
+.has-error {
+    border-color: var(--color-red) !important;
+}
+
+.disabled, .disabled span {
+    color: rgb(198, 198, 198) !important;
+}

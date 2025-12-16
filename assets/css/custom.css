@@ -1,0 +1,19 @@
+.bg-success-light{
+    background-color: #ddf5f0 !important;
+}
+.bg-warning-light{
+    background-color: #fff9ed !important;
+}
+.bg-dark-light{
+    background-color: #e3e4eb !important;
+}
+.text-ellipsis {
+  white-space: nowrap; /* Evita que el texto se rompa en varias líneas */
+  overflow: hidden;    /* Oculta el texto que no cabe en el contenedor */
+  text-overflow: ellipsis; /* Añade los puntos suspensivos al final del texto */
+}
+
+#toastJcContent .toast-body {
+    color: black !important;
+    background-color: white !important;
+}

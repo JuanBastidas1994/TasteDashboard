@@ -1,0 +1,6 @@
+<FilesMatch "\.(mp4|webm|ogg)$">
+  ForceType video/mp4
+  Header set Content-Type "video/mp4"
+  Header set Accept-Ranges "bytes"
+  Header unset Content-Disposition
+</FilesMatch>

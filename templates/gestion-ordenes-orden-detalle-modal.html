@@ -1,0 +1,915 @@
+<script id="order-detalle-body" type="text/x-handlebars-template">
+    <div class="row">
+        <div class="col-md-6 col-12">
+            <div class="mt-2">
+                <h5>Productos</h5>
+                <div class="row colums-table-head align-items-center">
+                    <div class="col-6">ÍTEM</div>
+                    <div class="col-2 text-center">BASE</div>
+                    <div class="col-2 text-center">DESC</div>
+                    <div class="col-2 text-center">SUBTOTAL</div>
+                </div>
+                {{#each detalle}}
+                    <div class="row item-products">
+                        <div class="col-6 title">{{ cantidad }}x - {{ producto }}</div>
+                        <div class="col-2 text-right">${{ precio }}</div>
+                        <div class="col-2 text-right">${{ descuento }}</div>
+                        <div class="col-2 text-right">${{ total }}</div>
+                        <div class="col-10">
+                            {{#each opciones}}
+                                <div class="ml-3 mt-2">
+                                    <span class="font-weight-bold" style="color: #767676;">{{ text }}</span>
+                                    {{#each detalles}}
+                                        <div class="ml-4">
+                                            {{ cantidad }}x - {{ text }}
+                                            {{#mayor precio_adicional 0}}
+                                                +{{ precio_adicional }}
+                                            {{/mayor}}    
+                                        </div>
+                                    {{/each}}
+                                </div>
+                            {{/each}}
+                            {{#diferent comentarios ""}}
+                                <div class="ml-4 mt-2"><b>Comentario: </b> {{ comentarios }}</div>
+                            {{/diferent}}
+                        </div>
+                        <div class="col-2 text-right">
+                            {{#mayor adicional_total 0}}
+                                <span style="color:#c90404;">+${{ adicional_total }}</span>
+                            {{/mayor}}
+                        </div>
+                    </div>
+                {{/each}}
+                <div class="row item-products {{#diferent is_envio 1}}d-none{{/diferent}}">
+                    <div class="col-6 title">Envío</div>
+                    <div class="col-2 text-right">${{ envio }}</div>
+                    <div class="col-2 text-right">--</div>
+                    <div class="col-2 text-right">${{ envio }}</div>
+                </div>
+                <div class="row text-right">
+                    <div class="col-sm-8 col-7">
+                        <p class="">SubTotal {{iva_porcentaje}}: </p>
+                    </div>
+                    <div class="col-sm-4 col-5">
+                        <p class="">${{subtotal12}}</p>
+                    </div>
+                    <div class="col-sm-8 col-7">
+                        <p class="">SubTotal 0: </p>
+                    </div>
+                    <div class="col-sm-4 col-5">
+                        <p class="">${{subtotal0}}</p>
+                    </div>
+                    <div class="col-sm-8 col-7">
+                        <p class=" discount-rate">
+                            {{#mayor descuento 0}}
+                                <span class="badge badge-secondary mr-3">{{cupon_descuento}}</span>
+                            {{/mayor}}
+                            Descuento : 
+                        </p>
+                    </div>
+                    <div class="col-sm-4 col-5">
+                        <p class="">${{descuento}}</p>
+                    </div>
+                    <div class="col-sm-8 col-7">
+                        <p class="">Impuestos: </p>
+                    </div>
+                    <div class="col-sm-4 col-5">
+                        <p class="">${{iva}}</p>
+                    </div>
+                    
+                    <div class="col-sm-8 col-7 grand-total-title">
+                        <h4 class="">Total : </h4>
+                    </div>
+                    <div class="col-sm-4 col-5 grand-total-amount">
+                        <h4 class="">${{total}}</h4>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <h5>Formas de Pago</h5>
+                <div class="">
+                    <table class="" style="width: 100%;">
+                        <tbody>
+                            {{#each pagos}}
+                            <tr>
+                                <td>{{ descripcion }}</td>
+                                <td class="text-right">{{ observacion }}</td>
+                                <td class="text-right">${{ monto }}</td>
+                            </tr>
+                            {{/each}}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {{#diferent observacion ""}}
+            <div class="mt-3">
+                <h5>Comentario General</h5>
+                <div>
+                    {{ observacion }}
+                </div>
+            </div>
+            {{/diferent}}
+            {{#diferent factura false}}
+            <div class="mt-3">
+                <h5>Factura</h5>
+                <div class="d-flex">
+                    <div class="font-weight-bold">N. Factura</div>
+                    <div class="ml-auto">{{ factura.num_factura }}</div>
+                </div>
+                <div class="d-flex">
+                    <div class="font-weight-bold">Estado</div>
+                    <div class="ml-auto">{{ factura.estado }}</div>
+                </div>
+            </div>
+            {{/diferent}}
+        </div>
+
+        <div class="col-md-6 col-12">
+            <div class="mt-2">
+                <h5>Cliente</h5>
+                <input type="hidden" value={{usuario.id}} class="codusuarioOrden">
+                <div class="d-flex">
+                    <div>
+                        <img src="https://ui-avatars.com/api/?name={{usuario.nombre}}&size=100&rounded=true" alt="">
+                    </div>
+                    <div class="ml-3 clientInfo">
+                        <div class="name"> 
+                            <a href="javascript:void(0);" data-clipboard-action="copy" data-clipboard-text="{{usuario.nombre}}" class="user-clipboard">
+                                <i data-feather="copy"></i>
+                            </a> 
+                            {{usuario.nombre}}
+                        </div>
+                        <div class="mt-2">
+                            <a href="javascript:void(0);" data-clipboard-action="copy" data-clipboard-text="{{usuario.num_documento}}" class="user-clipboard">
+                                <i data-feather="copy"></i>
+                            </a> 
+                            CI {{usuario.num_documento}} 
+                        </div>
+                        <div class="mt-2">
+                            <a href="javascript:void(0);" data-clipboard-action="copy" data-clipboard-text="{{usuario.correo}}" class="user-clipboard">
+                                <i data-feather="copy"></i>
+                            </a> 
+                            {{usuario.correo}}
+                        </div>
+                        <div class="mt-2">
+                            <a href="javascript:void(0);" data-clipboard-action="copy" data-clipboard-text="{{usuario.telefono}}" class="user-clipboard">
+                                <i data-feather="copy"></i>
+                            </a>
+                            Tel. 
+                            <a href="tel:{{usuario.telefono}}" data-toggle="tooltip" data-placement="top" title="Llamar"> {{usuario.telefono}}</a>
+                        </div>
+                    </div>
+                    <div class="ml-auto">
+                        <div><i data-feather="eye" title="Ver detalles" onclick="getUserById({{usuario.id}})"></i></div>
+                    </div>
+                </div>
+            </div>
+            {{#diferent datos_facturacion false}}
+            <div class="mt-2">
+                <h5>Datos de Facturación</h5>
+                <div><b>Nombre:</b> {{datos_facturacion.nombre}}</div>
+                <div><b>Dni:</b> {{datos_facturacion.num_documento}}</div>
+                <div><b>Correo:</b> {{datos_facturacion.correo}}</div>
+                <div><b>Telefono:</b> {{datos_facturacion.telefono}}</div>
+                <div><b>Dirección:</b> {{datos_facturacion.direccion}}</div>
+            </div>
+            {{/diferent}}
+            {{#eq is_envio "1"}}
+                <div class="mt-3">
+                    <h5 class="d-flex justify-content-between">
+                        <span>Lugar de envío</span> 
+                        <small> 
+                            <a class="copy-location text-success" href="javascript:void(0)" data-clipboard-action="copy" data-clipboard-text="https://maps.google.com/?q={{latitud}},{{longitud}}">
+                                <i data-feather="map-pin"></i> 
+                                Copiar ubicación
+                            </a>
+                        </small>
+                    </h5>
+                    <div id="mapa" class="gllpMap" 
+                        style="margin-left: 0; width: 100%; height: 250px;"  
+                        data-latitud="{{latitud}}" 
+                        data-longitud="{{longitud}}">Google Maps</div>
+                    <div class="mt-3" style="font-size: 16px;">
+                        <a href="javascript:void(0);" data-clipboard-action="copy" data-clipboard-text="{{direccion}}" class="user-clipboard">
+                            <i data-feather="copy"></i>
+                        </a>
+                        <b>Dirección: </b> 
+                        {{ direccion }}
+                    </div>
+                    <div class="mt-2">
+                        <a href="javascript:void(0);" data-clipboard-action="copy" data-clipboard-text="{{referencia2}}" class="user-clipboard">
+                            <i data-feather="copy"></i>
+                        </a>
+                        <b>Referencia: </b> 
+                        {{ referencia2 }}
+                    </div>
+                </div>
+
+                {{#diferent cod_courier "0"}}
+                    <div>
+                        <h5 class="mt-3">Courier {{ courier.nombre }}</h5>
+                        {{#diferent motorizado false}}
+                            <div class="d-flex">
+                                <div><img src="{{motorizado.foto}}" class="rounded-circle" alt="" style="width: 35px;"></div>
+                                <div class="ml-3">
+                                    <div style="font-size: 16px; font-weight: bold;">{{motorizado.nombre}} {{motorizado.apellido}}</div>
+                                    <div>{{motorizado.proceso}}</div>
+                                </div>
+                                <div class="ml-auto">
+                                    <a href="tel:{{motorizado.telefono}}"
+                                        data-toggle="tooltip" 
+                                        data-placement="top" 
+                                        title="Llamar"><i data-feather="phone"></i> 
+                                        {{motorizado.telefono}}</a>
+                                </div>
+                            </div>
+                        {{else}}
+                            <div>Buscando motorizado....</div>
+                        {{/diferent}}
+                    </div>
+                {{/diferent}}
+                
+            {{else}}
+                <div class="mt-5">
+                    <h5>Descripción de retiro</h5>
+                    <div>
+                        <div class="mb-2"><i data-feather="calendar"></i><span class="ml-2">{{ retiro.fecha }}</span></div>
+                        <div><i data-feather="clock"></i><span class="ml-2">{{ retiro.hora }}</span></div>
+                    </div>
+                </div>
+            {{/eq}}   
+            
+            {{#if motivo_cancelacion}}
+            <div class="mt-3">
+                <h5>Motivo cancelación</h5>
+                <div>
+                    {{ motivo_cancelacion }}
+                </div>
+            </div>
+            {{/if}}
+
+            {{#if courier_cancelacion}}
+            <div class="mt-3">
+                <h5>Motivo Courier cancelación</h5>
+                <div>
+                    {{ courier_cancelacion }}
+                </div>
+            </div>
+            {{/if}}
+        </div>
+    </div>
+</script>
+
+<script id="order-detalle-header" type="text/x-handlebars-template">
+    <div>
+        <h3 class="modal-title">Orden #{{id}}</h3>
+        <div>
+            <i data-feather="calendar"></i>
+            <span>{{latino.fecha}}</span>
+            <i data-feather="clock"></i>
+            <span>{{latino.hora}}</span>
+            <i data-feather="home"></i>
+            <span>{{sucursal.nombre}}</span>
+        </div>
+        {{#eq is_programado "1"}}
+            <div>
+                <span class="badge badge-danger">Programado para: {{hora_retiro}} </span>
+            </div>
+        {{/eq}}
+    </div>
+    <div class="ml-auto text-right  d-flex align-items-center">
+        <div style="font-size: 12px;" class="p-1 rounded bg-{{colorStatus estado}}">{{ estado }}</div>
+        <a href="orden_detalle.php?id={{id}}" target="_blank" class="ml-2 text-center" title="Ver mas informacion" style="font-size: 12px;">
+            <i data-feather="eye"></i> <br/>Ver m&aacute;s
+        </a>
+        <a href="javascript:void(0)" onclick="getTrackingByOrden({{id}}, event)" class="ml-2 bs-tooltip text-center"
+            data-placement="bottom" title="Ver en tiempo real el progreso del pedido" style="font-size: 12px;">
+            <i data-feather="truck"></i> <br/>Tracking
+        </a>
+        <a href="javascript:void(0)" onclick="printOrder({{id}})" class="ml-2 bs-tooltip text-center"
+            data-placement="bottom" title="Ver en tiempo real el progreso del pedido" style="font-size: 12px;">
+            <i data-feather="printer"></i> <br/>Imprimir
+        </a>
+    </div>
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="margin: 0px;">
+        <i data-feather="x"></i>
+    </button>
+</script>
+
+<script id="order-detalle-footer" type="text/x-handlebars-template">
+    <div class="d-flex">
+        {{#ifIn estado (array "ENTRANTE" "ASIGNADA" "ACEPTADA")}}
+            <div class="mr-auto">
+                <button class="btn btn-danger" onclick="preCancelarOrden({{id}})">Cancelar Pedido</button>
+            </div>
+            <div>
+                {{#eq estado "ENTRANTE"}}
+                    <button class="btn btn-secondary" onclick="preChangeStatus({{id}}, 'ACEPTADA')">
+                        <i class="flaticon-cancel-12"></i> Aceptar</button>
+                {{/eq}}
+                {{#eq is_envio "1"}}
+                    {{#eq cod_courier "0"}} <!-- Si no esta asignado debe poder asignar -->
+                        {{#if couriers}}
+                            {{#each (reverse couriers)}}
+                                <button class="btn btn-outline-primary bs-tooltip" 
+                                    data-placement="top" data-toggle="tooltip" title="Pedir un {{courier}}"
+                                    onclick="preAsignarOrden({{../id}}, {{id}}, '{{courier}}')">
+                                        <img src="{{imagen}}" style="width: 25px;" class="rounded-circle" alt="">
+                                        {{courier}}
+                                </button>
+                            {{/each}}
+                        {{else}} <!-- Si no tiene couriers permitir cambiar de estados a la orden -->
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-outline-info dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    Cambiar estado <i data-feather="chevron-up"></i>
+                                </button>
+                                <div class="dropdown-menu">
+                                    <a class="dropdown-item" href="#"
+                                        onclick="preChangeStatus({{id}}, 'ENVIANDO')">Orden en camino</a>
+                                    <a class="dropdown-item" href="#"
+                                        onclick="preChangeStatus({{id}}, 'ENTREGADA')">Orden entregada</a>
+                                </div>
+                            </div>
+                        {{/if}}
+                    {{else}}                <!-- Si ya esta asignado debe poder desasignar -->
+                        <button class="btn btn-warning"
+                            onclick="preCancelarAsignacionOrden({{id}})">Cancelar asignación</button>
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-outline-info dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                Cambiar estado <i data-feather="chevron-up"></i>
+                            </button>
+                            <div class="dropdown-menu">
+                                <a class="dropdown-item" href="#"
+                                    onclick="preChangeStatus({{id}}, 'ENVIANDO')">Orden en camino</a>
+                                <a class="dropdown-item" href="#"
+                                    onclick="preChangeStatus({{id}}, 'ENTREGADA')">Orden entregada</a>
+                            </div>
+                        </div>
+                    {{/eq}}
+                {{else}}
+                    <button class="btn btn-success" 
+                        onclick="preChangeStatus({{id}}, 'ENTREGADA')">Orden entregada</button>
+                {{/eq}}    
+            </div>   
+        {{/ifIn}}
+        {{#ifIn estado (array "PREPARANDO")}}
+                <div class="mr-auto">
+                    <button class="btn btn-danger" onclick="preCancelarOrden({{id}})">Cancelar Pedido</button>
+                </div>
+                <button class="btn btn-success"
+                onclick="preChangeStatus({{id}}, 'ENTREGADA')">Orden entregada</button>  
+        {{/ifIn}}
+        {{#ifIn estado (array "ENVIANDO")}}
+            <button class="btn btn-success"
+                onclick="preChangeStatus({{id}}, 'ENTREGADA')">Orden entregada</button>
+        {{/ifIn}}
+        {{#ifIn estado (array "NO_ENTREGADA")}}
+                {{#eq is_envio "1"}}
+                    {{#if couriers}}
+                        {{#each (reverse couriers)}}
+                            <button class="btn btn-outline-primary bs-tooltip" 
+                                data-placement="top" data-toggle="tooltip" title="Pedir un {{courier}}"
+                                onclick="preAsignarOrden({{../id}}, {{id}}, '{{courier}}')">
+                                    <img src="{{imagen}}" style="width: 25px;" class="rounded-circle" alt="">
+                                    {{courier}}
+                            </button>
+                        {{/each}}
+                    {{else}} <!-- Si no tiene couriers permitir cambiar de estados a la orden -->
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-outline-info dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                Cambiar estado <i data-feather="chevron-up"></i>
+                            </button>
+                            <div class="dropdown-menu">
+                                <a class="dropdown-item" href="#"
+                                    onclick="preChangeStatus({{id}}, 'ENVIANDO')">Orden en camino</a>
+                                <a class="dropdown-item" href="#"
+                                    onclick="preChangeStatus({{id}}, 'ENTREGADA')">Orden entregada</a>
+                            </div>
+                        </div>
+                    {{/if}}
+                {{/eq}} 
+            <!--<button class="btn btn-warning ml-auto"
+                onclick="preCancelarAsignacionOrden({{id}})">Cancelar asignación</button>-->
+            <div class="btn-group ml-3">
+                <button type="button" class="btn btn-outline-info dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Cambiar estado <i data-feather="chevron-up"></i>
+                </button>
+                <div class="dropdown-menu">
+                    <a class="dropdown-item bg-danger text-white" href="#"
+                        onclick="preCancelarOrden({{id}})">Cancelar Pedido</a>
+                    <a class="dropdown-item bg-warning text-white" href="#"
+                        onclick="preChangeStatus({{id}}, 'ENVIANDO')">Orden en camino</a>
+                    <a class="dropdown-item  bg-success text-white" href="#"
+                        onclick="preChangeStatus({{id}}, 'ENTREGADA')">Orden entregada</a>
+                </div>
+            </div>
+        {{/ifIn}}
+        <!-- {{#ifIn estado (array "ENTREGADA")}}
+            <div>
+                <button class="btn btn-info">Orden en camino</button>
+                <button class="btn btn-success">Orden entregada</button>
+            </div>
+        {{/ifIn}} -->
+    </div>
+</script>
+
+<script id="client-detail-template" type="text/x-handlebars-template">
+    <div class="col-md-5 col-12" style="padding: 0px;">
+        <div class="mt-2">
+            <input type="hidden" value={{id}} class="codusuarioOrden">
+            <div class="text-center">
+                <img src="https://ui-avatars.com/api/?name={{nombre}}&size=150&rounded=true" alt="">
+            </div>
+            <div class="mt-3 clientInfo text-center">
+                <div class="name">{{nombre}}</div>
+                <div>CI {{num_documento}}</div>
+                <div><i data-feather="mail"></i> {{correo}}</div>
+                <div>
+                    <a href="tel:{{telefono}}" data-toggle="tooltip" data-placement="top" title="Llamar"><i data-feather="phone"></i> {{telefono}}</a>
+                </div>
+            </div>
+            <hr>
+        </div>
+        <div class="mt-3">
+            <div class="text-center">Billetera Virtual</div>
+            <div class="text-center">
+                <h1>${{ decimal wallet.dinero }}</h1>
+            </div>
+            <div class="row text-center mb-4">
+                <div class="col-4"><i data-feather="star"></i>{{ wallet.puntos }}</div>
+                <div class="col-4"><i data-feather="anchor"></i>${{ wallet.saldo }}</div>
+                <div class="col-4"><i data-feather="award"></i>{{ wallet.nivel }}</div>
+            </div>
+            <hr>
+        </div>
+        <div class="mt-3 p-3">
+            <div>
+                <div class="client-detail-options active" data-target="client-tab-ordenes">Ordenes</div>
+                <div class="client-detail-options" data-target="client-tab-notificar">Notificar</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-7 col-12" style="background-color: #f8f8fb; padding: 15px; overflow-y: scroll; max-height: 90vh;">
+        <div id="client-tab-ordenes" class="client-tab-details">
+            <h2>Ordenes del cliente</h2>
+            <div>
+                {{#each ordenes_group}}
+                    <div><b>{{ estado }}:</b> {{ numero }}</div>
+                {{/each}}
+            </div>
+            <div class="p-3">
+                {{#each ordenes_list}}
+                    <div class="row align-items-center p-2 mb-2 rounded" style="background-color: white;">
+                        <div class="col-3">
+                            {{fecha}}
+                        </div>
+                        <div class="col-6">
+                            <div>{{sucursal}} - {{ tipo_envio }}</div>
+                            <div>
+                                <span class="bg-{{colorStatus estado}}"
+                                    style="    font-size: 10px; padding: 3px 5px; border-radius: 5px;">
+                                    {{estado}}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-3 text-right">
+                            ${{decimal total}}
+                        </div>
+                    </div>
+                {{/each}}
+            </div>
+        </div>
+        <div id="client-tab-notificar" class="client-tab-details" style="display: none;">
+            <h2>Notificar al cliente</h2>
+            <div class="mt-2">
+                <label>Tipo <span class="asterisco">*</span></label>
+                <select class="form-control cmbTipoNotificacion" name="cmbTipoNotificacion" id="cmbTipoNotificacion">
+                    <option value="general">General</option>
+                    <option value="cumple">Cumpleaños</option>
+                    <option value="recordatorio">Recordatorio</option>                                            
+                </select>
+            </div>
+            <div class="mt-2">
+                <label>Título <span class="asterisco">*</span></label>
+                <input type="text" class="form-control txtNotificaionTitulo" placeholder="Título de la notificación">
+            </div>
+            <div class="mt-2">
+                <label>Descripci&oacute;n <span class="asterisco">*</span></label>
+                <textarea style="display:none" placeholder="Descripcion" name="descripcion" id="txt_descripcion" class="form-control textRecordatorio" required="required" autocomplete="off"></textarea>
+                <div class="containerEmoji"></div>
+            </div>
+            <div class="mt-2 text-right">
+                <button class="btn btn-secondary" onclick="notificarACliente({{id}})">Notificar al cliente</button>
+            </div>
+        </div>
+    </div>
+
+</script>
+
+<script id="office-detail-template" type="text/x-handlebars-template">
+    <div class="col-md-5 col-12" style="padding: 0px;">
+        <div class="mt-2">
+            <div class="text-center">
+                <img src="https://ui-avatars.com/api/?name={{sucursal.nombre}}&size=150&rounded=true" alt="">
+            </div>
+            <div class="mt-3 clientInfo text-center">
+                <div class="name">{{sucursal.nombre}}</div>
+                <div>{{sucursal.direccion}}</div>
+                <div><i data-feather="mail"></i> {{sucursal.correo}}</div>
+                <div>
+                    <a href="tel:{{sucursal.telefono}}" data-toggle="tooltip" data-placement="top" title="Llamar"><i data-feather="phone"></i> {{sucursal.telefono}}</a>
+                </div>
+            </div>
+            <hr>
+        </div>
+        <div class="mt-3">
+            <div class="text-center">Disponibilidad</div>
+            <div class="text-center">
+                {{#eq sucursal.abierto true}}
+                    <div class="m-3"><span class="rounded p-2 bg-success" style="font-size: 18px;">Abierto</span></div>
+                {{else}}
+                    <div class="m-3"><span class="rounded p-2 bg-danger" style="font-size: 18px;">Cerrado</span></div>
+                {{/eq}}
+            </div>
+            <div class="text-center mb-4">
+                <!-- <div><i data-feather="clock"></i> Abrirá a las 10am</div> -->
+            </div>
+            <hr>
+        </div>
+        <div class="mt-3 p-3">
+            <div>
+                <div class="client-detail-options active" 
+                    data-target="client-tab-disponibilidad">Disponibilidad y horarios</div>
+                <div class="client-detail-options" data-target="client-tab-couriers">Couriers</div>
+                <div class="client-detail-options" data-target="client-tab-facturacion">Facturación</div>
+                {{#eq fidelizacion.activa true}}
+                    <div class="client-detail-options" data-target="client-tab-fidelizacion">Fidelización</div>
+                {{/eq}}
+            </div>
+        </div>
+    </div>
+    <div class="col-md-7 col-12" style="background-color: #f8f8fb; padding: 15px; overflow-y: scroll; max-height: 90vh;">
+        <div id="client-tab-disponibilidad" class="client-tab-details">
+            <h2>Disponibilidad</h2>
+            <div class="p-3">
+                {{#diferent sucursal.restriccion false}}
+                    <div class="lead text-danger mb-2">
+                        Sucursal cerrada hasta las {{ sucursal.restriccion.hora_fin }}
+                    </div>
+                    <div class="text-right">
+                        <button class="btn btn-secondary" 
+                            onclick="deleteRestrictionOffice()">Abrir sucursal</button>
+                    </div>
+                {{else}}
+                    <div class="mb-2">
+                        <label for="">Tiempo de cierre</label>
+                        <select class="form-control" name="cmbHoras" id="cmbHoras">
+                            <option value="0.25">15 minutos</option>
+                            <option value="0.5">30 minutos</option>
+                            <option value="0.75">45 minutos</option>
+                            <option value="1">1 Hora</option>
+                            <option value="1.25">1 hora 15 minutos</option>
+                            <option value="1.5">1 hora 30 minutos</option>
+                            <option value="1.75">1 hora 45 minutos</option>
+                            <option value="2">2 horas</option>
+                            <option value="2.25">2 horas 15 minutos</option>
+                            <option value="2.5">2 horas 30 minutos</option>
+                            <option value="2.75">2 horas 45 minutos</option>
+                            <option value="3">3 horas</option>
+                            <option value="3.25">3 horas 15 minutos</option>
+                            <option value="3.5">3 horas 30 minutos</option>
+                        </select>
+                    </div>
+                    <div class="text-right">
+                        <button class="btn btn-warning" onclick="closeOffice()">Cerrar sucursal</button>
+                    </div>
+                {{/diferent}}
+            </div>
+            <h2>Horarios</h2>
+            <div class="p-3 lst-horarios">
+                {{#each sucursal.horarios}}
+                    <div class="row mb-2">
+                        <div class="col-5">{{dia}}</div>
+                        <div class="col-7 text-right">{{hora_ini}} - {{hora_fin}}</div>
+                    </div>
+                {{/each}}
+            </div>
+        </div>
+        <div id="client-tab-couriers" class="client-tab-details" style="display: none;">
+            <h2>Couriers</h2>
+            <div class="p-3">
+                {{#each couriers}}
+                    <div class="row align-items-center p-2 mb-2 rounded" style="background-color: white;">
+                        <div class="col-2 text-center">
+                            <img src="{{imagen}}" class="rounded-circle" alt="">
+                        </div>
+                        <div class="col-6">
+                            {{courier}}
+                        </div>
+                        <div class="col-4 text-right">
+                            {{tipo}}
+                        </div>
+                    </div>
+                {{/each}}
+            </div>
+        </div>
+        <div id="client-tab-facturacion" class="client-tab-details" style="display: none;">
+            <h2>Facturacion</h2>
+            <div class="p-3">
+                {{#each Facturacion}}
+                    <div class="row align-items-center p-2 mb-2 rounded" style="background-color: white;">
+                        <div class="col-7">
+                            {{courier}}
+                        </div>
+                        <div class="col-5 text-right">
+                            {{tipo}}
+                        </div>
+                    </div>
+                {{/each}}
+            </div>
+        </div>
+        {{#eq fidelizacion.activa true}}
+        <div id="client-tab-fidelizacion" class="client-tab-details" style="display: none;">
+            <h2>Fidelización</h2>
+            <div class="p-3">
+                <div class="mb-2" style="font-size: 18px;">
+                    Por cada <b>${{decimal fidelizacion.divisor_puntos}}</b> en compras recibe <b><i data-feather="star"></i> {{decimal fidelizacion.monto_puntos}} punto(s)</b>, estos puntos se transforman en dinero en su billetera virtual de acuerdo al nivel en que se encuentra
+                </div>
+                {{#each fidelizacion.niveles}}
+                    <div class="row align-items-center p-2 mb-2 rounded" style="background-color: white;">
+                        <div class="col-7">
+                            <h4>{{nombre}}</h4>
+                            <div><i data-feather="star"></i> {{punto_inicial}} - {{punto_final}}</div>
+                        </div>
+                        <div class="col-5 text-right">
+                            ${{decimal dinero_x_punto}}
+                        </div>
+                    </div>
+                {{/each}}
+            </div>
+        </div>
+        {{/eq}}
+    </div>
+</script>
+
+<script id="config-template" type="text/x-handlebars-template">
+    <div class="col-md-4 col-12" style="padding: 0px;">
+        <div class="mt-3 p-3">
+            <div>
+                <div class="client-detail-options active" data-target="config-tab-sound">
+                    <i data-feather="music"></i> Sonido
+                </div>
+                <div class="client-detail-options" data-target="config-tab-reminder">
+                    <i data-feather="clock"></i> Recordatorio
+                </div>
+                {{#in_array permisos "DESKTOP_IMPRESION"}}
+                <div class="client-detail-options" data-target="config-tab-printers">
+                    <i data-feather="printer"></i> Impresión
+                </div>
+                {{/in_array}}
+                <div class="client-detail-options" data-target="config-tab-apps">
+                    <i data-feather="smartphone"></i> Apps Delivery
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-8 col-12" style="background-color: #f8f8fb; padding: 15px; overflow-y: scroll; max-height: 90vh;">
+        <div id="config-tab-sound" class="client-tab-details">
+            <div class="d-flex align-items-center">
+                <h2>Sonidos</h2>
+                <button class="btn btn-primary activarSound ml-auto" onclick="encenderSirena()">Activar Sonido</button>
+            </div>
+            <div class="p-3">
+                <div class="row">
+                    <div class="col-md-6 col-12">
+                        Volumen
+                        <div>
+                            <input type="range" min="0" max="10" value="{{sonido.volumen}}" 
+                                onchange="updateVolumeSound(this.value)">
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-12 text-right">
+                        Repetir indefinidamente
+                        <div>
+                            <label class="switch s-icons s-outline  s-outline-success">
+                                {{#eq sonido.repeat true}}
+                                    <input type="checkbox" onchange="updateRepeatSound(this)" checked>
+                                {{else}}
+                                    <input type="checkbox" onchange="updateRepeatSound(this)">
+                                {{/eq}}    
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                {{#each sonidos}}
+                    <div class="d-flex align-items-center pb-2 mb-3"
+                            style="border-bottom: 1px solid #c3c3c3;">
+                        <div>
+                            <label class="new-control new-radio radio-classic-primary">
+                                {{#eq name ../sonido.sirena}}
+                                    <input type="radio" class="new-control-input rb_sound" 
+                                            value="{{ name }}" 
+                                            name="rb_sound" 
+                                            onchange="updateNameSound(this)"
+                                            checked>
+                                {{else}}  
+                                    <input type="radio" class="new-control-input rb_sound" 
+                                            value="{{ name }}" 
+                                            name="rb_sound" 
+                                            onchange="updateNameSound(this)">          
+                                {{/eq}}
+                                
+                                <span class="new-control-indicator"></span>{{ text }}
+                            </label>
+                            
+                        </div>
+                        <div class="ml-auto" onclick="SoundPlay('{{ name }}')">
+                            <i data-feather="play-circle"></i>
+                        </div>
+                        <div class="ml-2" onclick="SoundStop('{{ name }}')">
+                            <i data-feather="stop-circle"></i>
+                        </div>
+                    </div>
+                {{/each}}
+            </div>
+        </div>
+        <div id="config-tab-reminder" class="client-tab-details" style="display: none;">
+            <h2>Recordatorios</h2>
+            <div class="p-3">
+                <div>
+                    <label>Realizar cada:</label>
+                    <select class="form-control" onchange="updateRecordatorioTiempo(this.value)">
+                        <option value="5" {{#eq recordatorio.tiempo "5"}} selected="selected" {{/eq}}>5 minutos</option>
+                        <option value="7" {{#eq recordatorio.tiempo "7"}} selected="selected" {{/eq}}>7 minutos</option>
+                        <option value="10" {{#eq recordatorio.tiempo "10"}} selected="selected" {{/eq}}>10 minutos</option>
+                        <option value="15" {{#eq recordatorio.tiempo "15"}} selected="selected" {{/eq}}>15 minutos</option>
+                    </select>
+                </div>
+                <div class="mt-4">
+                    <div class="d-flex align-items-center">
+                        <label>¿Desea recordar pedidos entrantes?</label>
+                        <label class="switch s-icons s-outline  s-outline-success ml-auto">
+                            {{#eq recordatorio.permiso 1}}
+                                <input type="checkbox" onchange="updateRecordatorioPermiso(this)" checked>
+                            {{else}}
+                                <input type="checkbox" onchange="updateRecordatorioPermiso(this)">
+                            {{/eq}} 
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                    <div>
+                        <p style="font-size: 11px; line-height: 12px;">
+                            Al activar esta opción el sistema buscará ordenes que sigan en entrante el tiempo determinado por usted y 
+                            volverá a alertar "mediante sonido"
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <h2 class="mt-3">Auto Asignar</h2>
+            <div class="p-3">
+                <div>
+                    <label>Realizar cada:</label>
+                    <select class="form-control" onchange="updateRecordatorioTiempoAsignacion(this.value)">
+                        <option value="15" {{#eq recordatorio.tiempo "15"}} selected="selected" {{/eq}}>15 segundos</option>
+                        <option value="30" {{#eq recordatorio.tiempo "30"}} selected="selected" {{/eq}}>30 segundos</option>
+                        <option value="60" {{#eq recordatorio.tiempo "60"}} selected="selected" {{/eq}}>1 minutos</option>
+                        <option value="180" {{#eq recordatorio.tiempo "180"}} selected="selected" {{/eq}}>3 minutos</option>
+                        <option value="300" {{#eq recordatorio.tiempo "300"}} selected="selected" {{/eq}}>5 minutos</option>
+                        <option value="420" {{#eq recordatorio.tiempo "420"}} selected="selected" {{/eq}}>7 minutos</option>
+                        <option value="600" {{#eq recordatorio.tiempo "600"}} selected="selected" {{/eq}}>10 minutos</option>
+                    </select>
+                </div>
+                <div class="mt-4">
+                    <div class="d-flex justify-content-end">
+                        <label>¿Desea asignar los pedidos autom&aacute;ticamente?</label>
+                        <label class="switch s-icons s-outline  s-outline-success ml-auto">
+                            {{#eq recordatorio.asignacion 1}}
+                                <input type="checkbox" onchange="updateRecordatorioAsignacion(this)" checked>
+                            {{else}}
+                                <input type="checkbox" onchange="updateRecordatorioAsignacion(this)">
+                            {{/eq}} 
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                    <div>
+                        <p style="font-size: 11px; line-height: 12px;">
+                            Al activar esta opción el sistema asignará las ordenes que ingresen automaticamente al courier con mayor prioridad en el tiempo determinado por usted
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="config-tab-printers" class="client-tab-details" style="display: none;">
+            <h2>Impresoras</h2>
+            <div class="p-3">
+                <div class="mb-3">
+                    <p>¿No tienes el sistema de impresión?<br> 
+                        Descárgalo <a href="print-system-v1.zip" download="">aquí</a>
+                    </p>
+                    <hr>
+                </div>
+                <div class="row justify-content-end">
+                    <button class="my-3 btn btn-danger btnResetPrinters">Restablecer impresoras</button>
+                </div>
+                <div class="d-flex align-items-end">
+                    <div class="w-100">
+                        <label for="txtPrintUrl">URL</label>
+                        <input id="txtPrintUrl" type="text" class="form-control" value="{{printer.url}}"/>
+                    </div>
+                    <button class="btn btn-primary ml-2" onclick="updateUrl()">Actualizar</button>
+                </div>
+
+                <div id="printer-form" class="mt-3"></div>
+
+                <div class="mt-3">
+                    <h4 class="mb-3">Impresoras configuradas</h4>
+                    <div id="printers-lista"></div>
+                </div>
+            </div>
+        </div>
+        <div id="config-tab-apps" class="client-tab-details" style="display: none;">
+            <h2>Apps Delivery</h2>
+            <hr>
+            <div class="row">
+                <div class="col-12 col-md-6 text-center">
+                    <p>Taste Delivery</p>
+                    <a href="./appTasteDelivery.apk" download="" class="btn btn-primary"> <i data-feather="download"></i> Descargar</a>
+                    <img class="img-fluid mt-3" src="https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl=https%3a%2f%2fdashboard.mie-commerce.com%2fappTasteDelivery.apk" alt="">
+                </div>
+                <div class="col-12 col-md-6 text-center">
+                    <p>Mis Motorizados (obsoleta)</p>
+                    <a href="./app_motorizado.apk" download="" class="btn btn-primary"> <i data-feather="download"></i> Descargar</a>
+                    <img class="img-fluid mt-3" src="https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl=https%3a%2f%2fdashboard.mie-commerce.com%2fapp_motorizado.apk" alt="">
+                </div>
+            </div>
+        </div>
+    </div>
+</script>
+
+<script id="printers-lista-template" type="text/x-handlebars-template">
+    {{#mayor (count this.impresoras) 0}}
+        {{#each this.impresoras}}
+        <div class="row mb-2 pb-2" style="border-bottom: 1px solid #c3c3c3;">
+            <div class="col-9">
+                <h4 style="font-size: 16px; font-weight: bold;">{{nombre}}</h4>
+                <p><b>{{tipo}}</b> | {{paginas}} Pág,  Size: {{size}}mm</p>
+            </div>
+            <div class="col-3 text-right">
+                <button class="btn btn-danger btnDeletePrinter" data-name="{{nombre}}" data-id="{{id}}"> <i data-feather="trash"></i> </button>
+            </div>
+        </div>
+        {{/each}}
+    {{else}}
+        <div class="text-center">
+            <lottie-player src="https://assets1.lottiefiles.com/private_files/lf30_w0qudqe6.json"  background="transparent"  speed="1"  style="height: 300px;" loop autoplay></lottie-player>
+            <p>No hay impresoras</p>
+        </div>
+    {{/mayor}}
+</script>
+
+<script id="printers-form-template" type="text/x-handlebars-template">
+    <div>
+        <label for="">Lista de impresoras</label>
+        <select name="" id="cmbLstImpresoras" class="form-control">
+            {{#each this}}
+                <option value="{{nombre}}">{{nombre}}</option>
+            {{/each}}
+        </select>
+    </div>
+    <div class="row">
+        <div class="col-4">
+            <label for="">Ancho Papel</label>
+            <select name="" id="" class="form-control printPapel">
+                <option value="80">80mm</option>
+                <option value="58">58mm</option>
+            </select>
+        </div>
+        <div class="col-4">
+            <label for="">Tipo</label>
+            <select name="" id="" class="form-control printTipo">
+                <option value="CAJA">CAJA</option>
+                <option value="COCINA">COCINA</option>
+            </select>
+        </div>
+        <div class="col-md-4 col-sm-4 col-xs-6">
+            <label for="">Num Copias</label>
+            <select class="form-control printPaginas">
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+            </select>
+        </div>
+        <div class="col-md-12 col-sm-12 col-12" style="display: none;">
+            <label for="">Comunicación con la impresora (Puedes poner IP)</label>
+            <input type="text" class="form-control printImpresora" placeholder="" value=""/>
+        </div>
+        <div class="col-md-12 col-sm-12 col-12 text-right mt-3">
+            <button class="btn btn-primary" onclick="addPrinter()">Actualizar</button>
+        </div>
+    </div>
+</script>

@@ -1,0 +1,11 @@
+#containerPip .row{
+    margin-left: 0px;
+    margin-right: 0px;
+}
+
+#containerPip .col-4, #containerPip .col-8 {
+    padding-left: 5px;
+    padding-right: 5px;
+    padding-top: 0;
+    padding-bottom: 0;
+}

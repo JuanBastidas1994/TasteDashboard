@@ -1,0 +1,75 @@
+
+@media print {
+
+	/*
+	thead
+	{
+		background: blue !important;
+	}
+
+	th
+	{
+		color: black !important;
+	}
+
+	td
+	{
+		font-size: 12px !important;
+		padding-left: 8px !important;
+		padding-right: 8px !important;
+		padding-top: 4px !important;
+		padding-bottom: 4px !important;
+	}
+
+	label
+	{
+		color: black !important;
+		font-size: 14px;
+	}
+
+	td label
+	{
+		font-size: 12px !important;
+	}
+
+	span {
+		font-size: 20px !important;
+	}
+	*/
+
+	.col-sm-4, .col-md-4{
+		width: 33.33333333% !important; 
+		float: left !important; 
+	}
+
+	.col-sm-6, .col-md-6{
+		width: 50% !important; 
+		float: left !important; 
+	}
+	
+	.col-sm-8, .col-md-8{
+		width: 66.666667% !important; 
+		float: left !important; 
+	}
+	
+	.col-sm-12, .col-md-12{
+		width: 100% !important; 
+		float: left !important; 
+	}
+
+	.onlyprint
+	{
+		display: inherit !important;
+	}
+
+	hr{
+	    border-color: gray !important;
+	    height: 1px !important;
+	}
+}
+
+@page {
+	margin: 1.5cm;
+	size: A4 landscape;
+	/*size: A4 portrait;*/
+}

@@ -1,0 +1,67 @@
+<script id="cierre-diario-template" type="text/x-handlebars-template">
+    
+    <ul class="nav nav-tabs mb-3" id="lineTab" role="tablist">
+        <li class="nav-item">
+            <a  class="nav-link active" data-toggle="tab" href="#tab-info" role="tab" aria-controls="pills-info" aria-selected="true">
+                <i data-feather="bar-chart"></i> 
+                <span>Tipo de Orden</span>
+            </a>
+        </li>
+        
+        <li class="nav-item">
+            <a class="nav-link" data-toggle="tab" href="#tab-bodegas" role="tab" aria-controls="pills-sucursales" aria-selected="true">
+                <i data-feather="meh"></i> 
+                <span>Ordenes no Facturadas</span>
+            </a>
+        </li>
+    </ul>
+    <div class="tab-content" id="pills-tabContent">
+        {{! Tab Info }}
+        <div class="tab-pane fade show active" id="tab-info" role="tabpanel" aria-labelledby="pills-info-tab">
+            <div class="row">
+                <div class="col-6">
+                    <div>
+                        <h5>Delivery</h5>
+                    </div>
+                    {{#each delivery-report}}
+                    <div class="row">
+                        <div class="col-8">{{nombre}}</div>
+                        <div class="col-4 text-right">{{num_ordenes}}</div>
+                    </div>
+                    {{/each}}
+                </div>
+                <div class="col-6">
+                    <div>
+                        <h5>Pickup</h5>
+                    </div>
+                    {{#each pickup-report}}
+                    <div class="row">
+                        <div class="col-8">{{nombre}}</div>
+                        <div class="col-4 text-right">{{num_ordenes}}</div>
+                    </div>
+                    {{/each}}
+                </div>
+            </div>
+        </div>
+        
+        
+        {{! Tab Bodegas }}
+        <div class="tab-pane fade" id="tab-bodegas" role="tabpanel" aria-labelledby="pills-sucursales-tab">
+            <div>
+                <h5>Ordenes no facturadas</h5>
+            </div>
+            {{#each ordenes}}
+                <div class="row mb-3" style="border-bottom: 1px solid #80808047;">
+                    <div class="col-2"><span>#{{cod_orden}}</span></div>
+                    <div class="col-6"><span>{{cliente}}</span></div>
+                    <div class="col-3"><span>{{fecha}}</span></div>
+                    <div class="col-1" id="process-loading-{{cod_recipiente}}"></div>
+                </div>
+            {{/each}}
+            <div>
+                <button class="btn btn-primary btnReenviarFacturasMasivamente">Reenviar</button>
+            </div>
+        </div>
+        
+    </div>
+</script>

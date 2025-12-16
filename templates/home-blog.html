@@ -1,0 +1,42 @@
+<div class="from-blog8 product-tab4 bg-white">
+    <div class="tab-header4">
+        <div class="col-md-8">
+            <h2 class="title30 font-bold">{{titulo}}</h2>
+        </div>
+        <div class="col-md-4 style-3" style="text-align: right;">
+            <ul class="table-controls">
+                <li><a href="javascript:void(0);" data-value="{{id}}" data-type="{{tipo}}" class="btnAgregarSeccion" title="Agregar"><i data-feather="plus"></i></a></li>
+                <li><a href="javascript:void(0);" data-value="{{id}}" class="btnEditarSeccion" title="Editar"><i data-feather="edit-2"></i></a></li>
+                <li><a href="javascript:void(0);" data-value="{{id}}" class="btnEliminarSeccion" title="Eliminar"><i data-feather="trash"></i></a></li>
+            </ul>
+        </div>
+        <div class="col-md-12"><hr/></div>
+    </div>
+	<div class="blog-slider8">
+		<div class="wrap-slider" data-pagination="false" data-navigation="true" data-itemscustom="[[0,1],[640,2],[990,{{num_columnas}}]]">
+			
+			{{#each items}}
+				<div class="item-blog2 bg-white drop-shadow">
+					<div class="row">
+						<div class="col-md-12">
+							<div class="zoom-image overlay-image">
+								<a href="#" class="adv-thumb-link"><img src="{{image_min}}" alt=""></a>
+							</div>
+						</div>
+						<div class="col-md-12">
+							<div class="blog-info2 text-center info-center">
+								<h2 class="title18"><a href="#" class="black">{{titulo}}</a></h2>
+								<ul class="list-inline-block post-comment-date">
+									<li><span class="color"><i class="fa fa-calendar-o"></i> {{fecha_create}}</span></li>
+									<li><span class="color"><i class="fa fa-commenting-o"></i></span><a href="#" class="color">3</a></li>
+								</ul>
+								<p class="desc">{{desc_corta}}</p>
+								<a href="#" class="shop-button">Leer más</a>
+							</div>
+						</div>
+					</div>
+				</div>
+			{{/each}}	
+		</div>
+	</div>
+</div>

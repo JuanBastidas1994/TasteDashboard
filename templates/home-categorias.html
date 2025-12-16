@@ -1,0 +1,38 @@
+<div class="product-tab4 bg-white drop-shadow">
+	<div class="tab-header4">
+        <div class="col-md-8">
+            <h2 class="title30 font-bold">{{titulo}}</h2>
+        </div>
+        <div class="col-md-4 style-3" style="text-align: right;">
+            <ul class="table-controls">
+                <li><a target="_blank" href="crear_categorias.php" title="Agregar"><i data-feather="plus"></i></a></li>
+                <li><a href="javascript:void(0);" data-value="{{id}}" class="btnEditarSeccion" title="Editar"><i data-feather="edit-2"></i></a></li>
+                <li><a href="javascript:void(0);" data-value="{{id}}" class="btnEliminarSeccion" title="Eliminar"><i data-feather="trash"></i></a></li>
+            </ul>
+        </div>
+        <div class="col-md-12"><hr/></div>
+    </div>
+	<div class="tab-content">
+		<div id="tab1" class="tab-pane active">
+			<div class="product-slider">
+				<div class="wrap-slider" data-pagination="false" data-navigation="true" data-itemscustom="[[0,3],[560,3],[990,5]]">
+
+					{{#each items}}
+						<div class="item-product item-product1 text-center itemCategoria" data-alias="{{alias}}">
+					    	<div class="product-thumb">
+					    		<a href="productos.php?id={{alias}}" class="product-thumb-link">
+					    			<img src="{{image_min}}" alt="">
+					    		</a>
+					    	</div>
+					    	<div class="product-info">
+					    		<h3 class="product-title" style="font-size: 18px;">{{categoria}}</h3>
+					    	</div>
+					    </div>
+					{{/each}}
+
+				</div>
+			</div>
+		</div>
+		<!-- End Tab -->
+	</div>
+</div>

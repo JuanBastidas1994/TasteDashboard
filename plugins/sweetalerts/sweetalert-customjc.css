@@ -1,0 +1,34 @@
+.swal2-modal .swal2-styled {
+    border: 0;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+    color: #fff;
+    cursor: pointer;
+    padding: 10px 25px !important;
+    box-shadow: 0px 5px 20px 0 rgba(0, 0, 0, 0.1) !important;
+    letter-spacing: 1px;
+    font-size: 14px;
+    transition: all 0.3s ease-out;
+    -webkit-transition: all 0.3s ease-out;
+}
+
+.swal2-popup .swal2-cancel.btn {
+    /*font-size: 1em !important;*/
+    font-weight: 700 !important;
+    border: 1px solid #e8e8e8 !important;
+    background: white;
+}
+
+.swal2-popup .swal2-cancel.btn:hover{
+    color: #1b55e2 !important;
+}
+
+.swal2-popup .swal-title{
+    font-size: 24px !important;
+    font-weight: 600 !important;
+}
+
+.swal2-popup .swal-html-container{
+    margin-top: 10px !important;
+    color: #7d7d7d;
+}

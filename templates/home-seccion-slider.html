@@ -1,0 +1,73 @@
+<div class="product-tab4 bg-white drop-shadow">
+    <div class="tab-header4">
+        <div class="col-md-8">
+            <h2 class="title30 font-bold">{{titulo}}</h2>
+        </div>
+        <div class="col-md-4 style-3" style="text-align: right;">
+            <ul class="table-controls">
+                <li><a href="javascript:void(0);" data-value="{{id}}" data-type="{{tipo}}" class="btnAgregarSeccion" title="Agregar"><i data-feather="plus"></i></a></li>
+                <li><a href="javascript:void(0);" data-value="{{id}}" class="btnEditarSeccion" title="Editar"><i data-feather="edit-2"></i></a></li>
+                <li><a href="javascript:void(0);" data-value="{{id}}" class="btnEliminarSeccion" title="Eliminar"><i data-feather="trash"></i></a></li>
+            </ul>
+        </div>
+        <div class="col-md-12"><hr/></div>
+    </div>
+    <div class="tab-content">
+        <div id="tab1" class="tab-pane active">
+            <div class="product-slider lstPromociones">
+                
+                {{#eq tipo "anuncios"}}
+                    <div class="wrap-slider" data-navigation="true" data-pagination="false" data-autoplay="true" data-itemscustom="[[0,1],[560,2],[990,2]]">
+                    {{#each items}}
+                        <div class="item-product item-product-grid text-center">
+                            <div class="product-thumb">
+                                <a href="javascript:void(0)" class="product-thumb-link">
+                                    <img src="{{image_min}}" alt="">
+                                </a>
+                            </div>
+                            <div class="product-info">
+                                <div class="product-extra-link mt-2">
+                                    <a href="javascript:void(0)" onclick="alert('Proximamente')" data-accion-id="{{accion_id}}" data-accion-desc="{{accion_desc}}">
+                                        <i data-feather="edit-2"></i>
+                                    </a>
+                                    <a href="javascript:void(0)" onclick="eliminarContenidoPagina({{id}})">
+                                        <i data-feather="trash"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    {{/each}}
+                    </div>
+                {{else}}
+                    <div class="wrap-slider" data-navigation="true" data-pagination="false" data-autoplay="true" data-itemscustom="[[0,1],[560,2],[990,3]]">
+                    {{#each items}}
+                        <div class="item-product item-product-grid text-center">
+                            <div class="product-thumb">
+                                <a href="javascript:void(0)" class="product-thumb-link">
+                                    <img src="{{image_max}}" alt="">
+                                </a>
+                            </div>
+                            <div class="product-info">
+                                <h3 class="product-title"><a href="javascript:void(0)">{{nombre}}</a></h3>
+                                <div class="product-price">
+                                    {{#mayor precio_anterior 0}}
+                                        <del class="silver"><span>${{decimal precio_anterior}}</span></del>
+                                    {{/mayor}}
+                                    <ins class="color"><span>${{decimal precio}}</span></ins>
+                                </div>
+                                <div class="product-extra-link">
+                                    <a href="javascript:void(0)" onclick="eliminarContenidoPagina({{id}})">
+                                        <i data-feather="trash"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    {{/each}}
+                    </div>
+                {{/eq}}
+                  
+
+            </div>
+        </div>
+    </div>
+</div>

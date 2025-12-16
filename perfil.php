@@ -1,0 +1,356 @@
+<?php
+require_once "funciones.php";
+require_once "clases/cl_usuarios.php";
+require_once "clases/cl_empresas.php";
+require_once "clases/cl_telegram.php";
+
+if(!isLogin()){
+    header("location:login.php");
+}
+
+$session = getSession();
+$Clusuarios = new cl_usuarios($session['cod_usuario']);
+$files = url_sistema.'assets/empresas/'.$session['alias'].'/';
+$imagen = $files.$Clusuarios->imagen;
+$nombres = $Clusuarios->nombre.' '.$Clusuarios->apellido;
+
+$Clempresas = new cl_empresas(NULL);
+$permisos = $Clempresas->getIdPermisionByBusiness($session['cod_empresa']);
+
+$ClTelegram = new cl_telegram(NULL);
+if(in_array("NOTIFY_TELEGRAM", $permisos)){
+    if(isset($_POST['btnEliminar'])){
+        $ClTelegram->deleteTelegramUsuarios($session['cod_usuario']);
+    }
+
+    $resp = $ClTelegram->listaTelegramUsuarios($session['cod_usuario']);
+    if(!$resp){
+        $ClTelegram->crearTelegramUsuarios($session['cod_usuario']);
+    }    
+}
+
+
+
+                                       
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <?php css_mandatory(); ?>
+    <link href="assets/css/users/user-profile.css" rel="stylesheet" type="text/css" />
+    <link href="plugins/file-upload/file-upload-with-preview.min.css" rel="stylesheet" type="text/css" />
+    <style type="text/css">
+      .dropify-wrapper {
+          display: block;
+          position: relative;
+          cursor: pointer;
+          overflow: hidden;
+          width: 100%;
+          max-width: 100%;
+          height: 110px !important;
+          padding: 5px 10px;
+          font-size: 14px;
+          line-height: 22px;
+          color: #777;
+          background-color: #fff;
+          background-image: none;
+          text-align: center;
+          border: 0 !important;
+          -webkit-transition: border-color .15s linear;
+          transition: border-color .15s linear;
+      }
+    </style>
+</head>
+<body>
+    
+    <!--  BEGIN NAVBAR  -->
+    <?php echo top() ?>
+    <!--  END NAVBAR  -->
+
+    <!--  BEGIN NAVBAR  -->
+    <?php echo navbar(); ?>
+    <!--  END NAVBAR  -->
+
+    <!--  BEGIN MAIN CONTAINER  -->
+    <div class="main-container" id="container">
+
+        <div class="overlay"></div>
+        <div class="search-overlay"></div>
+
+        <!--  BEGIN SIDEBAR  -->
+        <?php echo sidebar(); ?>
+        <!--  END SIDEBAR  -->
+
+        <!--  BEGIN CONTENT AREA  -->
+        <div id="content" class="main-content">
+            <div class="layout-px-spacing">
+
+                <div class="row layout-spacing">
+
+                    <!-- Content -->
+                    <div class="col-xl-4 col-lg-6 col-md-5 col-sm-12 layout-top-spacing">
+
+                        <div class="user-profile layout-spacing">
+                            <div class="widget-content widget-content-area">
+                                <div class="d-flex justify-content-between">
+                                    <h3 class="">Perfil</h3>
+                                    <a href="#" class="mt-2 edit-profile"> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-edit-3"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg></a>
+                                </div>
+
+                                <!--
+                                <div class="upload mt-1 pr-md-1">
+                                    <input type="file" name="img_product" class="dropify" data-default-file="<?php echo $imagen; ?>" data-max-file-size="15M" data-allowed-file-extensions="jpeg jpg png"/>
+                                </div>
+                                -->
+
+                                <div class="text-center user-info">
+                                    <img src="<?php echo $imagen; ?>" alt="avatar" style="max-width: 150px;">
+                                    <p class=""><?php echo $nombres; ?></p>
+                                </div>
+                                <div class="user-info-list">
+
+                                    <div class="">
+                                        <ul class="contacts-block list-unstyled">
+                                            <li class="contacts-block__item">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-coffee"><path d="M18 8h1a4 4 0 0 1 0 8h-1"></path><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path><line x1="6" y1="1" x2="6" y2="4"></line><line x1="10" y1="1" x2="10" y2="4"></line><line x1="14" y1="1" x2="14" y2="4"></line></svg> <?php echo $Clusuarios->rol; ?>
+                                            </li>
+                                            <li class="contacts-block__item">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-calendar"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg><?php echo fechaLatinoShort($Clusuarios->fecha_nacimiento); ?>
+                                            </li>
+                                            <li class="contacts-block__item">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-map-pin"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>Guayaquil, Ecuador
+                                            </li>
+                                            <li class="contacts-block__item">
+                                                <a href="mailto:example@mail.com"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-mail"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg><?php echo $Clusuarios->correo; ?></a>
+                                            </li>
+                                            <li class="contacts-block__item">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-phone"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg> <?php echo $Clusuarios->telefono; ?>
+                                            </li>
+                                        </ul>
+                                    </div>                                    
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="col-xl-8 col-lg-6 col-md-7 col-sm-12 layout-top-spacing">
+
+                        <div class="skills layout-spacing ">
+                            <div class="widget-content widget-content-area">
+                                <h3 class="">Cambiar Contrase&ntilde;a</h3>
+                                <div class="row">
+                                    <div class="form-group col-md-6 col-sm-6 col-xs-12">
+                                        <label>Contrase&ntilde;a Nueva <span class="asterisco">*</span></label>
+                                        <input type="password" placeholder="" name="txt_pass" id="txt_pass" class="form-control" required="required" autocomplete="off" value="">
+                                    </div>
+                                    <div class="form-group col-md-6 col-sm-6 col-xs-12">
+                                        <label>Repetir Contrase&ntilde;a Nueva <span class="asterisco">*</span> </label>
+                                        <input type="password" placeholder="" name="txt_pass2" id="txt_pass2" class="form-control" autocomplete="off" value="">
+                                    </div>
+                                </div>
+                                <div class="row"> 
+                                    <div class="form-group col-md-12 col-sm-12 col-xs-12" style="text-align: right;">
+                                        <button type="button" class="btn btn-outline-primary" id="btnActualizarPassword">Actualizar contrase&ntilde;a</button>
+                                    </div>
+                                </div> 
+                            </div>
+                        </div>
+                        
+                        <div class="skills layout-spacing" style="display: <?php echo in_array("NOTIFY_TELEGRAM", $permisos) ? 'initial' : 'none'; ?>;">
+                            <div class="widget-content widget-content-area">
+                                <h3 class="">Telegram</h3>
+                                
+                                    <div class="table-responsive mb-4 mt-4">
+                                    <table id="style-3" class="table style-3  table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>Id</th>
+                                                <th>C&oacute;digo</th>
+                                                <th>Usuario</th>
+                                                <th class="text-center">Estado</th>
+                                                <th>&nbsp;</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <?php
+                                            $resp = $ClTelegram->listaTelegramUsuarios($session['cod_usuario']);
+                                            $datTelegram = $resp[0];
+                                            $badge='primary';
+                                            if($datTelegram['estado'] == 'P')
+                                                $badge='warning';
+                                                
+
+                                            echo '<tr data-value="'.$datTelegram['id'].'">
+                                                <td>'.$datTelegram['id'].'</td>
+                                                <td>
+                                                    <a class="btnCopiar" href="javascript:;" data-clipboard-action="copy" data-clipboard-text="'.$datTelegram['code'].'"><i data-feather="copy"></i></a>
+                                                    '.$datTelegram['code'].'
+                                                </td>
+                                                <td>'.$datTelegram['nombre'].'</td>
+                                                <td class="text-center"><span class="shadow-none badge badge-'.$badge.'">'.getEstado($datTelegram['estado']).'</span></td>
+                                            </tr>';
+                                            ?>
+                                        </tbody>
+                                    </table>
+                                    <div style="text-align:center">
+                                        
+                                        <form method="POST" action="">
+                                            <a class="btn btn-primary" href="https://t.me/tasteordenes_bot" target="_blank">Hablar con el bot</a>
+                                            <?php
+                                            if($datTelegram['estado'] == 'A'){
+                                            ?>
+                                                <button type="submit" name="btnEliminar" class="btn btn-danger btnEliminar">Eliminar</button>
+                                            <?php
+                                            }
+                                            ?>
+                                        </form>
+                                        
+                                        
+                                    </div>
+                            </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    
+                </div>
+            </div>
+            <?php footer(); ?>
+        </div>
+        <!--  END CONTENT AREA  -->
+    </div>
+    <!-- END MAIN CONTAINER -->
+    
+    <?php js_mandatory(); ?>
+    <script src="plugins/file-upload/file-upload-with-preview.min.js"></script>
+    <script>
+    $('.dropify').dropify({
+        messages: { 'default': 'Click to Upload or Drag n Drop', 'remove':  '<i class="flaticon-close-fill"></i>', 'replace': 'Upload or Drag n Drop' }
+    });
+
+    $("#btnActualizarPassword").on("click",function(event){
+        event.preventDefault();
+
+        if($("#txt_pass").val().trim().length == 0){
+            alert("Debe proporcionar una contraseña");
+            return;
+        }
+        
+        if($("#txt_pass").val().trim() != $("#txt_pass2").val().trim()){
+            alert("las contraseñas no coinciden, por favor verificar");
+            return;
+        }
+
+        swal({
+          title: '¿Estas seguro de cambiar tu password?',
+          text: 'La proxima vez que inicies sesión deberas usar tu nueva password',
+          type: 'warning',
+          showCancelButton: true,
+          confirmButtonText: 'Proceder',
+          cancelButtonText: 'Cancelar',
+          padding: '2em'
+        }).then(function(result) {
+          if (result.value) {
+            
+            var parametros = {
+                "password": $("#txt_pass").val().trim(),
+            }
+            console.log(parametros);
+            $.ajax({
+                beforeSend: function(){
+                    OpenLoad("Buscando informacion, por favor espere...");
+                },
+                url: 'controllers/controlador_usuario.php?metodo=set_password',
+                type: 'GET',
+                data: parametros,
+                success: function(response){
+                    console.log(response);
+                    if( response['success'] == 1)
+                    {
+                        messageDone(response['mensaje'],'success');
+                    } 
+                    else
+                    {
+                        messageDone(response['mensaje'],'error');
+                    } 
+                                            
+                },
+                error: function(data){
+                    console.log(data);
+                    
+                },
+                complete: function(resp)
+                {
+                    CloseLoad();
+                }
+            });
+
+
+          }
+        });
+     });
+
+
+     $("#btnActualizarCostoEnvio").on("click",function(event){
+        event.preventDefault();
+
+        if($("#base_dinero").val().trim().length == 0 || $("#base_km").val().trim().length == 0 || $("#adicional_km").val().trim().length == 0){
+            alert("Debes llenar todos los campos");
+            return;
+        }
+
+        swal({
+          title: '¿Estas seguro?',
+          text: 'No se puede revertir los cambios',
+          type: 'warning',
+          showCancelButton: true,
+          confirmButtonText: 'Actualizar Costo',
+          cancelButtonText: 'Cancelar',
+          padding: '2em'
+        }).then(function(result) {
+          if (result.value) {
+            
+            var parametros = {
+                "base_dinero": $("#base_dinero").val().trim(),
+                "base_km": $("#base_km").val().trim(),
+                "adicional_km": $("#adicional_km").val().trim()
+            }
+            console.log(parametros);
+            $.ajax({
+                beforeSend: function(){
+                    OpenLoad("Buscando informacion, por favor espere...");
+                },
+                url: 'controllers/controlador_empresa.php?metodo=update_costo_envio',
+                type: 'GET',
+                data: parametros,
+                success: function(response){
+                    console.log(response);
+                    if( response['success'] == 1)
+                    {
+                        messageDone(response['mensaje'],'success');
+                    } 
+                    else
+                    {
+                        messageDone(response['mensaje'],'error');
+                    } 
+                                            
+                },
+                error: function(data){
+                    console.log(data);
+                    
+                },
+                complete: function(resp)
+                {
+                    CloseLoad();
+                }
+            });
+
+
+          }
+        });
+     });
+    </script>
+</body>
+</html>

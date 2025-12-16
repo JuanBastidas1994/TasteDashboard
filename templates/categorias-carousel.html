@@ -1,0 +1,23 @@
+{{#if filter}}
+    <div class="item-product item-product1 text-center itemCategoria" data-alias="{{alias}}">
+    	<div class="product-thumb">
+    		<a href="javascript:void(0)" class="product-thumb-link">
+    			<img src="{{image_min}}" alt="">
+    		</a>
+    	</div>
+    	<div class="product-info">
+    		<h3 class="product-title"><a href="javascript:void(0)">{{categoria}}</a></h3>
+    	</div>
+    </div>
+{{else}}
+    <div class="item-product item-product1 text-center itemCategoria" data-alias="{{alias}}">
+    	<div class="product-thumb">
+    		<a href="productos.php?id={{alias}}" class="product-thumb-link">
+    			<img src="{{image_min}}" alt="">
+    		</a>
+    	</div>
+    	<div class="product-info">
+    		<h3 class="product-title"><a href="productos.php?id={{alias}}">{{categoria}}</a></h3>
+    	</div>
+    </div>
+{{/if}}

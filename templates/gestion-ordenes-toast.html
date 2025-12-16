@@ -1,0 +1,38 @@
+<style>
+    .toast .toast-body{
+        background-color: white;
+        color: black;
+        padding: 5px 10px;
+    }
+    
+    .toast .toast-body .progress{
+        height: 10px;
+    }
+
+    .toast .toast-body svg{
+        width: 20px;
+        height: 20px;
+    }
+</style>
+
+
+<!-- Toast Ejemplo -->
+<div class="position-fixed bottom-0 right-0 p-3" style="z-index: 5; right: 0; bottom: 0;">
+    <div id="facturasToast" class="toast hide" role="alert" aria-live="assertive" aria-atomic="true" data-autohide="false" style="width: 300px;">
+        <div class="toast-header">
+            <div class="spinner-border spinner-border-sm text-light mr-2" role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
+            <strong class="mr-auto">Enviando Facturas</strong>
+            <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="toast-body">
+            <p class="toast-desc">Enviando 1/1 facturas</p>
+            <div class="progress mb-2">
+                <div class="progress-bar" role="progressbar" style="width: 0%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+        </div>
+    </div>
+</div>

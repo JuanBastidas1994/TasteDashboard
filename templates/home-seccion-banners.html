@@ -1,0 +1,38 @@
+<div class="product-tab4 bg-white drop-shadow">
+    <div class="tab-header4">
+        <div class="col-md-8">
+            <h2 class="title30 font-bold">{{titulo}}</h2>
+        </div>
+        <div class="col-md-4 style-3" style="text-align: right;">
+            <ul class="table-controls">
+                <li><a target="_blank" href="banners.php" title="Agregar"><i data-feather="plus"></i></a></li>
+                <li><a href="javascript:void(0);" data-value="{{id}}" class="btnEditarSeccion" title="Editar"><i data-feather="edit-2"></i></a></li>
+                <li><a href="javascript:void(0);" data-value="{{id}}" class="btnEliminarSeccion" title="Eliminar"><i data-feather="trash"></i></a></li>
+            </ul>
+        </div>
+        <div class="col-md-12"><hr/></div>
+    </div>
+    <div class="tab-content">
+        <div id="tab1" class="tab-pane active">
+            <div class="product-slider lstPromociones">
+                
+                <div class="wrap-slider" data-navigation="true" data-pagination="false" data-autoplay="true" data-itemscustom="[[0,1],[560,1],[990,1]]">
+                    {{#each items}}
+                        <div class="item-product item-product1 text-center anuncioAccion">
+                            <div class="product-thumb">
+                                <a href="javascript:void(0)" class="product-thumb-link">
+                                    <img src="{{imagen}}" alt="" style="width: 100%;">
+                                </a>
+                                <a href="javascript:void(0)" class="quickview-link"><i class="fa fa-search" aria-hidden="true"></i></a>
+                            </div>
+                            <div class="product-info">
+                                
+                            </div>
+                        </div>
+                    {{/each}}
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>

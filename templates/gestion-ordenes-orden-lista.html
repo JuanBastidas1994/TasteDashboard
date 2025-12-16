@@ -1,0 +1,90 @@
+<script id="order-list" type="text/x-handlebars-template">
+    {{#each ordenes}}
+    <div id="orden{{id}}" data-value="{{id}}" data-estado="{{estado}}" class="mail-item {{estado}}">
+        <div class="animated animatedFadeInUp fadeInUp" id="mailHeadingThree">
+            <div class="mb-0">
+                <div class="mail-item-heading {{bg-color}}"  role="navigation">
+                    <div class="mail-item-inner">
+                        <div class="d-flex">
+                            <div class="f-head">
+                                <span><b>#{{id}}</b></span>
+                            </div>
+                            <div class="f-body">
+                                <div class="meta-mail-time">
+                                    <p class="user-email">{{nombre}}</p>
+                                </div>
+                                <div class="meta-title-tag">
+                                    <p class="mail-content-excerpt">
+                                        $<span class="mail-title"></span>{{decimal total}} &nbsp;&nbsp;
+                                        {{#eq pago "E"}}
+                                            <i data-feather="dollar-sign"></i>
+                                        {{else}}   
+                                            <i data-feather="credit-card"></i>
+                                        {{/eq}}
+                                        {{#eq is_envio "1"}}
+                                            <i data-feather="map-pin"></i>
+                                            <span class="mail-title"></span> {{direccion}}
+                                        {{else}}   
+                                            <i data-feather="package"></i>
+                                            <span class="mail-title"></span> {{retiro.fecha}} {{retiro.hora}} 
+                                        {{/eq}}
+                                        {{#eq is_programado "1"}}
+                                            <span class="badge badge-danger">Programado para: {{retiro.fecha}} {{retiro.hora}} </span>
+                                        {{/eq}}
+                                    </p>
+                                    <p class="meta-time align-self-center">{{creada.agoText}}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            {{#eq is_envio "1"}}
+                                <div class="tagsOrderList bg-info">
+                                    <i data-feather="truck"></i>
+                                    <span>Delivery</span>
+                                </div>
+                                {{#diferent cod_courier "0"}}
+                                    <div class="d-flex align-items-center tagsOrderList bg-info">
+                                        <div class="mr-2">
+                                            <img src="{{courier.imagen}}" class="rounded-circle" alt="" style="width: 25px;">
+                                        </div>
+                                        <div class="mr-2">
+                                            <b>Courier</b> <br> {{ courier.nombre }}
+                                        </div>
+                                    </div>
+                                    {{#diferent motorizado false}}
+                                        <div class="d-flex align-items-center tagsOrderList bg-info">
+                                            <div>
+                                                <img src="{{motorizado.foto}}" class="rounded-circle" alt="" style="width: 25px;">
+                                            </div>
+                                            <div>
+                                                <b>{{motorizado.nombre}} {{motorizado.apellido}}</b> <br> 
+                                                    <span style="font-size: 12px;">{{motorizado.proceso}}</span>
+                                            </div>
+                                        </div>
+                                    {{else}}
+                                        <div class="tagsOrderList bg-info">Buscando motorizado....</div>
+                                    {{/diferent}}
+                                {{/diferent}}
+                            {{else}}
+                                <div class="tagsOrderList bg-info">
+                                    <i data-feather="package"></i>
+                                    <span>Pickup</span>
+                                </div>
+                            {{/eq}}
+                            <div class="ml-auto">
+                                
+                                <span class="badge outline-badge-{{colorStatus estado}}">{{estado}}</span>
+                                <button class="btn btn-secondary"
+                                    style="font-size: 12px; padding: 5px 10px;" 
+                                    onclick="getTrackingByOrden({{id}}, event)">
+                                    Tracking
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {{/each}}
+</script>

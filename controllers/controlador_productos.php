@@ -31,20 +31,11 @@ function crear(){
     
     $desc_larga = editor_encode($desc_larga);
     
-    
-    $nameImg = '';
-    $nameImgMin = '';
-    $isLoadImage = ($txt_crop != "" && $txt_crop_min != "") ? true : false;
-    if($isLoadImage){
-        $nameImg = 'product_'.datetime_format().'.jpg';
-        $nameImgMin = 'min_'.$nameImg;
-    }
-    
     $Clproductos->nombre = $txt_nombre;
     $Clproductos->desc_corta = $txt_descripcion_corta;
     $Clproductos->desc_larga = $desc_larga;
-    $Clproductos->image_min = $nameImgMin;
-    $Clproductos->image_max = $nameImg;
+    // $Clproductos->image_min = $nameImgMin;
+    // $Clproductos->image_max = $nameImg;
     $Clproductos->costo = formatFloat($txt_costo);
     $Clproductos->precio = formatFloat($txt_precio);
     $Clproductos->precio_anterior = formatFloat($txt_precio_anterior);
@@ -66,7 +57,10 @@ function crear(){
     $Clproductos->is_combo = (isset($_POST['chk_combo'])) ? 1 : 0;
     $Clproductos->facturar_sin_stock = (isset($_POST['chk_fSinStock'])) ? 1 : 0;
     
-    
+    $cod_producto = 0;
+
+    $isLoadImage = ($txt_crop != "" && $txt_crop_min != "") ? true : false;
+    $cmbEtiquetas = isset($_POST['cmbEtiquetas']) ? $_POST['cmbEtiquetas'] : [];
 
     if(!isset($_POST['cod_producto'])){
         
@@ -86,8 +80,12 @@ function crear(){
             $cod_producto=$idP;
             /*SUBIR IMAGEN*/
             if($isLoadImage){
+                $nameImg = 'product_'.datetime_format().'.jpg';
+                $nameImgMin = 'min_'.$nameImg;
+
                 base64ToImage($txt_crop, $nameImg);
                 base64ToImage($txt_crop_min, $nameImgMin);
+                $Clproductos->setImages($nameImg, $nameImgMin, $cod_producto);
             }
 
             //INSERT ETIQUETAS
@@ -141,18 +139,22 @@ function crear(){
             $data = NULL;
             if($Clproductos->getArray($cod_producto, $data)){
                 $return['alias'] = $data['alias'];
-                
+
                 if($isLoadImage){
-                    if(base64ToImage($txt_crop, $nameImg)){
-                        $Clproductos->setImage($nameImg, 'max', $idP);
+                    $nameImg = 'product_'.datetime_format().'.jpg';
+                    $nameImgMin = 'min_'.$nameImg;
+
+                    base64ToImage($txt_crop, $nameImg);
+                    base64ToImage($txt_crop_min, $nameImgMin);
+                    $Clproductos->setImages($nameImg, $nameImgMin, $cod_producto);
+
+                    if($data['image_max'] !== "")
                         deleteFile($data['image_max']);
-                    }
                     
-                    if(base64ToImage($txt_crop_min, $nameImgMin)){
-                        $Clproductos->setImage($nameImgMin, 'min', $idP);
+                    if($data['image_min'] !== "")
                         deleteFile($data['image_min']);
-                    }
                 }
+
                 $return['imagen'] = "editada";
             }
         }else{
@@ -171,7 +173,7 @@ function crear(){
             $estado = 'A';
         else
             $estado = 'I';
-            
+
         $Clproductos->setDisponibilidad($cod_producto, $cod_sucursal, $precio, $precio_anterior, $estado,$precioReplace);
     }
     
@@ -185,8 +187,11 @@ function crear(){
     return $return;
 }
 
-function formatFloat($float){
-    return round($float,2);
+function formatFloat($float) {
+    if (is_numeric($float) && $float !== '') {
+        return round((float)$float, 2); 
+    }
+    return 0;
 }
 
 function formatFloat4($float){

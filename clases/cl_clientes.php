@@ -21,18 +21,6 @@ class cl_clientes
 		}
 
 	/*GET*/
-		public function create($cedula, $nombre="", &$id){
-			$cod_empresa = cod_empresa;
-			$query = "INSERT INTO tb_clientes(cod_empresa,cod_nivel,tipo_documento,num_documento,nombre,estado) 
-					VALUES ($cod_empresa, 1, 1, '$cedula', '$nombre', 'A')";
-			if(Conexion::ejecutar($query,NULL)){
-				$id = Conexion::lastId();
-				return true;
-			}
-			return false;
-
-		}
-
 		public function get(){
 			$cod_empresa = $this->session['cod_empresa'];
 			$query = "SELECT c.* 

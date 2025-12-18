@@ -23,6 +23,7 @@ function lista_ordenes(){
 
     if(!is_array($origen)){
         $datos = $clreporteVentas->getOrigenes($cod_empresa);
+        $d = [];
         foreach ($datos as $dato) {
             $d[] = $dato['medio_compra'];
         }

@@ -347,13 +347,14 @@ function calculaedad($fechanacimiento){
   return $ano_diferencia;
 }
 
-function sinTildes($cadena){
-      $originales = 'ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõöøùúûýýþÿŔŕ';
-      $modificadas ='aaaaaaaceeeeiiiidnoooooouuuuybsaaaaaaaceeeeiiiidnoooooouuuyybyRr';
-      $cadena = utf8_decode($cadena);
-      $cadena = strtr($cadena, utf8_decode($originales), $modificadas);
-      $cadena = strtolower($cadena);
-      return utf8_encode($cadena);
+function sinTildes($cadena) {
+    $originales = 'ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõöøùúûýýþÿŔŕ';
+    $modificadas = 'aaaaaaaceeeeiiiidnoooooouuuuybsaaaaaaaceeeeiiiidnoooooouuuyybyRr';
+    $cadena = mb_convert_encoding($cadena, 'UTF-8', 'auto');
+    $cadena = strtr($cadena, $originales, $modificadas);
+    $cadena = mb_strtolower($cadena, 'UTF-8');
+    
+    return $cadena;
 }
 
 function uploadFile($file, $name){

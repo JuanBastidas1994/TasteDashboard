@@ -1067,11 +1067,11 @@ if(file_exists($folder_demo)){
                                                                 </td>
                                                                 <td class="text-center">
                                                                  <input type="number" name="inicio[]" id="txt_inicio1" class="form-control" 
-                                                                value="0" style="width: 80px;" '.$atributo.' readonly>
+                                                                value="0" style="width: 80px;" readonly>
                                                                 </td>
                                                                 <td class="text-center">
                                                                 <input type="number" name="fin[]" id="txt_fin1" class="form-control" 
-                                                                value="'.$punto_final.'" style="width: 80px;" '.$atributoFinal.'>
+                                                                value="'.$punto_final.'" style="width: 80px;" >
                                                                 </td>
                                                                 <td class="text-center"><input type="number" name="monto[]" id="txt_monto1" class="form-control" 
                                                                 value="'.$dinero_x_punto.'" style="width: 80px;">
@@ -1084,11 +1084,11 @@ if(file_exists($folder_demo)){
                                                                 </td>
                                                                 <td class="text-center">
                                                                  <input type="number"  name="inicio[]" id="txt_inicio2" class="form-control" 
-                                                                value="'.$punto_inicial.'" style="width: 80px;" '.$atributo.'>
+                                                                value="'.$punto_inicial.'" style="width: 80px;" >
                                                                 </td>
                                                                 <td class="text-center">
                                                                 <input type="number" name="fin[]" id="txt_fin2" class="form-control" 
-                                                                value="'.$punto_final.'" style="width: 80px;" '.$atributoFinal.'>
+                                                                value="'.$punto_final.'" style="width: 80px;" >
                                                                 </td>
                                                                 <td class="text-center"><input type="number" name="monto[]" id="txt_monto2" class="form-control" 
                                                                 value="'.$dinero_x_punto.'" style="width: 80px;">
@@ -1101,11 +1101,11 @@ if(file_exists($folder_demo)){
                                                                 </td>
                                                                 <td class="text-center">
                                                                  <input type="number" name="inicio[]" id="txt_inicio3" class="form-control" 
-                                                                value="'.$punto_inicial.'" style="width: 80px;" '.$atributo.'>
+                                                                value="'.$punto_inicial.'" style="width: 80px;" >
                                                                 </td>
                                                                 <td class="text-center">
                                                                 <input type="number" name="fin[]" id="txt_fin3" class="form-control" 
-                                                                value="999" style="width: 80px;" '.$atributoFinal.' readonly>
+                                                                value="999" style="width: 80px;"  readonly>
                                                                 </td>
                                                                 <td class="text-center"><input type="number" name="monto[]" id="txt_monto3" class="form-control" 
                                                                 value="'.$dinero_x_punto.'" style="width: 80px;">

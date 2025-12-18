@@ -39,7 +39,7 @@ class Conexion {
             $rs->execute($data);
             return $rs->fetch(PDO::FETCH_ASSOC);
         } catch (Exception $ex) {
-            echo "Error al nivel de Database";
+            echo "Error al nivel de Database ".$sql.'<br/>';
             //echo "Error: " . $ex->getMessage();
         }
     }

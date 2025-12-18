@@ -26,19 +26,18 @@ function crear(){
     }while(!$Clcategorias->aliasDisponible($alias));
 
     $desc_larga = editor_encode($desc_larga);
-    $nameImg = 'categoria_'.datetime_format().'.jpg';
-    $nameImgMin = 'min_'.$nameImg;
+    $Clcategorias->cod_categoria_padre = 0;
     $Clcategorias->alias = $alias;
     $Clcategorias->nombre = $txt_nombre;
     $Clcategorias->desc_corta = $txt_descripcion_corta;
-    $Clcategorias->desc_larga = $desc_larga;
-    $Clcategorias->image_min = $nameImgMin;
-    $Clcategorias->image_max = $nameImg;
+    $Clcategorias->desc_larga = '';
 
-    if(count($cmb_categoria) > 0)
-        $Clcategorias->cod_categoria_padre = $cmb_categoria[0];
-    else
-        $Clcategorias->cod_categoria_padre = 0;
+    if(isset($_POST['cmb_categoria'])){
+        if(count($cmb_categoria) > 0)
+            $Clcategorias->cod_categoria_padre = $cmb_categoria[0];
+    }else{
+        $cmb_categoria = [];
+    }
 
     if(isset($_POST['chk_estado']))
         $Clcategorias->estado = 'A';
@@ -53,16 +52,14 @@ function crear(){
             $return['id'] = $id;
             $return['alias'] = $alias;
 
-            /*SUBIR IMAGEN*/
-            if($txt_crop != "" && $txt_crop_min != ""){
+            $isLoadImage = ($txt_crop != "" && $txt_crop_min != "") ? true : false;
+            if($isLoadImage){
+                $nameImg = 'categoria_'.datetime_format().'.jpg';
+                $nameImgMin = 'min_'.$nameImg;
+
                 base64ToImage($txt_crop, $nameImg);
                 base64ToImage($txt_crop_min, $nameImgMin);
-            }else{
-                $img1 = url_upload.'/assets/img/200x200.jpg';
-                $img2 = url_upload.'/assets/empresas/'.$session['alias'].'/'.$nameImg;
-                $img3 = url_upload.'/assets/empresas/'.$session['alias'].'/'.$nameImgMin;
-                copy($img1, $img2);
-                copy($img1, $img3);
+                $Clcategorias->setImages($nameImg, $nameImgMin, $id);
             }
 
             /*Guardar Categorias*/
@@ -83,28 +80,22 @@ function crear(){
             $data = NULL;
             if($Clcategorias->getArray($cod_producto, $data)){
                 $return['alias'] = $data['alias'];
-                if($txt_crop != ""){
-                    $cambio=false; //CAMBIARA EN LA FUNCION PARA SABER SI EL NOMBRE CAMBIO
-                    $nameImgMax = getNameImagejpg($data['image_max'], $cambio);
-                    if(base64ToImage($txt_crop, $nameImgMax)){
-                        $Clcategorias->setImage($nameImgMax, 'max', $cod_producto);
-                        if($cambio){
-                            deleteFile($data['image_max']);
-                        }
-                    }
+                $isLoadImage = ($txt_crop != "" && $txt_crop_min != "") ? true : false;
+                if($isLoadImage){
+                    $nameImg = 'categoria_'.datetime_format().'.jpg';
+                    $nameImgMin = 'min_'.$nameImg;
+
+                    base64ToImage($txt_crop, $nameImg);
+                    base64ToImage($txt_crop_min, $nameImgMin);
+                    $Clcategorias->setImages($nameImg, $nameImgMin, $cod_producto);
+
+                    if($data['image_max'] !== "")
+                        deleteFile($data['image_max']);
+                    
+                    if($data['image_min'] !== "")
+                        deleteFile($data['image_min']);
+                    
                 }
-                if($txt_crop_min != ""){
-                    $nameImgMin = ($data['image_min']!=$data['image_max']) ? $data['image_min'] : 'min_'.$data['image_min'];
-                    $cambio=false; //CAMBIARA EN LA FUNCION PARA SABER SI EL NOMBRE CAMBIO
-                    $nameImgMin = getNameImagejpg($nameImgMin, $cambio);
-                    if(base64ToImage($txt_crop_min, $nameImgMin)){
-                        $Clcategorias->setImage($nameImgMin, 'min', $cod_producto);
-                        if($cambio){
-                            deleteFile($data['image_min']);
-                        }
-                    }
-                }
-                $return['imagen'] = "editada";
             }
 
             /*Guardar Categorias*/

@@ -237,22 +237,20 @@ function getCombo2($id, $cod_empresa, $nivel=1, $values=[]){
                                 </div>
 
                                 <div class="form-row">
-                                  
-                                    <div class="form-group col-md-8 col-sm-8 col-xs-12" style="<?= $displayCombo ?>">
+                                    <?php
+                                    if($tipo_empresa !== 1){
+                                      $allOptionsCombo = getCombo($categorias, 1, $categoriasPadres);
+                                      $selectedP = ($cod_producto > 0 && $cod_categoria_padre == 0) ? "selected" : "";
+                                      echo '<div class="form-group col-md-8 col-sm-8 col-xs-12">
                                         <label>Categor&iacute;as <span class="asterisco">*</span></label>
-                                        <?php
-                                            $selectedP = "";
-                                            if($cod_producto > 0 && $cod_categoria_padre == 0)
-                                                $selectedP = "selected";
-                                        ?>
                                         <select multiple="multiple" name="cmb_categoria[]" id="cmb_categoria" class="form-control" required="required">
-                                            
-                                            <option value="0" class="l1" <?=$selectedP?>>Categor&iacute;a Principal</option>
-                                            <?php
-                                                echo getCombo($categorias, 1, $categoriasPadres)
-                                            ?>
-                                        </select>
-                                    </div>
+                                          <option value="0" class="l1" '.$selectedP.'>Categor&iacute;a Principal</option>
+                                          '.$allOptionsCombo.'
+                                        </select>  
+                                      </div>
+                                      ';
+                                    }
+                                    ?>
                                       <div class="form-group col-md-4 col-sm-4 col-xs-12" style="margin-bottom:10px;">
                                           <label>Estado <span class="asterisco">*</span></label>
                                           <div>
@@ -266,14 +264,14 @@ function getCombo2($id, $cod_empresa, $nivel=1, $values=[]){
 
                                 <div class="form-row">
                                     <div class="form-group col-md-12 col-sm-12 col-xs-12" style="margin-bottom:10px;">
-                                        <label>Descripcin Corta</label>
+                                        <label>Descripcion Corta</label>
                                         <textarea name="txt_descripcion_corta" id="txt_descripcion_corta" class="form-control" autocomplete="off" style="resize: none;"><?php echo $desc_corta; ?></textarea>
                                     </div>
                                 </div>
 
-                                <div class="form-row">
+                                <div class="form-row d-none">
                                     <div class="form-group col-md-12 col-sm-12 col-xs-12" style="margin-bottom:10px;">
-                                        <label>Descripcin Larga</label>
+                                        <label>Descripcion Larga</label>
                                         <textarea name="txt_descripcion_larga" id="editor1" class="form-control" autocomplete="off" style="resize: none;" required="required"><?php echo $desc_larga; ?></textarea>
                                     </div>
                                 </div>

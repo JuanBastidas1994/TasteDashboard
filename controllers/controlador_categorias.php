@@ -57,8 +57,8 @@ function crear(){
                 $img1 = url_upload.'/assets/img/200x200.jpg';
                 $img2 = url_upload.'/assets/empresas/'.$session['alias'].'/'.$nameImg;
                 $img3 = url_upload.'/assets/empresas/'.$session['alias'].'/'.$nameImgMin;
-                copy($img1, $img2);
-                copy($img1, $img3);
+                @copy($img1, $img2);
+                @copy($img1, $img3);
             }
         }else{
             $return['success'] = 0;

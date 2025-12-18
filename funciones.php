@@ -42,6 +42,15 @@ function controller_create(){
     }
 } 
 
+function getImage($image) {
+    $session = getSession();
+    $files = url_sistema.'assets/empresas/'.$session['alias'].'/';
+    if (empty($image)) {
+        return url_sistema . 'assets/images/200x200.jpg';
+    }
+    return $files . $image;
+}
+
 function fecha()
 {
 	date_default_timezone_set('America/Guayaquil');
@@ -445,13 +454,15 @@ function calculaedad($fechanacimiento){
   return $ano_diferencia;
 }
 
-function sinTildes($cadena){
-      $originales = 'ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõöøùúûýýþÿŔŕ';
-      $modificadas ='aaaaaaaceeeeiiiidnoooooouuuuybsaaaaaaaceeeeiiiidnoooooouuuyybyRr';
-      $cadena = utf8_decode($cadena);
-      $cadena = strtr($cadena, utf8_decode($originales), $modificadas);
-      $cadena = strtolower($cadena);
-      return utf8_encode($cadena);
+
+function sinTildes($cadena) {
+    $originales = 'ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõöøùúûýýþÿŔŕ';
+    $modificadas = 'aaaaaaaceeeeiiiidnoooooouuuuybsaaaaaaaceeeeiiiidnoooooouuuyybyRr';
+    $cadena = mb_convert_encoding($cadena, 'UTF-8', 'auto');
+    $cadena = strtr($cadena, $originales, $modificadas);
+    $cadena = mb_strtolower($cadena, 'UTF-8');
+    
+    return $cadena;
 }
 
 function uploadFile($file, $name){
@@ -555,12 +566,20 @@ function getFormatoFile($string){
   return ".".$f[count($f) -1];
 }	 
 
-function editor_encode($texto){
-  return htmlentities(htmlspecialchars($texto));
+// function editor_encode($texto){
+//   return htmlentities(htmlspecialchars($texto));
+// }
+
+// function editor_decode($texto){
+//   return html_entity_decode(htmlspecialchars_decode($texto));
+// }
+
+function editor_encode($texto) {
+    return htmlspecialchars($texto ?? '', ENT_QUOTES, 'UTF-8');
 }
 
-function editor_decode($texto){
-  return html_entity_decode(htmlspecialchars_decode($texto));
+function editor_decode($texto) {
+    return htmlspecialchars_decode($texto ?? '', ENT_QUOTES);
 }
 
 function listDraggableMenuEmpresa($id, $nivel, $empresa, $rol)

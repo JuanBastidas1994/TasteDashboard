@@ -86,8 +86,8 @@ class cl_fidelizacion
 		}
 		
 		public function insert_fidelizacion($cod_empresa, $divisor_puntos, $monto_puntos,&$id){
-			$query = "INSERT INTO tb_empresa_fidelizacion_puntos(cod_empresa, divisor_puntos, monto_puntos) ";
-        	$query.= "VALUES($cod_empresa, $divisor_puntos, $monto_puntos)";
+			$query = "INSERT INTO tb_empresa_fidelizacion_puntos(cod_empresa, divisor_puntos, monto_puntos, valor_regalo_cumple) ";
+        	$query.= "VALUES($cod_empresa, $divisor_puntos, $monto_puntos, 0)";
         	if(Conexion::ejecutar($query,NULL)){
         		$id = Conexion::lastId();
         		return true;

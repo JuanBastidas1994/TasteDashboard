@@ -142,7 +142,8 @@ class cl_productos
 			$usuario = $this->session['cod_usuario'];
 			$empresa = $this->session['cod_empresa'];
 			$query = "INSERT INTO tb_productos(cod_producto_padre, cod_empresa, alias, nombre, desc_corta, desc_larga, image_min, image_max, fecha_create, user_create, estado, precio, precio_no_tax, iva_valor, iva_porcentaje, codigo, precio_anterior, costo, open_detalle, peso, volumen ,sku,is_combo,cobra_iva, noStock, tiempo_preparacion) ";
-        	$query.= "VALUES($this->cod_producto_padre, $empresa, '$this->alias', '$this->nombre', '$this->desc_corta', '$this->desc_larga', '$this->image_min', '$this->image_max', NOW(), $usuario, 'A', $this->precio, $this->precio_no_tax, $this->iva_valor, $this->iva_porcentaje, '$this->codigo', $this->precio_anterior, $this->costo, $this->open_detalle, '$this->peso', '$this->volumen', '$this->sku', $this->is_combo, $this->cobra_iva, $this->facturar_sin_stock, $this->$tiempo_preparacion)";
+        	$query.= "VALUES($this->cod_producto_padre, $empresa, '$this->alias', '$this->nombre', '$this->desc_corta', '$this->desc_larga', '$this->image_min', '$this->image_max', NOW(), $usuario, 'A', $this->precio, $this->precio_no_tax, $this->iva_valor, $this->iva_porcentaje, '$this->codigo', $this->precio_anterior, $this->costo, $this->open_detalle, '$this->peso', '$this->volumen', '$this->sku', $this->is_combo, $this->cobra_iva, $this->facturar_sin_stock, $this->tiempo_preparacion)";
+
         	if(Conexion::ejecutar($query,NULL)){
         		$id = Conexion::lastId();
         		$this->set_categorias($id);
@@ -196,6 +197,13 @@ class cl_productos
 		    if($scale=="min")
 		        $option = "image_min='$name'";
 		    $query = "UPDATE tb_productos SET $option WHERE cod_producto = $cod_producto";
+		    return Conexion::ejecutar($query,NULL);
+		}
+
+		public function setImages($image_max, $image_min, $cod_producto){
+		    $query = "UPDATE tb_productos 
+						SET image_max='$image_max', image_min='$image_min' 
+						WHERE cod_producto = $cod_producto";
 		    return Conexion::ejecutar($query,NULL);
 		}
 		

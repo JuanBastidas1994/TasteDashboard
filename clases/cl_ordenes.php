@@ -78,6 +78,7 @@ class cl_ordenes
 		}
 
 		public function listaLimit(){
+			$where = "";
 		    if($this->session['cod_rol']==3)
 		    {
 		        $where = "AND ca.cod_sucursal =".$this->session['cod_sucursal'];

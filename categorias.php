@@ -8,16 +8,15 @@ if(!isLogin()){
 
 $Clcategorias = new cl_categorias(NULL);
 $session = getSession();
-$files = url_sistema.'assets/empresas/'.$session['alias'].'/';
 
 $categorias = $Clcategorias->listaNueva($session['cod_empresa']);
 function listaCategorias($data, $parent = 0, $nivel=1){
-    global $files;
     $html = "";
     $lvl = "l".$nivel; 
     foreach ($data as $key => $categoria) {
         $cod_categoria = $categoria['cod_categoria'];
-        $imagen = $files.$categoria['image_min']."?v=".$categoria['fecha_modificacion'];;
+        $imagen = getImage($categoria['image_min']);
+        // $imagen = $files.$categoria['image_min']."?v=".$categoria['fecha_modificacion'];
         $badge='primary';
         if($categoria['estado'] == 'I')
             $badge='danger';

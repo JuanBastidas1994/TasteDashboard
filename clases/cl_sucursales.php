@@ -50,7 +50,6 @@ class cl_sucursales
 			$empresa = $this->cod_empresa;
 			$query = "INSERT INTO tb_sucursales(cod_empresa,cod_ciudad, nombre, direccion, latitud, longitud, hora_ini, hora_fin, intervalo, emisor, telefono, correo, estado, distancia_km,image, image_min, delivery, pickup, envio_grava_iva, insite) ";
         	$query.= "VALUES($this->cod_empresa, '$this->cod_ciudad', '$this->nombre', '$this->direccion', '$this->latitud', '$this->longitud', '$this->hora_ini', '$this->hora_fin', '$this->intervalo', '$this->emisor', '$this->telefono', '$this->correo', '$this->estado', $this->distancia_km,'$this->imagen', '$this->image_min', '$this->delivery', '$this->pickup', '$this->envio_grava_iva', '$this->insite')";
-        //	echo $query;
         	if(Conexion::ejecutar($query,NULL)){
         		$id = Conexion::lastId();
         		return true;
@@ -319,7 +318,7 @@ class cl_sucursales
 		
 		public function getProvincias()
       {
-          $query = "SELECT * FROM `tb_ciudades` GROUP by provincia order by provincia ASC";
+          $query = "SELECT provincia FROM `tb_ciudades` GROUP by provincia order by provincia ASC";
           $row = Conexion::buscarVariosRegistro($query);
           return $row;
           
@@ -426,7 +425,7 @@ class cl_sucursales
 				return true;
 			}
 			$query = "INSERT INTO tb_sucursal_courier
-						SET estado = '$estado', cod_sucursal = $cod_sucursal, cod_courier = $cod_courier";
+						SET estado = '$estado', cod_sucursal = $cod_sucursal, cod_courier = $cod_courier, detalle=''";
 			Conexion::ejecutar($query, null);
 			return true;
 		}

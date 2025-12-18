@@ -113,7 +113,7 @@ foreach ($sucursales as $sucursal) {
     $cod_picker_sucursal = 0;
     if ($infoP) {
         $api = $infoP['api'];
-        $token = $infoP['token'];
+        // $token = $infoP['token'];
         $cod_picker_sucursal = $infoP['cod_picker_sucursal'];
         $ambiente = ($infoP['ambiente']);
         $ver = '<td  class="text-center"><button type="button" class="btn btn-outline-primary btnVerconfigPicker" data-api="' . $api . '" data-token="' . $cod_sucursal . '"> <i data-feather="eye"></i></button></td>';

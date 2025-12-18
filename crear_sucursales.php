@@ -39,6 +39,8 @@ $correo = "";
 $chkSucursal = "checked ";
 $dChecked = "checked ";
 $pChecked = "checked ";
+$egiChecked = "checked ";
+$chkProgramar = "";
 $empresa = $Clempresas->get($session['cod_empresa']);
 $tipo_empresa =$empresa['cod_tipo_empresa'];
 $programar_pedido = $empresa['programar_pedido'];
@@ -78,7 +80,6 @@ if(isset($_GET['id'])){
             $chkSucursal = "checked";
             $estadoSucursal = "A";
             
-            $chkProgramar = "";
             if($sucursal['programar_pedido'] == 1)
                 $chkProgramar = "checked";
             

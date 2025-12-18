@@ -220,6 +220,10 @@ if(isset($_GET['id'])){
                                         <input type="hidden" name="txt_tid_desarrollo" id="txt_tid_desarrollo" value="PD100406" />
 
                                         <?php
+                                          $opcionesAmbiente="";
+                                          $optionsFases = "";
+                                          $faseActual = "";
+                                          $ambienteActual = "";
                                           $apiDatafast = "";
                                           $entity = "";
                                           $mid = "";

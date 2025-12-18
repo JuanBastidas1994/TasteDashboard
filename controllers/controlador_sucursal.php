@@ -97,17 +97,9 @@ function crear(){
                 $img1 = url_upload.'/assets/img/200x200.jpg';
                 $img2 = url_upload.'/assets/empresas/'.$session['alias'].'/'.$nameImg;
                 $img3 = url_upload.'/assets/empresas/'.$session['alias'].'/'.$nameImgMin;
-                copy($img1, $img2);
-                copy($img1, $img3);
+                @copy($img1, $img2);
+                @copy($img1, $img3);
             }
- 
-            // ASIGNAR MIS MOTORIZADOS se apago por solicitud de Sebas
-            // $empresa = $Clempresas->get($session["cod_empresa"]);
-            // if($empresa){
-            //     if($empresa["cod_tipo_empresa"] == 1){
-            //         $Clsucursales->setCourierOffice($id, 99, 'A'); 
-            //     }
-            // }
 
             /*--NUEVO--*/
             /*ASIGNAR PRODUCTOS*/
@@ -657,7 +649,7 @@ function saveCostosEnvioRango() {
 
     $return["success"] = 1;
     $return["mensaje"] = "Costos de envío sucursales por rango actualizados";
-    $return["data"] = $data;
+    // $return["data"] = $data;
 
     return $return;
 }

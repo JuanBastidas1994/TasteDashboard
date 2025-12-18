@@ -149,7 +149,10 @@ class cl_reporte_descuentos
                     AND oc.medio_compra IN ($origenes)
                     $conca
                     AND oc.cod_empresa = $cod_empresa
-                    AND (oc.estado <> 'ANULADA' OR oc.estado <> 'CANCELADA')";
+                    AND (oc.estado <> 'ANULADA' OR oc.estado <> 'CANCELADA')
+                    GROUP BY 
+                        DATE_FORMAT(oc.fecha, '%m'),
+                        DATE_FORMAT(oc.fecha, '%Y');";
             $resp = Conexion::buscarVariosRegistro($query);
             return $resp;
 		}

@@ -381,7 +381,7 @@ if($Clempresas->getPermisoTienda($cod_empresa))
                                                             <input step="0.01" type="number" placeholder="" name="peso_maximo[]" id="adicional_km" class="form-control" autocomplete="off" value="<?php echo $r['peso_maximo']; ?>">
                                                         </div>
                                                     </div>
-                                                <? endforeach; ?>
+                                                <?php endforeach; ?>
                                                 <?php if(count($row) ==0): ?>
                                                     <?php foreach($tipoTransporte as $t): ?>
                                                         <div class="row">
@@ -415,7 +415,7 @@ if($Clempresas->getPermisoTienda($cod_empresa))
                                                                 <input step="0.01" type="number" placeholder="" name="peso_maximo[]" id="adicional_km" class="form-control" autocomplete="off" value="">
                                                             </div>
                                                         </div>
-                                                    <? endforeach; ?>
+                                                    <?php endforeach; ?>
                                                 <?php endif; ?>
                                                     <div class="row"> 
                                                         <div class="form-group col-md-12 col-sm-12 col-xs-12" style="text-align: right;">
@@ -543,7 +543,7 @@ if($Clempresas->getPermisoTienda($cod_empresa))
                                 <div class="col-xl-12 col-lg-12 col-sm-12  layout-spacing">
                                     <div class="widget-content widget-content-area br-6">
                                         <div class="col-xl-12 col-md-12 col-sm-12 col-12" wfd-id="42">
-                                            <h4>Niveles</h4>
+                                            <h4>Formas de pago</h4>
                                         </div>
                                         <table class="table style-3  table-hover">
                                             <thead>

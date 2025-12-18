@@ -2,7 +2,7 @@
 
 class cl_banners
 {
-		var $con;
+		var $con, $session;
 		var $cod_empresa, $cod_banner, $titulo, $subtitulo, $descuento, $image_min, $text_boton, $url_boton, $estado;
 		
 		public function __construct()

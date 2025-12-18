@@ -12,7 +12,10 @@ foreach ($respSucursal as $sucursal) {
                         WHERE oc.cod_sucursal = $cod_sucursal
                         AND DATE_FORMAT(oc.fecha, '%m') = ($j+1)
                         AND DATE_FORMAT(oc.fecha, '%Y') = $anio
-                        AND oc.estado = 'ENTREGADA'";
+                        AND oc.estado = 'ENTREGADA'
+                        GROUP BY 
+                            DATE_FORMAT(oc.fecha, '%m'),
+                            DATE_FORMAT(oc.fecha, '%Y')";
         $row = Conexion::buscarRegistro($query, NULL);
         // echo $query;
         if ($row)

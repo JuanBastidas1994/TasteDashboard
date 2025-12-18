@@ -32,6 +32,16 @@ $txt_peso = 0;
 $txt_volumen = 0;
 $txt_sku = "";
 $tiempo_preparacion = 0;
+$fecha_create = "";
+$fSinStock = "";
+$precio = "";
+$precio_anterior = "";
+$peso = "";
+$precio_no_tax = "";
+$iva_valor = "";
+$costo = "";
+$days = "";
+$etiquetas = [];
 
 $showTimeline = "none";
 if ($session['alias'] == "meet-galapagos")
@@ -84,6 +94,8 @@ $sizeMinHeight = 150;
 $sizeMaxWidth = 400;
 $sizeMaxHeight = 400;
 $quality = 0.8;
+$alias = "";
+
 $sizeCrop = $Clempresas->getSizeCrop($session['cod_empresa']);
 if ($sizeCrop) {
     $sizeMinWidth = $sizeCrop['size_min_width'];
@@ -105,6 +117,12 @@ if (isset($_GET['id'])) {
         $desc_larga = editor_decode($producto['desc_larga']);
         $categorias = $Clproductos->get_categorias($cod_producto);
         $etiquetas = $Clproductos->getEtiquetas($cod_producto);
+        $precio = $producto['precio'];
+        $precio_anterior = $producto['precio_anterior'];
+        $peso = $producto['peso'];
+        $precio_no_tax = $producto['precio_no_tax'];
+        $iva_valor = $producto['iva_valor'];
+        $costo = $producto['costo'];
 
         if ($producto['estado'] == 'I')
             $estado = "";
@@ -116,7 +134,9 @@ if (isset($_GET['id'])) {
             $displayCombo = "";
         }
 
-        $fSinStock = "";
+        $fecha_create = $producto['fecha_create'];
+
+        
         if ($producto['noStock'] == 1)
             $fSinStock = "checked";
 
@@ -634,7 +654,7 @@ function recursive($array, $posicion, &$data, &$codigos)
 
                         <!-- TIMELINE -->
                         <span style="cursor: pointer;margin-right: 15px; display:<?= $showTimeline ?>">
-                            <a href="timelines.php?prd=<?= $_GET["id"] ?>">
+                            <a href="timelines.php?prd=<?= $cod_producto ?>">
                                 <i class="feather-16" data-feather="activity"></i>
                                 <span style="font-size: 16px; vertical-align: middle;color:#888ea8;"> Timeline</span>
                             </a>
@@ -642,7 +662,7 @@ function recursive($array, $posicion, &$data, &$codigos)
 
                         <?php
                         echo '<span style="cursor: pointer;margin-right: 15px;">
-                        <i class="feather-16" data-feather="calendar"></i><span style="font-size: 16px; vertical-align: middle;color:#888ea8;"> ' . fechaLatinoShort($producto['fecha_create']) . '</span>
+                        <i class="feather-16" data-feather="calendar"></i><span style="font-size: 16px; vertical-align: middle;color:#888ea8;"> ' . fechaLatinoShort($fecha_create) . '</span>
                       </span>';
 
                         ?>
@@ -1259,13 +1279,13 @@ function recursive($array, $posicion, &$data, &$codigos)
                                     <div class="form-group col-md-6 col-sm-6 col-xs-12">
                                         <label>Precio de Venta (PVP)</label>
                                             <span class="far fa-question-circle rounded bs-tooltip" data-placement="top" title="Este campo sirve para que en la web se muestre el precio del producto con IVA"></span>
-                                            <input type="number" placeholder="0.00" name="txt_precio" id="txt_precio" class="form-control" required="required" autocomplete="off" value="<?php echo $producto['precio']; ?>">
+                                            <input type="number" placeholder="0.00" name="txt_precio" id="txt_precio" class="form-control" required="required" autocomplete="off" value="<?php $precio; ?>">
                                     </div>
                                     <div class="form-group col-md-6 col-sm-6 col-xs-12">
                                         <label>Precio comparaci&oacute;n
                                             <span class="far fa-question-circle rounded bs-tooltip" data-placement="top" title="Este campo sirve para que en la web se muestre el producto con el precio rebajado, No obligatorio"></span>
                                         </label>
-                                        <input type="number" placeholder="0.00" name="txt_precio_anterior" id="txt_precio_anterior" class="form-control" autocomplete="off" value="<?php echo $producto['precio_anterior']; ?>">
+                                        <input type="number" placeholder="0.00" name="txt_precio_anterior" id="txt_precio_anterior" class="form-control" autocomplete="off" value="<?php echo $precio_anterior; ?>">
                                     </div>
                                 </div>
 
@@ -1273,14 +1293,14 @@ function recursive($array, $posicion, &$data, &$codigos)
                                     <input type="hidden" id="txt_impuesto" value="<?= $impuesto ?>" />
                                     <div class="form-group col-md-6 col-sm-6 col-xs-12">
                                             <label>Iva</label>
-                                            <input type="number" placeholder="0.00" name="txt_iva" id="txt_iva" class="form-control" required="required" autocomplete="off" value="<?php echo $producto['iva_valor']; ?>" disabled>
-                                            <input type="hidden" name="txt_ivaC" id="txt_ivaC" class="form-control" required="required" autocomplete="off" value="<?php echo $producto['iva_valor']; ?>">
+                                            <input type="number" placeholder="0.00" name="txt_iva" id="txt_iva" class="form-control" required="required" autocomplete="off" value="<?php echo $iva_valor; ?>" disabled>
+                                            <input type="hidden" name="txt_ivaC" id="txt_ivaC" class="form-control" required="required" autocomplete="off" value="<?php echo $iva_valor; ?>">
                                     </div>
                                     <div class="form-group col-md-6 col-sm-6 col-xs-12">
                                         <label>Precio no tax
                                         </label>
-                                        <input type="number" placeholder="0.00" name="txt_precio_no_tax" id="txt_precio_no_tax" class="form-control" autocomplete="off" value="<?php echo $producto['precio_no_tax']; ?>" disabled>
-                                        <input type="hidden" name="txt_precio_no_taxC" id="txt_precio_no_taxC" class="form-control" required="required" autocomplete="off" value="<?php echo $producto['precio_no_tax']; ?>">
+                                        <input type="number" placeholder="0.00" name="txt_precio_no_tax" id="txt_precio_no_tax" class="form-control" autocomplete="off" value="<?php echo $precio_no_tax; ?>" disabled>
+                                        <input type="hidden" name="txt_precio_no_taxC" id="txt_precio_no_taxC" class="form-control" required="required" autocomplete="off" value="<?php echo $precio_no_tax; ?>">
                                     </div>
                                 </div>
 
@@ -1303,7 +1323,7 @@ function recursive($array, $posicion, &$data, &$codigos)
                                 <div class="row" style="display:none">
                                     <div class="form-group col-md-6 col-sm-6 col-xs-12">
                                         <label>Costo del productos</label>
-                                        <input type="number" placeholder="0.00" name="txt_costo" id="txt_costo" class="form-control" autocomplete="off" value="<?php echo $producto['costo']; ?>">
+                                        <input type="number" placeholder="0.00" name="txt_costo" id="txt_costo" class="form-control" autocomplete="off" value="<?php echo $costo; ?>">
                                     </div>
                                     <div class="form-group col-md-3 col-sm-3 col-xs-12">
                                         <label>Margen</label>

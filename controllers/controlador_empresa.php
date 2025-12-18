@@ -100,7 +100,7 @@ function crear(){
             }else{
                 $img1 = url_upload.'/assets/img/200x200.jpg';
                 $img2 = url_upload.'/assets/empresas/'.$alias.'/'.$nameImg;
-                copy($img1, $img2);
+                @copy($img1, $img2);
             }
 
             /*CREAR USUARIO*/

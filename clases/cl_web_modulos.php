@@ -16,6 +16,20 @@ class cl_web_modulos
         $resp = Conexion::buscarVariosRegistro($query);
         return $resp;
 	}
+
+	public function getSugerencia(){
+		$query = "SELECT * FROM tb_web_modulos_productos WHERE modulo='SUGERENCIAS' AND cod_empresa = ".$this->session['cod_empresa'];
+        $resp = Conexion::buscarRegistro($query);
+        return $resp;
+	}
+
+	public function createSugerencia(){
+		$cod_empresa = $this->session['cod_empresa'];
+		$query = "INSERT INTO tb_web_modulos_productos(nombre, modulo, descripcion, cod_empresa)
+				VALUES('Sugerencia a usuario', 'SUGERENCIAS', 'Sugerencias al usuario que apareceran en el checkout', $cod_empresa)";
+        $resp = Conexion::ejecutar($query,NULL);
+        return $resp;
+	}
 	
 	/*--NUEVO--*/
 	

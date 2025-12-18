@@ -12,7 +12,7 @@ class cl_categorias
 		}
 
 		public function listaNueva($cod_empresa, $end = 300){
-			$query = "SELECT cod_categoria, alias, categoria, image_min, image_max, estado
+			$query = "SELECT cod_categoria, alias, categoria, image_min, image_max, estado, desc_corta, fecha_modificacion
 					FROM tb_categorias WHERE estado IN ('A','I') AND cod_categoria_padre = 0 AND cod_empresa = ".$cod_empresa." LIMIT 0,$end";
             $resp = Conexion::buscarVariosRegistro($query);
             foreach ($resp as $key => $categoria) {
@@ -132,6 +132,13 @@ class cl_categorias
 		    return Conexion::ejecutar($query,NULL);
 		}
 
+		public function setImages($image_max, $image_min, $cod_categoria){
+		    $query = "UPDATE tb_categorias 
+						SET image_max='$image_max', image_min='$image_min' 
+						WHERE cod_categoria = $cod_categoria";
+		    return Conexion::ejecutar($query,NULL);
+		}
+
 		public function set_estado($cod_categoria, $estado){
 			$usuario = $this->session['cod_usuario'];
 			$empresa = $this->cod_empresa;
@@ -243,6 +250,7 @@ class cl_categorias
 		}
 
 		public function getVariasCategorias($cod_categoria){
+			$cod_categorias = [];
 			$query = "SELECT * 
 						FROM tb_categorias_dependientes 
 						WHERE cod_categoria = $cod_categoria";

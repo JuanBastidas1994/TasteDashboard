@@ -35,8 +35,8 @@ class cl_usuarios
 			$usuario = $this->session['cod_usuario'];
 			$empresa = $this->cod_empresa;
 
-			$query = "INSERT INTO tb_usuarios(cod_empresa, cod_rol, nombre, apellido, telefono, imagen, correo, usuario, password, fecha_nacimiento, estado, cod_sucursal, placa) ";
-        	$query.= "VALUES($this->cod_empresa, '$this->cod_rol', '$this->nombre', '$this->apellido', '$this->telefono', '$this->imagen', '$this->correo', '$this->usuario', MD5('$this->password'), '$this->fecha_nacimiento', '$this->estado', $this->cod_sucursal, '$this->placa')";
+			$query = "INSERT INTO tb_usuarios(cod_empresa, cod_rol, nombre, apellido, telefono, imagen, correo, usuario, password, estado, cod_sucursal, placa) ";
+        	$query.= "VALUES($this->cod_empresa, '$this->cod_rol', '$this->nombre', '$this->apellido', '$this->telefono', '$this->imagen', '$this->correo', '$this->usuario', MD5('$this->password'), '$this->estado', $this->cod_sucursal, '$this->placa')";
         	if(Conexion::ejecutar($query,NULL)){
         		$id = Conexion::lastId();
         		return true;

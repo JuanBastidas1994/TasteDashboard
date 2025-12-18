@@ -56,7 +56,7 @@ function crear(){
             if(!uploadFile($_FILES["img_profile"], $nameImg)){
                 $img1 = url_upload.'/assets/img/200x200.jpg';
                 $img2 = url_upload.'/assets/empresas/'.$session['alias'].'/'.$nameImg;
-                copy($img1, $img2);  
+                @copy($img1, $img2);  
             }
             if($Clusuario->crearKeystore($id, $txt_password, 0))
                 $return['keystore'] = "Se creó";
@@ -152,7 +152,7 @@ function crearFlota(){
             if(!uploadFile($_FILES["img_profile"], $nameImg)){
                 $img1 = url_upload.'/assets/img/200x200.jpg';
                 $img2 = url_upload.'/assets/empresas/'.$session['alias'].'/'.$nameImg;
-                copy($img1, $img2);  
+                @copy($img1, $img2);  
             }
             if($Clusuario->crearKeystore($id, $txt_password, 0))
                 $return['keystore'] = "Se creó";

@@ -309,13 +309,13 @@ $files = url_sistema.'assets/empresas/'.$session['alias'].'/';
     <script src="assets/js/pages/sucursales.js" type="text/javascript"></script>
     <script src="plugins/croppie/croppie.js"></script>
     <script>
-        $("document").ready(function(){
-            if ("geolocation" in navigator){
-              navigator.geolocation.getCurrentPosition(show_location, show_error, {timeout:1000, enableHighAccuracy: true}); //position request
-            }else{
-              console.log("Browser doesn't support geolocation!");
-            }
-        });
+        // $("document").ready(function(){
+        //     if ("geolocation" in navigator){
+        //       navigator.geolocation.getCurrentPosition(show_location, show_error, {timeout:1000, enableHighAccuracy: true}); //position request
+        //     }else{
+        //       console.log("Browser doesn't support geolocation!");
+        //     }
+        // });
 
         //Success Callback
         function show_location(position){

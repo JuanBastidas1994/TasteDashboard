@@ -7,8 +7,6 @@ class cl_updates
 		
 		public function __construct()
 		{
-			$this->session = getSession();
-			$this->cod_empresa = $this->session['cod_empresa'];
 		}
 		
 		public function lista(){

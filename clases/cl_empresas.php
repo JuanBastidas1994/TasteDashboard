@@ -801,7 +801,7 @@ class cl_empresas
 		
 		//Permisos - Get Permisos por empresa
 		public function getIdPermisionByBusiness($cod_empresa){
-		    $identificadores = null;
+		    $identificadores = [];
 		    $x=0;
 		    $query = "SELECT identificador FROM tb_permisos_empresas WHERE cod_empresa = $cod_empresa";
 		    $permisos = Conexion::buscarVariosRegistro($query);

@@ -33,7 +33,7 @@ $longitud="";
 $emisor = "";
 $distancia="";
 $intervalo = 0;
-$estado = "";
+$estado = "A";
 $telefono = "";
 $correo = "";
 $chkSucursal = "checked ";
@@ -75,10 +75,8 @@ if(isset($_GET['id'])){
             $banner_xl = $files.$sucursal['banner_xl'];
             
             $chkSucursal = "";
-            $estadoSucursal = "I";
             if($estado == "A")
-            $chkSucursal = "checked";
-            $estadoSucursal = "A";
+                $chkSucursal = "checked";
             
             if($sucursal['programar_pedido'] == 1)
                 $chkProgramar = "checked";
@@ -294,7 +292,7 @@ $listaProductos = $Clproductos->listaProductBySucursal($cod_sucursal);
                                                                     <span class="slider round"></span>
                                                                 </label>
                                                             </div>
-                                                            <input type="hidden" name="cmbEstado" id="cmbEstado" value="<?php echo $estadoSucursal; ?>">
+                                                            <input type="hidden" name="cmbEstado" id="cmbEstado" value="<?php echo $estado; ?>">
                                                         </div>
                                                     </div>
                             

@@ -566,20 +566,17 @@ function getFormatoFile($string){
   return ".".$f[count($f) -1];
 }	 
 
-// function editor_encode($texto){
-//   return htmlentities(htmlspecialchars($texto));
-// }
-
-// function editor_decode($texto){
-//   return html_entity_decode(htmlspecialchars_decode($texto));
-// }
-
 function editor_encode($texto) {
     return htmlspecialchars($texto ?? '', ENT_QUOTES, 'UTF-8');
 }
 
 function editor_decode($texto) {
     return htmlspecialchars_decode($texto ?? '', ENT_QUOTES);
+}
+
+function fechaValida($fecha) {
+    $d = DateTime::createFromFormat('Y-m-d', $fecha);
+    return $d && $d->format('Y-m-d') === $fecha;
 }
 
 function listDraggableMenuEmpresa($id, $nivel, $empresa, $rol)

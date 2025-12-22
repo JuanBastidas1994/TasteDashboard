@@ -2,7 +2,9 @@
 class cl_empresas
 {
 		public $session;
-		public $cod_empresa, $nombre, $alias, $telefono, $logo, $api, $estado,$tipoem,$urlWeb,$color,$txt_description,$txt_keywords, $pixel, $pixel_verify, $cod_plan, $precio_mensual, $fecha_caducidad, $tipoRecorte;
+		public $cod_empresa, $nombre, $alias, $telefono, $logo, $api, $estado,$tipoem,$urlWeb,$color,$txt_description,$txt_keywords, $pixel, $pixel_verify, $precio_mensual, $fecha_caducidad, $tipoRecorte;
+		public $cod_plan = 0;
+		public $keywords, $description;
 		public $contacto, $correo, $password;
 		public $ckStartOnMenu;
 		
@@ -109,7 +111,7 @@ class cl_empresas
 		public function crear(&$id){
 			$usuario = $this->session['cod_usuario'];
 			$query = "INSERT INTO tb_empresas(cod_tipo_empresa, cod_plan, fecha_caducidad, mensualidad, nombre, alias, telefono, representante_nombre, representante_correo, logo, api_key, estado,url_web,color, description, keywords,fecha_registro,user_create, facebook_pixel, facebook_pixel_verify, tipo_recorte, iniciar_en_menu) ";
-        	$query.= "VALUES('$this->tipoem', '$this->cod_plan', '$this->fecha_caducidad', '$this->precio_mensual', '$this->nombre', '$this->alias', '$this->telefono', '$this->contacto', '$this->correo', '$this->logo', '$this->api', '$this->estado','$this->urlWeb','$this->color', '$this->description', '$this->keywords', NOW(),$usuario, '$this->pixel', '$this->pixel_verify', '$this->cmbTipoRecorte', '$this->ckStartOnMenu')";
+        	$query.= "VALUES('$this->tipoem', '$this->cod_plan', '$this->fecha_caducidad', '$this->precio_mensual', '$this->nombre', '$this->alias', '$this->telefono', '$this->contacto', '$this->correo', '$this->logo', '$this->api', '$this->estado','$this->urlWeb','$this->color', '$this->description', '$this->keywords', NOW(),$usuario, '$this->pixel', '$this->pixel_verify', '$this->tipoRecorte', '$this->ckStartOnMenu')";
         	if(Conexion::ejecutar($query,NULL)){
         		$id = Conexion::lastId();
         		return true;
@@ -119,8 +121,7 @@ class cl_empresas
 		}
         
 		public function editarEmpresa($cod_empresa){
-            $queryUpdate= "UPDATE tb_empresas SET cod_plan = '$this->cod_plan', fecha_caducidad = '$this->fecha_caducidad', mensualidad = '$this->precio_mensual', nombre='$this->nombre', telefono='$this->telefono' ,representante_nombre='$this->contacto' , representante_correo='$this->correo', logo='$this->logo' , estado='$this->estado', url_web='$this->urlWeb',color='$this->color', description='$this->description', keywords='$this->keywords', facebook_pixel = '$this->pixel', facebook_pixel_verify = '$this->pixel_verify', tipo_recorte = '$this->cmbTipoRecorte', cod_tipo_empresa = '$this->tipoem', iniciar_en_menu = '$this->ckStartOnMenu' WHERE cod_empresa =".$cod_empresa;
-           // echo $query;
+            $queryUpdate= "UPDATE tb_empresas SET nombre='$this->nombre', telefono='$this->telefono' ,representante_nombre='$this->contacto' , representante_correo='$this->correo', logo='$this->logo' , estado='$this->estado', url_web='$this->urlWeb',color='$this->color', description='$this->description', keywords='$this->keywords', facebook_pixel = '$this->pixel', facebook_pixel_verify = '$this->pixel_verify', tipo_recorte = '$this->tipoRecorte', cod_tipo_empresa = '$this->tipoem', iniciar_en_menu = '$this->ckStartOnMenu' WHERE cod_empresa =".$cod_empresa;
             if(Conexion::ejecutar($queryUpdate,NULL)){
                 return true;
             }else{

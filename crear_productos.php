@@ -19,7 +19,8 @@ $files = url_sistema . 'assets/empresas/' . $session['alias'] . '/';
 
 $cod_producto = 0;
 $cod_producto_padre = 0;
-$imagen = url_sistema . '/assets/img/200x200.jpg';
+// $imagen = url_sistema . '/assets/img/200x200.jpg';
+$imagen ="";
 $nombre = "";
 $desc_corta = "";
 $desc_larga = "";
@@ -755,7 +756,6 @@ function recursive($array, $posicion, &$data, &$codigos)
                                             </div>
                                         </div>
 
-                                        <?php if ($cod_producto !== 0){ ?>
                                         <div class="form-group col-md-4 col-sm-4 col-xs-12" style="margin-bottom:10px;">
                                             <label>Agregar directo al carrito <span class="asterisco">*</span>
                                                 <span class="far fa-question-circle rounded bs-tooltip" data-placement="top" title="No abrirá el detalle del producto, el item se agregará directamente al carrito (Si tiene opciones o variantes no se podra activar)"></span>
@@ -767,7 +767,6 @@ function recursive($array, $posicion, &$data, &$codigos)
                                                 </label>
                                             </div>
                                         </div>
-                                        <?php } ?>
 
                                         <div class="form-group col-md-4 col-sm-4 col-xs-12" style="margin-bottom:10px;<?php echo $displayRetail ?>">
                                             <label>Es un combo?<span class="asterisco">*</span>
@@ -1052,7 +1051,8 @@ function recursive($array, $posicion, &$data, &$codigos)
                                                     foreach ($variantes as $variante) {
                                                         $nombreVariante = $variante['nombre'];
                                                         $imagenVariante = $files . $variante['image_min'];
-                                                        $htmlOpciones = implode("/", $variante['atributos']);
+                                                        // $htmlOpciones = implode("/", $variante['atributos']);
+                                                        $htmlOpciones = ($variante['atributos']) ? implode("/", $variante['atributos']) : "";
                                                         echo '
                                             <tr>
                                               <td class="text-center">
@@ -1279,7 +1279,7 @@ function recursive($array, $posicion, &$data, &$codigos)
                                     <div class="form-group col-md-6 col-sm-6 col-xs-12">
                                         <label>Precio de Venta (PVP)</label>
                                             <span class="far fa-question-circle rounded bs-tooltip" data-placement="top" title="Este campo sirve para que en la web se muestre el precio del producto con IVA"></span>
-                                            <input type="number" placeholder="0.00" name="txt_precio" id="txt_precio" class="form-control" required="required" autocomplete="off" value="<?php $precio; ?>">
+                                            <input type="number" placeholder="0.00" name="txt_precio" id="txt_precio" class="form-control" required="required" autocomplete="off" value="<?php echo $precio; ?>">
                                     </div>
                                     <div class="form-group col-md-6 col-sm-6 col-xs-12">
                                         <label>Precio comparaci&oacute;n

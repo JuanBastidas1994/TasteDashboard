@@ -334,6 +334,7 @@ class cl_usuarios
 		}
 		
 		public function set_userAdmin($cod_usuario,$usuario, $password){
+			$where = "";
 			if($password != null)
 			{
 			    $where =" password=MD5('$password'),";

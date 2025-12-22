@@ -80,7 +80,7 @@ function update_formas_pago()
     
   if($Clempresas->set_update_formas_pago($estado,$codigo)){
     $return['success'] = 1;
-        $return['mensaje'] = "Informacion actualizada correctamente".$estado.$_GET['estado'];
+        $return['mensaje'] = "Informacion actualizada correctamente";
         $return['datos'] = "Informacion actualiza";
     }else{
         $return['success'] = 0;
@@ -852,8 +852,10 @@ function setPermisoTipoEnvio(){
     extract($_POST);
     
     if($Clempresas->setPermisoTipoEnvio($tipo_envio, $encendido, $cod_empresa_forma_pago)){
+        $encendidoText = ($encendido == 1) ? "Activada" : "Desactivada"; 
+        $formapagoText = ($tipo_envio == "D") ? "Delivery" : "Pickup";
         $return["success"] = 1;
-        $return["mensaje"] = "Forma de pago tipo envío editada correctamente";
+        $return["mensaje"] = "$encendidoText esta forma de pago para pedidos $formapagoText";
     }
     else{
         $return["success"] = 0;

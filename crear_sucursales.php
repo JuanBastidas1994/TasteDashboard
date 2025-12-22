@@ -69,7 +69,9 @@ if(isset($_GET['id'])){
             $telefono = $sucursal['telefono'];
             $cod_ciudad = $sucursal['cod_ciudad'];
             $InfoProv = $Clsucursales->getInfoByCiudad($cod_ciudad);
-            $ProvinciaSelect=$InfoProv['provincia'];
+            if($InfoProv){
+                $ProvinciaSelect=$InfoProv['provincia'];
+            }
             $cant_dias_programar = $empresa['cant_dias_programar_pedido'];
             $transferencia_img = $files.$sucursal['transferencia_img'];
             $banner_xl = $files.$sucursal['banner_xl'];

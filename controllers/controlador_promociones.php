@@ -17,6 +17,13 @@ function crear(){
 
     extract($_POST);
 
+    if (!fechaValida(!$fecha_inicio)) {
+        return [ 'success' => 0, 'mensaje' => 'Fecha de inicio es incorrecta' ];
+    }
+    if (!fechaValida(!$fecha_fin)) {
+        return [ 'success' => 0, 'mensaje' => 'Fecha Fin es incorrecta' ];
+    }
+
     for ($i=0; $i < count($cmb_productos); $i++) { 
         $cod_producto = $cmb_productos[$i];
         for ($j=0; $j < count($cmb_sucursales); $j++) { 

@@ -177,7 +177,7 @@ function crear(){
 
                 $dir = url_upload.'/assets/empresas/'.$data['alias'];
                 if (!file_exists($dir)) {
-                    mkdir($dir, 0755);
+                    @mkdir($dir, 0755);
                 }
 
                 if($txt_crop != ""){

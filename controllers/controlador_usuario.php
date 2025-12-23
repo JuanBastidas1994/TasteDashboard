@@ -51,6 +51,7 @@ function crear(){
             $return['success'] = 1;
             $return['mensaje'] = "Usuario creado correctamente";
             $return['id'] = $id;
+            $return['usuario'] = $Clusuario->get($id);
 
             /*SUBIR IMAGEN*/
             if(!uploadFile($_FILES["img_profile"], $nameImg)){
@@ -85,6 +86,7 @@ function crear(){
             $return['success'] = 1;
             $return['mensaje'] = "Usuario editado correctamente";
             $return['id'] = $Clusuario->cod_usuario;
+            $return['usuario'] = $Clusuario->get($cod_usuario);
 
             if("" <> $txt_password){
                 if($Clusuario->crearKeystore($cod_usuario, $txt_password, 0))
@@ -147,6 +149,7 @@ function crearFlota(){
             $return['success'] = 1;
             $return['mensaje'] = "Usuario creado correctamente";
             $return['id'] = $id;
+            $return['usuario'] = $Clusuario->get($id);
 
             /*SUBIR IMAGEN*/
             if(!uploadFile($_FILES["img_profile"], $nameImg)){
@@ -178,6 +181,7 @@ function crearFlota(){
             $return['success'] = 1;
             $return['mensaje'] = "Usuario editado correctamente";
             $return['id'] = $Clusuario->cod_usuario;
+            $return['usuario'] = $usuario;
 
             if("" <> $txt_password){
                 if($Clusuario->crearKeystore($cod_usuario, $txt_password, 0))

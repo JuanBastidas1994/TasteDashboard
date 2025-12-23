@@ -470,7 +470,7 @@ function uploadFile($file, $name){
   $files = url_upload.'/assets/empresas/'.$session['alias'].'/';
   $dir = $files.$name;
   if(basename($file["name"])!=""){
-        if (move_uploaded_file($file["tmp_name"], $dir)) {
+        if (@move_uploaded_file($file["tmp_name"], $dir)) {
             return true;
         }
         else

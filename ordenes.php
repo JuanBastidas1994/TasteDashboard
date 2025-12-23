@@ -16,6 +16,7 @@ $Clempresas = new cl_empresas(NULL);
 $empresa = $Clempresas->get($session['cod_empresa']);
 if($empresa){
     $apikey = $empresa['api_key'];
+    $permisos = $Clempresas->getIdPermisionByBusiness($session['cod_empresa']);
 }
 
 $clsucursales = new cl_sucursales(NULL);
@@ -92,6 +93,11 @@ $clsucursales = new cl_sucursales(NULL);
                                         <option value="">Todas</option>
                                         <option value="1">Delivery</option>
                                         <option value="0">Pickup</option>
+                                        <?php
+                                            if(in_array("OFFICE_INSITE", $permisos)){
+                                                echo '<option value="2">En mesa</option>';
+                                            }
+                                        ?>
                                     </select>
                                 </div>
                                 <div class="col-2">

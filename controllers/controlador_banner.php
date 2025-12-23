@@ -32,12 +32,13 @@ function crear(){
             $return['success'] = 1;
             $return['mensaje'] = "Banner creado correctamente";
             $return['id'] = $id;
+            $return['banner'] = $ClBanner->get($id);
 
             /*SUBIR IMAGEN*/
             if(!uploadFile($_FILES["img_profile"], $nameImg)){
                 $img1 = url_upload.'/assets/img/200x200.jpg';
                 $img2 = url_upload.'/assets/empresas/'.$session['alias'].'/'.$nameImg;
-                copy($img1, $img2);
+                @copy($img1, $img2);
             }
         }else{
             $return['success'] = 0;
@@ -53,6 +54,7 @@ function crear(){
             if($data){
                 uploadFile($_FILES["img_profile"], $data['image_min']);
                 $return['imagen'] = "editada";
+                $return['banner'] = $data;
             }
         }else{
             $return['success'] = 0;

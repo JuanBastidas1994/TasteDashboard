@@ -215,7 +215,7 @@ $cod_rol = $session['cod_rol'];
                                                 <th class="text-center">Acciones</th>
                                             </tr>
                                         </thead>
-                                        <tbody>
+                                        <tbody id="lstUsuarios">
                                             <?php
                                             if($cod_rol <= 2)
                                               $resp = $Clusuarios->lista();
@@ -227,7 +227,7 @@ $cod_rol = $session['cod_rol'];
                                                 $badge='primary';
                                                 if($cliente['estado'] == 'I')
                                                     $badge='danger';
-                                                echo '<tr>
+                                                echo '<tr id="' . $cliente['cod_usuario'] . '">
                                                     <td><img src="'.$imagen.'" class="profile-img" alt="Imagen"></td>
                                                     <td>'.$cliente['nombre'].' '.$cliente['apellido'].'</td>
                                                     <td>'.$cliente['rol'].'</td>
@@ -266,16 +266,7 @@ $cod_rol = $session['cod_rol'];
     <script src="assets/js/pages/usuarios.js?v=2" type="text/javascript"></script>
     <script>
         $('#style-3').DataTable( {
-            dom: '<"row"<"col-md-12"<"row"<"col-md-6"B><"col-md-6"f> > ><"col-md-12"rt> <"col-md-12"<"row"<"col-md-5"i><"col-md-7"p>>> >',
-            buttons: {
-                buttons: [
-                    { extend: 'copy', className: 'btn' },
-                    { extend: 'csv', className: 'btn' },
-                    { extend: 'excel', className: 'btn' },
-                    { extend: 'pdf', className: 'btn' },
-                    { extend: 'print', className: 'btn' }
-                ]
-            },
+            dom: '<"row"<"col-md-12"<"row"<"col-md-6"><"col-md-6"f> > ><"col-md-12"rt> <"col-md-12"<"row"<"col-md-5"i><"col-md-7"p>>> >',
             "oLanguage": {
                 "oPaginate": { "sPrevious": '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-left"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>', "sNext": '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-right"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>' },
                 "sInfo": "Mostrando pag. _PAGE_ de _PAGES_",

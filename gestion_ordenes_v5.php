@@ -1222,7 +1222,7 @@ $permisos = $Clempresas->getIdPermisionByBusiness($session['cod_empresa']);
                                                 <input type="hidden" name="" id="is_envio" value="todas">
                                             </div>
 
-                                            <div class="dropdown ml-auto">
+                                            <div class="dropdown ml-auto d-none">
                                                 <i onclick="$('#fidelizacionModal').modal();" data-feather="star"></i>
                                             </div>
                                         </div>

@@ -148,11 +148,48 @@ $(document).ready(function() {
               processData: false,
               success: function(response){
                   console.log(response);
-                  
                   if( response['success'] == 1)
                   {
-                    messageDone(response['mensaje'],'success');
+                    notify(response.mensaje, "success", 2);
+                    let newId = response['id'];
+                    let usuario = response['usuario'];
                     $("#id").val(response['id']);
+
+                    let estado = (usuario['estado'] == 'A') ? 'Activo' : 'Inactivo';
+                    let badge = (usuario['estado'] == 'A') ? 'primary' : 'danger';
+                    let d = new Date();
+                    let image = usuario['image_min'] + "?nocache=" + d.getMilliseconds();
+                    let rol = $("#cmbRol option:selected").text();
+                    console.log(rol);
+                    let rowUser = `<tr id="${newId}"  data-codigo="${newId}">
+                                <td><img src="${image}" class="profile-img" alt="Imagen" style="width: 250px; height: auto;"></td>
+                                <td>${usuario['nombre']} ${usuario['apellido']}</td>
+                                <td>${rol}</td>
+                                <td>${usuario['correo']}</td>
+                                <td>${usuario['fecha_nacimiento']}</td>
+                                <td>${usuario['telefono']}</td>
+                                <td class="text-center"><span class="shadow-none badge badge-${badge}">${estado}</span></td>
+                                <td class="text-center">
+                                    <ul class="table-controls">
+                                        <li><a href="javascript:void(0);" data-value="${newId}" class="bs-tooltip btnEditar" data-toggle="tooltip" data-placement="top" title="" data-original-title="Edit"><i data-feather="edit-2"></i></a></li>
+
+                                        <li><a href="javascript:void(0);" data-value="${newId}" class="bs-tooltip btnEliminar" data-toggle="tooltip" data-placement="top" title="" data-original-title="Delete"><i data-feather="trash"></i></a></li>
+
+                                        <li>
+                                          <a href="usuario_detalle.php?id=${newId}"  class="bs-tooltip btnDetalle" data-toggle="tooltip" data-placement="top" title="" data-original-title="Notificar">
+                                            <i data-feather="eye"></i>
+                                          </a>
+                                        </li>
+                                    </ul>
+                                </td>
+                            </tr>`;
+                            if (id > 0) {
+                                $("#lstUsuarios #" + newId).replaceWith(rowUser);
+                            }else{
+                                $("#lstUsuarios").append(rowUser);
+                            }
+                            feather.replace();
+                            $("#crearModal").modal("hide");
                   } 
                   else
                   {

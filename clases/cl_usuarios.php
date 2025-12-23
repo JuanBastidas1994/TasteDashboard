@@ -279,6 +279,9 @@ class cl_usuarios
 		public function get($cod_usuario){
 			$query = "SELECT * from tb_usuarios where cod_usuario = ".$cod_usuario;
 			$row = Conexion::buscarRegistro($query);
+			if($row){
+				$row['imagen'] = url_sistema.$row['imagen'];
+			}
 			return $row;
 		}
 

@@ -7,7 +7,7 @@ $(document).ready(function () {
         $("#crearModal").modal();
     });
 
-    $(".btnEditar").on("click", function (event) {
+    $("body").on("click", ".btnEditar", function (event) {
         event.preventDefault();
 
         var id = parseInt($(this).attr("data-value"));
@@ -60,7 +60,7 @@ $(document).ready(function () {
         });
     });
 
-    $(".btnEliminar").on("click", function (event) {
+    $("body").on("click", ".btnEliminar", function (event) {
         event.preventDefault();
         var id = parseInt($(this).attr("data-value"));
         if (id == 0) {
@@ -98,7 +98,8 @@ $(document).ready(function () {
             success: function (response) {
                 console.log(response);
                 if (response['success'] == 1) {
-                    messageDone(response['mensaje'], 'success');
+                    notify(response.mensaje, "success", 2);
+                    $("#lstBanners #" + id).remove();
                 }
                 else {
                     messageDone(response['mensaje'], 'error');
@@ -150,16 +151,35 @@ $(document).ready(function () {
                 console.log(response);
 
                 if (response['success'] == 1) {
-                    messageDone(response['mensaje'], 'success');
-                    $("#id").val(response['id']);
+                    // messageDone(response['mensaje'], 'success');
+                    notify(response.mensaje, "success", 2);
+                    let newId = response['id'];
+                    let banner = response['banner'];
+                    $("#id").val(newId);
+
+                    let estado = (banner['estado'] == 'A') ? 'Activo' : 'Inactivo';
+                    let badge = (banner['estado'] == 'A') ? 'primary' : 'danger';
+                    let d = new Date();
+                    let image = banner['image_min'] + "?nocache=" + d.getMilliseconds();
+                    let rowBanner = `<tr id="${newId}"  data-codigo="${newId}">
+                                <td><img src="${image}" class="profile-img" alt="Imagen" style="width: 250px; height: auto;"></td>
+                                <td class="text-center"><span class="shadow-none badge badge-${badge}">${estado}</span></td>
+                                <td class="text-center">
+                                    <ul class="table-controls">
+                                        <li><a href="javascript:void(0);" data-value="${newId}" class="bs-tooltip btnEditar" data-toggle="tooltip" data-placement="top" title="" data-original-title="Edit"><i data-feather="edit-2"></i></a></li>
+
+                                        <li><a href="javascript:void(0);" data-value="${newId}" class="bs-tooltip btnEliminar" data-toggle="tooltip" data-placement="top" title="" data-original-title="Delete"><i data-feather="trash"></i></a></li>
+                                    </ul>
+                                </td>
+                            </tr>`;
 
                     //QUITAR CACHÉ IMÁGENES
                     if (id > 0) {
-                        let img = $("#lstBanners #" + response['id'] + " img");
-                        let link = img.attr("src");
-                        let d = new Date();
-                        img.attr("src", link + "?nocache=" + d.getMilliseconds());
+                        $("#lstBanners #" + newId).replaceWith(rowBanner);
+                    }else{
+                        $("#lstBanners").append(rowBanner);
                     }
+                    feather.replace();
                     $("#crearModal").modal("hide");
                 }
                 else {

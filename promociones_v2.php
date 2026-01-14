@@ -271,7 +271,7 @@ $session = getSession();
                                     <h4>Promociones</h4>
                                 </div>
                                 <div class="col-xl-4 col-md-4 col-sm-4 col-4 text-right">
-                                    <button class="btn btn-primary" data-toggle="modal" data-target="#crearModal">Nueva Promoci&oacute;n</button>
+                                    <a href="crear_promociones.php" class="btn btn-primary" >Nueva Promoci&oacute;n</a>
                                 </div>
                                 <div class="col-xl-12 col-md-12 col-sm-12 col-12">
                                     <hr/>
@@ -282,9 +282,7 @@ $session = getSession();
                                 <table id="style-3" class="table style-3 table-hover">
                                         <thead>
                                             <tr>
-                                                <th>&nbsp;</th>
-                                                <th>Producto</th>
-                                                <th>Precio</th>
+                                                <th>Descripción</th>
                                                 <th>Descuento</th>
                                                 <th>Sucursal</th>
                                                 <th>Inicio</th>
@@ -296,23 +294,28 @@ $session = getSession();
                                             <?php
                                             $resp = $Clpromociones->lista();
                                             foreach ($resp as $promocion) {
-                                                $imagen = $files.$promocion['image_min'];
                                                 if($promocion['is_porcentaje'] == 0){
                                                 	$textdescuento = $promocion['texto'];
                                                 }else{
                                                 	$textdescuento = $promocion['valor'].'%';
                                                 }	
                                                 echo '<tr>
-                                                    <td><img src="'.$imagen.'" class="profile-img" alt="Imagen"></td>
-                                                    <td>'.$promocion['nombre'].'</td>
-                                                    <td>$'.number_format($promocion['precio'],2).'</td>
+                                                    <td>'.$promocion['descripcion'].'</td>
                                                     <td>'.$textdescuento.'</td>
-                                                    <td>'.$promocion['sucursal'].'</td>
+                                                    <td>'.$promocion['sucursales'].'</td>
                                                     <td>'.$promocion['fecha_inicio'].'</td>
                                                     <td>'.$promocion['fecha_fin'].'</td>
                                                     <td class="text-center">
                                                         <ul class="table-controls">
-                                                            <li><a href="javascript:void(0);" data-value="'.$promocion['cod_producto_descuento'].'" class="bs-tooltip btnEliminar" data-toggle="tooltip" data-placement="top" title="" data-original-title="Delete"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-trash p-1 br-6 mb-1"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></a></li>
+                                                            <li>
+                                                                <a href="crear_promociones.php?id='.$promocion['cod_promocion'].'" class="bs-tooltip" data-toggle="tooltip" data-placement="top" title="" data-original-title="Editar">
+                                                                    <i data-feather="edit-2"></i>
+                                                                </a>
+                                                            <li>
+                                                                <a href="javascript:void(0);" data-value="'.$promocion['cod_promocion'].'" class="bs-tooltip btnEliminar" data-toggle="tooltip" data-placement="top" title="" data-original-title="Delete">
+                                                                    <i data-feather="trash"></i>
+                                                                </a>
+                                                            </li>
                                                         </ul>
                                                     </td>
                                                 </tr>';
@@ -337,16 +340,7 @@ $session = getSession();
     <script src="assets/js/pages/promociones_nueva.js" type="text/javascript"></script>
     <script>
         $('#style-3').DataTable( {
-            dom: '<"row"<"col-md-12"<"row"<"col-md-6"B><"col-md-6"f> > ><"col-md-12"rt> <"col-md-12"<"row"<"col-md-5"i><"col-md-7"p>>> >',
-            buttons: {
-                buttons: [
-                    { extend: 'copy', className: 'btn' },
-                    { extend: 'csv', className: 'btn' },
-                    { extend: 'excel', className: 'btn' },
-                    { extend: 'pdf', className: 'btn' },
-                    { extend: 'print', className: 'btn' }
-                ]
-            },
+            dom: '<"row"<"col-md-12"<"row"<"col-md-6"><"col-md-6"f> > ><"col-md-12"rt> <"col-md-12"<"row"<"col-md-5"i><"col-md-7"p>>> >',
             "oLanguage": {
                 "oPaginate": { "sPrevious": '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-left"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>', "sNext": '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-right"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>' },
                 "sInfo": "Mostrando pag. _PAGE_ de _PAGES_",

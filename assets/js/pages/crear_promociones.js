@@ -1,0 +1,157 @@
+$(function() {
+    
+    $("#cmbDias").select2();
+    flatpickr(".flatpickr-input", {
+        enableTime: true,
+        dateFormat: "Y-m-d H:i"
+    });
+
+    $("#btnGuardar").on("click", function (event) {
+        event.preventDefault();
+
+        let data = getInfoForms();
+        if (data === false){
+            notify("Falta llenar informacion", "error", 2);
+            return false;
+        }
+
+        if ($("#cmb_tipo_descuento").val() == 0) { //Si el combo es descuento debe llenar cuando dara de descuento
+            let porcentaje = parseFloat($("#porcentaje_descuento").val());
+            if (isNaN(porcentaje) || porcentaje <= 0) {
+                notify("Debes ingresar un porcentaje válido mayor a 0", "error", 2);
+                return false;
+            }
+        }
+
+        var id = parseInt($("#id").val());
+        if (id > 0) {
+            data.append('id', id);
+        }
+        storePromotion(data);
+
+    });
+});
+
+function storePromotion(formData){
+    $.ajax({
+      beforeSend: function () {
+        OpenLoad("Guardando datos, por favor espere...");
+      },
+      url: 'controllers/controlador_promociones.php?metodo=crearNew',
+      type: 'POST',
+      data: formData,
+      contentType: false,
+      processData: false,
+      success: function (response) {
+        console.log(response);
+
+        if (response['success'] == 1) {
+          messageDone(response['mensaje'], 'success');
+          $("#id").val(response['id']);
+          const newUrl = `crear_promociones.php?id=${response['id']}`;
+            window.history.replaceState(null, '', newUrl);
+        }
+        else {
+          messageDone(response['mensaje'], 'error');
+        }
+      },
+      error: function (data) {
+        console.log(data);
+
+      },
+      complete: function (resp) {
+        CloseLoad();
+      }
+    });
+}
+
+function getInfoForms() {
+    let forms = ["#frmSave", "#frmDisponibilidad", "#frmProductos", "#frmDias"];
+    let formData = new FormData();
+
+    for (let i = 0; i < forms.length; i++) {
+        let form = $(forms[i]);
+
+        // Validar formulario
+        form.validate();
+        if (!form.valid()) {
+            return false;
+        }
+
+        // Serializar y agregar al FormData
+        let data = form.serializeArray();
+        data.forEach(item => {
+            formData.append(item.name, item.value);
+        });
+    }
+
+    return formData;
+}
+
+$(".rbDisponibleDias").on("change", function () {
+    var aux = $(this).val();
+    if (aux == 1) {
+        $(".chooseDias").show();
+    } else {
+        $(".chooseDias").hide();
+    }
+});
+
+$('.chk-day').on('change', function () {
+    const row = $(this).closest('.day-item');
+    row.find('input[type="time"]').prop('disabled', !this.checked);
+});
+
+$('#btnReplicarHorario').on('click', function () {
+
+    // Buscar el primer día activo
+    const firstActive = $('.chk-day:checked').first().closest('.day-item');
+
+    if (!firstActive.length) {
+        notify('Primero activa al menos un día', "error", 2);
+        return;
+    }
+
+    const start = firstActive.find('.time-start').val();
+    const end   = firstActive.find('.time-end').val();
+
+    if (!start || !end) {
+        notify('El primer día activo debe tener horario completo', "error", 2);
+        return;
+    }
+
+    // Replicar a todos los días activos
+    $('.chk-day:checked').each(function () {
+        const row = $(this).closest('.day-item');
+        row.find('.time-start').val(start);
+        row.find('.time-end').val(end);
+    });
+});
+
+$('.input-category').on('click', function () {
+    let isChecked = $(`.cat-${$(this).data('category')}`).prop('checked')
+    $(`.cat-${$(this).data('category')}`).prop('checked', $(this).prop('checked'))
+})
+
+$('.input-padre').on('click', function () {
+        let isChecked = $(`.padre-${$(this).data('padre')}`).prop('checked')
+        $(`.padre-${$(this).data('padre')}`).prop('checked', $(this).prop('checked'))
+        isChecked = $(`.cat-${$(this).data('categoria')}`).prop('checked')
+        $(`.cat-${$(this).data('categoria')}`).prop('checked', !isChecked)
+})
+
+$('.input-hijo').on('change', function () {
+    if($(`.padre-${$(this).data('padre')}`).length == 0)
+    $(`.input-padre${$(this).data('padre')}`).prop('checked', false)
+    else
+    $(`.input-padre${$(this).data('padre')}`).prop('checked', true)
+})
+
+$("#cmb_tipo_descuento").on('change', function(){
+    let val = $(this).val();
+    if(val == 0){
+        $(".inputPorcentaje").show();
+    }else{
+        $(".inputPorcentaje").hide();
+    }
+});

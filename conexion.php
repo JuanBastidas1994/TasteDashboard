@@ -31,6 +31,24 @@ class Conexion {
         return self::$conexion;
     }
 
+    public static function beginTransaction()
+    {
+        $con = self::obtenerConexion();
+        return $con->beginTransaction();
+    }
+
+    public static function commit()
+    {
+        $con = self::obtenerConexion();
+        return $con->commit();
+    }
+
+    public static function rollBack()
+    {
+        $con = self::obtenerConexion();
+        return $con->rollBack();
+    }
+
     public static function buscarRegistro($sql, $data = null) {
         /* retorna los datos de un refistro en un array de una dimensi贸n */
         try {

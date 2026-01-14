@@ -115,65 +115,6 @@ $(document).ready(function () {
     });
   }
 
-  $("#btnGuardar").on("click", function (event) {
-    event.preventDefault();
-
-    var form = $("#frmSave");
-    form.validate();
-    if (form.valid() == false) {
-      notify("Falta llenar informacion", "success", 2);
-      return false;
-    }
-
-    if ($("#txt_valor").val().trim().length == 0) {
-      notify("Debes llenar el campo Porcentaje", "success", 2);
-      return false;
-    }
-
-    if ($("#rbCustom").is(':checked')) {
-      if ($("#txt_cantidad").val().trim().length == 0) {
-        notify("Debes llenar el campo cantidad", "success", 2);
-        return false;
-      }
-    }
-
-    var formData = new FormData($("#frmSave")[0]);
-    var id = parseInt($("#id").val());
-    if (id > 0) {
-      formData.append('cod_usuario', id);
-    }
-
-    $.ajax({
-      beforeSend: function () {
-        OpenLoad("Guardando datos, por favor espere...");
-      },
-      url: 'controllers/controlador_promociones.php?metodo=crear',
-      type: 'POST',
-      data: formData,
-      contentType: false,
-      processData: false,
-      success: function (response) {
-        console.log(response);
-
-        if (response['success'] == 1) {
-          messageDone(response['mensaje'], 'success');
-          $("#id").val(response['id']);
-          window.location.reload();
-        }
-        else {
-          messageDone(response['mensaje'], 'error');
-        }
-      },
-      error: function (data) {
-        console.log(data);
-
-      },
-      complete: function (resp) {
-        CloseLoad();
-      }
-    });
-  });
-
   $(".tipo").on("change", function () {
     var tipo = $(this).val();
     if (tipo == 1) {

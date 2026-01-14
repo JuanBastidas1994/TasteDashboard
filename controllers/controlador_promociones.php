@@ -92,7 +92,7 @@ function crearNew(){
     }
 
     $is_porcentaje = 1;
-    $valor = 0;
+    $valor = $porcentaje_descuento;
     $texto = $valor."%";
     if($cmb_tipo_descuento > 0){
         $is_porcentaje = 0;

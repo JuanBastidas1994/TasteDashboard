@@ -575,8 +575,16 @@ function editor_decode($texto) {
 }
 
 function fechaValida($fecha) {
-    $d = DateTime::createFromFormat('Y-m-d', $fecha);
-    return $d && $d->format('Y-m-d') === $fecha;
+    if (!is_string($fecha)) {
+        return false;
+    }
+
+    try {
+        new DateTime($fecha);
+        return true;
+    } catch (Exception $e) {
+        return false;
+    }
 }
 
 function listDraggableMenuEmpresa($id, $nivel, $empresa, $rol)

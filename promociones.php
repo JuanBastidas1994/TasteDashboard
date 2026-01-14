@@ -216,14 +216,6 @@ $session = getSession();
                                     <?php $auxCategoria = $valor['cod_categoria'];?> 
 
                                 <?php endforeach; ?>
-                              	<!-- <select multiple="multiple" name="cmb_productos[]" id="cmb_productos" class="form-control" required="required">
-                            	<?php
-                            	    // $resp = $Clproductos->GetProductosbyEmpresa();
-                            	    // foreach ($resp as $categoria) {
-                            	    // 	echo '<option value="'.$categoria['cod_producto'].'">'.$categoria['nombre'].'</option>';
-                            	  	// }
-                            	?>
-                            	</select> -->
                           </div>
                       </div>
 

@@ -17,6 +17,8 @@ function crear(){
 
     extract($_POST);
 
+    return [ 'success' => 0, 'mensaje' => 'TEST JC' ];
+
     if (!fechaValida(!$fecha_inicio)) {
         return [ 'success' => 0, 'mensaje' => 'Fecha de inicio es incorrecta' ];
     }
@@ -58,6 +60,106 @@ function crear(){
     $return['success'] = 1;
     $return['mensaje'] = "Promociones creadas correctamente";
     return $return;
+}
+
+function crearNew(){
+    require_once "../clases/cl_promociones_nueva.php";
+    $Clpromociones = new cl_promociones_nueva();
+    if(count($_POST)==0){
+        $return['success'] = 0;
+        $return['mensaje'] = "Falta informacion";
+        return $return;
+    }
+
+    extract($_POST);
+
+    if (!fechaValida($fecha_inicio)) {
+        return [ 'success' => 0, 'mensaje' => 'Fecha de inicio es incorrecta', 'fecha_inicio' => $fecha_inicio  ];
+    }
+    if (!fechaValida($fecha_fin)) {
+        return [ 'success' => 0, 'mensaje' => 'Fecha Fin es incorrecta' ];
+    }
+
+    if(!isset($_POST['cmb_productos'])){
+        return [ 'success' => 0, 'mensaje' => 'Debes marcar productos' ];
+    }
+
+    if(!isset($_POST['chkSucursal'])){
+        return [ 'success' => 0, 'mensaje' => 'Debes marcar sucursales' ];
+    }
+    if($is_recurrencia && !isset($_POST['dias'])){
+        return [ 'success' => 0, 'mensaje' => 'Para las promociones recurrentes debes habilitar los días necesarios' ];
+    }
+
+    $is_porcentaje = 1;
+    $valor = 0;
+    $texto = $valor."%";
+    if($cmb_tipo_descuento > 0){
+        $is_porcentaje = 0;
+        $valor = 100;
+        $texto = $cmb_tipo_descuento."x".(intval($cmb_tipo_descuento)-1);
+    }
+
+    // Asignar datos a la clase
+    $Clpromociones->descripcion      = $descripcion;
+    $Clpromociones->is_porcentaje   = $is_porcentaje;
+    $Clpromociones->valor            = $valor;
+    $Clpromociones->texto            = $texto;
+    $Clpromociones->fecha_inicio     = $fecha_inicio;
+    $Clpromociones->fecha_fin        = $fecha_fin;
+    $Clpromociones->is_recurrente    = 0;
+
+    $productos = $cmb_productos;
+    $sucursales = $chkSucursal;
+
+    try {
+        // 🔐 Iniciar transacción
+        Conexion::beginTransaction();
+
+        // Crear o Editar promoción
+        if(!isset($_POST['id'])){
+            if (!$Clpromociones->crear($cod_promocion)) {
+                throw new Exception('Error al crear la promocion');
+            }
+        }else{
+            $cod_promocion = $_POST['id'];
+            $Clpromociones->cod_promocion = $cod_promocion;
+            if (!$Clpromociones->editar()) {
+                throw new Exception('Error al editar la promocion');
+            }
+        }
+
+        // Asociar productos
+        $Clpromociones->asociar_productos($cod_promocion, $productos);
+
+        // Asociar sucursales
+        $Clpromociones->asociar_sucursales($cod_promocion, $sucursales);
+        
+        // Asociar Recurrencia
+        if($is_recurrencia)
+            $Clpromociones->asociar_recurrencia($cod_promocion, $dias);
+
+        // ✅ Confirmar cambios
+        Conexion::commit();
+
+        return [
+            'success' => 1,
+            'mensaje' => 'Promoción creada correctamente',
+            'id' => $cod_promocion
+        ];
+
+    } catch (Exception $e) {
+
+        // ❌ Revertir todo
+        if (Conexion::obtenerConexion()->inTransaction()) {
+            Conexion::rollBack();
+        }
+
+        return [
+            'success' => 0,
+            'mensaje' => $e->getMessage()
+        ];
+    }
 }
 
 function get(){

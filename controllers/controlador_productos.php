@@ -117,7 +117,7 @@ function crear(){
             $return['success'] = 1;
             $return['mensaje'] = "Producto editado correctamente ";
             $return['id'] = $Clproductos->cod_producto;
-            $return['dias'] = $cmbDias;
+            // $return['dias'] = $cmbDias;
             $idP = $Clproductos->cod_producto;
 
             //INSERT ETIQUETAS
@@ -178,7 +178,7 @@ function crear(){
     }
     
     //DIAS
-    
+    $cmbDias = isset($_POST['cmbDias']) ? $cmbDias : [];
     $Clproductos->deleteDays($cod_producto);
     if($rb_dias == 1){ //INSERTAR NUEVOS DIAS
         $Clproductos->setDays($cod_producto, $cmbDias);

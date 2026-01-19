@@ -17,7 +17,7 @@ function crear(){
 
     extract($_POST);
 
-    return [ 'success' => 0, 'mensaje' => 'TEST JC' ];
+    // return [ 'success' => 0, 'mensaje' => 'TEST JC' ];
 
     if (!fechaValida(!$fecha_inicio)) {
         return [ 'success' => 0, 'mensaje' => 'Fecha de inicio es incorrecta' ];

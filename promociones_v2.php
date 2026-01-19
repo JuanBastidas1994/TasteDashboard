@@ -299,7 +299,7 @@ $session = getSession();
                                                 }else{
                                                 	$textdescuento = $promocion['valor'].'%';
                                                 }	
-                                                echo '<tr>
+                                                echo '<tr id="trItem'.$promocion['cod_promocion'].'">
                                                     <td>'.$promocion['descripcion'].'</td>
                                                     <td>'.$textdescuento.'</td>
                                                     <td>'.$promocion['sucursales'].'</td>
@@ -364,8 +364,8 @@ $session = getSession();
                 }
             },
             "stripeClasses": [],
-            "lengthMenu": [7, 10, 20, 50],
-            "pageLength": 7 
+            "lengthMenu": [10, 20, 50],
+            "pageLength": 10
         } );
     </script>
     <!-- END PAGE LEVEL CUSTOM SCRIPTS -->

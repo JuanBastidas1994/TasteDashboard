@@ -34,7 +34,7 @@ if (isset($_GET['id'])) {
     $cod_promocion = $_GET['id'];
     $promocion = $Clpromociones->obtener($_GET['id']);
     if(!$promocion){
-        header("location: ./index.php");
+        header("location: ./promociones_v2.php");
     }
 }
 extract($promocion, EXTR_SKIP);

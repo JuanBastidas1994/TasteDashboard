@@ -34,8 +34,6 @@ function crear(){
     $Clproductos->nombre = $txt_nombre;
     $Clproductos->desc_corta = $txt_descripcion_corta;
     $Clproductos->desc_larga = $desc_larga;
-    // $Clproductos->image_min = $nameImgMin;
-    // $Clproductos->image_max = $nameImg;
     $Clproductos->costo = formatFloat($txt_costo);
     $Clproductos->precio = formatFloat($txt_precio);
     $Clproductos->precio_anterior = formatFloat($txt_precio_anterior);
@@ -48,9 +46,6 @@ function crear(){
     $Clproductos->volumen = $txt_volumen;
     $Clproductos->sku = $txt_sku;
     $Clproductos->tiempo_preparacion = $txt_preparacion;
-    
-    
-    //Refactorizacion JC
     $Clproductos->estado = (isset($_POST['chk_estado'])) ? 'A' : 'I';
     $Clproductos->open_detalle = (isset($_POST['chk_detalle'])) ? 0 : 1;
     $Clproductos->cobra_iva = (isset($_POST['chk_base'])) ? 1 : 0;
@@ -107,6 +102,7 @@ function crear(){
             $return['mensaje'] = "Error al crear el producto, por favor vuelva a intentarlo";
         }
     }else{
+        $cod_producto = $_POST['cod_producto'];
         $Clproductos->cod_producto = $cod_producto;
         
         $cant = $Clproductos->getCantOptionsAndVariants($cod_producto); //Si tiene opciones o variantes no debe poder agregar al carrito sin entrar al detalle

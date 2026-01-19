@@ -353,8 +353,8 @@ $session = getSession();
                 }
             },
             "stripeClasses": [],
-            "lengthMenu": [7, 10, 20, 50],
-            "pageLength": 7 
+            "lengthMenu": [10, 20, 50],
+            "pageLength": 10 
         } );
     </script>
     <!-- END PAGE LEVEL CUSTOM SCRIPTS -->

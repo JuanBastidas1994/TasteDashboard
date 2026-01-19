@@ -293,7 +293,6 @@ function getCombo2($id, $cod_empresa, $nivel=1, $values=[]){
                                       <tr>
                                         <th>&nbsp;</th>
                                         <th>Producto</th>
-                                        <th>Quitar</th>
                                       </tr>
                                     </thead>
                                     <tbody id="contentCategorias" class="connectedSortable">
@@ -313,9 +312,6 @@ function getCombo2($id, $cod_empresa, $nivel=1, $values=[]){
                                                         <span><img src="'.$imagen.'" class="profile-img" alt="Imagen"></span>
                                                     </td>
                                                     <td>'.$p['nombre'].'</td>
-                                                    <td>
-                                                      <a href="javascript:void(0);" data-value="'.$p['cod_producto'].'"  class="bs-tooltip btnEliminarOpciones" data-toggle="tooltip" data-placement="top" title="" data-original-title="Quitar de la categor&iacute;a"><i data-feather="x"></i></a>
-                                                    </td>
                                                   </tr>';
                                             }
                                           }else

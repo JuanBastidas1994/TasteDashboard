@@ -155,3 +155,60 @@ $("#cmb_tipo_descuento").on('change', function(){
         $(".inputPorcentaje").hide();
     }
 });
+
+$("#btnNuevo").on("click",function(){
+    messageConfirm('¿Estas seguro?', '¡Perderas todos los cambios que no hayas guardado!', "warning")
+    .then(function(result) {
+        if (result) {
+            window.location.href = "crear_promociones.php";
+        }
+    });
+});
+
+$("#btnEliminar").on("click",function(){
+    var id = parseInt($("#id").val());
+    if(id <= 0){
+        messageDone('Error al eliminar la promoción','error');
+        return;
+    }
+    messageConfirm('¿Estas seguro de eliminar esta promoción?', 'No se puede revertir los cambios', "warning")
+    .then(function(result) {
+        if (result) {
+            var parametros = {
+            "cod_promocion": id,
+        }
+        $.ajax({
+            beforeSend: function(){
+                OpenLoad("Buscando informacion, por favor espere...");
+                },
+            url: 'controllers/controlador_promociones.php?metodo=delete',
+            type: 'GET',
+            data: parametros,
+            success: function(response){
+                console.log(response);
+                if( response['success'] == 1)
+                {
+                    messageDone(response['mensaje'],'success');
+                    setTimeout(function(){ 
+                        window.location.href="promociones_v2.php"
+                    }, 1000);
+                    
+                } 
+                else
+                {
+                    messageDone(response['mensaje'],'error');
+                } 
+                                            
+            },
+            error: function(data){
+                console.log(data);
+                
+            },
+            complete: function(resp)
+            {
+                CloseLoad();
+            }
+        });//FIN AJAX
+        }
+    });
+});

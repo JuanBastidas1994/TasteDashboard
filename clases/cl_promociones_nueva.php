@@ -247,5 +247,64 @@ class cl_promociones_nueva
         return true;
     }
 
+    //Eliminar de manera segura una promocion
+    public function eliminar($cod_promocion)
+    {
+        try {
+            Conexion::beginTransaction();
+
+            // 1. Validar que la promoción exista y pertenezca a la empresa
+            $existe = Conexion::buscarRegistro(
+                "SELECT cod_promocion 
+                FROM promociones 
+                WHERE cod_promocion = :cod 
+                AND cod_empresa = :empresa
+                LIMIT 1",
+                [
+                    ':cod'     => $cod_promocion,
+                    ':empresa' => $this->cod_empresa
+                ]
+            );
+
+            if (!$existe) {
+                throw new Exception('La promoción no existe o no pertenece a la empresa');
+            }
+
+            // 2. Eliminar relaciones
+            Conexion::ejecutar(
+                "DELETE FROM promocion_producto WHERE cod_promocion = :cod",
+                [':cod' => $cod_promocion]
+            );
+
+            Conexion::ejecutar(
+                "DELETE FROM promocion_sucursal WHERE cod_promocion = :cod",
+                [':cod' => $cod_promocion]
+            );
+
+            Conexion::ejecutar(
+                "DELETE FROM promocion_recurrente WHERE cod_promocion = :cod",
+                [':cod' => $cod_promocion]
+            );
+
+            // 3. Eliminar promoción
+            Conexion::ejecutar(
+                "DELETE FROM promociones 
+                WHERE cod_promocion = :cod 
+                AND cod_empresa = :empresa",
+                [
+                    ':cod'     => $cod_promocion,
+                    ':empresa' => $this->cod_empresa
+                ]
+            );
+
+            Conexion::commit();
+            return true;
+
+        } catch (Exception $e) {
+            Conexion::rollback();
+            return false;
+        }
+    }
+
 }
 ?>

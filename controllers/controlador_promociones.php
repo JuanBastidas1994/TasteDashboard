@@ -208,5 +208,32 @@ function set_estado(){
     return $return;
 }
 
+function delete(){
+	if(!isset($_GET['cod_promocion'])){
+        $return['success'] = 0;
+        $return['mensaje'] = "Falta informacion";
+        return $return;
+    }
+
+	$cod_promocion = $_GET['cod_promocion'];
+
+    require_once "../clases/cl_promociones_nueva.php";
+    $Clpromociones = new cl_promociones_nueva();
+    try {
+        if (!$Clpromociones->eliminar($cod_promocion)) {
+            throw new Exception('No se pudo eliminar la promoción');
+        }
+        return [
+            'success' => 1,
+            'mensaje' => 'Promoción eliminada correctamente'
+        ];
+    } catch (Exception $e) {
+        return [
+            'success' => 0,
+            'mensaje' => $e->getMessage()
+        ];
+    }
+}
+
 
 ?>

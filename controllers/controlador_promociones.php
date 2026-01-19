@@ -19,10 +19,10 @@ function crear(){
 
     // return [ 'success' => 0, 'mensaje' => 'TEST JC' ];
 
-    if (!fechaValida(!$fecha_inicio)) {
+    if (!fechaValida($fecha_inicio)) {
         return [ 'success' => 0, 'mensaje' => 'Fecha de inicio es incorrecta' ];
     }
-    if (!fechaValida(!$fecha_fin)) {
+    if (!fechaValida($fecha_fin)) {
         return [ 'success' => 0, 'mensaje' => 'Fecha Fin es incorrecta' ];
     }
 

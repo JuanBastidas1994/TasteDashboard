@@ -155,7 +155,7 @@ $dias = [
         <div id="content" class="main-content">
             <div class="layout-px-spacing">
                 <div class="col-md-12" style="margin-top:25px; ">
-                    <div><span id="btnBack" data-module-back="promociones.php" style="cursor: pointer;">
+                    <div><span id="btnBack" data-module-back="promociones_v2.php" style="cursor: pointer;">
                             <i data-feather="chevron-left"></i><span style="font-size: 16px; vertical-align: middle;color:#888ea8;">Promociones</span></span>
                     </div>
                     <h3 id="titulo"><?php echo ($descripcion != "") ? $descripcion : "Agregar Promoción"; ?></h3>
@@ -185,7 +185,7 @@ $dias = [
 
                                     <div class="form-row">
                                         <div class="form-group col-md-10 col-sm-10 col-xs-12">
-                                            <label>Descripción <span class="asterisco">*</span></label>
+                                            <label>Nombre de la promo <span class="asterisco">*</span></label>
                                             <input type="text" placeholder="Motivo del descuento" name="descripcion" id="descripcion" class="form-control" required="required" autocomplete="off" value="<?php echo $descripcion; ?>">
                                         </div>
                                         <div class="form-group col-md-2 col-sm-2 col-xs-12" style="margin-bottom:10px;">

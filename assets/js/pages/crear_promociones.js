@@ -212,3 +212,16 @@ $("#btnEliminar").on("click",function(){
         }
     });
 });
+
+$("#btnBack").on("click",function(){
+    var link = $(this).attr("data-module-back");
+    if (typeof link === "undefined") {
+        link = "index.php";
+    }
+    messageConfirm('¿Estas seguro?', '¡Perderas todos los cambios que no hayas guardado!', "warning")
+    .then(function(result) {
+        if (result) {
+            window.location.href = link;
+        }
+    });
+});

@@ -1,12 +1,7 @@
-let ApiUrl = "https://api.mie-commerce.com/taste-front/v6";
-let ApiKey = "";
+let ApiUrl = "https://api.mie-commerce.com/front";
 let Path = "/ordenes/preorden";
+let ApiKey = "";
 let tr = "";
-const apiv4Array = [
-    'Api-BOLONCITYa151AWE215',
-    'API-roll-it-X8MDQZN2I1Z209B',
-    'API-portones-QNDMYI46O6JL9LY',
-];
 
 $(function () {
     initDatatable();
@@ -99,27 +94,6 @@ function crearOrden(json, tr, cod_preorden, paymentId) {
     if (ApiKey == "") {
         messageDone("Falta APIKEY", "error");
         return;
-    }
-
-    if(ApiKey === 'API-sambolon-GV4H5TZCZBXG-FC') {
-        ApiUrl = 'https://api.mie-commerce.com/sambolon/v1';
-        Path = '/ordenes';
-        body = json;
-    }
-
-    if(ApiKey === 'Api-OAHU154662154'){
-        const order = JSON.parse(json);
-        if(order.origen == 'IOS' || order.origen == 'ANDROID') {
-            ApiUrl = 'https://api.mie-commerce.com/v10';
-            Path = '/ordenes';
-            body = json;
-        }
-    }
-    
-    if(apiv4Array.includes(ApiKey)){
-        const order = JSON.parse(json);
-        if(order.origen == 'IOS' || order.origen == 'ANDROID')
-            ApiUrl = 'https://api.mie-commerce.com/taste-front/v4';
     }
 
     OpenLoad("Creando orden...");

@@ -9,7 +9,7 @@ class cl_promociones_nueva
     // 6 = Sábado
     // 7 = Domingo
     public $session;
-    public $cod_promocion, $descripcion, $is_porcentaje, $valor, $texto, $fecha_inicio, $fecha_fin, $is_recurrente;
+    public $cod_promocion, $descripcion, $is_porcentaje, $cantidad, $valor, $texto, $fecha_inicio, $fecha_fin, $is_recurrente, $estado;
     public $cod_sucursal, $cod_producto, $cod_empresa;
 
     public function __construct()
@@ -29,6 +29,7 @@ class cl_promociones_nueva
             p.texto, 
             p.fecha_inicio, 
             p.fecha_fin, 
+            p.estado, 
             GROUP_CONCAT(DISTINCT s.nombre ORDER BY s.nombre ASC) AS sucursales
         FROM 
             promociones p
@@ -56,7 +57,8 @@ class cl_promociones_nueva
                     texto,
                     fecha_inicio,
                     fecha_fin,
-                    is_recurrente
+                    is_recurrente,
+                    estado
                 FROM promociones
                 WHERE cod_promocion = :cod_promocion
                     AND cod_empresa = :cod_empresa
@@ -120,18 +122,20 @@ class cl_promociones_nueva
     // Método para crear una nueva promoción
     public function crear(&$id)
     {
-        $query = "INSERT INTO promociones (cod_empresa, descripcion, is_porcentaje, valor, texto, fecha_inicio, fecha_fin, is_recurrente) 
-                  VALUES (:cod_empresa, :descripcion, :is_porcentaje, :valor, :texto, :fecha_inicio, :fecha_fin, :is_recurrente)";
+        $query = "INSERT INTO promociones (cod_empresa, descripcion, is_porcentaje, cantidad, valor, texto, fecha_inicio, fecha_fin, is_recurrente, estado) 
+                  VALUES (:cod_empresa, :descripcion, :is_porcentaje, :cantidad, :valor, :texto, :fecha_inicio, :fecha_fin, :is_recurrente, :estado)";
 
         $params = array(
             ':cod_empresa' => $this->cod_empresa,
             ':descripcion' => $this->descripcion,
             ':is_porcentaje' => $this->is_porcentaje,
+            ':cantidad' => $this->cantidad,
             ':valor' => $this->valor,
             ':texto' => $this->texto,
             ':fecha_inicio' => $this->fecha_inicio,
             ':fecha_fin' => $this->fecha_fin,
             ':is_recurrente' => $this->is_recurrente,
+            ':estado' => $this->estado,
         );
 
         if (Conexion::ejecutar($query, $params)) {
@@ -146,18 +150,20 @@ class cl_promociones_nueva
     public function editar()
     {
         $query = "UPDATE promociones 
-                  SET descripcion = :descripcion, is_porcentaje = :is_porcentaje, valor = :valor, texto = :texto, 
-                      fecha_inicio = :fecha_inicio, fecha_fin = :fecha_fin, is_recurrente = :is_recurrente
+                  SET descripcion = :descripcion, is_porcentaje = :is_porcentaje, cantidad = :cantidad, valor = :valor, texto = :texto, 
+                      fecha_inicio = :fecha_inicio, fecha_fin = :fecha_fin, is_recurrente = :is_recurrente, estado = :estado
                   WHERE cod_promocion = :cod_promocion";
 
         $params = array(
             ':descripcion' => $this->descripcion,
             ':is_porcentaje' => $this->is_porcentaje,
+            ':cantidad' => $this->cantidad,
             ':valor' => $this->valor,
             ':texto' => $this->texto,
             ':fecha_inicio' => $this->fecha_inicio,
             ':fecha_fin' => $this->fecha_fin,
             ':is_recurrente' => $this->is_recurrente,
+            ':estado' => $this->estado,
             ':cod_promocion' => $this->cod_promocion
         );
 
@@ -230,6 +236,15 @@ class cl_promociones_nueva
             $hora_inicio = $horario['inicio'] ?? '00:00:00';
             $hora_fin    = $horario['fin']    ?? '23:59:59';
 
+            if (strlen($hora_inicio) === 5) $hora_inicio .= ':00';
+            if (strlen($hora_fin) === 5)    $hora_fin    .= ':00';
+
+            if ($hora_fin === '00:00:00') {
+                $hora_fin = '23:59:59';
+            }else if ($hora_fin <= $hora_inicio) {
+                $hora_fin = '23:59:59';
+            }
+
             $query = "INSERT INTO promocion_recurrente
                     (cod_promocion, dia_semana, hora_inicio, hora_fin)
                     VALUES (:cod, :dia, :inicio, :fin)";
@@ -245,6 +260,15 @@ class cl_promociones_nueva
         }
 
         return true;
+    }
+
+    //Eliminar las recurrencias
+    public function eliminar_recurrencia($cod_promocion){
+        // Borrar reglas anteriores
+        Conexion::ejecutar(
+            "DELETE FROM promocion_recurrente WHERE cod_promocion = :cod",
+            [':cod' => $cod_promocion]
+        );
     }
 
     //Eliminar de manera segura una promocion

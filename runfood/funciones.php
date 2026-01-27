@@ -372,6 +372,36 @@ function uploadFile($file, $name){
   }
 }
 
+function uploadImageFile($file, $name)
+{
+    // Validar que se haya subido correctamente
+    if (!isset($file) || $file['error'] !== UPLOAD_ERR_OK) {
+        return false;
+    }
+
+    $session = getSession();
+    $path = url_upload . '/assets/empresas/' . $session['alias'] . '/';
+
+    // Crear carpeta si no existe
+    if (!is_dir($path)) {
+        mkdir($path, 0755, true);
+    }
+
+    // Validar que sea imagen
+    $info = getimagesize($file['tmp_name']);
+    if ($info === false) {
+        return false;
+    }
+
+    // Obtener extensión real
+    $extension = image_type_to_extension($info[2]);
+    $filename = $name . $extension;
+
+    $destino = $path . $filename;
+
+    return move_uploaded_file($file['tmp_name'], $destino);
+}
+
 function editor_encode($texto){
   return htmlentities(htmlspecialchars($texto));
 }

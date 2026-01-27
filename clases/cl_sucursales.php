@@ -222,13 +222,13 @@ class cl_sucursales
             return $resp;
 		}
 
-		public function crear_disponibilidad($cod_sucursal, $fecha, $hora_ini, $hora_fin){
+		public function crear_disponibilidad($cod_sucursal, $fecha, $hora_ini, $hora_fin, &$id){
 			$fecha_inicio = $fecha." ".$hora_ini;
 			$fecha_fin    = $fecha." ".$hora_fin;
 			$query = "INSERT INTO tb_sucursal_festivos(cod_sucursal, fecha, hora_inicio, hora_fin, fecha_inicio, fecha_fin) ";
         	$query.= "VALUES($cod_sucursal, '$fecha', '$hora_ini', '$hora_fin', '$fecha_inicio', '$fecha_fin')";
         	if(Conexion::ejecutar($query,NULL)){
-        		//$id = Conexion::lastId();
+        		$id = Conexion::lastId();
         		return true;
         	}else{
         		return false;
@@ -242,6 +242,18 @@ class cl_sucursales
         	}else{
         		return false;
         	}
+		}
+
+		public function getFestivosByIds($idsArray){
+			$ids = implode(',', $idsArray);
+			$fecha = fecha_only()." 00:00:00";
+			$query = "SELECT f.*, s.nombre 
+					FROM tb_sucursal_festivos f, tb_sucursales s 
+					WHERE f.cod_sucursal = s.cod_sucursal
+					AND f.fecha_inicio >= '$fecha' 
+					AND f.cod_sucursal_festivos IN ($ids)";
+            $resp = Conexion::buscarVariosRegistro($query);
+            return $resp;
 		}
 		
 		/*--NUEVO--*/

@@ -45,9 +45,9 @@ if($fidelizacion){
     $diascumple = $fidelizacion['dias_regalo_cumple'];
     $restriccioncumple = $fidelizacion['compra_minimo_regalo_cumple'];
 
-$cantDiasPuntos = $fidelizacion['cant_dias_caducidad_puntos'];
-$cantDiasDinero = $fidelizacion['cant_dias_caducidad_dinero'];
-$cantDiasSaldo = $fidelizacion['cant_dias_caducidad_saldo'];
+    $cantDiasPuntos = $fidelizacion['cant_dias_caducidad_puntos'];
+    $cantDiasDinero = $fidelizacion['cant_dias_caducidad_dinero'];
+    $cantDiasSaldo = $fidelizacion['cant_dias_caducidad_saldo'];
 }
 
 //IMG CUMPLE 
@@ -188,10 +188,16 @@ if($Clempresas->getPermisoTienda($cod_empresa))
                                 </a>
                             </li>
                             
-                            <li class="nav-item">
+                            <li class="nav-item d-none">
                                 <a class="nav-link" data-toggle="tab" href="#tab-envio" role="tab" aria-controls="pills-home" aria-selected="true">
                                     <i data-feather="truck"></i> 
                                     <span data-translate="conf-tab2">Costo de env&iacute;o</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" data-toggle="tab" href="#tab-formaspago" role="tab" aria-controls="pills-pago" aria-selected="false">
+                                    <i data-feather="credit-card"></i> 
+                                    <span data-translate="conf-tab4">Formas de pago</span>
                                 </a>
                             </li>
                           
@@ -202,21 +208,17 @@ if($Clempresas->getPermisoTienda($cod_empresa))
                                     <span data-translate="conf-tab3">Fidelizaci&oacute;n</span>
                                 </a>
                             </li>
-                            <?php } ?>
-
-                            <li class="nav-item">
-                                <a class="nav-link" data-toggle="tab" href="#tab-formaspago" role="tab" aria-controls="pills-pago" aria-selected="false">
-                                    <i data-feather="credit-card"></i> 
-                                    <span data-translate="conf-tab4">Formas de pago</span>
-                                </a>
-                            </li>
-
                             <li class="nav-item">
                                 <a class="nav-link" data-toggle="tab" href="#tab-cumple" role="tab" aria-controls="pills-pago" aria-selected="false">
                                     <i data-feather="gift"></i> 
                                     <span data-translate="conf-tab5">Cumplea&ntilde;os</span>
                                 </a>
                             </li>
+                            <?php } ?>
+
+                            
+
+                            
                             
                             <li class="nav-item">
                                 <a class="nav-link" data-toggle="tab" href="#tab-permisos" role="tab" aria-controls="pills-pago" aria-selected="false">

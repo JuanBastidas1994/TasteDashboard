@@ -59,7 +59,7 @@ $(document).ready(function() {
           });
      });
 
-     $(".btnEliminar").on("click",function(event){
+     $("body").on("click",".btnEliminar",function(event){
         event.preventDefault();
         var id = parseInt($(this).attr("data-value"));
         if(id==0){
@@ -94,9 +94,12 @@ $(document).ready(function() {
                       if( response['success'] == 1)
                       {
                         messageDone(response['mensaje'],'success');
-                        var myTable = $('#style-3').DataTable();
-                        var tr = $(element).parents("tr");
-                        myTable.row(tr[0]).remove().draw();
+                        var $tr = $(element).parents("tr");
+                        $tr.remove();
+
+                        // var myTable = $('#style-3').DataTable();
+                        // var tr = $(element).parents("tr");
+                        // myTable.row(tr[0]).remove().draw();
                       } 
                       else
                       {
@@ -148,8 +151,45 @@ $(document).ready(function() {
                   
                   if( response['success'] == 1)
                   {
-                    messageDone(response['mensaje'],'success');
-                    //$("#id").val(response['id']);
+                    $("#crearModal").modal('hide');
+                    notify(response['mensaje'],'success', 3);
+                    // messageDone(response['mensaje'],'success');
+                    let filas = '';
+                    $.each(response.festivos, function(i, festivo){
+                        filas += `
+                            <tr>
+                                <td>${festivo.nombre}</td>
+                                <td>${festivo.fecha}</td>
+                                <td>${festivo.hora_inicio}</td>
+                                <td>${festivo.hora_fin}</td>
+                                <td class="text-center">
+                                    <ul class="table-controls">
+                                        <li>
+                                            <a href="javascript:void(0);" 
+                                              data-value="${festivo.cod_sucursal_festivos}" 
+                                              class="bs-tooltip btnEliminar"
+                                              data-toggle="tooltip"
+                                              data-placement="top"
+                                              data-original-title="Eliminar">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                                    class="feather feather-trash p-1 br-6 mb-1">
+                                                    <polyline points="3 6 5 6 21 6"></polyline>
+                                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6
+                                                            m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2">
+                                                    </path>
+                                                </svg>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </td>
+                            </tr>
+                        `;
+                    });
+
+                    // Agrega las filas a la tabla
+                    $('#lstFestivos').append(filas);
                   } 
                   else
                   {

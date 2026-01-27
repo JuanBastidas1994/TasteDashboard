@@ -1129,12 +1129,12 @@ $permisos = $Clempresas->getIdPermisionByBusiness($session['cod_empresa']);
                 </li>
             </ul>
             <ul class="navbar-nav flex-row ml-auto ">
-                <li class="bs-tooltip" data-placement="bottom" title="Fidelización" onclick="openFidelizacionModal()">
+                <!-- <li class="bs-tooltip" data-placement="bottom" title="Fidelización" onclick="openFidelizacionModal()">
                     <i data-feather="star"></i>
                 </li>
                 <li class="bs-tooltip" data-placement="bottom" title="Órdenes programadas" onclick="getOrdenesProgramadas()">
                     <i data-feather="calendar"></i>
-                </li>
+                </li> -->
                 <li class="bs-tooltip" data-placement="bottom" title="Cierre Diario" onclick="getCierreDiario()">
                     <i data-feather="unlock"></i>
                 </li>

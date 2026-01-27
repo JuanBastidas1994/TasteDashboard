@@ -28,7 +28,8 @@ $promocion = [
     'is_recurrente' => 0,
     'sucursales'    => [],
     'productos'     => [],
-    'recurrencia'   => []
+    'recurrencia'   => [],
+    'estado' => 'A'
 ];
 if (isset($_GET['id'])) {
     $cod_promocion = $_GET['id'];
@@ -126,6 +127,12 @@ $dias = [
         .select2-dropdown {
             z-index: 9999 !important;
         }
+
+        .flatpickr-input:disabled {
+            background-color: #e9ecef !important;
+            cursor: not-allowed !important;
+            opacity: 1 !important; /* Flatpickr a veces pone opacity < 1, esto asegura que se vea bloqueado */
+        }
     </style>
     <link href="plugins/file-upload/file-upload-with-preview.min.css" rel="stylesheet" type="text/css" />
     <link href="plugins/croppie/croppie.css" rel="stylesheet">
@@ -192,7 +199,7 @@ $dias = [
                                             <label>Estado <span class="asterisco">*</span></label>
                                             <div>
                                                 <label class="switch s-icons s-outline  s-outline-success  mb-4 mr-2">
-                                                    <input type="checkbox" name="chk_estado" id="chk_estado" checked />
+                                                    <input type="checkbox" name="chk_estado" id="chk_estado" <?php echo ($estado == 'A') ? 'checked' : ''; ?> />
                                                     <span class="slider round"></span>
                                                 </label>
                                             </div>
@@ -380,7 +387,7 @@ $dias = [
                                                 </div>
 
                                                 <div class="col-md-4">
-                                                    <input type="time"
+                                                    <input type="text"
                                                         name="dias[<?= $num ?>][inicio]"
                                                         class="form-control time-start"
                                                         value="<?= $inicio ?>"
@@ -388,7 +395,7 @@ $dias = [
                                                 </div>
 
                                                 <div class="col-md-4">
-                                                    <input type="time"
+                                                    <input type="text"
                                                         name="dias[<?= $num ?>][fin]"
                                                         class="form-control time-end"
                                                         value="<?= $fin ?>"
@@ -398,8 +405,8 @@ $dias = [
 
                                         <?php endforeach; ?>
 
-                                        <div class="mb-3">
-                                            <button type="button" class="btn btn-sm btn-secondary" id="btnReplicarHorario">
+                                        <div class="mb-3 mt-4 text-center">
+                                            <button type="button" class="btn btn-sm btn-primary" id="btnReplicarHorario">
                                                 Replicar horario en todos los días activos
                                             </button>
                                         </div>

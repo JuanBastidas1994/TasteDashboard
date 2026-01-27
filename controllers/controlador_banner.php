@@ -41,7 +41,12 @@ function crear(){
             $return['success'] = 1;
             $return['mensaje'] = "Banner creado correctamente";
             $return['id'] = $id;
-            $return['banner'] = $ClBanner->get($id);
+            $banner = $ClBanner->get($id);
+            if($banner){
+                $files = url_sistema.'assets/empresas/'.$session['alias'].'/';
+                $banner['image_min'] = $files.$banner['image_min'];
+                $return['banner'] = $banner;
+            }
 
             /*SUBIR IMAGEN*/
             if(!uploadFile($_FILES["img_profile"], $nameImg)){
@@ -62,7 +67,7 @@ function crear(){
             $data = $ClBanner->get($ClBanner->cod_banner);
             if($data){
                 $files = url_sistema.'assets/empresas/'.$session['alias'].'/';
-                $data['image_min'] = $files.$row['image_min'];
+                $data['image_min'] = $files.$data['image_min'];
                 uploadFile($_FILES["img_profile"], $data['image_min']);
                 $return['imagen'] = "editada";
                 $return['banner'] = $data;

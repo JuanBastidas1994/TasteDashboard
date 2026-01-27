@@ -22,21 +22,34 @@ class cl_usuarios
 		public function lista(){
 			$query = "SELECT u.*, r.nombre as rol FROM tb_usuarios u, tb_roles r WHERE u.cod_rol = r.cod_rol AND u.estado ='A' AND u.cod_rol NOT IN(4,17) AND u.cod_empresa = ".$this->cod_empresa;
             $resp = Conexion::buscarVariosRegistro($query);
+			foreach($resp as $key => $item){
+				$resp[$key]['imagen_url'] = $this->buildImageUrl($item);
+			}
             return $resp;
 		}
 
 		public function lista_publicador(){
 			$query = "SELECT u.*, r.nombre as rol FROM tb_usuarios u, tb_roles r WHERE u.cod_rol = r.cod_rol AND u.estado ='A' AND u.cod_rol NOT IN(4,17,3,2,1) AND u.cod_empresa = ".$this->cod_empresa;
             $resp = Conexion::buscarVariosRegistro($query);
+			foreach($resp as $key => $item){
+				$resp[$key]['imagen_url'] = $this->buildImageUrl($item);
+			}
             return $resp;
+		}
+
+		public function setImage($imagen, $cod_usuario){
+		    $query = "UPDATE tb_usuarios 
+						SET imagen='$imagen'
+						WHERE cod_usuario = $cod_usuario";
+		    return Conexion::ejecutar($query,NULL);
 		}
 
 		public function crear(&$id){
 			$usuario = $this->session['cod_usuario'];
 			$empresa = $this->cod_empresa;
 
-			$query = "INSERT INTO tb_usuarios(cod_empresa, cod_rol, nombre, apellido, telefono, imagen, correo, usuario, password, estado, cod_sucursal, placa) ";
-        	$query.= "VALUES($this->cod_empresa, '$this->cod_rol', '$this->nombre', '$this->apellido', '$this->telefono', '$this->imagen', '$this->correo', '$this->usuario', MD5('$this->password'), '$this->estado', $this->cod_sucursal, '$this->placa')";
+			$query = "INSERT INTO tb_usuarios(cod_empresa, cod_rol, nombre, apellido, telefono, correo, usuario, password, estado, cod_sucursal, placa) ";
+        	$query.= "VALUES($this->cod_empresa, '$this->cod_rol', '$this->nombre', '$this->apellido', '$this->telefono', '$this->correo', '$this->usuario', MD5('$this->password'), '$this->estado', $this->cod_sucursal, '$this->placa')";
         	if(Conexion::ejecutar($query,NULL)){
         		$id = Conexion::lastId();
         		return true;
@@ -70,7 +83,7 @@ class cl_usuarios
 			if($this->cod_sucursal >= 0)
 				$sucursal = ", cod_sucursal = $this->cod_sucursal";
 			
-			$query = "UPDATE tb_usuarios SET cod_rol= '$this->cod_rol', nombre= '$this->nombre', apellido= '$this->apellido', telefono='$this->telefono', correo='$this->correo', usuario='$this->usuario', fecha_nacimiento='$this->fecha_nacimiento', estado='$this->estado', placa='$this->placa' $password $sucursal WHERE cod_usuario = $this->cod_usuario";
+			$query = "UPDATE tb_usuarios SET cod_rol= '$this->cod_rol', nombre= '$this->nombre', apellido= '$this->apellido', telefono='$this->telefono', correo='$this->correo', usuario='$this->usuario', estado='$this->estado', placa='$this->placa' $password $sucursal WHERE cod_usuario = $this->cod_usuario";
         	if(Conexion::ejecutar($query,NULL)){
         		$id = Conexion::lastId();
         		return true;
@@ -277,17 +290,26 @@ class cl_usuarios
 		}
 
 		public function get($cod_usuario){
-			$query = "SELECT * from tb_usuarios where cod_usuario = ".$cod_usuario;
+			$query = "SELECT u.*, r.nombre as rol 
+						FROM tb_usuarios u
+						INNER JOIN tb_roles r ON u.cod_rol = r.cod_rol
+						where u.cod_usuario = ".$cod_usuario;
 			$row = Conexion::buscarRegistro($query);
 			if($row){
-				$row['imagen'] = url_sistema.$row['imagen'];
+				$row['imagen_url'] = $this->buildImageUrl($row);
+				// $row['imagen'] = url_sistema.$row['imagen'];
 			}
 			return $row;
 		}
 
 		public function get2($cod_usuario){
 			$empresa = $this->cod_empresa;
-			$query = "SELECT * from tb_usuarios where cod_usuario = $cod_usuario AND estado IN('A','I') AND cod_empresa = ".$empresa;
+			$query = "SELECT u.*, r.nombre as rol 
+						FROM tb_usuarios u
+						INNER JOIN tb_roles r ON u.cod_rol = r.cod_rol
+						where u.cod_usuario = $cod_usuario
+						AND u.estado IN('A','I') 
+						AND cod_empresa = $empresa";
 			$row = Conexion::buscarRegistro($query);
 			return $row;
 		}
@@ -296,6 +318,16 @@ class cl_usuarios
 			$query = "SELECT * from tb_usuarios where usuario = '$usuario' AND estado IN('A','I')";
 			$row = Conexion::buscarRegistro($query);
 			return $row;
+		}
+
+		private function buildImageUrl($row)
+		{
+			if (!empty($row['imagen'])) {
+				return url_sistema . $row['imagen'];
+			}
+
+			$nombre = urlencode($row['nombre'] . ' ' . $row['apellido']);
+			return "https://ui-avatars.com/api/?name={$nombre}&background=0D8ABC&color=fff";
 		}
 
 		public function getExistenteByUsuario($usuario, $cod_usuario){

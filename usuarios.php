@@ -85,6 +85,19 @@ $cod_rol = $session['cod_rol'];
                               <input type="password" placeholder="Escriba su contrase&ntilde;a" name="txt_password" id="txt_password" class="form-control" required="required" autocomplete="off"/>
                           </div>
                       </div>
+
+                      <div class="col-md-4 col-sm-4 col-xs-12 input-group" style="margin-bottom:10px;">
+                              <label>Telefono <span class="asterisco">*</span> 
+                                    <span class="far fa-question-circle rounded bs-tooltip" data-placement="top" title="Este n&uacute;mero servir&aacute; para cualquier tipo de comunicacion con el usuario"></span>
+                                </label>
+
+                            <div class="input-group mb-4">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text" id="basic-addon1"><i data-feather="phone-call"></i></span>
+                                </div>
+                                <input type="text" class="form-control" placeholder="Telefono" aria-label="notification" aria-describedby="basic-addon1" name="txt_telefono" id="txt_telefono">
+                            </div>
+                          </div>
                       
                       <div class="form-group">
                           <div class="col-md-4 col-sm-4 col-xs-12 input-group" style="margin-bottom:10px;">
@@ -111,20 +124,9 @@ $cod_rol = $session['cod_rol'];
                               </select>
                             </div>
                           </div>
-                          <div class="col-md-4 col-sm-4 col-xs-12 input-group" style="margin-bottom:10px;">
-                              <label>Telefono <span class="asterisco">*</span> 
-                                    <span class="far fa-question-circle rounded bs-tooltip" data-placement="top" title="Este n&uacute;mero servir&aacute; para cualquier tipo de comunicacion con el usuario"></span>
-                                </label>
+                          
 
-                            <div class="input-group mb-4">
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text" id="basic-addon1"><i data-feather="phone-call"></i></span>
-                                </div>
-                                <input type="text" class="form-control" placeholder="Telefono" aria-label="notification" aria-describedby="basic-addon1" name="txt_telefono" id="txt_telefono">
-                            </div>
-                          </div>
-
-                          <div class="col-md-4 col-sm-4 col-xs-12 input-group" style="margin-bottom:10px;">
+                          <div class="col-md-4 col-sm-4 col-xs-12 input-group d-none" style="margin-bottom:10px;">
                               <label>Fecha de nacimiento
                                     <span class="far fa-question-circle rounded bs-tooltip" data-placement="top" title="Puede recordarle los cumpleaños de los usuarios registrados, este campo no es obligatorio"></span>
                                 </label>
@@ -223,12 +225,11 @@ $cod_rol = $session['cod_rol'];
                                               $resp = $Clusuarios->lista_publicador();
                                             
                                             foreach ($resp as $cliente) {
-                                                $imagen = $files.$cliente['imagen'];
                                                 $badge='primary';
                                                 if($cliente['estado'] == 'I')
                                                     $badge='danger';
                                                 echo '<tr id="' . $cliente['cod_usuario'] . '">
-                                                    <td><img src="'.$imagen.'" class="profile-img" alt="Imagen"></td>
+                                                    <td><img src="'.$cliente['imagen_url'].'" class="profile-img" alt="Imagen"></td>
                                                     <td>'.$cliente['nombre'].' '.$cliente['apellido'].'</td>
                                                     <td>'.$cliente['rol'].'</td>
                                                     <td>'.$cliente['correo'].'</td>
@@ -249,6 +250,40 @@ $cod_rol = $session['cod_rol'];
                                             ?>
                                         </tbody>
                                     </table>
+                                    <script id="useritem-template" type="text/x-handlebars-template">
+                                        <tr id="{{cod_usuario}}">
+                                            <td>
+                                                <img src="{{imagen_url}}" class="profile-img" alt="Imagen" style="width:50px;height:auto;">
+                                            </td>
+                                            <td>{{nombre}} {{apellido}}</td>
+                                            <td>{{rol}}</td>
+                                            <td>{{correo}}</td>
+                                            <td>{{fecha_nacimiento}}</td>
+                                            <td>{{telefono}}</td>
+                                            <td class="text-center">
+                                                {{{estadoBadge estado}}}
+                                            </td>
+                                            <td class="text-center">
+                                                <ul class="table-controls">
+                                                    <li>
+                                                        <a href="javascript:void(0);" data-value="{{cod_usuario}}" class="btnEditar">
+                                                            <i data-feather="edit-2"></i>
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a href="javascript:void(0);" data-value="{{cod_usuario}}" class="btnEliminar">
+                                                            <i data-feather="trash"></i>
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a href="usuario_detalle.php?id={{cod_usuario}}">
+                                                            <i data-feather="eye"></i>
+                                                        </a>
+                                                    </li>
+                                                </ul>
+                                            </td>
+                                        </tr>
+                                    </script>
                             </div>
                         </div>
                     </div>
@@ -263,9 +298,11 @@ $cod_rol = $session['cod_rol'];
     <!-- END MAIN CONTAINER -->
     
     <?php js_mandatory(); ?>
+    <script src="./assets/js/libs/handlebars/handlebars.js"></script>
     <script src="assets/js/pages/usuarios.js?v=2" type="text/javascript"></script>
     <script>
-        $('#style-3').DataTable( {
+        let tablaUsuarios;
+        tablaUsuarios = $('#style-3').DataTable( {
             dom: '<"row"<"col-md-12"<"row"<"col-md-6"><"col-md-6"f> > ><"col-md-12"rt> <"col-md-12"<"row"<"col-md-5"i><"col-md-7"p>>> >',
             "oLanguage": {
                 "oPaginate": { "sPrevious": '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-left"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>', "sNext": '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-right"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>' },
@@ -290,8 +327,8 @@ $cod_rol = $session['cod_rol'];
                 }
             },
             "stripeClasses": [],
-            "lengthMenu": [7, 10, 20, 50],
-            "pageLength": 7 
+            "lengthMenu": [50, 70, 100],
+            "pageLength": 50
         } );
     </script>
     <!-- END PAGE LEVEL CUSTOM SCRIPTS -->

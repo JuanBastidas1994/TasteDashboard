@@ -28,12 +28,11 @@ function crear(){
     }
 
     extract($_POST);
-    $nameImg = 'profile_'.datetime_format().'.jpg';
+    
     $Clusuario->cod_rol = $cmbRol;
     $Clusuario->nombre = $txt_nombre;
     $Clusuario->apellido = $txt_apellido;
     $Clusuario->telefono = $txt_telefono;
-    $Clusuario->imagen = $nameImg;
     $Clusuario->correo = $txt_correo;
     $Clusuario->usuario = $txt_correo;
     $Clusuario->password = $txt_password;
@@ -51,14 +50,13 @@ function crear(){
             $return['success'] = 1;
             $return['mensaje'] = "Usuario creado correctamente";
             $return['id'] = $id;
-            $return['usuario'] = $Clusuario->get($id);
 
             /*SUBIR IMAGEN*/
-            if(!uploadFile($_FILES["img_profile"], $nameImg)){
-                $img1 = url_upload.'/assets/img/200x200.jpg';
-                $img2 = url_upload.'/assets/empresas/'.$session['alias'].'/'.$nameImg;
-                @copy($img1, $img2);  
+            $nameImg = 'profile_'.datetime_format().'.jpg';
+            if(uploadImageFile($_FILES["img_profile"], $nameImg)){
+                $Clusuario->setImage($nameImg, $id);
             }
+
             if($Clusuario->crearKeystore($id, $txt_password, 0))
                 $return['keystore'] = "Se creó";
             else
@@ -70,6 +68,7 @@ function crear(){
                 else
                     $Clusuario->setUserLocation($id, -2.1724405, -79.8946697);
             }
+            $return['usuario'] = $Clusuario->get($id);
         }else{
             $return['success'] = 0;
             $return['mensaje'] = "Error al crear el usuario, por favor vuelva a intentarlo";
@@ -86,7 +85,7 @@ function crear(){
             $return['success'] = 1;
             $return['mensaje'] = "Usuario editado correctamente";
             $return['id'] = $Clusuario->cod_usuario;
-            $return['usuario'] = $Clusuario->get($cod_usuario);
+            
 
             if("" <> $txt_password){
                 if($Clusuario->crearKeystore($cod_usuario, $txt_password, 0))
@@ -104,9 +103,14 @@ function crear(){
                 }
             }
 
-            $usuario = $Clusuario->get($cod_usuario);
-            if($usuario)
-                uploadFile($_FILES["img_profile"], $usuario['imagen']);
+            /*SUBIR IMAGEN*/
+            $nameImg = 'profile_'.datetime_format().'.jpg';
+            if(uploadImageFile($_FILES["img_profile"], $nameImg)){
+                $Clusuario->setImage($nameImg, $cod_usuario);
+                deleteFile($usuario['imagen']);
+            }
+
+            $return['usuario'] = $Clusuario->get($cod_usuario);
         }else{
             $return['success'] = 0;
             $return['mensaje'] = "Error al editar el usuario";
@@ -246,7 +250,6 @@ function restablecer(){
 
 function get(){
     global $Clusuario;
-    global $session;
     if(!isset($_GET['cod_usuario'])){
         $return['success'] = 0;
         $return['mensaje'] = "Falta informacion";
@@ -256,13 +259,11 @@ function get(){
     extract($_GET);
 
     $array = NULL;
-    if($Clusuario->getArray($cod_usuario, $array)){
-        $files = url_sistema.'assets/empresas/'.$session['alias'].'/';
-        $array['imagen'] = $files.$array['imagen'];
-
+    $usuario = $Clusuario->get($cod_usuario);
+    if($usuario){
         $return['success'] = 1;
         $return['mensaje'] = "Usuario encontrado";
-        $return['data'] = $array;
+        $return['data'] = $usuario;
     }else{
         $return['success'] = 0;
         $return['mensaje'] = "Usuario no existe, por favor intentelo nuevamente";

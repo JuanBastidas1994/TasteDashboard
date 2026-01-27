@@ -14,11 +14,6 @@ $session = getSession();
 $files = url_sistema.'assets/empresas/'.$session['alias'].'/';
 
 $empresa = $Clempresas->get($session['cod_empresa']);
-$tipo_empresa = $empresa['cod_tipo_empresa'];
-
-$displayCombo = "";
-if($tipo_empresa == 1)
-    $displayCombo = " display: none;";
 
 $cod_producto = 0;
 $nombre = "";
@@ -43,63 +38,6 @@ if(isset($_GET['id'])){
 }
 
 $categorias = $Clcategorias->listaNueva($session['cod_empresa']);
-function getCombo($data, $nivel=1, $values=[]){
-    $html = "";
-    $lvl = "l".$nivel; 
-    foreach ($data as $key => $categoria) {
-        $cod_categoria = $categoria['cod_categoria'];
-        $nombre = $categoria['categoria'];
-        $selected = "";
-        if(count($categoria['subcategorias'])>0){
-            if(in_array($cod_categoria, $values))
-            $selected = "selected";
-            
-            $html .= '<option '.$selected.' value="'.$cod_categoria.'" class="'.$lvl.' non-leaf">'.$nombre.'</option>';
-            $html .= getCombo($categoria['subcategorias'], $nivel+1, $values);
-        }else{
-            if(in_array($cod_categoria, $values))
-            $selected = "selected";
-            if($nivel == 3)
-                $html .= '<option '.$selected.' value="'.$cod_categoria.'" class="'.$lvl.'" disabled>'.$nombre.'</option>';
-            else    
-                $html .= '<option '.$selected.' value="'.$cod_categoria.'" class="'.$lvl.'">'.$nombre.'</option>';
-        }
-    }
-    return $html;
-}
-
-
-function getCombo2($id, $cod_empresa, $nivel=1, $values=[]){
-    $html = "";
-    $lvl = "l".$nivel; 
-    $query = "SELECT * from tb_categorias_dependientes cd, tb_categorias c
-                where cd.cod_categoria = c.cod_categoria
-                AND cd.cod_categoria_padre = 374
-                And c.estado IN ('A', 'I')";
-    $resp = Conexion::buscarVariosRegistro($query);
-    foreach ($resp as $row) {
-        $cod_categoria = $row['cod_categoria'];
-        $categoria = $row['categoria'];
-        $query = "SELECT * FROM tb_categorias_dependientes WHERE cod_categoria_padre = $cod_categoria";
-        $resp2 = Conexion::buscarVariosRegistro($query);
-        $selected = "";
-        if($resp2){
-          if(in_array($cod_categoria, $values))
-            $selected = "selected";
-            
-            $html .= '<option '.$selected.' value="'.$cod_categoria.'" class="'.$lvl.' non-leaf">'.$categoria.'</option>';
-            $html .= getCombo($cod_categoria, $cod_empresa, $nivel+1, $values);
-        }else{
-          if(in_array($cod_categoria, $values))
-            $selected = "selected";
-            if($nivel == 3)
-                $html .= '<option '.$selected.' value="'.$cod_categoria.'" class="'.$lvl.'" disabled>'.$categoria.'</option>';
-            else    
-                $html .= '<option '.$selected.' value="'.$cod_categoria.'" class="'.$lvl.'">'.$categoria.'</option>';
-        }
-    } 
-    return $html;
-}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -237,20 +175,6 @@ function getCombo2($id, $cod_empresa, $nivel=1, $values=[]){
                                 </div>
 
                                 <div class="form-row">
-                                    <?php
-                                    if($tipo_empresa !== 1){
-                                      $allOptionsCombo = getCombo($categorias, 1, $categoriasPadres);
-                                      $selectedP = ($cod_producto > 0 && $cod_categoria_padre == 0) ? "selected" : "";
-                                      echo '<div class="form-group col-md-8 col-sm-8 col-xs-12">
-                                        <label>Categor&iacute;as <span class="asterisco">*</span></label>
-                                        <select multiple="multiple" name="cmb_categoria[]" id="cmb_categoria" class="form-control" required="required">
-                                          <option value="0" class="l1" '.$selectedP.'>Categor&iacute;a Principal</option>
-                                          '.$allOptionsCombo.'
-                                        </select>  
-                                      </div>
-                                      ';
-                                    }
-                                    ?>
                                       <div class="form-group col-md-4 col-sm-4 col-xs-12" style="margin-bottom:10px;">
                                           <label>Estado <span class="asterisco">*</span></label>
                                           <div>

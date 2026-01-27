@@ -84,6 +84,12 @@ function crearNew(){
         return [ 'success' => 0, 'mensaje' => 'Debes marcar productos' ];
     }
 
+    $inicio = new DateTime($fecha_inicio);
+    $fin    = new DateTime($fecha_fin);
+    if ($fin < $inicio) {
+        return [  'success' => 0,  'mensaje' => 'La fecha fin no puede ser menor que la fecha de inicio' ];
+    }
+
     if(!isset($_POST['chkSucursal'])){
         return [ 'success' => 0, 'mensaje' => 'Debes marcar sucursales' ];
     }
@@ -99,18 +105,22 @@ function crearNew(){
         $valor = 100;
         $texto = $cmb_tipo_descuento."x".(intval($cmb_tipo_descuento)-1);
     }
+    $estado = isset($_POST['chk_estado']) ? 'A' : 'I';
 
     // Asignar datos a la clase
     $Clpromociones->descripcion      = $descripcion;
     $Clpromociones->is_porcentaje   = $is_porcentaje;
+    $Clpromociones->cantidad            = $cmb_tipo_descuento;
     $Clpromociones->valor            = $valor;
     $Clpromociones->texto            = $texto;
     $Clpromociones->fecha_inicio     = $fecha_inicio;
     $Clpromociones->fecha_fin        = $fecha_fin;
-    $Clpromociones->is_recurrente    = 0;
+    $Clpromociones->is_recurrente    = $is_recurrencia;
+    $Clpromociones->estado    = $estado;
 
     $productos = $cmb_productos;
     $sucursales = $chkSucursal;
+    $isNewPromotion = false;
 
     try {
         // 🔐 Iniciar transacción
@@ -121,6 +131,7 @@ function crearNew(){
             if (!$Clpromociones->crear($cod_promocion)) {
                 throw new Exception('Error al crear la promocion');
             }
+            $isNewPromotion = true;
         }else{
             $cod_promocion = $_POST['id'];
             $Clpromociones->cod_promocion = $cod_promocion;
@@ -138,14 +149,17 @@ function crearNew(){
         // Asociar Recurrencia
         if($is_recurrencia)
             $Clpromociones->asociar_recurrencia($cod_promocion, $dias);
+        else
+            $Clpromociones->eliminar_recurrencia($cod_promocion);
 
         // ✅ Confirmar cambios
         Conexion::commit();
 
         return [
             'success' => 1,
-            'mensaje' => 'Promoción creada correctamente',
-            'id' => $cod_promocion
+            'mensaje' => 'Promoción actualizada correctamente',
+            'id' => $cod_promocion,
+            'new' => $isNewPromotion
         ];
 
     } catch (Exception $e) {

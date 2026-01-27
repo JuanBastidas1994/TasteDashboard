@@ -31,7 +31,7 @@ $direccion="";
 $latitud = "";
 $longitud="";
 $emisor = "";
-$distancia="";
+$distancia=5;
 $intervalo = 0;
 $estado = "A";
 $telefono = "";
@@ -277,7 +277,7 @@ $listaProductos = $Clproductos->listaProductBySucursal($cod_sucursal);
                                                         </div>
                                                     </div>
                                                     <div class="form-group">
-                                                        <div class="col-md-3 col-sm-3 col-xs-12" style="margin-bottom:10px;">
+                                                        <div class="col-md-3 col-sm-3 col-xs-12 d-none" style="margin-bottom:10px;">
                                                             <label>Cobertura:</label>
                                                             <input type="text" placeholder="Ej 10" name="txt_cobertura" id="txt_cobertura" class="gllpRadius form-control maxlength" required="required" autocomplete="off" maxlength="2" value="<?php echo $distancia; ?>"/>
                                                         </div>
@@ -332,15 +332,6 @@ $listaProductos = $Clproductos->listaProductBySucursal($cod_sucursal);
                                                                         </label>
                                                                     </div>
                                                                 </div>
-                                                                <div class="mr-5">
-                                                                    <label>Envío grava IVA</label>
-                                                                    <div>
-                                                                        <label class="switch s-icons s-outline  s-outline-success  mb-4 mr-2">
-                                                                            <input type="checkbox" name="chk_envio_grava_iva" id="chk_envio_grava_iva" <?= $egiChecked?>>
-                                                                            <span class="slider round"></span>
-                                                                        </label>
-                                                                    </div>
-                                                                </div>
                                                                 <div class="mr-5" style="display: <?php echo in_array("OFFICE_INSITE", $permisos) ? 'initial' : 'none'; ?>;">
                                                                     <label>En Mesa</label>
                                                                     <div>
@@ -350,6 +341,16 @@ $listaProductos = $Clproductos->listaProductBySucursal($cod_sucursal);
                                                                         </label>
                                                                     </div>
                                                                 </div>
+                                                                <div class="mr-5">
+                                                                    <label>Envío grava IVA</label>
+                                                                    <div>
+                                                                        <label class="switch s-icons s-outline  s-outline-success  mb-4 mr-2">
+                                                                            <input type="checkbox" name="chk_envio_grava_iva" id="chk_envio_grava_iva" <?= $egiChecked?>>
+                                                                            <span class="slider round"></span>
+                                                                        </label>
+                                                                    </div>
+                                                                </div>
+                                                                
                                                             </div>
                                                         </div>
                                                         

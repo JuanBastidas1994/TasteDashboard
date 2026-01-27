@@ -318,9 +318,6 @@ function top()
 	                            <div class="dropdown-item">
 	                                <a class="" href="perfil.php"><i data-feather="user"></i> <span data-translate="navbar-miperfil">Mi Perfil</span></a>
 	                            </div>
-								<div class="dropdown-item">
-	                                <a class="" href="scrumboard.php"><i data-feather="headphones"></i> <span data-translate="navbar-soporte">Soporte</span></a>
-	                            </div>
 	                            <div class="dropdown-item">
 	                                <a class="exitApplication" href="javascript:void(0)"><i data-feather="log-out"></i> <span data-translate="navbar-cerrarsesion">Cerrar Sesi&oacute;n</span></a>
 	                            </div>

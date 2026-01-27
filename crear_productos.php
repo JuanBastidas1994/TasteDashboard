@@ -15,6 +15,12 @@ $Clcategorias = new cl_categorias(NULL);
 $Clproductos = new cl_productos(NULL);
 $session = getSession();
 
+
+/*INICIO INFO NECESARIA*/
+$lstCategorias = $Clcategorias->lista();
+$lstSucursales = $Clsucursales->lista();
+/*FIN INFO NECESARIA*/
+
 $files = url_sistema . 'assets/empresas/' . $session['alias'] . '/';
 
 $cod_producto = 0;
@@ -708,8 +714,7 @@ function recursive($array, $posicion, &$data, &$codigos)
                                             <label>Categor&iacute;as <span class="asterisco">*</span></label>
                                             <select multiple="multiple" name="cmb_categoria[]" id="cmb_categoria" class="form-control" required="required">
                                                 <?php
-                                                $resp = $Clcategorias->lista();
-                                                foreach ($resp as $categoria) {
+                                                foreach ($lstCategorias as $categoria) {
                                                     $selected = "";
                                                     if (in_array($categoria['cod_categoria'], $categorias))
                                                         $selected = 'selected="selected"';
@@ -735,7 +740,7 @@ function recursive($array, $posicion, &$data, &$codigos)
                                                 <input type="number" name="txt_volumen" id="txt_volumen" class="form-control" value="<?php echo $txt_volumen; ?>">
                                             </div>
 
-                                            <div class="form-group col-md-4 col-sm-4 col-xs-12">
+                                            <div class="form-group col-md-4 col-sm-4 col-xs-12 d-none">
                                                 <label>SKU<span class="asterisco">*</span><span class="far fa-question-circle rounded bs-tooltip" data-placement="top" title="codigo de artículo"></span></label>
                                                 <input type="text" name="txt_sku" id="txt_sku" class="form-control" value="<?php echo $txt_sku; ?>">
                                             </div>
@@ -1345,8 +1350,7 @@ function recursive($array, $posicion, &$data, &$codigos)
                             <form id="frmDisponibilidad" method="POST" action="#">
                                 <div class="row">
                                     <?php
-                                    $sucursales = $Clsucursales->lista();
-                                    foreach ($sucursales as $suc) {
+                                    foreach ($lstSucursales as $suc) {
                                         $cod_sucursal = $suc['cod_sucursal'];
                                         $nombre = $suc['nombre'];
                                         $precioDisponibilidad = floatval(0);

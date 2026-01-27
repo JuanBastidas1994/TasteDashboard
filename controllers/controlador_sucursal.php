@@ -263,20 +263,17 @@ function crear_disponibilidad(){
 
     extract($_POST);
 
+    $resp = [];
     for ($j=0; $j < count($cmb_sucursales); $j++) { 
         $cod_sucursal = $cmb_sucursales[$j];
-        if($Clsucursales->crear_disponibilidad($cod_sucursal, $fecha_inicio, $hora_ini, $hora_fin)){
-            $return['success'] = 1;
-            $return['mensaje'] = "Creado correctamente";
-            //$return['id'] = $id;
-        }else{
-            $return['success'] = 0;
-            $return['mensaje'] = "Error al crear, por favor vuelva a intentarlo";
+        $cod_festivo = 0;
+        if($Clsucursales->crear_disponibilidad($cod_sucursal, $fecha_inicio, $hora_ini, $hora_fin, $cod_festivo)){
+            $resp[] = $cod_festivo;
         }
-
     }
     $return['success'] = 1;
     $return['mensaje'] = "Creados correctamente";
+    $return['festivos'] = $Clsucursales->getFestivosByIds($resp);
     return $return;
 }
 

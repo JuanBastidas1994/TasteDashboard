@@ -1,4 +1,8 @@
+let userTemplate;
 $(document).ready(function() {
+    const source = $("#useritem-template").html();
+    userTemplate = Handlebars.compile(source);
+
     $("#btnOpenModal").on("click",function(event){
         $("#id").val(0);
         $("#txt_password").attr("required","required");
@@ -94,7 +98,8 @@ $(document).ready(function() {
                   console.log(response);
                   if( response['success'] == 1)
                   {
-                    messageDone(response['mensaje'],'success');
+                    notify('Usuario eliminado correctamente', 'success', 3);
+                    tablaUsuarios.row(`#${id}`).remove().draw(false);
                   } 
                   else
                   {
@@ -138,71 +143,60 @@ $(document).ready(function() {
           }
 
           $.ajax({
-              beforeSend: function(){
+              beforeSend: function () {
                   OpenLoad("Guardando datos, por favor espere...");
-               },
+              },
               url: 'controllers/controlador_usuario.php?metodo=crear',
               type: 'POST',
               data: formData,
               contentType: false,
               processData: false,
-              success: function(response){
+              dataType: 'json',
+              success: function (response) {
                   console.log(response);
-                  if( response['success'] == 1)
-                  {
-                    notify(response.mensaje, "success", 2);
-                    let newId = response['id'];
-                    let usuario = response['usuario'];
-                    $("#id").val(response['id']);
 
-                    let estado = (usuario['estado'] == 'A') ? 'Activo' : 'Inactivo';
-                    let badge = (usuario['estado'] == 'A') ? 'primary' : 'danger';
-                    let d = new Date();
-                    let image = usuario['image_min'] + "?nocache=" + d.getMilliseconds();
-                    let rol = $("#cmbRol option:selected").text();
-                    console.log(rol);
-                    let rowUser = `<tr id="${newId}"  data-codigo="${newId}">
-                                <td><img src="${image}" class="profile-img" alt="Imagen" style="width: 250px; height: auto;"></td>
-                                <td>${usuario['nombre']} ${usuario['apellido']}</td>
-                                <td>${rol}</td>
-                                <td>${usuario['correo']}</td>
-                                <td>${usuario['fecha_nacimiento']}</td>
-                                <td>${usuario['telefono']}</td>
-                                <td class="text-center"><span class="shadow-none badge badge-${badge}">${estado}</span></td>
-                                <td class="text-center">
-                                    <ul class="table-controls">
-                                        <li><a href="javascript:void(0);" data-value="${newId}" class="bs-tooltip btnEditar" data-toggle="tooltip" data-placement="top" title="" data-original-title="Edit"><i data-feather="edit-2"></i></a></li>
+                  if (response.success != 1) {
+                      messageDone(response.mensaje, 'error');
+                      return;
+                  }
 
-                                        <li><a href="javascript:void(0);" data-value="${newId}" class="bs-tooltip btnEliminar" data-toggle="tooltip" data-placement="top" title="" data-original-title="Delete"><i data-feather="trash"></i></a></li>
+                  notify(response.mensaje, "success", 2);
 
-                                        <li>
-                                          <a href="usuario_detalle.php?id=${newId}"  class="bs-tooltip btnDetalle" data-toggle="tooltip" data-placement="top" title="" data-original-title="Notificar">
-                                            <i data-feather="eye"></i>
-                                          </a>
-                                        </li>
-                                    </ul>
-                                </td>
-                            </tr>`;
-                            if (id > 0) {
-                                $("#lstUsuarios #" + newId).replaceWith(rowUser);
-                            }else{
-                                $("#lstUsuarios").append(rowUser);
-                            }
-                            feather.replace();
-                            $("#crearModal").modal("hide");
-                  } 
-                  else
-                  {
-                    messageDone(response['mensaje'],'error');
-                  } 
+                  let usuario = response.usuario;
+                  let newId = response.id;
+                  $("#id").val(newId);
+
+                  let rol = $("#cmbRol option:selected").text();
+                  let image = usuario.image_min + "?nocache=" + Date.now();
+
+                  console.log(usuario);
+                  let htmlRow = userTemplate(usuario);
+                  let $row = $(htmlRow);
+
+                  // 👉 EDITAR O CREAR
+                  let rowDT = tablaUsuarios.row(`#${newId}`);
+
+                  if (rowDT.length) {
+                      // 🔁 UPDATE
+                      rowDT.data(extraerCeldas($row)).draw(false);
+                  } else {
+                      // ➕ INSERT
+                      let fila = tablaUsuarios
+                          .row.add(extraerCeldas($row))
+                          .draw(false);
+
+                      $(fila.node()).attr("id", newId);
+                  }
+
+                  feather.replace();
+                  $("#crearModal").modal("hide");
               },
-              error: function(data){
-                console.log(data);
-                 
+              error: function (err) {
+                  console.error(err);
+                  messageDone("Error inesperado", "error");
               },
-              complete: function(resp)
-              {
-                CloseLoad();
+              complete: function () {
+                  CloseLoad();
               }
           });
     });
@@ -332,4 +326,18 @@ $(document).ready(function() {
       messages: { 'default': 'Click to Upload or Drag n Drop', 'remove':  '<i class="flaticon-close-fill"></i>', 'replace': 'Upload or Drag n Drop' }
     });
 
+    function extraerCeldas($row) {
+        let data = [];
+        $row.find("td").each(function () {
+            data.push($(this).html());
+        });
+        return data;
+    }
+
+});
+
+Handlebars.registerHelper('estadoBadge', function (estado) {
+    return estado === 'A'
+        ? '<span class="badge badge-primary">Activo</span>'
+        : '<span class="badge badge-danger">Inactivo</span>';
 });

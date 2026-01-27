@@ -1,9 +1,34 @@
 $(function() {
     
     $("#cmbDias").select2();
-    flatpickr(".flatpickr-input", {
+    flatpickr("#hora_ini", {
         enableTime: true,
-        dateFormat: "Y-m-d H:i"
+        dateFormat: "Y-m-d H:i",
+        defaultHour: 7, 
+        defaultMinute: 0,
+    });
+
+    flatpickr("#hora_fin", {
+        enableTime: true,
+        dateFormat: "Y-m-d H:i",
+        defaultHour: 23, 
+        defaultMinute: 0,
+    });
+
+    flatpickr(".time-start", {
+        enableTime: true,
+        noCalendar: true, 
+        dateFormat: "H:i",
+        defaultHour: 7, 
+        defaultMinute: 0,
+    });
+
+    flatpickr(".time-end", {
+        enableTime: true,
+        noCalendar: true, 
+        dateFormat: "H:i",
+        defaultHour: 23, 
+        defaultMinute: 0,
     });
 
     $("#btnGuardar").on("click", function (event) {
@@ -46,10 +71,15 @@ function storePromotion(formData){
         console.log(response);
 
         if (response['success'] == 1) {
-          messageDone(response['mensaje'], 'success');
-          $("#id").val(response['id']);
-          const newUrl = `crear_promociones.php?id=${response['id']}`;
+            messageDone(response['mensaje'], 'success');
+            $("#id").val(response['id']);
+            const newUrl = `crear_promociones.php?id=${response['id']}`;
             window.history.replaceState(null, '', newUrl);
+            if (response['new'] === true) {
+                setTimeout(function () {
+                    window.location.href = 'promociones_v2.php';
+                }, 1000);
+            }
         }
         else {
           messageDone(response['mensaje'], 'error');
@@ -99,7 +129,7 @@ $(".rbDisponibleDias").on("change", function () {
 
 $('.chk-day').on('change', function () {
     const row = $(this).closest('.day-item');
-    row.find('input[type="time"]').prop('disabled', !this.checked);
+    row.find('input[type="text"]').prop('disabled', !this.checked);
 });
 
 $('#btnReplicarHorario').on('click', function () {

@@ -29,6 +29,7 @@ $promocion = [
     'sucursales'    => [],
     'productos'     => [],
     'recurrencia'   => [],
+    'tipo_entrega'   => [],
     'estado' => 'A'
 ];
 if (isset($_GET['id'])) {
@@ -50,6 +51,10 @@ $dias = [
     5 => 'viernes',
     6 => 'sábado',
     7 => 'domingo'
+];
+
+$tiposEntrega = [
+    'DELIVERY', 'PICKUP', 'EN_MESA'
 ];
 ?>
 
@@ -411,6 +416,64 @@ $dias = [
                                                 Replicar horario en todos los días activos
                                             </button>
                                         </div>
+                                    </div>
+
+
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- DAYS AVAILABLE -->
+                        <div class="widget-content widget-content-area br-6" style="margin-top: 15px;">
+                            <div>
+                                <h4>¿En qué tipo de pedido aplica esta promoción?</h4>
+                            </div>
+                            <form id="frmTipoEntrega" method="POST" action="#">
+                                <div class="row">
+                                    <div class="col-md-12 col-sm-12 col-xs-12">
+                                        <input type="hidden" id="dias_disponibles" value="<?php echo $days; ?>" />
+                                        <p>Selecciona dónde estará disponible esta promoción para tus clientes.</p>
+                                        <div>
+                                            <label class="new-control new-radio radio-classic-primary">
+                                                <input type="radio" class="new-control-input rbTiposEntregas" value="0" name="is_tipo_entrega"
+                                                    <?php if(!$tipo_entrega) echo 'checked'; ?>
+                                                >
+                                                <span class="new-control-indicator"></span>Todos los tipos
+                                            </label>
+                                        </div>
+                                        <div>
+                                            <label class="new-control new-radio radio-classic-primary">
+                                                <input type="radio" class="new-control-input rbTiposEntregas" value="1" name="is_tipo_entrega"
+                                                    <?php if($tipo_entrega) echo 'checked'; ?>
+                                                >
+                                                <span class="new-control-indicator"></span>Sólo algunos tipos
+                                            </label>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="chooseTiposEntregas form-group col-md-12 col-sm-12 col-xs-12 mt-3" style="<?php if(!$tipo_entrega) echo 'display:none;'; ?>">
+                                        <?php foreach ($tiposEntrega as $nombre): ?>
+                                            <?php
+                                                $activo = in_array($nombre, $tipo_entrega ?? []);
+                                            ?>
+
+                                            <div class="day-item row align-items-center mb-2">
+                                                <div class="col-1"></div>
+                                                <div class="col-10">
+                                                    <label class="new-control new-checkbox new-checkbox-rounded checkbox-success">
+                                                        <input type="checkbox"
+                                                            class="new-control-input"
+                                                            name="tipo_entrega[]"
+                                                            value="<?= $nombre ?>"
+                                                            <?= $activo ? 'checked' : '' ?>
+                                                        >
+                                                        <span class="new-control-indicator"></span> 
+                                                        <?= ucfirst(strtolower($nombre)) ?>
+                                                    </label>
+                                                </div>
+                                            </div>
+
+                                        <?php endforeach; ?>
                                     </div>
 
 

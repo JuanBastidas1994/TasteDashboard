@@ -35,6 +35,7 @@ $(document).ready(function () {
                     $("#txt_descuento").val(data['descuento']);
                     $("#txt_text_boton").val(data['text_boton']);
                     $("#txt_url").val(data['url_boton']);
+                    $("#txt_ubicacion").val(data['ubicacion']);
 
                     $("#ckEstado").removeAttr("checked");
                     if (data["estado"] == "A") {

@@ -96,6 +96,9 @@ function crearNew(){
     if($is_recurrencia && !isset($_POST['dias'])){
         return [ 'success' => 0, 'mensaje' => 'Para las promociones recurrentes debes habilitar los días necesarios' ];
     }
+    if($is_tipo_entrega && !isset($_POST['tipo_entrega'])){
+        return [ 'success' => 0, 'mensaje' => 'Si marcas algunos tipos de entrega debes marcar cuales, caso contrario escoge Todos los tipos' ];
+    }
 
     $is_porcentaje = 1;
     $valor = $porcentaje_descuento;
@@ -151,6 +154,11 @@ function crearNew(){
             $Clpromociones->asociar_recurrencia($cod_promocion, $dias);
         else
             $Clpromociones->eliminar_recurrencia($cod_promocion);
+
+        //Tipo de Entrega
+        if($is_tipo_entrega == 0)
+            $tipo_entrega = [];
+        $Clpromociones->asociar_tipo_entrega($cod_promocion, $tipo_entrega);
 
         // ✅ Confirmar cambios
         Conexion::commit();

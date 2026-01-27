@@ -98,15 +98,15 @@ class cl_promociones_nueva
         $promocion['productos'] = array_column($productos, 'cod_producto');
 
         // 4. Recurrencia (si aplica)
+        $promocion['recurrencia'] = [];
+
+        
         $query = "SELECT dia_semana, hora_inicio, hora_fin
                 FROM promocion_recurrente
                 WHERE cod_promocion = :cod";
-
         $recurrencia = Conexion::buscarVariosRegistro($query, [
             ':cod' => $cod_promocion
         ]);
-
-        $promocion['recurrencia'] = [];
 
         foreach ($recurrencia as $r) {
             $promocion['recurrencia'][$r['dia_semana']] = [
@@ -114,6 +114,17 @@ class cl_promociones_nueva
                 'fin'    => $r['hora_fin']
             ];
         }
+
+        //5. Tipos de entrega (si aplica)
+        $query = "SELECT tipo_entrega
+            FROM promocion_tipo_entrega
+            WHERE cod_promocion = :cod";
+
+        $tipos_entrega = Conexion::buscarVariosRegistro($query, [
+            ':cod' => $cod_promocion
+        ]);
+
+        $promocion['tipo_entrega'] = array_column($tipos_entrega, 'tipo_entrega');
 
         return $promocion;
     }
@@ -262,6 +273,38 @@ class cl_promociones_nueva
         return true;
     }
 
+    // Asociar tipos de entrega con una promoción
+    public function asociar_tipo_entrega($cod_promocion, $tipos_entrega)
+    {
+        // Borrar asociaciones anteriores
+        Conexion::ejecutar(
+            "DELETE FROM promocion_tipo_entrega WHERE cod_promocion = :cod",
+            [':cod' => $cod_promocion]
+        );
+
+        // Si no hay tipos definidos → aplica a todos
+        if (empty($tipos_entrega)) {
+            return true;
+        }
+
+        // Insertar nuevas asociaciones
+        foreach ($tipos_entrega as $tipo) {
+
+            $query = "INSERT INTO promocion_tipo_entrega
+                    (cod_promocion, tipo_entrega)
+                    VALUES (:cod, :tipo)";
+
+            $params = [
+                ':cod'  => $cod_promocion,
+                ':tipo' => $tipo
+            ];
+
+            Conexion::ejecutar($query, $params);
+        }
+
+        return true;
+    }
+
     //Eliminar las recurrencias
     public function eliminar_recurrencia($cod_promocion){
         // Borrar reglas anteriores
@@ -307,6 +350,11 @@ class cl_promociones_nueva
 
             Conexion::ejecutar(
                 "DELETE FROM promocion_recurrente WHERE cod_promocion = :cod",
+                [':cod' => $cod_promocion]
+            );
+
+            Conexion::ejecutar(
+                "DELETE FROM promocion_tipo_entrega WHERE cod_promocion = :cod",
                 [':cod' => $cod_promocion]
             );
 

@@ -3,7 +3,7 @@
 class cl_banners
 {
 		var $con, $session;
-		var $cod_empresa, $cod_banner, $titulo, $subtitulo, $descuento, $image_min, $text_boton, $url_boton, $estado;
+		var $cod_empresa, $cod_banner, $titulo, $subtitulo, $descuento, $image_min, $text_boton, $url_boton, $ubicacion, $estado;
 		
 		public function __construct()
 		{
@@ -19,8 +19,8 @@ class cl_banners
 		}
 
 		public function crear(&$id){
-			$query = "INSERT INTO tb_banner(cod_empresa, titulo, subtitulo, descuento, image_min, text_boton, url_boton, tipo, posicion, estado) ";
-        	$query.= "VALUES($this->cod_empresa, '$this->titulo', '$this->subtitulo', '$this->descuento', '$this->image_min', '$this->text_boton', '$this->url_boton', 'WEB', 999, '$this->estado')";
+			$query = "INSERT INTO tb_banner(cod_empresa, titulo, subtitulo, descuento, image_min, text_boton, url_boton, ubicacion, tipo, posicion, estado) ";
+        	$query.= "VALUES($this->cod_empresa, '$this->titulo', '$this->subtitulo', '$this->descuento', '$this->image_min', '$this->text_boton', '$this->url_boton', '$this->ubicacion', 'WEB', 999, '$this->estado')";
         	if(Conexion::ejecutar($query,NULL)){
         		$id = Conexion::lastId();
         		return true;
@@ -31,7 +31,8 @@ class cl_banners
 
 		public function editar(){
 			$query = "UPDATE tb_banner 
-							SET titulo='$this->titulo', subtitulo='$this->subtitulo', descuento='$this->descuento', text_boton='$this->text_boton', url_boton='$this->url_boton', estado = '$this->estado' 
+							SET titulo='$this->titulo', subtitulo='$this->subtitulo', descuento='$this->descuento', 
+								text_boton='$this->text_boton', url_boton='$this->url_boton', ubicacion='$this->ubicacion', estado = '$this->estado' 
 							WHERE cod_banner = $this->cod_banner";
 			return Conexion::ejecutar($query,NULL);
 		}

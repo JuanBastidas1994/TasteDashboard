@@ -24,6 +24,7 @@ function crear(){
     $ClBanner->image_min = $nameImg;
     $ClBanner->text_boton = $txt_text_boton;
     $ClBanner->url_boton = $txt_url;
+    $ClBanner->ubicacion = $txt_ubicacion;
     $ClBanner->estado = $estado;
 
     if(!isset($_POST['cod_banner'])){

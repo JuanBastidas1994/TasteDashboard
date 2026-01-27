@@ -63,11 +63,7 @@ class cl_banners
 		public function get($cod_banner)
 		{
 			$query = "select * from tb_banner where cod_banner = ".$cod_banner;
-			$row = Conexion::buscarRegistro($query);
-			if($row){
-				$row['image_min'] = url_sistema.$row['image_min'];
-			}
-			return $row;
+			return Conexion::buscarRegistro($query);
 		}
 		
 		public function moverBanners( $cod_banner, $posicion){

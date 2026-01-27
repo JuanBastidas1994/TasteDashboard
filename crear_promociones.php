@@ -365,7 +365,7 @@ $dias = [
                                         </div>
                                     </div>
                                     
-                                    <div class="chooseDias form-group col-md-12 col-sm-12 col-xs-12" style="<?php if(!$recurrencia) echo 'display:none;'; ?>">
+                                    <div class="chooseDias form-group col-md-12 col-sm-12 col-xs-12 mt-3" style="<?php if(!$recurrencia) echo 'display:none;'; ?>">
                                         <?php foreach ($dias as $num => $nombre): ?>
                                             <?php
                                                 $activo = isset($recurrencia[$nombre]);
@@ -374,16 +374,17 @@ $dias = [
                                             ?>
 
                                             <div class="day-item row align-items-center mb-2">
-                                                <div class="col-md-3">
-                                                    <label class="switch s-icons s-outline s-outline-success">
+                                                <div class="col-md-4">
+                                                    <label class="new-control new-checkbox new-checkbox-rounded checkbox-success">
                                                         <input type="checkbox"
-                                                            class="chk-day"
+                                                            class="new-control-input chk-day"
                                                             name="dias[<?= $num ?>][dia_semana]"
                                                             value="<?= $num ?>"
-                                                            <?= $activo ? 'checked' : '' ?>>
-                                                        <span class="slider round"></span>
+                                                            <?= $activo ? 'checked' : '' ?>
+                                                        >
+                                                        <span class="new-control-indicator"></span> 
+                                                        <?= ucfirst($nombre) ?>
                                                     </label>
-                                                    <span class="ml-2"><?= ucfirst($nombre) ?></span>
                                                 </div>
 
                                                 <div class="col-md-4">
@@ -429,7 +430,7 @@ $dias = [
     <!-- END MAIN CONTAINER -->
 
     <?php js_mandatory(); ?>
-    <script src="assets/js/pages/crear_promociones.js?v=124" type="text/javascript"></script>
+    <script src="assets/js/pages/crear_promociones.js?v=887" type="text/javascript"></script>
 
     <!-- HANDLEBARS -->
     <script src="./assets/js/libs/handlebars/handlebars.js"></script>

@@ -1,2 +1,20 @@
+# Archivos sensibles
 config.php
-error_log
+
+# Logs
+*error_log*
+*.log
+
+# Assets subidos por usuarios
+/assets/empresas/
+
+# Node
+node_modules/
+
+# Builds
+/dist
+/build
+
+# OS
+.DS_Store
+Thumbs.db

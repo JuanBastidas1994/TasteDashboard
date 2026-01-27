@@ -17,6 +17,14 @@ function crear(){
     }
 
     extract($_POST);
+    
+    if (strlen($txt_text_boton) > 16) {
+        return [
+            'success' => 0,
+            'message' => 'El texto del botón no puede superar 16 caracteres'
+        ];
+    }
+
     $nameImg = 'banner_'.datetime_format().'.jpg';
     $ClBanner->titulo = $txt_titulo;
     $ClBanner->subtitulo = $txt_subtitulo;
@@ -53,6 +61,8 @@ function crear(){
             $return['id'] = $ClBanner->cod_banner;
             $data = $ClBanner->get($ClBanner->cod_banner);
             if($data){
+                $files = url_sistema.'assets/empresas/'.$session['alias'].'/';
+                $data['image_min'] = $files.$row['image_min'];
                 uploadFile($_FILES["img_profile"], $data['image_min']);
                 $return['imagen'] = "editada";
                 $return['banner'] = $data;

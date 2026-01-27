@@ -78,14 +78,13 @@ $files = url_sistema . 'assets/empresas/' . $session['alias'] . '/';
                                     <label>Subt&iacute;tulo <span class="asterisco">*</span></label>
                                     <input type="text" placeholder="Escribe el subtitulo" name="txt_subtitulo" id="txt_subtitulo" class="form-control" autocomplete="off" />
                                 </div>
-                            </div>
-
-                            <div class="form-group">
                                 <div class="col-md-4 col-sm-4 col-xs-12 d-none" style="margin-bottom:10px;">
                                     <label>Texto Grande (60Pts) <span class="asterisco">*</span></label>
                                     <input type="text" placeholder="Ej. 15% Descuento" name="txt_descuento" id="txt_descuento" class="form-control" autocomplete="off" />
                                 </div>
+                            </div>
 
+                            <div class="form-group">
                                 <div class="col-md-3 col-sm-3 col-xs-12" style="margin-bottom:10px;">
                                     <label>Texto del Bot&oacute;n <span class="asterisco">*</span></label>
                                     <input type="text" placeholder="Boton" name="txt_text_boton" id="txt_text_boton" class="form-control" autocomplete="off" />
@@ -96,12 +95,26 @@ $files = url_sistema . 'assets/empresas/' . $session['alias'] . '/';
                                     <input type="text" placeholder="http://" name="txt_url" id="txt_url" class="form-control" autocomplete="off" />
                                 </div>
 
-
+                                <div class="col-md-4 col-sm-4 col-xs-12" style="margin-bottom:10px;">
+                                    <label>Ubicación del Botón <span class="asterisco">*</span></label>
+                                    <select name="txt_ubicacion" id="txt_ubicacion" class="form-control">
+                                        <option value="top_left">Superior izquierda</option>
+                                        <option value="top_center">Superior centro</option>
+                                        <option value="top_right">Superior derecha</option>
+                                        <option value="center_left">Centro izquierda</option>
+                                        <option value="center">Centro</option>
+                                        <option value="center_right">Centro derecha</option>
+                                        <option value="bottom_left">Inferior izquierda</option>
+                                        <option value="bottom_center" selected>Inferior centro</option>
+                                        <option value="bottom_right">Inferior derecha</option>
+                                    </select>
+                                </div>
 
                             </div>
+
                             <div class="form-group">
                                 <div class="row">
-                                    <div class="offset-lg-7 col-lg-5 col-12">
+                                    <div class="col-12 text-right">
                                         <label>Estado</label>
                                         <div>
                                             <label class="switch s-icons s-outline  s-outline-success mr-2">
@@ -208,7 +221,7 @@ $files = url_sistema . 'assets/empresas/' . $session['alias'] . '/';
     <!-- END MAIN CONTAINER -->
 
     <?php js_mandatory(); ?>
-    <script src="assets/js/pages/banners.js?v=0" type="text/javascript"></script>
+    <script src="assets/js/pages/banners.js?v=1" type="text/javascript"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
     <script>
         $('#style-3').DataTable({

@@ -96,7 +96,7 @@ function storePromotion(formData){
 }
 
 function getInfoForms() {
-    let forms = ["#frmSave", "#frmDisponibilidad", "#frmProductos", "#frmDias"];
+    let forms = ["#frmSave", "#frmDisponibilidad", "#frmProductos", "#frmDias", "#frmTipoEntrega"];
     let formData = new FormData();
 
     for (let i = 0; i < forms.length; i++) {
@@ -124,6 +124,15 @@ $(".rbDisponibleDias").on("change", function () {
         $(".chooseDias").show();
     } else {
         $(".chooseDias").hide();
+    }
+});
+
+$(".rbTiposEntregas").on("change", function () {
+    var aux = $(this).val();
+    if (aux == 1) {
+        $(".chooseTiposEntregas").show();
+    } else {
+        $(".chooseTiposEntregas").hide();
     }
 });
 

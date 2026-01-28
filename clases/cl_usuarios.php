@@ -187,7 +187,8 @@ class cl_usuarios
 				AND u.usuario = ? 
 				AND u.password = MD5(?) 
 				AND u.estado = 'A' 
-				AND u.cod_rol NOT IN(4)";
+				AND u.cod_rol NOT IN(4)
+				AND e.estado = 'A'";
 			$resp = Conexion::buscarRegistro($query, array($usuario, $password));
 			return $resp;
 		}
@@ -213,7 +214,7 @@ class cl_usuarios
 					FROM auth_tokens a, tb_usuarios u, tb_empresas e
 					WHERE a.cod_usuario = u.cod_usuario
 					AND u.cod_empresa = e.cod_empresa 
-					AND u.estado = 'A' AND a.estado = 'A'
+					AND u.estado = 'A' AND a.estado = 'A' AND e.estado = 'A'
 					AND a.token = '$token'
 					AND a.fecha_expiracion > '$fecha'";
 			$resp = Conexion::buscarRegistro($query);

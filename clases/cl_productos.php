@@ -35,6 +35,24 @@ class cl_productos
             $resp = Conexion::buscarVariosRegistro($query);
             return $resp;
 		}
+
+
+		public function listaSinOpciones(){
+			$query = "
+				SELECT p.*
+				FROM tb_productos p
+				WHERE p.estado = 'A'
+				AND p.cod_empresa = ".$this->session['cod_empresa']."
+				AND NOT EXISTS (
+					SELECT 1
+					FROM tb_productos_opciones o
+					WHERE o.cod_producto = p.cod_producto
+				)
+			";
+			
+			$resp = Conexion::buscarVariosRegistro($query);
+			return $resp;
+		}
 		
 		public function listaOld(){
 			$query = "SELECT p.*

@@ -551,6 +551,29 @@ function set_estado(){
     return $return;
 }
 
+function eliminar(){
+	global $Clempresas;
+	if(!isset($_GET['cod_empresa'])){
+        $return['success'] = 0;
+        $return['mensaje'] = "Falta informacion";
+        return $return;
+    }
+
+	extract($_GET);
+
+    $resp = $Clempresas->set_estado($cod_sucursal, $estado);
+    if($resp){
+    	$return['success'] = 1;
+    	$return['mensaje'] = "Empresa editada correctamente";
+        if($estado == "D")
+            $return['mensaje'] = "Empresa eliminada correctamente";
+    }else{
+    	$return['success'] = 0;
+    	$return['mensaje'] = "Error al editar la empresa";
+    }
+    return $return;
+}
+
 function InfoDelivery(){
 	global $Clempresas;
 	global $ClSucursales;

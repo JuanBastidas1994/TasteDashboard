@@ -981,5 +981,39 @@ class cl_empresas
                 INNER JOIN tb_empresas e ON sf.cod_flota = e.cod_empresa";
             return Conexion::buscarVariosRegistro($query);
 		}
+
+		public function eliminar($cod_empresa){
+			try{
+				Conexion::beginTransaction();
+					$existe = Conexion::buscarRegistro(
+					"SELECT cod_empresa 
+					FROM tb_empresas 
+					WHERE cod_empresa = :cod_empresa ",
+					[
+						':cod_empresa'     => $cod_empresa,
+					]
+				);
+
+				if (!$existe) {
+					throw new Exception('La empresa no existe');
+				}
+
+				//PAGINAS
+				Conexion::ejecutar(
+					"DELETE FROM  tb_pagina_rol WHERE cod_empresa = :cod",
+					[':cod' => $cod_empresa]
+				);
+
+				//INACTIVAR EMPRESA
+				Conexion::ejecutar(
+					"UPDATE tb_empresas SET estado = 'D' WHERE cod_empresa = :cod",
+					[':cod' => $cod_empresa]
+				);
+
+			} catch (Exception $e) {
+				Conexion::rollback();
+				return false;
+			}
+		}
 }
 ?>

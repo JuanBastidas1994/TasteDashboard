@@ -100,7 +100,7 @@ if(!$sugerencia){
                                         <tbody id="lstDisponibles" class="connectedSortable">
                                         <?php
                                         $htmlDisponibles = "";
-                                        $resp = $Clproductos->lista();
+                                        $resp = $Clproductos->listaSinOpciones();
                                         if(!$resp)
                                             $htmlDisponibles = '<tr><td colspan="4">No hay registros</td></tr>';
                                         foreach ($resp as $productos) {

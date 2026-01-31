@@ -389,7 +389,7 @@ function datetimeShort($fecha)
                                                 $comentariosDetalle = '';
                                                 if($detalle['cobra_iva'] == 1){
                                     		        $detalle['precio'] = $detalle['precio'] / $ivaDivider;
-                                    		        $detalle['total'] = $detalle['total'] / $ivaDivider;
+                                    		        // $detalle['total'] = $detalle['total'] / $ivaDivider;
                                     		        $detalle['adicional_total'] = $detalle['adicional_total'] / $ivaDivider;
                                     		        $detalle['descuento'] = ($detalle['descuento'] > 0) ? $detalle['descuento'] / $ivaDivider : 0;
                                     		    }
@@ -541,6 +541,7 @@ function datetimeShort($fecha)
 
                         <?php
                         $isAnulada = 0;
+                        $idTransaction = "";
                         foreach ($orden['pagos'] as $pagos) {
                             if ($pagos['forma_pago'] == "T") {
                                 $idTransaction = $pagos['observacion'];

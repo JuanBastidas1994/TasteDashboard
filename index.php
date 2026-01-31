@@ -289,7 +289,7 @@ $faltaPagos = Conexion::buscarRegistro($query);
         }
     </script>
     <script>
-        topMenosVentas();
+        // topMenosVentas();
         function topMenosVentas(){
             let parametros = {}
             $.ajax({
@@ -300,9 +300,6 @@ $faltaPagos = Conexion::buscarRegistro($query);
                     console.log(response);
                     if(response['success']==1){
                         $(".top-menos-ventas").html(response['html']);
-                    }
-                    else{
-                        notify(response['mensaje'], "error");
                     }
                 },
                 error: function(data){

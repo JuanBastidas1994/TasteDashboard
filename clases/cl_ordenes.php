@@ -271,7 +271,7 @@ class cl_ordenes
 						FROM tb_orden_cabecera c, tb_orden_detalle d, tb_productos p
 						WHERE c.cod_orden = d.cod_orden 
 						AND d.cod_producto = p.cod_producto
-						AND c.estado NOT IN ('I')
+						AND c.estado NOT IN ('ANULADA')
 						AND p.cod_empresa = $empresa
 						GROUP BY p.cod_producto
 						ORDER BY SUM(d.precio_final) DESC

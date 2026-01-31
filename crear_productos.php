@@ -25,7 +25,6 @@ $files = url_sistema . 'assets/empresas/' . $session['alias'] . '/';
 
 $cod_producto = 0;
 $cod_producto_padre = 0;
-// $imagen = url_sistema . '/assets/img/200x200.jpg';
 $imagen ="";
 $nombre = "";
 $desc_corta = "";
@@ -118,7 +117,8 @@ if (isset($_GET['id'])) {
     if ($Clproductos->getArrayByAlias($alias, $producto)) {
         $cod_producto = $producto['cod_producto'];
         $cod_producto_padre = $producto['cod_producto_padre'];
-        $imagen = $files . $producto['image_min'];
+        if($producto['image_min'] !== "")
+            $imagen = $files . $producto['image_min'];
         $nombre = $producto['nombre'];
         $desc_corta = $producto['desc_corta'];
         $desc_larga = editor_decode($producto['desc_larga']);

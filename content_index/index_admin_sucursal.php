@@ -22,7 +22,7 @@
                         $resp = $Clordenes->listaLimit();
                         foreach ($resp as $orden) {
                             $badge='primary';
-                            if($orden['estado'] == 'I')
+                            if($orden['estado'] == 'ANULADA')
                                 $badge='danger';
                             else if($orden['estado'] == "ENTREGADA")
                                 $badge='success';

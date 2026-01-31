@@ -84,7 +84,9 @@ if(in_array("PRODUCTO_INGREDIENTES", $permisos))
                                             $resp = $Clproductos->lista();
                                             foreach ($resp as $productos) {
                                                 $code = ($productos['sku']!=="") ? $productos['sku'] : $productos['cod_producto'];
-                                                $imagen = $files.$productos['image_min']."?v=".$productos['fecha_modificacion'];
+                                                $imagen = 'assets/img/200x200.jpg';
+                                                if($productos['image_min'] !== '')
+                                                    $imagen = $files.$productos['image_min']."?v=".$productos['fecha_modificacion'];
                                                 $badge='primary';
                                                 if($productos['estado'] == 'I')
                                                     $badge='danger';

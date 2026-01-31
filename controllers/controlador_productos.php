@@ -45,6 +45,8 @@ function crear(){
     $Clproductos->peso = $txt_peso;
     $Clproductos->volumen = $txt_volumen;
     $Clproductos->sku = $txt_sku;
+    $Clproductos->image_min = '';
+    $Clproductos->image_max = '';
     $Clproductos->tiempo_preparacion = $txt_preparacion;
     $Clproductos->estado = (isset($_POST['chk_estado'])) ? 'A' : 'I';
     $Clproductos->open_detalle = (isset($_POST['chk_detalle'])) ? 0 : 1;

@@ -283,27 +283,30 @@ function loadGraphic(title, subtitle, series, labels) {
             },
         },
         legend: {
-            position: 'top',
-            horizontalAlign: 'right',
-            offsetY: -50,
-            fontSize: '16px',
-            fontFamily: 'Nunito, sans-serif',
-            markers: {
-                width: 10,
-                height: 10,
-                strokeWidth: 0,
-                strokeColor: '#fff',
-                fillColors: undefined,
-                radius: 12,
-                onClick: undefined,
-                offsetX: 0,
-                offsetY: 0
-            },
-            itemMargin: {
-                horizontal: 0,
-                vertical: 20
-            }
+            show: false
         },
+        // legend: {
+        //     position: 'top',
+        //     horizontalAlign: 'right',
+        //     offsetY: -50,
+        //     fontSize: '16px',
+        //     fontFamily: 'Nunito, sans-serif',
+        //     markers: {
+        //         width: 10,
+        //         height: 10,
+        //         strokeWidth: 0,
+        //         strokeColor: '#fff',
+        //         fillColors: undefined,
+        //         radius: 12,
+        //         onClick: undefined,
+        //         offsetX: 0,
+        //         offsetY: 0
+        //     },
+        //     itemMargin: {
+        //         horizontal: 0,
+        //         vertical: 20
+        //     }
+        // },
         tooltip: {
             theme: 'dark',
             marker: {

@@ -18,8 +18,9 @@ $cod_empresa = $session['cod_empresa'];
 $files = url_sistema.'assets/empresas/'.$session['alias'].'/';
 
 $calificacion = 0;
-$query = "SELECT AVG(oc.calificacion) as promedio, s.nombre
-        FROM tb_orden_calificacion oc, tb_orden_cabecera c
+$query = "SELECT AVG(oc.calificacion) as promedio
+        FROM tb_orden_calificacion oc
+        INNER JOIN tb_orden_cabecera c ON c.cod_orden = oc.cod_orden
         WHERE c.cod_orden = oc.cod_orden
         AND c.cod_empresa = ".$cod_empresa;
 $resp = Conexion::buscarRegistro($query);
@@ -89,7 +90,7 @@ function datetimeShort($fecha){
                     <div class="col-xl-6 col-lg-12 col-sm-12  layout-spacing">
                         <!-- Lista de los mejores -->
                         <div class="widget-content widget-content-area br-6">
-                          <div><h4>Los mejores</h4></div>
+                          <div><h4>Experiencias Positivas</h4></div>
                           <div class="x_content">
                                 <table id="style-3" class="table style-3  table-hover">
                                   <thead>
@@ -107,7 +108,7 @@ function datetimeShort($fecha){
                                   $query = "SELECT oc.calificacion, oc.texto, c.fecha, c.is_envio, c.cod_orden, s.nombre as sucursal
                                           FROM tb_orden_calificacion oc, tb_orden_cabecera c, tb_sucursales s
                                           WHERE c.cod_orden = oc.cod_orden
-                                          AND oc.calificacion >= 3.5
+                                          AND oc.calificacion >= 4
                                           AND c.cod_empresa = $cod_empresa
                                           AND c.cod_sucursal = s.cod_sucursal
                                           ORDER BY oc.calificacion DESC, c.fecha DESC";
@@ -145,7 +146,7 @@ function datetimeShort($fecha){
                     <div class="col-xl-6 col-lg-12 col-sm-12  layout-spacing">
                         <!-- Ordenes --> 
                         <div class="widget-content widget-content-area br-6">
-                          <div><h4>Los peores</h4></div>
+                          <div><h4>Experiencias Negativas</h4></div>
                               <div class="x_content">
                                 <table class="table">
                                   <thead>
@@ -163,7 +164,7 @@ function datetimeShort($fecha){
                                   $query = "SELECT oc.calificacion, oc.texto, c.fecha, c.is_envio, c.cod_orden, s.nombre as sucursal
                                           FROM tb_orden_calificacion oc, tb_orden_cabecera c, tb_sucursales s
                                           WHERE c.cod_orden = oc.cod_orden
-                                          AND oc.calificacion < 3.5
+                                          AND oc.calificacion < 4
                                           AND c.cod_empresa = $cod_empresa
                                           AND c.cod_sucursal = s.cod_sucursal
                                           ORDER BY oc.calificacion ASC, c.fecha DESC";

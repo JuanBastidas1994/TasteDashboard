@@ -159,18 +159,112 @@ class cl_productos
 		public function crear(&$id){
 			$usuario = $this->session['cod_usuario'];
 			$empresa = $this->session['cod_empresa'];
-			$query = "INSERT INTO tb_productos(cod_producto_padre, cod_empresa, alias, nombre, desc_corta, desc_larga, image_min, image_max, fecha_create, user_create, estado, precio, precio_no_tax, iva_valor, iva_porcentaje, codigo, precio_anterior, costo, open_detalle, peso, volumen ,sku,is_combo,cobra_iva, noStock, tiempo_preparacion) ";
-        	$query.= "VALUES($this->cod_producto_padre, $empresa, '$this->alias', '$this->nombre', '$this->desc_corta', '$this->desc_larga', '$this->image_min', '$this->image_max', NOW(), $usuario, 'A', $this->precio, $this->precio_no_tax, $this->iva_valor, $this->iva_porcentaje, '$this->codigo', $this->precio_anterior, $this->costo, $this->open_detalle, '$this->peso', '$this->volumen', '$this->sku', $this->is_combo, $this->cobra_iva, $this->facturar_sin_stock, $this->tiempo_preparacion)";
 
-        	if(Conexion::ejecutar($query,NULL)){
-        		$id = Conexion::lastId();
-        		$this->set_categorias($id);
-        		return true;
-        	}else{
-        		return false;
-        	}
+			$sql = "INSERT INTO tb_productos (
+				cod_producto_padre, cod_empresa, alias, nombre, desc_corta, desc_larga,
+				image_min, image_max, fecha_create, user_create, estado, precio,
+				precio_no_tax, iva_valor, iva_porcentaje, precio_anterior,
+				costo, open_detalle, peso, volumen, sku, is_combo, cobra_iva,
+				noStock, tiempo_preparacion
+			) VALUES (
+				:cod_producto_padre, :empresa, :alias, :nombre, :desc_corta, :desc_larga,
+				:image_min, :image_max, NOW(), :usuario, 'A', :precio,
+				:precio_no_tax, :iva_valor, :iva_porcentaje, :precio_anterior,
+				:costo, :open_detalle, :peso, :volumen, :sku, :is_combo, :cobra_iva,
+				:noStock, :tiempo_preparacion
+			)";
+
+			$params = [
+				':cod_producto_padre' => $this->cod_producto_padre,
+				':empresa'            => $empresa,
+				':alias'              => $this->alias,
+				':nombre'             => $this->nombre,
+				':desc_corta'         => $this->desc_corta,
+				':desc_larga'         => $this->desc_larga,
+				':image_min'          => $this->image_min,
+				':image_max'          => $this->image_max,
+				':usuario'            => $usuario,
+				':precio'             => $this->precio,
+				':precio_no_tax'      => $this->precio_no_tax,
+				':iva_valor'          => $this->iva_valor,
+				':iva_porcentaje'     => $this->iva_porcentaje,
+				':precio_anterior'    => $this->precio_anterior,
+				':costo'              => $this->costo,
+				':open_detalle'       => $this->open_detalle,
+				':peso'               => $this->peso,
+				':volumen'            => $this->volumen,
+				':sku'                => $this->sku,
+				':is_combo'           => $this->is_combo,
+				':cobra_iva'          => $this->cobra_iva,
+				':noStock'            => $this->facturar_sin_stock,
+				':tiempo_preparacion' => $this->tiempo_preparacion
+			];
+
+			if (Conexion::ejecutar($sql, $params)) {
+				$id = Conexion::lastId();
+				$this->set_categorias($id);
+				return true;
+			}
+
+			return false;
 		}
-		
+
+		public function editar(){
+			$sql = "UPDATE tb_productos SET
+				cod_producto_padre = :cod_producto_padre,
+				nombre = :nombre,
+				desc_corta = :desc_corta,
+				desc_larga = :desc_larga,
+				estado = :estado,
+				precio = :precio,
+				precio_no_tax = :precio_no_tax,
+				iva_valor = :iva_valor,
+				iva_porcentaje = :iva_porcentaje,
+				precio_anterior = :precio_anterior,
+				costo = :costo,
+				open_detalle = :open_detalle,
+				peso = :peso,
+				volumen = :volumen,
+				sku = :sku,
+				is_combo = :is_combo,
+				cobra_iva = :cobra_iva,
+				noStock = :noStock,
+				tiempo_preparacion = :tiempo_preparacion,
+				fecha_modificacion = NOW()
+			WHERE cod_producto = :cod_producto";
+
+			$data = [
+				':cod_producto_padre' => $this->cod_producto_padre,
+				':nombre'             => $this->nombre,
+				':desc_corta'         => $this->desc_corta,
+				':desc_larga'         => $this->desc_larga,
+				':estado'             => $this->estado,
+				':precio'             => $this->precio,
+				':precio_no_tax'      => $this->precio_no_tax,
+				':iva_valor'          => $this->iva_valor,
+				':iva_porcentaje'     => $this->iva_porcentaje,
+				':precio_anterior'    => $this->precio_anterior,
+				':costo'              => $this->costo,
+				':open_detalle'       => $this->open_detalle,
+				':peso'               => $this->peso,
+				':volumen'            => $this->volumen,
+				':sku'                => $this->sku,
+				':is_combo'           => $this->is_combo,
+				':cobra_iva'          => $this->cobra_iva,
+				':noStock'            => $this->facturar_sin_stock,
+				':tiempo_preparacion' => $this->tiempo_preparacion,
+				':cod_producto'       => $this->cod_producto
+			];
+
+			if (Conexion::ejecutar($sql, $data)) {
+				$this->set_categorias($this->cod_producto);
+				return true;
+			}
+
+			return false;
+		}
+
+
 		public function crear_importados(&$id){
 		    $usuario = $this->session['cod_usuario'];
 			$empresa = $this->session['cod_empresa'];
@@ -185,18 +279,6 @@ class cl_productos
         		return false;
         	}
         }
-
-		public function editar(){
-			$usuario = $this->session['cod_usuario'];
-			$empresa = $this->session['cod_empresa'];
-        	$query= "UPDATE tb_productos SET cod_producto_padre=$this->cod_producto_padre, nombre='$this->nombre', desc_corta='$this->desc_corta', desc_larga='$this->desc_larga', estado='$this->estado', precio=$this->precio, precio_no_tax=$this->precio_no_tax, iva_valor=$this->iva_valor, iva_porcentaje=$this->iva_porcentaje, codigo='$this->codigo',precio_anterior=$this->precio_anterior, costo= $this->costo , open_detalle= $this->open_detalle, peso = '$this->peso', volumen = '$this->volumen', sku='$this->sku',is_combo='$this->is_combo',cobra_iva='$this->cobra_iva', noStock='$this->facturar_sin_stock', tiempo_preparacion=$this->tiempo_preparacion, fecha_modificacion=NOW() WHERE cod_producto = $this->cod_producto";
-        	if(Conexion::ejecutar($query,NULL)){
-        		$this->set_categorias($this->cod_producto);
-        		return true;
-        	}else{
-        		return false;
-        	}
-		}
 		
 		public function editar_importados(){
 		    $usuario = $this->session['cod_usuario'];

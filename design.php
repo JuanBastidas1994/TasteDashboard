@@ -27,6 +27,7 @@ function css_mandatory(){
 
 	    <link href="assets/css/scrollspyNav.css" rel="stylesheet" type="text/css" />
 	    <link href="assets/css/components/custom-modal.css" rel="stylesheet" type="text/css" />
+	    
 
 	    <link rel="stylesheet" href="plugins/font-icons/fontawesome/css/regular.css">
 	    <link rel="stylesheet" href="plugins/font-icons/fontawesome/css/fontawesome.css">
@@ -129,60 +130,89 @@ function js_mandatory(){
 
 function menu()
 {
-	$session = getSession();
+    $session = getSession();
     $cod_rol = $session['cod_rol'];
     $cod_empresa = $session['cod_empresa'];
+    $currentPage = basename($_SERVER['REQUEST_URI']); // Detecta página actual
 
-    $query = "SELECT p.* FROM tb_paginas p, tb_pagina_rol pr WHERE p.cod_pagina = pr.cod_pagina AND p.estado = 'A' AND p.cod_padre = 0 AND pr.cod_rol = $cod_rol AND pr.cod_empresa = $cod_empresa order by pr.posicion ASC";
-    $menuData=Conexion::buscarVariosRegistro($query);
-    foreach ($menuData as $menu)
-    {
-        $codigo = $menu['cod_pagina'];
-        $id = $menu['id'];
+    // Traemos todos los menús y submenús en una sola consulta
+    $query = "SELECT p.* 
+        FROM tb_paginas p
+        JOIN tb_pagina_rol pr ON p.cod_pagina = pr.cod_pagina
+        WHERE p.estado = 'A'
+          AND pr.cod_rol = $cod_rol
+          AND pr.cod_empresa = $cod_empresa
+        ORDER BY p.cod_padre, pr.posicion ASC";
+
+    $menuData = Conexion::buscarVariosRegistro($query);
+
+    // Organizar jerárquicamente
+    $menuTree = [];
+    foreach ($menuData as $menu) {
+        if ($menu['cod_padre'] == 0) {
+            $menuTree[$menu['cod_pagina']] = $menu;
+            $menuTree[$menu['cod_pagina']]['children'] = [];
+        } else {
+            $menuTree[$menu['cod_padre']]['children'][] = $menu;
+        }
+    }
+
+    // Generar HTML
+    foreach ($menuTree as $menu) {
+        $id = 'menu-'.$menu['cod_pagina'];
         $icono = $menu['icono'];
         $url = $menu['nombre'];
         $titulo = $menu['titulo'];
         $translate = $menu['data_translate'];
-        
-        $query = "SELECT p.* FROM tb_paginas p, tb_pagina_rol pr WHERE p.cod_pagina = pr.cod_pagina AND p.estado = 'A' AND p.cod_padre = ".$codigo." AND pr.cod_rol = ".$cod_rol." AND pr.cod_empresa = ".$cod_empresa." order by posicion ASC ";
-        $Submenu2 = Conexion::buscarVariosRegistro($query);
-        if(count($Submenu2)>0)
-        {
-            echo '<li class="menu">
-            	<a href="#'.$id.'" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
-            		<div>
-            			<i data-feather="'.$icono.'"></i>
-            			<span data-translate="'.$translate.'">'.$titulo.' </span>
-            		</div>
-            		<div>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right"><polyline points="9 18 15 12 9 6"></polyline></svg>
-                    </div>
-            	</a>
-                <ul class="collapse submenu list-unstyled" id="'.$id.'" data-parent="#accordionExample">';
-            foreach($Submenu2 as $Submenu)
-            {
-                $id = $Submenu['id'];
-                $icono = $Submenu['icono'];
-                $url = $Submenu['nombre'];
-                $titulo = $Submenu['titulo'];
-                $translate = $Submenu['data_translate'];
-                echo '<li id="'.$id.'"><a href="'.$url.'" data-translate="'.$translate.'">'.$titulo.'</a></li>';
+
+        // Revisamos si algún hijo coincide con la página actual
+        $parentActive = false;
+        foreach ($menu['children'] as $child) {
+            if ($child['nombre'] === $currentPage) {
+                $parentActive = true;
+                break;
             }
-            echo '</ul></li>';
         }
-        else
-        {
+
+        // Menú con submenús
+        if (!empty($menu['children'])) {
             echo '<li class="menu">
-            	<a href="'.$url.'" aria-expanded="false" class="dropdown-toggle">
-            		<div>
-            			<i data-feather="'.$icono.'"></i>
-            			<span data-translate="'.$translate.'">'.$titulo.' </span>
-            		</div>
-            	</a>	
-            </li>';
+                    <a href="#'.$id.'" data-toggle="collapse" aria-expanded="'.($parentActive ? 'true' : 'false').'" class="dropdown-toggle">
+                        <div>
+                            <i data-feather="'.$icono.'"></i>
+                            <span>'.$titulo.'</span>
+                        </div>
+                        <div>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                                <polyline points="9 18 15 12 9 6"></polyline>
+                            </svg>
+                        </div>
+                    </a>
+                    <ul class="collapse submenu list-unstyled'.($parentActive ? ' show' : '').'" id="'.$id.'" data-parent="#accordionExample">';
+
+            foreach ($menu['children'] as $child) {
+                $isActive = ($child['nombre'] === $currentPage) ? 'active' : '';
+                echo '<li class="'.$isActive.'" id="menu-'.$child['cod_pagina'].'">
+                        <a href="'.$child['nombre'].'">'.$child['titulo'].'</a>
+                      </li>';
+            }
+
+            echo '</ul></li>';
+        } else {
+            // Menú sin submenú
+            $isActive = ($url === $currentPage) ? 'data-active="true"' : '';
+            echo '<li class="menu">
+                    <a href="'.$url.'" class="dropdown-toggle" '.$isActive.'>
+                        <div>
+                            <i data-feather="'.$icono.'"></i>
+                            <span>'.$titulo.'</span>
+                        </div>
+                    </a>  
+                  </li>';
         }
     }
 }
+
 
 function sidebar()
 {

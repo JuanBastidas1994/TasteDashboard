@@ -113,12 +113,28 @@ function js_mandatory(){
 	    <script src="plugins/font-icons/feather/feather.min.js"></script>
 	    <script type="text/javascript">
 			console.log("VER DATA FEATHERS");
-			document.querySelectorAll("[data-feather]").forEach(el => {
+			document.querySelectorAll("[data-feather]").forEach((el, index) => {
 				const name = el.getAttribute("data-feather");
-				if (!feather.icons[name]) {
-					console.error("Icono Feather inválido:", name, el);
+
+				if (!name || !feather.icons[name]) {
+					console.group(`❌ Feather inválido #${index}`);
+					console.log("Icono:", name);
+					console.log("Elemento:", el);
+					console.log("Padre:", el.parentElement);
+					console.log("Abuelo:", el.parentElement?.parentElement);
+					console.log("HTML padre:", el.parentElement?.outerHTML);
+					console.trace("Stack trace");
+					console.groupEnd();
+
+					// Highlight visual sin romper nada
+					el.style.outline = "2px solid red";
+					el.style.outlineOffset = "2px";
+
+					// Marca el nodo para inspección rápida
+					el.setAttribute("data-feather-error", "true");
 				}
 			});
+
 	        feather.replace();
 	        $(\'.maxlength\').maxlength();
 	    </script>

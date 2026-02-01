@@ -112,6 +112,13 @@ function js_mandatory(){
 	    <script src="plugins/bootstrap-maxlength/bootstrap-maxlength.js"></script>
 	    <script src="plugins/font-icons/feather/feather.min.js"></script>
 	    <script type="text/javascript">
+			console.log("VER DATA FEATHERS");
+			document.querySelectorAll("[data-feather]").forEach(el => {
+				const name = el.getAttribute("data-feather");
+				if (!feather.icons[name]) {
+					console.error("Icono Feather inválido:", name, el);
+				}
+			});
 	        feather.replace();
 	        $(\'.maxlength\').maxlength();
 	    </script>

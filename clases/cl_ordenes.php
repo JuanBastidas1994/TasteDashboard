@@ -664,5 +664,74 @@ class cl_ordenes
         		return false;
         	}*/
 		}
+
+		public function getCalificacionesDetalle(
+			$fecha_ini,
+			$fecha_fin,
+			$cod_empresa,
+			$cod_sucursal = 0
+		) {
+			$sql = "
+				SELECT 
+					oc.calificacion,
+					oc.texto,
+					c.fecha,
+					c.is_envio,
+					c.cod_orden,
+					s.nombre AS sucursal
+				FROM tb_orden_calificacion oc
+				INNER JOIN tb_orden_cabecera c ON c.cod_orden = oc.cod_orden
+				INNER JOIN tb_sucursales s ON s.cod_sucursal = c.cod_sucursal
+				WHERE oc.fecha BETWEEN :fecha_ini AND :fecha_fin
+				AND c.cod_empresa = :cod_empresa
+			";
+
+			$params = [
+				':fecha_ini'   => $fecha_ini,
+				':fecha_fin'   => $fecha_fin,
+				':cod_empresa' => $cod_empresa
+			];
+
+			if ($cod_sucursal > 0) {
+				$sql .= " AND c.cod_sucursal = :cod_sucursal";
+				$params[':cod_sucursal'] = $cod_sucursal;
+			}
+
+			$sql .= " ORDER BY c.fecha DESC";
+
+			return Conexion::buscarVariosRegistro($sql, $params);
+		}
+
+		public function getCalificacionesResumen(
+			$fecha_ini,
+			$fecha_fin,
+			$cod_empresa,
+			$cod_sucursal = 0
+		) {
+			$sql = "
+				SELECT
+					ROUND(AVG(oc.calificacion), 2) AS promedio,
+					SUM(oc.calificacion < 4) AS negativas,
+					SUM(oc.calificacion >= 4) AS positivas,
+					COUNT(*) AS total
+				FROM tb_orden_calificacion oc
+				INNER JOIN tb_orden_cabecera c ON c.cod_orden = oc.cod_orden
+				WHERE oc.fecha BETWEEN :fecha_ini AND :fecha_fin
+				AND c.cod_empresa = :cod_empresa
+			";
+
+			$params = [
+				':fecha_ini'   => $fecha_ini,
+				':fecha_fin'   => $fecha_fin,
+				':cod_empresa' => $cod_empresa
+			];
+
+			if ($cod_sucursal > 0) {
+				$sql .= " AND c.cod_sucursal = :cod_sucursal";
+				$params[':cod_sucursal'] = $cod_sucursal;
+			}
+
+			return Conexion::buscarRegistro($sql, $params);
+		}
 }
 ?>

@@ -336,4 +336,55 @@ function changeStatus() {
     }
     return $return;
 }
+
+function getCalificacionesReport()
+{
+    global $Clordenes;
+    global $session;
+    extract($_POST);
+    $cod_empresa=$session['cod_empresa'];
+
+    $detalle = $Clordenes->getCalificacionesDetalle($fecha_inicio, $fecha_fin, $cod_empresa, $cod_sucursal ?? 0);
+    $resumen = $Clordenes->getCalificacionesResumen($fecha_inicio,$fecha_fin,$cod_empresa,$cod_sucursal ?? 0);
+
+    if (!$resumen || $resumen['total'] == 0) {
+        return [
+            'negativas' => [],
+            'positivas' => [],
+            'resumen' => [
+                'promedio' => 0,
+                'negativas' => 0,
+                'positivas' => 0,
+                'total' => 0,
+                'porcentaje_negativas' => 0,
+                'porcentaje_positivas' => 0
+            ]
+        ];
+        return;
+    }
+
+
+    $negativas = [];
+    $positivas = [];
+    foreach ($detalle as $row) {
+        if ($row['calificacion'] < 4) {
+            $negativas[] = $row;
+        } else {
+            $positivas[] = $row;
+        }
+    }
+
+    return [
+        'negativas' => $negativas,
+        'positivas' => $positivas,
+        'resumen' => [
+            'promedio' => (float)$resumen['promedio'],
+            'negativas' => (int)$resumen['negativas'],
+            'positivas' => (int)$resumen['positivas'],
+            'total' => (int)$resumen['total'],
+            'porcentaje_negativas' => round(($resumen['negativas'] * 100) / $resumen['total'], 2),
+            'porcentaje_positivas' => round(($resumen['positivas'] * 100) / $resumen['total'], 2)
+        ]
+    ];
+}
 ?>

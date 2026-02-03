@@ -144,8 +144,12 @@ function crearFlota(){
     $Clusuario->password = $txt_password;
     $Clusuario->placa = $txt_placa;
     $Clusuario->estado = 'A';
-    
-    //$sucursal = $Clsucursales->getInfo($cmbSucursal);
+
+    if(isset($cmbSucursal)){
+        if($cmbSucursal > 0){
+            $Clusuario->cod_sucursal = $cmbSucursal;
+        }
+    }
 
     if(!isset($_POST['cod_usuario'])){
         $id=0;
@@ -168,7 +172,7 @@ function crearFlota(){
             if($cmbRol == 17){ //Es un motorizado
                 $Clusuario->setUserLocation($id, -2.1724405, -79.8946697);
             }
-            $return['usuario'] = $Clusuario->get($id);
+            $return['usuario'] = $Clusuario->getWithOffice($id);
         }else{
             $return['success'] = 0;
             $return['mensaje'] = "Error al crear el usuario, por favor vuelva a intentarlo";
@@ -203,7 +207,7 @@ function crearFlota(){
             if($usuario)
                 uploadFile($_FILES["img_profile"], $usuario['imagen']);
             
-            $return['usuario'] = $Clusuario->get($cod_usuario);
+            $return['usuario'] = $Clusuario->getWithOffice($cod_usuario);
         }else{
             $return['success'] = 0;
             $return['mensaje'] = "Error al editar el usuario";

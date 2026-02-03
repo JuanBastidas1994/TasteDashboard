@@ -770,6 +770,11 @@ function replaceUnicode($string){
   return str_replace($search, $replace, $string);
 }
 
+function dd($data){
+  var_dump($data);
+  die();
+}
+
 ob_end_flush();
 
  

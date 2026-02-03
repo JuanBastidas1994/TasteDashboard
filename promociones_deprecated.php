@@ -1,9 +1,9 @@
 <?php
 require_once "funciones.php";
-error_reporting(E_ALL);
 require_once "clases/cl_promociones.php";
 require_once "clases/cl_productos.php";
 require_once "clases/cl_sucursales.php";
+require_once "clases/cl_categorias.php";
 
 if(!isLogin()){
     header("location:login.php");
@@ -12,13 +12,15 @@ if(!isLogin()){
 $Clpromociones = new cl_promociones(NULL);
 $Clsucursales = new cl_sucursales(NULL);
 $Clproductos = new cl_productos(NULL);
+$Clcategorias = new cl_categorias(NULL);
 $session = getSession();
 
 // if(!userGrant()){
-//     header("location:index.php");
-// }
-
-$files = url_sistema.'assets/empresas/'.$session['alias'].'/';
+    //     header("location:index.php");
+    // }
+    
+    $files = url_sistema.'assets/empresas/'.$session['alias'].'/';
+    error_reporting(E_ALL);
 ?>
 
 <!DOCTYPE html>
@@ -53,8 +55,8 @@ $files = url_sistema.'assets/empresas/'.$session['alias'].'/';
 </head>
 <body>
     <!-- Modal -->
-    <div class="modal fade bs-example-modal-lg" id="crearModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg" role="document">
+    <div class="modal fade bs-example-modal-xl" id="crearModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl" role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="exampleModalLabel">CREAR PROMOCION</h5>
@@ -67,13 +69,68 @@ $files = url_sistema.'assets/empresas/'.$session['alias'].'/';
                 <form id="frmSave" name="frmSave" class="form-horizontal form-label-left">    
                     <div class="x_content">
                     	<div class="form-group">
-                          	<div class="form-group col-md-6 col-sm-6 col-xs-6" style="margin-bottom:10px;">
+                          	<div class="form-group col-lg-6 col-sm-6 col-6" style="margin-bottom:10px;">                                          
+                                <div class="form-group">
+                                    <div class="form-group col-md-12 col-sm-12 col-xs-12" style="margin-bottom:10px;">
+                                            <label>Sucursales <span class="asterisco">*</span>
+                                            <span class="far fa-question-circle rounded bs-tooltip" data-placement="top" title="Escoja las sucursales donde se aplicar&aacute;a el descuento"></span></label>
+                                            <div>
+                                                <div class="n-chk">
+                                                    <label class="new-control new-checkbox checkbox-outline-default">
+                                                    <input type="checkbox" class="new-control-input chkAllOfficess">
+                                                    <span class="new-control-indicator"></span> <h5>Todas las sucursales </h5>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <select multiple="multiple" name="cmb_sucursales[]" id="cmb_sucursales" class="form-control" required="required">
+                                            <?php
+                                                $resp = $Clsucursales->lista();
+                                                foreach ($resp as $sucursal) {
+                                                    echo '<option value="'.$sucursal['cod_sucursal'].'">'.$sucursal['nombre'].'</option>';
+                                                }
+                                            ?>
+                                            </select>
+                                    </div>
+                                </div>
+                                <div class="form-group col-lg-12">
+                                    <div class="col-md-6 col-sm-6 col-xs-12" style="margin-bottom:10px;">
+                                        <label>Inicio <span class="asterisco">*</span></label>
+                                        <input name="fecha_inicio" id="hora_ini" class="form-control flatpickr-input active" type="text" placeholder="Seleccione hora" value="">
+                                    </div>
+                                    <div class="col-md-6 col-sm-6 col-xs-12" style="margin-bottom:10px;">
+                                        <label>Fin <span class="asterisco">*</span></label>
+                                        <input name="fecha_fin" id="hora_fin" class="form-control flatpickr-input active" type="text" placeholder="Seleccione hora" value="">
+                                    </div>
+                                </div>     
+                          	</div>
+                          	<div class="form-group col-lg-6 col-md-6 col-6" style="margin-bottom:10px;">
                           		<div>
                           			<label class="new-control new-radio radio-classic-primary">
                                         <input type="radio" class="new-control-input tipo" name="rb_tipo_descuento" checked="checked" value="1">
                                         <span class="new-control-indicator"></span>Descuento
                                     </label>
                           		</div>
+                          		<div class="form-group col-md-12 onlyPerc">
+                                        <div class="input-group ">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text">Recibe el </span>
+                                            </div>
+                                            <input type="text" name="txt_valor" id="txt_valor" class="form-control" placeholder="Porcentaje" aria-describedby="basic-addon2">
+                                            <div class="input-group-append">
+                                                <span class="input-group-text" id="basic-addon6">%</span>
+                                            </div>
+                                        </div>
+    
+                                        <div class="input-group onlyNxM" style="margin-top: 5px; display: none;">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text">en el </span>
+                                            </div>
+                                            <input type="text" name="txt_cantidad" id="txt_cantidad" class="form-control" placeholder="Cantidad" aria-describedby="basic-addon2">
+                                            <div class="input-group-append">
+                                                <span class="input-group-text" id="basic-addon6">producto</span>
+                                            </div>
+                                        </div>
+                                </div>  
                                 <div>
                           			<label class="new-control new-radio radio-classic-primary">
                                         <input type="radio" class="new-control-input tipo" name="rb_tipo_descuento" value="0" id="rbCustom">
@@ -99,73 +156,75 @@ $files = url_sistema.'assets/empresas/'.$session['alias'].'/';
                                     </label>
                           		</div>
                           	</div>
-                          	<div class="form-group col-md-6 col-sm-6 col-xs-6" style="margin-bottom:10px;">
-                                <div class="input-group onlyPerc">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text">Recibe el </span>
-                                    </div>
-								    <input type="text" name="txt_valor" id="txt_valor" class="form-control" placeholder="Porcentaje" aria-describedby="basic-addon2">
-                  					<div class="input-group-append">
-                  					    <span class="input-group-text" id="basic-addon6">%</span>
-                  					</div>
-								</div>
-
-                                <div class="input-group onlyNxM" style="margin-top: 5px; display: none;">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text">en el </span>
-                                    </div>
-                  								  <input type="text" name="txt_cantidad" id="txt_cantidad" class="form-control" placeholder="Cantidad" aria-describedby="basic-addon2">
-                  								  <div class="input-group-append">
-                  								    <span class="input-group-text" id="basic-addon6">producto</span>
-                  								  </div>
-                								</div>
-                          	</div>
                       	</div>
 
+                            
                       <div class="form-group">
                           <div class="form-group col-md-12 col-sm-12 col-xs-12" style="margin-bottom:10px;">
                               	<label>Productos <span class="asterisco">*</span>
-                                <span class="far fa-question-circle rounded bs-tooltip" data-placement="top" title="Escoja los productos ue tendran algun descuento"></span></label>
-                              	<select multiple="multiple" name="cmb_productos[]" id="cmb_productos" class="form-control" required="required">
-                            	<?php
-                            	    $resp = $Clproductos->GetProductosbyEmpresa();
-                            	    foreach ($resp as $categoria) {
-                            	    	echo '<option value="'.$categoria['cod_producto'].'">'.$categoria['nombre'].'</option>';
-                            	  	}
-                            	?>
-                            	</select>
+                                <span class="far fa-question-circle rounded bs-tooltip" data-placement="top" title="Escoja los productos que tendran algun descuento"></span></label>
+                                <!-- <input type="text" id="txtCategoria"> -->
+                                <?php
+                                    $resp = $Clproductos->GetProductosbyEmpresaOrder();
+                                    $aux = 0;
+                                    $auxCategoria = 0;
+                                    $open = 0;
+                                ?>
+                                <?php foreach($resp as $clave => $valor): ?>
+                                    <?php if($valor['cod_categoria'] != $auxCategoria):?>
+                                        <div class="row  justify-content-start mt-2">
+                                            <div class="col-12 my-1 bt-primary ">
+                                                <div class="n-chk">
+                                                    <label class="new-control new-checkbox checkbox-outline-default">
+                                                    <input type="checkbox" class="new-control-input input-category" data-category="<?=$valor['cod_categoria']?>">
+                                                    <span class="new-control-indicator"></span> <h5 ><?= $valor['categoria']?> </h5>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        <?php foreach($resp as $comidaPadre): ?>
+                                            <?php if($comidaPadre['cod_categoria'] == $valor['cod_categoria'] && $comidaPadre['cod_producto_padre'] == 0): ?>
+                                                <div class="col-4  ">
+                                                    <div class="n-chk">
+                                                        <label class="new-control new-checkbox new-checkbox-rounded checkbox-success">
+                                                        <input type="checkbox" name="cmb_productos[]" value="<?=$comidaPadre['cod_producto']?>" class="new-control-input input-padre cat-<?=$valor['cod_categoria']?> input-padre<?=$comidaPadre['cod_producto'] ?>" data-padre="<?=$comidaPadre['cod_producto'] ?>">
+                                                        <span class="new-control-indicator"></span> <b class="text-primary"><?= $comidaPadre['nombre']?></b>
+                                                        </label>
+                                                    </div>
+                                                    <ul>
+                                            <?php foreach($resp as  $comidaHijo): ?>
+                                                <?php if($comidaHijo['cod_producto_padre'] == $comidaPadre['cod_producto']): ?>
+                                                    <div class="n-chk">
+                                                        <label class="new-control new-checkbox checkbox-primary">
+                                                        <input type="checkbox" name="cmb_productos[]" value="<?=$comidaHijo['cod_producto']?>" class="new-control-input cat-<?=$valor['cod_categoria']?> padre-<?=$comidaPadre['cod_producto']?> input-hijo" data-padre="<?=$comidaPadre['cod_producto']?>" >
+                                                        <span class="new-control-indicator"></span> <p> <?=$comidaHijo['nombre'] ?></p>
+                                                        </label>
+                                                    </div>
+                                                <?php endif ?>
+                                            <?php endforeach; ?>
+                                                </ul>
+                                                </div>
+
+                                            <?php endif ?>
+                                        <?php endforeach; ?>
+                                        </div>
+                                        <?php if($clave != count($resp)-1  ):?>
+                                            <hr  size="8px" color="black">
+                                        <?php endif?>
+                                    <?php endif ?>
+                                    
+
+                                    <?php $auxCategoria = $valor['cod_categoria'];?> 
+
+                                <?php endforeach; ?>
                           </div>
                       </div>
 
-                      <div class="form-group">
-                          <div class="form-group col-md-12 col-sm-12 col-xs-12" style="margin-bottom:10px;">
-                              	<label>Sucursales <span class="asterisco">*</span>
-                                <span class="far fa-question-circle rounded bs-tooltip" data-placement="top" title="Escoja las sucursales donde se aplicar&aacute;a el descuento"></span></label>
-                              	<select multiple="multiple" name="cmb_sucursales[]" id="cmb_sucursales" class="form-control" required="required">
-                            	<?php
-                            	    $resp = $Clsucursales->lista();
-                            	    foreach ($resp as $sucursal) {
-                            	    	echo '<option value="'.$sucursal['cod_sucursal'].'">'.$sucursal['nombre'].'</option>';
-                            	  	}
-                            	?>
-                            	</select>
-                          </div>
-                      </div>
 
-                      <div class="form-group">
-                          <div class="col-md-6 col-sm-6 col-xs-12" style="margin-bottom:10px;">
-                              <label>Inicio <span class="asterisco">*</span></label>
-                              <input name="fecha_inicio" id="hora_ini" class="form-control flatpickr-input active" type="text" placeholder="Seleccione hora" value="">
-                          </div>
-                          <div class="col-md-6 col-sm-6 col-xs-12" style="margin-bottom:10px;">
-                              <label>Fin <span class="asterisco">*</span></label>
-                              <input name="fecha_fin" id="hora_fin" class="form-control flatpickr-input active" type="text" placeholder="Seleccione hora" value="">
-                          </div>
-                      </div>
+
                     </div>
                 </form>    
                 </div>
-                <div class="modal-footer">
+                <div class="modal-footer" >
                     <button class="btn" data-dismiss="modal"><i class="flaticon-cancel-12"></i> Cerrar</button>
                     <button type="button" class="btn btn-primary" id="btnGuardar">Guardar</button>
                 </div>
@@ -270,16 +329,7 @@ $files = url_sistema.'assets/empresas/'.$session['alias'].'/';
     <script src="assets/js/pages/promociones.js" type="text/javascript"></script>
     <script>
         $('#style-3').DataTable( {
-            dom: '<"row"<"col-md-12"<"row"<"col-md-6"B><"col-md-6"f> > ><"col-md-12"rt> <"col-md-12"<"row"<"col-md-5"i><"col-md-7"p>>> >',
-            buttons: {
-                buttons: [
-                    { extend: 'copy', className: 'btn' },
-                    { extend: 'csv', className: 'btn' },
-                    { extend: 'excel', className: 'btn' },
-                    { extend: 'pdf', className: 'btn' },
-                    { extend: 'print', className: 'btn' }
-                ]
-            },
+            dom: '<"row"<"col-md-12"<"row"<"col-md-6"><"col-md-6"f> > ><"col-md-12"rt> <"col-md-12"<"row"<"col-md-5"i><"col-md-7"p>>> >',
             "oLanguage": {
                 "oPaginate": { "sPrevious": '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-left"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>', "sNext": '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-right"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>' },
                 "sInfo": "Mostrando pag. _PAGE_ de _PAGES_",
@@ -303,8 +353,8 @@ $files = url_sistema.'assets/empresas/'.$session['alias'].'/';
                 }
             },
             "stripeClasses": [],
-            "lengthMenu": [7, 10, 20, 50],
-            "pageLength": 7 
+            "lengthMenu": [10, 20, 50],
+            "pageLength": 10 
         } );
     </script>
     <!-- END PAGE LEVEL CUSTOM SCRIPTS -->

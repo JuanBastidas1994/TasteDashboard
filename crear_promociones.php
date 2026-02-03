@@ -36,7 +36,7 @@ if (isset($_GET['id'])) {
     $cod_promocion = $_GET['id'];
     $promocion = $Clpromociones->obtener($_GET['id']);
     if(!$promocion){
-        header("location: ./promociones_v2.php");
+        header("location: ./promociones.php");
     }
 }
 extract($promocion, EXTR_SKIP);
@@ -167,7 +167,7 @@ $tiposEntrega = [
         <div id="content" class="main-content">
             <div class="layout-px-spacing">
                 <div class="col-md-12" style="margin-top:25px; ">
-                    <div><span id="btnBack" data-module-back="promociones_v2.php" style="cursor: pointer;">
+                    <div><span id="btnBack" data-module-back="promociones.php" style="cursor: pointer;">
                             <i data-feather="chevron-left"></i><span style="font-size: 16px; vertical-align: middle;color:#888ea8;">Promociones</span></span>
                     </div>
                     <h3 id="titulo"><?php echo ($descripcion != "") ? $descripcion : "Agregar Promoción"; ?></h3>
@@ -493,7 +493,7 @@ $tiposEntrega = [
     <!-- END MAIN CONTAINER -->
 
     <?php js_mandatory(); ?>
-    <script src="assets/js/pages/crear_promociones.js?v=887" type="text/javascript"></script>
+    <script src="assets/js/pages/crear_promociones.js?v=995" type="text/javascript"></script>
 
     <!-- HANDLEBARS -->
     <script src="./assets/js/libs/handlebars/handlebars.js"></script>

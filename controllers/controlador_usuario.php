@@ -153,7 +153,6 @@ function crearFlota(){
             $return['success'] = 1;
             $return['mensaje'] = "Usuario creado correctamente";
             $return['id'] = $id;
-            $return['usuario'] = $Clusuario->get($id);
 
             /*SUBIR IMAGEN*/
             if(!uploadFile($_FILES["img_profile"], $nameImg)){
@@ -169,6 +168,7 @@ function crearFlota(){
             if($cmbRol == 17){ //Es un motorizado
                 $Clusuario->setUserLocation($id, -2.1724405, -79.8946697);
             }
+            $return['usuario'] = $Clusuario->get($id);
         }else{
             $return['success'] = 0;
             $return['mensaje'] = "Error al crear el usuario, por favor vuelva a intentarlo";
@@ -185,7 +185,6 @@ function crearFlota(){
             $return['success'] = 1;
             $return['mensaje'] = "Usuario editado correctamente";
             $return['id'] = $Clusuario->cod_usuario;
-            $return['usuario'] = $usuario;
 
             if("" <> $txt_password){
                 if($Clusuario->crearKeystore($cod_usuario, $txt_password, 0))
@@ -203,6 +202,8 @@ function crearFlota(){
             $usuario = $Clusuario->get($cod_usuario);
             if($usuario)
                 uploadFile($_FILES["img_profile"], $usuario['imagen']);
+            
+            $return['usuario'] = $Clusuario->get($cod_usuario);
         }else{
             $return['success'] = 0;
             $return['mensaje'] = "Error al editar el usuario";

@@ -190,6 +190,7 @@ $(document).ready(function() {
 
                   feather.replace();
                   $("#crearModal").modal("hide");
+                  
               },
               error: function (err) {
                   console.error(err);
@@ -229,15 +230,44 @@ $(document).ready(function() {
               contentType: false,
               processData: false,
               success: function(response){
-                  console.log(response);
-                  
-                  if( response['success'] == 1)
-                  {
-                    messageDone(response['mensaje'],'success');
-                    $("#id").val(response['id']);
-                  } 
-                  else
-                  {
+                  if( response['success'] == 1){
+
+                    if (response.success != 1) {
+                        messageDone(response.mensaje, 'error');
+                        return;
+                    }
+
+                    notify(response.mensaje, "success", 2);
+
+                    let usuario = response.usuario;
+                    let newId = response.id;
+                    $("#id").val(newId);
+
+                    let rol = $("#cmbRol option:selected").text();
+                    let image = usuario.image_min + "?nocache=" + Date.now();
+
+                    console.log(usuario);
+                    let htmlRow = userTemplate(usuario);
+                    let $row = $(htmlRow);
+
+                    // 👉 EDITAR O CREAR
+                    let rowDT = tablaUsuarios.row(`#${newId}`);
+
+                    if (rowDT.length) {
+                        // 🔁 UPDATE
+                        rowDT.data(extraerCeldas($row)).draw(false);
+                    } else {
+                        // ➕ INSERT
+                        let fila = tablaUsuarios
+                            .row.add(extraerCeldas($row))
+                            .draw(false);
+
+                        $(fila.node()).attr("id", newId);
+                    }
+
+                    feather.replace();
+                    $("#crearModal").modal("hide");
+                  }else{
                     messageDone(response['mensaje'],'error');
                   } 
               },

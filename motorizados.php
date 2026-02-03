@@ -5,6 +5,8 @@ require_once "clases/cl_usuarios.php";
 
 if(!isLogin()){
     header("location:login.php");
+}else{
+    header("location:flota.php");
 }
 
 $Clsucursales = new cl_sucursales(NULL);

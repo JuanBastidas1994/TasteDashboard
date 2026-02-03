@@ -336,7 +336,7 @@ class cl_usuarios
 		private function buildImageUrl($row)
 		{
 			if (!empty($row['imagen'])) {
-				return url_sistema . $row['imagen'];
+				return url_sistema . 'assets/empresas/'. $this->session['alias'].'/'.$row['imagen'];
 			}
 
 			$nombre = urlencode($row['nombre'] . ' ' . $row['apellido']);

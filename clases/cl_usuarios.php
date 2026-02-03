@@ -522,7 +522,11 @@ class cl_usuarios
                     FROM tb_usuarios u
                     LEFT JOIN tb_sucursales s ON s.cod_sucursal = u.cod_sucursal 
                     WHERE u.cod_rol = 17 AND u.cod_empresa = $cod_empresa AND u.estado = 'A'";
-			return Conexion::buscarVariosRegistro($query);	
+			$resp = Conexion::buscarVariosRegistro($query);
+			foreach($resp as $key => $item){
+				$resp[$key]['imagen_url'] = $this->buildImageUrl($item);
+			}
+            return $resp;	
 		}
 
 		public function getIntentosPagos($fechaInicio, $fechaFin) {

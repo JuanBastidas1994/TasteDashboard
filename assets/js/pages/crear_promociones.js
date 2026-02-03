@@ -77,7 +77,7 @@ function storePromotion(formData){
             window.history.replaceState(null, '', newUrl);
             if (response['new'] === true) {
                 setTimeout(function () {
-                    window.location.href = 'promociones_v2.php';
+                    window.location.href = 'promociones.php';
                 }, 1000);
             }
         }
@@ -229,7 +229,7 @@ $("#btnEliminar").on("click",function(){
                 {
                     messageDone(response['mensaje'],'success');
                     setTimeout(function(){ 
-                        window.location.href="promociones_v2.php"
+                        window.location.href="promociones.php"
                     }, 1000);
                     
                 } 

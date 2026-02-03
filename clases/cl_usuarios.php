@@ -298,7 +298,19 @@ class cl_usuarios
 			$row = Conexion::buscarRegistro($query);
 			if($row){
 				$row['imagen_url'] = $this->buildImageUrl($row);
-				// $row['imagen'] = url_sistema.$row['imagen'];
+			}
+			return $row;
+		}
+
+		public function getWithOffice($cod_usuario){
+			$query = "SELECT u.*, r.nombre as rol, s.nombre as sucursal 
+						FROM tb_usuarios u
+						INNER JOIN tb_roles r ON u.cod_rol = r.cod_rol
+						LEFT JOIN tb_sucursales s ON s.cod_sucursal = u.cod_sucursal
+						where u.cod_usuario = ".$cod_usuario;
+			$row = Conexion::buscarRegistro($query);
+			if($row){
+				$row['imagen_url'] = $this->buildImageUrl($row);
 			}
 			return $row;
 		}

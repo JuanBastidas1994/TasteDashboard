@@ -2,17 +2,24 @@
 require_once "funciones.php";
 require_once "clases/cl_sucursales.php";
 require_once "clases/cl_usuarios.php";
+require_once "clases/cl_empresas.php";
 
 if(!isLogin()){
     header("location:login.php");
 }
 
+$Clempresas = new cl_empresas(NULL);
 $Clsucursales = new cl_sucursales(NULL);
 $Clusuarios = new cl_usuarios(NULL);
 $session = getSession();
 $files = url_sistema.'assets/empresas/'.$session['alias'].'/';
 
 $cod_rol = $session['cod_rol'];
+$empresa = $Clempresas->get($session['cod_empresa']);
+if(!$empresa)
+    header("location:login.php");
+
+$isBusinessCourier = ($empresa['cod_tipo_empresa'] == 4) ? true : false;
 ?>
 
 <!DOCTYPE html>
@@ -85,10 +92,7 @@ $cod_rol = $session['cod_rol'];
                       </div>
                       
                       <div class="form-group">
-                              
-
-                        
-                                <input type="hidden" name="cmbRol" value="17" >
+                            <input type="hidden" name="cmbRol" value="17" >
                                
                           <div class="col-md-4 col-sm-4 col-xs-12 input-group" style="margin-bottom:10px;">
                               <label>Telefono <span class="asterisco">*</span> 
@@ -112,6 +116,18 @@ $cod_rol = $session['cod_rol'];
                                 <input type="text" class="form-control" placeholder="Placa" aria-label="notification" aria-describedby="basic-addon1" name="txt_placa" id="txt_placa">
                             </div>
                             
+                          </div>
+                          <div class="col-md-4" style="<?php echo ($isBusinessCourier) ? 'display:none;' : ''; ?>">
+                              <label>Sucursales</label>
+                              <select class="form-control" id="cmbSucursal" name="cmbSucursal">
+                                  <option value="0">Todas las sucursales</option>
+                                  <?php
+                                      $sucursales = $Clsucursales->lista();
+                                      foreach ($sucursales as $suc) {
+                                          echo '<option value="'.$suc['cod_sucursal'].'">'.$suc['nombre'].'</option>';
+                                      }    
+                                  ?>
+                              </select>
                           </div>
                           
                       </div>
@@ -155,10 +171,14 @@ $cod_rol = $session['cod_rol'];
                         <div class="widget-content widget-content-area br-6">
                             <div class="col-xl-12 col-md-12 col-sm-12 col-12">
                                 <div class="col-xl-8 col-md-8 col-sm-8 col-8">
-                                    <h4>Mi flota</h4>
+                                    <h4>
+                                        <?php
+                                            echo (!$isBusinessCourier) ? 'Mis Motorizados' : 'Mi Flota';
+                                        ?>
+                                    </h4>
                                 </div>
                                 <div class="col-xl-4 col-md-4 col-sm-4 col-4 text-right">
-                                    <button class="btn btn-primary" id="btnOpenModal">Nuevo Flota</button>
+                                    <button class="btn btn-primary" id="btnOpenModal">Nuevo Motorizado</button>
                                 </div>
                                 <div class="col-xl-12 col-md-12 col-sm-12 col-12">
                                     <hr/>
@@ -167,78 +187,91 @@ $cod_rol = $session['cod_rol'];
                             
                             <div class="table-responsive mb-4 mt-4">
                                 <table id="style-3" class="table style-3 table-hover">
-                                        <thead>
-                                            <tr>
-                                                <th>&nbsp;</th>
-                                                <th>Nombres</th>
-                                                <th>Correo</th>
-                                                <th>Tel&eacute;fono</th>
-                                                <th>Placa</th>
-                                                <th class="text-center">Estado</th>
-                                                <th class="text-center">Acciones</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <?php
-                                            $resp = $Clusuarios->listaDeMotorizados();
-                                            foreach ($resp as $cliente) {
-                                                $badge='primary';
-                                                if($cliente['estado'] == 'I')
-                                                    $badge='danger';
-                                                echo '<tr id="' . $cliente['cod_usuario'] . '">
-                                                    <td><img src="'.$cliente['imagen_url'].'" class="profile-img" alt="Imagen"></td>
-                                                    <td>'.$cliente['nombre'].' '.$cliente['apellido'].'</td>
-                                                    <td>'.$cliente['correo'].'</td>
-                                                    <td>'.$cliente['telefono'].'</td>
-                                                    <td>'.$cliente['placa'].'</td>
-                                                    <td class="text-center"><span class="shadow-none badge badge-'.$badge.'">'.getEstado($cliente['estado']).'</span></td>
-                                                    <td class="text-center">
-                                                        <ul class="table-controls">
-                                                            <li><a href="javascript:void(0);" data-value="'.$cliente['cod_usuario'].'" class="bs-tooltip btnEditarFlota" data-toggle="tooltip" data-placement="top" title="" data-original-title="Edit"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-edit-2 p-1 br-6 mb-1"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg></a></li>
-                                                            <li><a href="javascript:void(0);" data-value="'.$cliente['cod_usuario'].'" class="bs-tooltip btnEliminar" data-toggle="tooltip" data-placement="top" title="" data-original-title="Delete"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-trash p-1 br-6 mb-1"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></a></li>
-                                                            <li><a href="usuario_detalle.php?id='.$cliente['cod_usuario'].'"  class="bs-tooltip btnDetalle" data-toggle="tooltip" data-placement="top" title="" data-original-title="Notificar">
-                                                            <i data-feather="eye"></i>
-                                                            </a></li>
-                                                        </ul>
-                                                    </td>
-                                                </tr>';
-                                            }
-                                            ?>
-                                        </tbody>
-                                    </table>
-                                    <script id="useritem-template" type="text/x-handlebars-template">
-                                        <tr id="{{cod_usuario}}">
-                                            <td>
-                                                <img src="{{imagen_url}}" class="profile-img" alt="Imagen" style="width:50px;height:auto;">
-                                            </td>
-                                            <td>{{nombre}} {{apellido}}</td>
-                                            <td>{{correo}}</td>
-                                            <td>{{telefono}}</td>
-                                            <td>{{placa}}</td>
-                                            <td class="text-center">
-                                                {{{estadoBadge estado}}}
-                                            </td>
-                                            <td class="text-center">
-                                                <ul class="table-controls">
-                                                    <li>
-                                                        <a href="javascript:void(0);" data-value="{{cod_usuario}}" class="btnEditar">
-                                                            <i data-feather="edit-2"></i>
-                                                        </a>
-                                                    </li>
-                                                    <li>
-                                                        <a href="javascript:void(0);" data-value="{{cod_usuario}}" class="btnEliminar">
-                                                            <i data-feather="trash"></i>
-                                                        </a>
-                                                    </li>
-                                                    <li>
-                                                        <a href="usuario_detalle.php?id={{cod_usuario}}">
-                                                            <i data-feather="eye"></i>
-                                                        </a>
-                                                    </li>
-                                                </ul>
-                                            </td>
+                                    <thead>
+                                        <tr>
+                                            <th>&nbsp;</th>
+                                            <th>Nombres</th>
+                                            <th>Correo</th>
+                                            <?php if (!$isBusinessCourier): ?>
+                                                <th>Sucursal</th>
+                                            <?php endif; ?>
+                                            <th>Tel&eacute;fono</th>
+                                            <th>Placa</th>
+                                            <th class="text-center">Estado</th>
+                                            <th class="text-center">Acciones</th>
                                         </tr>
-                                    </script>
+                                    </thead>
+                                    <tbody>
+                                        <?php
+                                        $resp = $Clusuarios->listaDeMotorizados();
+                                        foreach ($resp as $cliente) {
+                                            $sucursal = $cliente['sucursal'] !== NULL ? $cliente['sucursal'] : "Todas las sucursales";
+                                            $badge='primary';
+                                            if($cliente['estado'] == 'I')
+                                                $badge='danger';
+                                            echo '<tr id="' . $cliente['cod_usuario'] . '">
+                                                <td><img src="'.$cliente['imagen_url'].'" class="profile-img" alt="Imagen"></td>
+                                                <td>'.$cliente['nombre'].' '.$cliente['apellido'].'</td>
+                                                <td>'.$cliente['correo'].'</td>';
+                                                if (!$isBusinessCourier) {
+                                                    echo '<td>'.$sucursal.'</td>';
+                                                }
+                                                
+                                                echo '
+                                                <td>'.$cliente['telefono'].'</td>
+                                                <td>'.$cliente['placa'].'</td>
+                                                <td class="text-center"><span class="shadow-none badge badge-'.$badge.'">'.getEstado($cliente['estado']).'</span></td>
+                                                <td class="text-center">
+                                                    <ul class="table-controls">
+                                                        <li><a href="javascript:void(0);" data-value="'.$cliente['cod_usuario'].'" class="bs-tooltip btnEditarFlota" data-toggle="tooltip" data-placement="top" title="" data-original-title="Edit"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-edit-2 p-1 br-6 mb-1"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg></a></li>
+                                                        <li><a href="javascript:void(0);" data-value="'.$cliente['cod_usuario'].'" class="bs-tooltip btnEliminar" data-toggle="tooltip" data-placement="top" title="" data-original-title="Delete"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-trash p-1 br-6 mb-1"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></a></li>
+                                                        <li><a href="usuario_detalle.php?id='.$cliente['cod_usuario'].'"  class="bs-tooltip btnDetalle" data-toggle="tooltip" data-placement="top" title="" data-original-title="Notificar">
+                                                        <i data-feather="eye"></i>
+                                                        </a></li>
+                                                    </ul>
+                                                </td>
+                                            </tr>';
+                                        }
+                                        ?>
+                                    </tbody>
+                                </table>
+                                <script id="useritem-template" type="text/x-handlebars-template">
+                                    <tr id="{{cod_usuario}}">
+                                        <td>
+                                            <img src="{{imagen_url}}" class="profile-img" alt="Imagen" style="width:50px;height:auto;">
+                                        </td>
+                                        <td>{{nombre}} {{apellido}}</td>
+                                        <td>{{correo}}</td>
+                                        {{#ifNotBusinessCourier}}
+                                            <td>{{sucursal}}</td>
+                                        {{/ifNotBusinessCourier}}
+                                        <td>{{telefono}}</td>
+                                         
+                                        <td>{{placa}}</td>
+                                        <td class="text-center">
+                                            {{{estadoBadge estado}}}
+                                        </td>
+                                        <td class="text-center">
+                                            <ul class="table-controls">
+                                                <li>
+                                                    <a href="javascript:void(0);" data-value="{{cod_usuario}}" class="btnEditar">
+                                                        <i data-feather="edit-2"></i>
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a href="javascript:void(0);" data-value="{{cod_usuario}}" class="btnEliminar">
+                                                        <i data-feather="trash"></i>
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a href="usuario_detalle.php?id={{cod_usuario}}">
+                                                        <i data-feather="eye"></i>
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </td>
+                                    </tr>
+                                </script>
                             </div>
                         </div>
                     </div>
@@ -256,6 +289,7 @@ $cod_rol = $session['cod_rol'];
     <script src="./assets/js/libs/handlebars/handlebars.js"></script>
     <script src="assets/js/pages/usuarios.js?v=5" type="text/javascript"></script>
     <script>
+        const isBusinessCourier = <?= $isBusinessCourier ? 'true' : 'false' ?>;
         let tablaUsuarios;
         tablaUsuarios = $('#style-3').DataTable( {
             dom: '<"row"<"col-md-12"<"row"<"col-md-6"><"col-md-6"f> > ><"col-md-12"rt> <"col-md-12"<"row"<"col-md-5"i><"col-md-7"p>>> >',
@@ -285,6 +319,13 @@ $cod_rol = $session['cod_rol'];
             "lengthMenu": [50, 70, 100],
             "pageLength": 50 
         } );
+
+        Handlebars.registerHelper('ifNotBusinessCourier', function (options) {
+            if (!isBusinessCourier) {
+                return options.fn(this);
+            }
+            return '';
+        });
     </script>
     <!-- END PAGE LEVEL CUSTOM SCRIPTS -->
 </body>

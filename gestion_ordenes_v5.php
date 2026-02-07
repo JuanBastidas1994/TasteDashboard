@@ -1372,7 +1372,7 @@ $permisos = $Clempresas->getIdPermisionByBusiness($session['cod_empresa']);
     <script src="assets/js/moment.min.js"></script>
     <!--<script src="assets/js/gestion-ordenes-v5/sounds.js" type="text/javascript"></script>-->
     <!--<script src="assets/js/gestion-ordenes-v5/toastJc.js?v=7" type="text/javascript"></script>-->
-    <script src="assets/js/gestion-ordenes-v5/index.js?v=8" type="text/javascript"></script>
+    <script src="assets/js/gestion-ordenes-v5/index.js?v=10" type="text/javascript"></script>
     <script src="assets/js/gestion-ordenes-v5/facturacion.js?v=7" type="text/javascript"></script>
     <script src="assets/js/gestion-ordenes-v5/tracking.js?v=7" type="text/javascript"></script>
     <script src="assets/js/gestion-ordenes-v5/recipientes.js?v=7" type="text/javascript"></script>

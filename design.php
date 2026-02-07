@@ -51,6 +51,15 @@ function css_mandatory(){
 
 function js_mandatory(){
 	echo '
+		<script>
+			window.__CONFIG__ = {
+				API_TASTE: "'.API_TASTE_URL.'",
+				API_MOTORIZADOS: "'.API_MOTORIZADOS_URL.'"
+			};
+			console.log("CONFIG CARGADA:", window.__CONFIG__);
+		</script>
+	';
+	echo '
 		<!-- BEGIN GLOBAL MANDATORY SCRIPTS -->
 	    <script src="assets/js/libs/jquery-3.1.1.min.js"></script>
 

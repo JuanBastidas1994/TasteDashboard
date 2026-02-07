@@ -1,5 +1,7 @@
-let ApiUrl = "https://api.mie-commerce.com/taste/v3";
-let ApiUrlMotorizado = "https://api.mie-commerce.com/motorizados/v1";
+const { API_TASTE, API_MOTORIZADOS } = window.__CONFIG__;
+let ApiUrl = API_TASTE;
+let ApiUrlMotorizado = API_MOTORIZADOS;
+
 let ApiKey = "";
 let WorkerRecordatorio;
 const GOVersion = 2;

@@ -51,11 +51,39 @@ class cl_web_modulos
         return $resp;
 	}
 
+	public function deleteItemsWithOptionsByModulo($cod_modulo){
+		$query = "SELECT * 
+				FROM tb_productos p, tb_web_modulos_productos_detalle d 
+				WHERE p.cod_producto = d.cod_producto
+				AND p.estado ='A' 
+				AND d.cod_web_modulos_producto = $cod_modulo
+				AND cod_empresa = ".$this->session['cod_empresa']." 
+				AND EXISTS (
+						SELECT 1
+						FROM tb_productos_opciones o
+						WHERE o.cod_producto = p.cod_producto
+				)
+				ORDER BY d.posicion ASC";
+        $resp = Conexion::buscarVariosRegistro($query);
+		foreach($resp as $item){
+			$this->deleteItem($item['cod_web_modulos_producto'], $item['cod_producto']);
+		}
+        return true;
+	}
+
 	public function deleteByModulo($cod_modulo){
 		$query = "DELETE FROM tb_web_modulos_productos_detalle WHERE cod_web_modulos_producto = $cod_modulo";
 		$resp = Conexion::ejecutar($query,NULL);
 		return $resp;
 	}
+
+	public function deleteItem($cod_modulo, $cod_producto){
+		$query = "DELETE FROM tb_web_modulos_productos_detalle 
+					WHERE cod_web_modulos_producto = $cod_modulo
+					AND cod_producto = $cod_producto";
+		$resp = Conexion::ejecutar($query,NULL);
+		return $resp;
+	} 
 
 	public function addDetalleInModulo($cod_modulo, $cod_producto, $posicion){
 		$query = "INSERT INTO tb_web_modulos_productos_detalle(cod_web_modulos_producto, cod_producto, posicion) ";

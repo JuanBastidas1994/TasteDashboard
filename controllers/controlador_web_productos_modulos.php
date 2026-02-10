@@ -21,6 +21,7 @@ function lista(){
     $files = url_sistema.'assets/empresas/'.$session['alias'].'/';
 
     $htmlAgotados = "";
+    $delete = $ClWebModulos->deleteItemsWithOptionsByModulo($cod_modulo);
     $respAgotados = $ClWebModulos->listaByModulo($cod_modulo);
     if(!$respAgotados)
         $htmlAgotados = '<tr><td colspan="4">No hay registros</td></tr>';
@@ -42,6 +43,7 @@ function lista(){
     $return['success'] = 1;
     $return['mensaje'] = "Info";
     $return['agotados'] = $htmlAgotados;
+    $return['delete'] = $delete;
     return $return;
 }
 

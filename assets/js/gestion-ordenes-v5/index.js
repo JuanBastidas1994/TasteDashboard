@@ -567,6 +567,7 @@ function cancelarOrden(order_id, motivo){
         cod_orden: order_id,
         motivo: motivo,
         estado: "ANULADA",
+        casher_id: casherId
     };
     fetch(`${ApiUrl}/ordenes/cancelar`,{
             method: 'POST',

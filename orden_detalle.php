@@ -822,7 +822,7 @@ function datetimeShort($fecha)
                                                       </div>
                                                   </div>';
                                     /*HISTORIAL*/
-                                    $queryH = "SELECT h.*,o.fecha as fecha_ FROM `tb_orden_historial` h,tb_orden_cabecera o where o.cod_orden = h.cod_orden and h.estado IN ('ENTRANTE','ASIGNADA','ENVIANDO','ENTREGADA','NO_ENTREGADA', 'ASIGNACION_CANCELADA') and h.cod_orden = " . $id;
+                                    $queryH = "SELECT h.*,o.fecha as fecha_ FROM `tb_orden_historial` h,tb_orden_cabecera o where o.cod_orden = h.cod_orden and h.estado IN ('ENTRANTE','ASIGNADA','ENVIANDO','ENTREGADA','NO_ENTREGADA', 'ASIGNACION_CANCELADA', 'ANULADA') and h.cod_orden = " . $id;
                                     $respH = Conexion::buscarVariosRegistro($queryH);
                                     foreach ($respH as $h) {
                                         $fecha = datetimeShort($h['fecha']);
@@ -842,6 +842,10 @@ function datetimeShort($fecha)
                                             case "ASIGNACION_CANCELADA":
                                                 $cl = "danger";
                                                 $text = "Asignación al courier cancelada";
+                                                break;
+                                            case "ANULADA":
+                                                $cl = "danger";
+                                                $text = "Orden Cancelada";
                                                 break;
                                         }
 

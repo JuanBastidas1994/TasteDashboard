@@ -305,6 +305,91 @@ class cl_promociones_nueva
         return true;
     }
 
+    //Asociar las condiciones - Advances
+    public function asociar_condiciones($cod_promocion, $condiciones)
+    {
+        // 1. Eliminar condiciones anteriores
+        Conexion::ejecutar(
+            "DELETE FROM promocion_condicion WHERE cod_promocion = :cod",
+            [':cod' => $cod_promocion]
+        );
+
+        // 2. Si no hay condiciones, salir
+        if (empty($condiciones)) {
+            return true;
+        }
+
+        // 3. Insertar nuevas condiciones
+        foreach ($condiciones as $condicion) {
+
+            $tipo = $condicion['tipo_condicion'] ?? null;
+
+            if (!$tipo) continue;
+
+            $cod_producto = $condicion['cod_producto'] ?? null;
+            $cantidad     = $condicion['cantidad_necesaria'] ?? null;
+            $monto        = $condicion['monto_minimo'] ?? null;
+
+            $query = "INSERT INTO promocion_condicion
+                        (cod_promocion, tipo_condicion, cod_producto, cantidad_necesaria, monto_minimo)
+                    VALUES
+                        (:cod_promocion, :tipo_condicion, :cod_producto, :cantidad, :monto)";
+
+            $params = [
+                ':cod_promocion'   => $cod_promocion,
+                ':tipo_condicion'  => $tipo,
+                ':cod_producto'    => $cod_producto,
+                ':cantidad'        => $cantidad,
+                ':monto'           => $monto
+            ];
+
+            Conexion::ejecutar($query, $params);
+        }
+
+        return true;
+    }
+
+    //Asociar las recompensas - Advances
+    public function asociar_recompensas($cod_promocion, $recompensas)
+    {
+        // 1. Eliminar recompensas anteriores
+        Conexion::ejecutar(
+            "DELETE FROM promocion_recompensa WHERE cod_promocion = :cod",
+            [':cod' => $cod_promocion]
+        );
+
+        // 2. Si no hay recompensas, salir
+        if (empty($recompensas)) {
+            return true;
+        }
+
+        // 3. Insertar nuevas recompensas
+        foreach ($recompensas as $recompensa) {
+
+            $cod_producto = $recompensa['cod_producto_regalo'] ?? null;
+            $cantidad     = $recompensa['cantidad_regalo'] ?? 1;
+
+            if (!$cod_producto) continue;
+
+            $query = "INSERT INTO promocion_recompensa
+                        (cod_promocion, cod_producto_regalo, cantidad_regalo)
+                    VALUES
+                        (:cod_promocion, :cod_producto, :cantidad)";
+
+            $params = [
+                ':cod_promocion' => $cod_promocion,
+                ':cod_producto'  => $cod_producto,
+                ':cantidad'      => $cantidad
+            ];
+
+            Conexion::ejecutar($query, $params);
+        }
+
+        return true;
+    }
+
+
+
     //Eliminar las recurrencias
     public function eliminar_recurrencia($cod_promocion){
         // Borrar reglas anteriores

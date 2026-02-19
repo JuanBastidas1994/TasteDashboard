@@ -102,7 +102,8 @@ function crearNew(){
 
     $is_porcentaje = 1;
     $valor = $porcentaje_descuento;
-    $texto = $valor."%";
+    $texto = round($porcentaje_descuento) . '%'; //Entero
+    // $texto = rtrim(rtrim(number_format($porcentaje_descuento, 1, '.', ''), '0'), '.') . '%'; //1 decimal
     if($cmb_tipo_descuento > 0){
         $is_porcentaje = 0;
         $valor = 100;

@@ -1,82 +1,44 @@
 <?php
-$anio = date('Y');
 $respSucursal = $Clsucursales->lista();
-
-$query = "SELECT 
-            oc.cod_sucursal,
-            DATE_FORMAT(oc.fecha, '%m') AS mes,
-            SUM(oc.total) AS monto
-          FROM tb_orden_cabecera oc
-          WHERE oc.estado = 'ENTREGADA'
-            AND DATE_FORMAT(oc.fecha, '%Y') = $anio
-            AND oc.cod_empresa = $cod_empresa
-          GROUP BY oc.cod_sucursal, mes
-          ORDER BY oc.cod_sucursal, mes";
-
-$resultados = Conexion::buscarVariosRegistro($query);
-
-$ventasPorSucursal = [];
-
-// Inicializar array con 0 para cada mes y cada sucursal
-foreach ($respSucursal as $sucursal) {
-    $ventasPorSucursal[$sucursal['cod_sucursal']] = array_fill(0, 12, 0.00);
-}
-
-// Rellenar con los datos que sí existen
-foreach ($resultados as $row) {
-    $mesIndex = intval($row['mes']) - 1; // Convertir mes a índice 0-based
-    $codSucursal = $row['cod_sucursal'];
-    $ventasPorSucursal[$codSucursal][$mesIndex] = floatval($row['monto']);
-}
-
-// Construir $serie para la gráfica
-$serie = [];
-foreach ($respSucursal as $i => $sucursal) {
-    $serie[$i]['name'] = $sucursal['nombre'];
-    // Formatear montos a 2 decimales string, para mantener el formato original
-    $serie[$i]['data'] = array_map(function($monto) {
-        return number_format($monto, 2, '.', '');
-    }, $ventasPorSucursal[$sucursal['cod_sucursal']]);
-}
-
-$reporteVentas = json_encode($serie);
-$reporteVentas = base64_encode($reporteVentas);
 ?>
 
-<input type="hidden" name="Respventas" id="Respventas" value="<?php echo $reporteVentas; ?>">
-<div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12 layout-spacing">
-    <div class="widget widget-chart-one">
-        <div class="widget-heading">
-            <h5 class="" data-translate="home-titulo1">Ingresos</h5>
-            <ul class="tabs tab-pills">
-                <li><a href="javascript:void(0);" id="tb_1" class="tabmenu revenueYearly">Anual</a></li>
-                <li><a href="javascript:void(0);" id="tb_2" class="tabmenu revenueMonthly">Mensual</a></li>
-                <li><a href="javascript:void(0);" id="tb_3" class="tabmenu revenueWeekly">Semanal</a></li>
-            </ul>
-        </div>
-
-        <div class="widget-content" id="tab-revenueYearly">
-            <div class="tabs tab-content">
-                <div id="content_1" class="tabcontent">
-                    <div id="revenueYearly"></div>
-                </div>
+<div class="col-12 layout-spacing">
+    <div class="">
+        <div class="d-block d-md-flex justify-content-between" style="align-items:center">
+            <div class="d-flex mb-1" style="align-items:center">
+                <h5 class="">Sucursal: </h5>
+                <select class="form-control ml-3" id="cmbOffice" style="max-width: 180px;">
+                    <option value="0">Todas</option>
+                    <?php foreach ($respSucursal as $office): ?>
+                        <option value="<?php echo $office['cod_sucursal']; ?>">
+                            <?php echo htmlspecialchars($office['nombre']); ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
             </div>
-        </div>
-        <div class="widget-content d-none" id="tab-revenueMonthly">
-            <div class="tabs tab-content">
-                <div id="content_1" class="tabcontent">
-                    <div id="revenueMonthly"></div>
-                </div>
-            </div>
-        </div>
-        <div class="widget-content d-none" id="tab-revenueWeekly">
-            <div class="tabs tab-content">
-                <div id="content_1" class="tabcontent">
-                    <div id="revenueWeekly"></div>
+            <div class="mb-1">
+                <div class="btn-group btn-group-toggle btnInputGroup activeColor" data-toggle="buttons">
+                    <label class="btn btn-outline-primary active">
+                        <input type="radio" name="options" class="rbPeriod" value="day"> Diario
+                    </label>
+                    <label class="btn btn-outline-primary">
+                        <input type="radio" name="options" class="rbPeriod" value="week"> Semanal
+                    </label>
+                    <label class="btn btn-outline-primary">
+                        <input type="radio" name="options" class="rbPeriod" value="month" checked> Mensual
+                    </label>
+                    <label class="btn btn-outline-primary">
+                        <input type="radio" name="options" class="rbPeriod" value="year"> Anual
+                    </label>
                 </div>
             </div>
         </div>
     </div>
+</div>
+
+
+<div class="col-12 mb-5">
+    <div id="widgetsInfo"></div>
 </div>
 
 <div class="col-12">

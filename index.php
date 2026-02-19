@@ -92,6 +92,24 @@ $faltaPagos = Conexion::buscarRegistro($query);
         #tab-revenueYearly .apexcharts-legend-text {
             font-size: 10px !important;
         }
+
+        .widget-footer{
+            /* background-color: #f5f5f5; */
+            padding: 10px 15px;
+            font-size: 12px;
+            color: black;
+            text-align: right;
+        }
+
+        .widget-title{
+            padding: 10px 15px;
+            font-size: 18px;
+            color: black;
+        }
+
+        .widget-info{
+            padding: 5px 10px;
+        }
     </style>
 </head>
 <body>
@@ -193,6 +211,41 @@ $faltaPagos = Conexion::buscarRegistro($query);
                             include "content_index/index_admin_empresa.php";
                     ?>
                 </div>
+                <script id="widget-template" type="text/x-handlebars-template">
+                    <div class="col-lg-{{default column 4}} col-md-{{default column 4}} col-sm-4 col-12 mt-{{default column 4}}">
+                        <div class="card p-2"  style="border-radius: 20px;">
+                            <div class="widget-title d-flex">
+                                <div class="flex-grow-1"><b>{{title}}</b></div>
+                                <div class="btnShare" 
+                                    data-type="{{type}}" 
+                                    data-title="{{title}}"
+                                    data-value="{{value}}"
+                                    data-shared="{{sharedText}}"
+                                    data-options="{{chartdata}}">
+                                    <i data-feather="share-2"></i>
+                                </div>
+                            </div>
+                            <div class="widget-info" style="height: {{default height 120}}px;">
+                                <h3 style="font-weight: bolder; ">{{value}}</h3>
+                                <div class="widget-chart"></div>
+                            </div>
+                            <div class="widget-footer">
+                                
+                            </div>
+                        </div>
+                    </div>
+                </script>
+                <div id="share-chart-container" class="p-2" style="text-align: center; display:none;">
+                    <h3 id="shared-title" class="mt-2"></h3>
+                    <div id="shared-chart-render"></div>
+                    <h5 id="shared-footer" class="mb-2"></h5>
+                    <div style="text-align: right;">
+                        Datos generados por 
+                        <span style="font-weight: bolder;">
+                            <img src="/assets/img/logo.png" alt="logo" style="width: 80px;">
+                        </span>
+                    </div>
+                </div>
             </div>
             <?php footer(); ?>
         </div>
@@ -206,16 +259,26 @@ $faltaPagos = Conexion::buscarRegistro($query);
     <!-- END GLOBAL MANDATORY SCRIPTS -->
 
     <!-- BEGIN PAGE LEVEL PLUGINS/CUSTOM SCRIPTS -->
+    <script type="text/javascript" src="assets/js/handlebars-helpers.js"></script>
+     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.7.7/handlebars.min.js"></script>
     <script src="plugins/apex/apexcharts.min.js"></script>
     <script src="assets/js/dashboard/dash_1.js"></script>
     <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.7.7/handlebars.min.js"></script>
     <script src="plugins/momentjs/moment.js"></script>
     <script type="text/javascript" src="templates/templates.js"></script>
+    <script src="assets/js/dashboard/charts.js?v=1" type="text/javascript"></script>
+    <script src="assets/js/dashboard/metrics.js?v=1" type="text/javascript"></script>
+    <script src="assets/js/dashboard/shared.js?v=1" type="text/javascript"></script>
     <script src="assets/js/dashboard/homeReports.js?v=1" type="text/javascript"></script>
     <script src="assets/js/pages/crear_empresas.js" type="text/javascript"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <!-- BEGIN PAGE LEVEL PLUGINS/CUSTOM SCRIPTS -->
     <script>
+        Handlebars.registerHelper('default', function (value, defaultValue) {
+                return value != null ? value : defaultValue;
+            });
+
         $(document).ready(function(){
             if($("#mostrarModal").val() == "Si")
                 $("#videoMedia1").modal();

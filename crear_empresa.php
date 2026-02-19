@@ -939,10 +939,11 @@ if(file_exists($folder_demo)){
                                     <div class="col-md-12">
                                         <h4>Fidelizaci&oacute;n</h4>
                                         <?php
+                                        // $mostrarCheckFidelizacion = "";
                                         $mostrarCheckFidelizacion = "display: none;";
-                                            $resp = $Clfidelizacion->niveles($cod_empresa);
-                                            if($resp)
-                                                $mostrarCheckFidelizacion = "";
+                                        $resp = $Clfidelizacion->niveles($cod_empresa);
+                                        if($resp)
+                                            $mostrarCheckFidelizacion = "";
                                         ?>
                                         <label class="switch s-icons s-outline  s-outline-success  mb-4 mr-2 chkFidelizacion" style="<?= $mostrarCheckFidelizacion?>">
                                             <input type="checkbox" name="chk_fidelizacion" id="chk_fidelizacion" <?php echo $chkFidelizacion; ?> />
@@ -963,24 +964,36 @@ if(file_exists($folder_demo)){
                                                         $divisor_puntos=0;
                                                         $monto_puntos=0;
                                                         $cod_fidelizacion_puntos=0;
+                                                        $generate_barcode = "checked";
                                                         
-                                                            $resp = $Clfidelizacion->datos_fidelizacion($cod_empresa);
-                                                            if($resp){
-                                                              $divisor_puntos=$resp['divisor_puntos'];
-                                                              $monto_puntos=$resp['monto_puntos'];
-                                                              $cod_fidelizacion_puntos=$resp['cod_fidelizacion_puntos'];
-                                                            }
-                                                            echo'
-                                                            <tr>
-                                                                <td>Por cada($):</td>
-                                                                <td><input type="number" id="txt_divisor_puntos" class="form-control" value="'.$divisor_puntos.'" style="width: 90px;"></td>
-                                                            </tr>
-                                                            <tr>
-                                                                <td>Recibes(Puntos):</td>
-                                                                <td><input type="number" id="txt_monto_puntos" class="form-control" 
-                                                                value="'.$monto_puntos.'" style="width: 90px;"></td>
-                                                            </tr>
-                                                            ';
+                                                        $resp = $Clfidelizacion->datos_fidelizacion($cod_empresa);
+                                                        if($resp){
+                                                            $divisor_puntos=$resp['divisor_puntos'];
+                                                            $monto_puntos=$resp['monto_puntos'];
+                                                            $cod_fidelizacion_puntos=$resp['cod_fidelizacion_puntos'];
+                                                            if ($resp['generate_barcode'] == '0')
+                                                                $generate_barcode = "";
+                                                        }
+                                                        echo'
+                                                        <tr>
+                                                            <td>Por cada($):</td>
+                                                            <td><input type="number" id="txt_divisor_puntos" class="form-control" value="'.$divisor_puntos.'" style="width: 90px;"></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Recibes(Puntos):</td>
+                                                            <td><input type="number" id="txt_monto_puntos" class="form-control" 
+                                                            value="'.$monto_puntos.'" style="width: 90px;"></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Generar Barcode en Web</td>
+                                                            <td>
+                                                                <label class="switch s-icons s-outline s-outline-success mt-2">
+                                                                    <input type="checkbox" name="chk_generate_barcode" id="chk_generate_barcode" '.$generate_barcode.' />
+                                                                    <span class="slider round"></span>
+                                                                </label>
+                                                            </td>
+                                                        </tr>
+                                                        ';
                                                          
                                                                
                                                         ?>

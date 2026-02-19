@@ -1,12 +1,12 @@
 $(function () {
     moment.locale('es-mx');
-    getSalesMonthly();
-    getSalesWeekly();
+    // getSalesMonthly();
+    // getSalesWeekly();
     getRanking();
 
-    getOffices();
-    getMonths();
-    getMonthlySalesByOrigin();
+    // getOffices();
+    // getMonths();
+    // getMonthlySalesByOrigin();
 });
 
 $('.revenueYearly').on('click', function() {

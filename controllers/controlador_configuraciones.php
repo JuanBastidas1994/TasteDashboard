@@ -147,7 +147,7 @@ function update_fidelizacion(){
     extract($_GET);
 
     $cod_empresa = $session['cod_empresa'];
-    if($Clfidelizacion->set_fidelizacion_puntos($cod_empresa, $divisor, $puntos)){
+    if($Clfidelizacion->set_fidelizacion_puntos($cod_empresa, $divisor, $puntos, $barcode)){
         $return['success'] = 1;
         $return['mensaje'] = "Parametros  actualizados correctamente";
         //$return['id'] = $id;

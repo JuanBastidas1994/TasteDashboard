@@ -557,6 +557,7 @@ $(document).ready(function() {
         var codigo=$(this).attr("data-id");
         var divisor=$("#txt_divisor_puntos").val();
         var puntos=$("#txt_monto_puntos").val();
+        var barcode = $("#chk_generate_barcode").is(":checked") ? 1 : 0;
         var cod_empresa=$("#id").val();
     
         if(divisor<=0 || puntos<=0)
@@ -569,7 +570,8 @@ $(document).ready(function() {
                 "codigo": codigo,
                 "divisor": divisor,
                 "cod_empresa": cod_empresa,
-                "puntos": puntos
+                "puntos": puntos,
+                "barcode": barcode,
             }
             if(codigo!=0)
             {

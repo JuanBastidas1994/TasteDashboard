@@ -37,8 +37,8 @@ class cl_fidelizacion
             return $resp;
         }
         
-        public function set_fidelizacion_puntos($cod_empresa, $divisor, $puntos){
-            $query= "UPDATE tb_empresa_fidelizacion_puntos SET divisor_puntos=$divisor, monto_puntos=$puntos WHERE cod_empresa =". $cod_empresa;
+        public function set_fidelizacion_puntos($cod_empresa, $divisor, $puntos, $barcode = 0){
+            $query= "UPDATE tb_empresa_fidelizacion_puntos SET divisor_puntos=$divisor, monto_puntos=$puntos, generate_barcode=$barcode WHERE cod_empresa =". $cod_empresa;
             if(Conexion::ejecutar($query,NULL)){
                 return true;
             }else{

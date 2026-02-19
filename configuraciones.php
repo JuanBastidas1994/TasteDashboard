@@ -39,6 +39,7 @@ $diascumple = 0;
 $restriccioncumple = 0;
 $fidelizacion = $Clfidelizacion->datos_fidelizacion($cod_empresa);
 if($fidelizacion){
+    $cod_fidelizacion_puntos = $fidelizacion['cod_fidelizacion_puntos'];
     $divisor = $fidelizacion['divisor_puntos'];
     $monto = $fidelizacion['monto_puntos'];
     $valor_cumple = $fidelizacion['valor_regalo_cumple'];
@@ -509,7 +510,7 @@ if($Clempresas->getPermisoTienda($cod_empresa))
                                         </table>
 
                                         <div class="form-group col-md-12 col-sm-12 col-xs-12" style="text-align: right;" wfd-id="67">
-                                            <button type="button" class="btn btn-outline-primary btnFidelizacion" data-id="<?php echo $resp['cod_fidelizacion_puntos']?>" wfd-id="252">Actualizar</button>
+                                            <button type="button" class="btn btn-outline-primary btnFidelizacion" data-id="<?php echo $cod_fidelizacion_puntos?>" wfd-id="252">Actualizar</button>
                                         </div>
                                     </div>
                                 </div>

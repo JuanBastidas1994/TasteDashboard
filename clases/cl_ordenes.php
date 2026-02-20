@@ -77,7 +77,7 @@ class cl_ordenes
             return $resp;
 		}
 
-		public function listaLimit(){
+		public function listaLimit($limit = 10){
 			$where = "";
 		    if($this->session['cod_rol']==3)
 		    {
@@ -87,7 +87,7 @@ class cl_ordenes
 						FROM tb_orden_cabecera ca, tb_usuarios u,tb_sucursales s
 						WHERE ca.cod_usuario = u.cod_usuario 
 						AND s.cod_sucursal = ca.cod_sucursal
-						AND ca.cod_empresa = ".$this->session['cod_empresa']." $where ORDER BY ca.cod_orden DESC LIMIT 0,10";
+						AND ca.cod_empresa = ".$this->session['cod_empresa']." $where ORDER BY ca.cod_orden DESC LIMIT 0,$limit";
             $resp = Conexion::buscarVariosRegistro($query);
             return $resp;
 		}

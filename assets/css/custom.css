@@ -17,3 +17,21 @@
     color: black !important;
     background-color: white !important;
 }
+
+.widget-footer{
+    /* background-color: #f5f5f5; */
+    padding: 10px 15px;
+    font-size: 12px;
+    color: black;
+    text-align: right;
+}
+
+.widget-title{
+    padding: 10px 15px;
+    font-size: 18px;
+    color: black;
+}
+
+.widget-info{
+    padding: 5px 10px;
+}

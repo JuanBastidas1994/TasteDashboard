@@ -175,8 +175,13 @@ function getIndicators($officeId, $dateStart, $dateEnd, $period)
     $trend = getTrendData($baseWhere, $params, $period);
 
     // ================================
-    // 4️⃣ CLIENTES RECURRENTES
+    // 5️⃣ CLIENTES RECURRENTES
     // ================================
+    $officeFilter = "";
+    if ($officeId > 0) {
+        $officeFilter = " AND cod_sucursal = :officeId ";
+    }
+
     $sqlClientes = "
     SELECT 
         SUM(CASE WHEN first_purchase BETWEEN :start AND :end THEN 1 ELSE 0 END) AS nuevos,
@@ -185,12 +190,14 @@ function getIndicators($officeId, $dateStart, $dateEnd, $period)
         SELECT cod_usuario, MIN(fecha) AS first_purchase
         FROM tb_orden_cabecera
         WHERE cod_empresa = :cod_empresa
+        $officeFilter
         GROUP BY cod_usuario
     ) AS t
     WHERE cod_usuario IN (
         SELECT cod_usuario 
         FROM tb_orden_cabecera
         WHERE cod_empresa = :cod_empresa
+        $officeFilter
         AND fecha BETWEEN :start AND :end
     )
     ";
@@ -201,6 +208,52 @@ function getIndicators($officeId, $dateStart, $dateEnd, $period)
     ];
 
     // ================================
+    // 6️⃣ DIAS
+    // ================================
+    $sqlDays = "
+        SELECT 
+            WEEKDAY(o.fecha) AS day_block,
+            COUNT(*) AS total_orders,
+            SUM(o.total) AS total_amount
+        FROM tb_orden_cabecera o
+        WHERE $baseWhere
+        GROUP BY WEEKDAY(o.fecha)
+        ORDER BY day_block
+    ";
+    $days = Conexion::buscarVariosRegistro($sqlDays, $params);
+    $weekDays = ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
+    $topDays = [];
+    $topDaysSales = [];
+    for ($i = 0; $i < 7; $i++) {
+        $topDays[$weekDays[$i]] = 0;
+        $topDaysSales[$weekDays[$i]] = 0;
+    }
+    foreach ($days as $row) {
+        $label = $weekDays[(int)$row['day_block']];
+        $topDays[$label] = (int)$row['total_orders'];
+        $topDaysSales[$label] = (float)$row['total_amount'];
+    }
+
+    // ================================
+    // 7️⃣ PLATAFORMA
+    // ================================
+    $sqlPlatform = "
+        SELECT 
+            o.medio_compra,
+            COUNT(*) AS total_orders
+        FROM tb_orden_cabecera o
+        WHERE $baseWhere
+        GROUP BY o.medio_compra
+        ORDER BY total_orders DESC
+    ";
+    $platforms = Conexion::buscarVariosRegistro($sqlPlatform, $params);
+    $topPlatforms = [];
+    foreach ($platforms as $row) {
+        $label = $row['medio_compra'] ?: 'OTRO';
+        $topPlatforms[$label] = (int)$row['total_orders'];
+    }
+
+    // ================================
     // RETURN FINAL
     // ================================
 
@@ -209,6 +262,9 @@ function getIndicators($officeId, $dateStart, $dateEnd, $period)
         "totalAmount" => (float)($totals['total_amount'] ?? 0),
         "ticketPromedio" => round((float)($totals['ticket_promedio'] ?? 0), 2),
         "topHours" => $topHours,
+        "topDays" => $topDays,
+        "topDaysSales" => $topDaysSales,
+        "topPlatforms" => $topPlatforms,
         "deliveryTotals" => $topDelivery,
         "trend" => $trend,
         'clientes_recurrentes' => $clientes_recurrentes

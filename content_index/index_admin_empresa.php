@@ -2,7 +2,7 @@
 $respSucursal = $Clsucursales->lista();
 ?>
 
-<div class="col-12 layout-spacing">
+<div class="col-12 ">
     <div class="">
         <div class="d-block d-md-flex justify-content-between" style="align-items:center">
             <div class="d-flex mb-1" style="align-items:center">
@@ -41,97 +41,6 @@ $respSucursal = $Clsucursales->lista();
     <div id="widgetsInfo"></div>
 </div>
 
-<div class="col-12">
-    <div class="row">
-        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12 layout-spacing">
-            <div class="widget widget-chart-two">
-                <div class="widget-heading">
-                    <h5 class="">Ranking días que más vende</h5>
-                </div>
-                <div class="widget-content">
-                    <div id="" class=""></div>
-                    <div class="widget-content">
-                        <div class="row">
-                            <div class="col-12 col-md-6">
-                                <div class="table-responsive p-4">
-                                    <table class="table" id="ranking-table">
-                                        <thead>
-                                            <tr>
-                                                <th>
-                                                    <div class="th-content text-center">#</div>
-                                                </th>
-                                                <th>
-                                                    <div class="th-content">Día</div>
-                                                </th>
-                                                <th>
-                                                    <div class="th-content th-heading text-right">Total</div>
-                                                </th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-        
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                            <div class="col-12 col-md-6 d-flex align-self-center justify-content-center">
-                                <div>
-                                    <script src="https://unpkg.com/@dotlottie/player-component@2.7.12/dist/dotlottie-player.mjs" type="module"></script>
-                                    <dotlottie-player src="https://lottie.host/f9a303bb-3fa8-42eb-beb4-5c43be966778/nCjanIOiNs.lottie" background="transparent" speed="1" style="width: 300px; height: 300px" loop autoplay></dotlottie-player>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="col-12">
-    <div class="row">
-        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12 layout-spacing">
-            <div class="widget widget-chart-two">
-                <div class="widget-heading">
-                    <h5 class="">Ventas exitosas mensuales</h5>
-                </div>
-                <div class="widget-content">
-                    <div id="" class=""></div>
-                    <div class="widget-content">
-                        <div class="row mx-4">
-                            <div class="col-12 col-md-4">
-                                <label for="monthly-sales-month-select">Mes</label>
-                                <select id="monthly-sales-month-select" class="form-control"></select>
-                                   <!-- meses -->
-                                </select>
-                            </div>
-                            <div class="col-12 col-md-4">
-                                <label>Sucursal</label>
-                                <select id="monthly-sales-office-select" class="form-control">
-                                   <!-- sucursales -->
-                                </select>
-                            </div>
-                            <div class="col-12 col-md-4 align-content-end text-right">
-                                <button class="btn btn-primary" onclick="getMonthlySalesByOrigin()">Buscar</button>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-12">
-                                <div id="successful-sales-chart"></div>
-                                <h5 id="error-sales-chart" class="text-center d-none my-4">
-                                    Nada que mostrar
-                                </h5>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-
-
 
 <div class="col-xl-6 col-lg-12 col-md-12 col-sm-12 col-12 layout-spacing">
     <div class="widget widget-table-two">
@@ -158,13 +67,13 @@ $respSucursal = $Clsucursales->lista();
                                 <div class="th-content th-heading">Total</div>
                             </th>
                             <th>
-                                <div class="th-content">Estado</div>
+                                <div class="th-content text-center">Estado</div>
                             </th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php
-                        $resp = $Clordenes->listaLimit();
+                        $resp = $Clordenes->listaLimit(5);
                         foreach ($resp as $orden) {
                             $badge = 'primary';
                             if ($orden['estado'] == 'ANULADA')
@@ -175,16 +84,23 @@ $respSucursal = $Clsucursales->lista();
                                 $badge = 'warning';
 
                             echo '<tr>
-                                <td><div class="td-content customer-name">' . $orden['nombre'] . ' ' . $orden['apellido'] . '</div></td>
+                                <td><div class="td-content customer-name">' . $orden['nombre'] . '</div></td>
                                 <td><div class="td-content product-brand">' . $orden['sucursal'] . '</div></td>
                                 <td><div class="td-content product-brand">' . fechaLatinoShort($orden['fecha']) . '</div></td>
                                 <td><div class="td-content pricing"><span class="">$' . number_format($orden['total'], 2) . '</span></div></td>
-                                <td><div class="td-content"><span class="badge outline-badge-' . $badge . '">' . getEstado($orden['estado']) . '</span></div></td>
+                                <td><div class="td-content"><span class="badge badge-' . $badge . '">' . getEstado($orden['estado']) . '</span></div></td>
                             </tr>';
                         }
                         ?>
                     </tbody>
                 </table>
+            </div>
+            <div class="text-center">
+                <hr>
+                <a href="/ordenes.php" class="text-primary">
+                    <span style="font-size:16px;">Ver todas las órdenes </span>
+                    <i data-feather="chevron-right"></i>
+                </a>
             </div>
         </div>
     </div>
@@ -209,7 +125,7 @@ $respSucursal = $Clsucursales->lista();
                                 <div class="th-content th-heading">Cantidad</div>
                             </th>
                             <th>
-                                <div class="th-content th-heading">Precio Total</div>
+                                <div class="th-content th-heading">Ventas</div>
                             </th>
                             <th>
                                 <div class="th-content th-heading">Precio Unidad</div>
@@ -227,7 +143,6 @@ $respSucursal = $Clsucursales->lista();
                                 <td>
                                     <div class="td-content product-name"><img src="' . $imagen . '" alt="product">
                                         ' . $productos['nombre'] . '
-                                        <br><b>Code: ' . $code . '</b>
                                     </div>
                                 </td>
                                 <td><div class="td-content text-right"><span class="quantity">' . $productos['producto_cantidad'] . '</span></div></td>
@@ -239,6 +154,13 @@ $respSucursal = $Clsucursales->lista();
                         ?>
                     </tbody>
                 </table>
+            </div>
+            <div class="text-center">
+                <hr>
+                <a href="/reporte_ventas.php" class="text-primary">
+                    <span style="font-size:16px;">Ver Reporte de ventas </span>
+                    <i data-feather="chevron-right"></i>
+                </a>
             </div>
         </div>
     </div>

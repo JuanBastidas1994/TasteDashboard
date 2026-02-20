@@ -19,7 +19,7 @@
                     </thead>
                     <tbody>
                         <?php
-                        $resp = $Clordenes->listaLimit();
+                        $resp = $Clordenes->listaLimit(5);
                         foreach ($resp as $orden) {
                             $badge='primary';
                             if($orden['estado'] == 'ANULADA')
@@ -34,7 +34,7 @@
                                 <td><div class="td-content product-brand">'.$orden['sucursal'].'</div></td>
                                 <td><div class="td-content product-brand">'.hoursAgo($orden['fecha']).'</div></td>
                                 <td><div class="td-content pricing"><span class="">$'.number_format($orden['total'],2).'</span></div></td>
-                                <td><div class="td-content"><span class="badge outline-badge-'.$badge.'">'.getEstado($orden['estado']).'</span></div></td>
+                                <td><div class="td-content"><span class="badge badge-'.$badge.'">'.getEstado($orden['estado']).'</span></div></td>
                             </tr>';
                         }
                         ?>    

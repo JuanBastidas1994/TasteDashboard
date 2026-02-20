@@ -4,7 +4,6 @@ require_once "funciones.php";
 if (!isLogin()) {
     header("location:login.php");
 }
-
 require_once "clases/cl_sucursales.php";
 $clsucursales = new cl_sucursales(NULL);
 
@@ -23,6 +22,7 @@ $alias = $session['alias'];
     <?php css_mandatory(); ?>
     <link rel="stylesheet" type="text/css" href="assets/css/widgets/modules-widgets.css">
     <link href="assets/css/components/tabs-accordian/custom-tabs.css" rel="stylesheet" type="text/css" />
+    <link href="plugins/apex/apexcharts.css" rel="stylesheet" type="text/css">
     <style type="text/css">
         .imground {
             width: 35px;
@@ -91,7 +91,7 @@ $alias = $session['alias'];
                     <div><span id="btnBack" data-module-back="categorias.php" style="cursor: pointer;">
                             <i data-feather="chevron-left"></i><span style="font-size: 16px; vertical-align: middle;color:#888ea8;">Dashboard</span></span>
                     </div>
-                    <h3 id="titulo">Reporte Mapa de calor</h3>
+                    <h3 id="titulo">Reporte Clientes nuevos y recurrentes</h3>
                 </div>
 
                 <div class="row layout-top-spacing">
@@ -154,8 +154,55 @@ $alias = $session['alias'];
 
 
                     <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12  underline-content">
-                        <div id="map" style="width:100%;height:500px;"></div>
+                        
+                        <div class="row widget-info">
+                            <div class="col-4">
+                                <div class="card p-2" style="border-radius: 20px;">
+                                    <h4 class="widget-title"><b>Clientes nuevos</b></h4>
+                                    <h3 class="widget-info"><b id="client_new">50</b></h3>
+                                </div>
+                            </div>
+
+                            <div class="col-4">
+                                <div class="card p-2" style="border-radius: 20px;">
+                                    <h4 class="widget-title"><b>Clientes recurrentes</b></h4>
+                                    <h3 class="widget-info"><b id="client_recurrent">50</b></h3>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-4">
+                            <h4>Evolución de clientes</h4>
+                            <div id="chartEvolucion"></div>
+                        </div>
+
                     </div>
+                    <div class="" id="widgetsInfo"></div>
+
+                    <script id="widget-template" type="text/x-handlebars-template">
+                        <div class="col-lg-{{default column 4}} col-md-{{default column 4}} col-sm-4 col-12 mt-4">
+                            <div class="card p-2"  style="border-radius: 20px;">
+                                <div class="widget-title d-flex">
+                                    <div class="flex-grow-1"><b>{{title}}</b></div>
+                                    <div class="btnShare" 
+                                        data-type="{{type}}" 
+                                        data-title="{{title}}"
+                                        data-value="{{value}}"
+                                        data-shared="{{sharedText}}"
+                                        data-options="{{chartdata}}">
+                                        <i data-feather="share-2"></i>
+                                    </div>
+                                </div>
+                                <div class="widget-info" style="height: {{default height 120}}px;">
+                                    <h3 style="font-weight: bolder; ">{{value}}</h3>
+                                    <div class="widget-chart"></div>
+                                </div>
+                                <div class="widget-footer">
+                                    
+                                </div>
+                            </div>
+                        </div>
+                    </script>
 
                 </div>
 
@@ -169,6 +216,9 @@ $alias = $session['alias'];
     <?php js_mandatory(); ?>
 
     <!-- BEGIN PAGE LEVEL CUSTOM SCRIPTS -->
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.7.7/handlebars.min.js"></script>
+     <script type="text/javascript" src="assets/js/handlebars-helpers.js"></script>
+     <script src="plugins/apex/apexcharts.min.js"></script>
     <script src="assets/js/scrollspyNav.js"></script>
     <script src="plugins/file-upload/file-upload-with-preview.min.js"></script>
     <script src="plugins/ckeditor/ckeditor.js"></script>
@@ -176,60 +226,39 @@ $alias = $session['alias'];
 
     <script src="plugins/apex/apexcharts.min.js"></script>
     <script src="assets/js/dashboard/dash_1.js"></script>
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAWo6DXlAmrqEiKiaEe9UyOGl3NJ208lI8&libraries=visualization"></script>
+
+    <script src="assets/js/dashboard/charts.js?v=1" type="text/javascript"></script>
+    
     <!-- END PAGE LEVEL CUSTOM SCRIPTS -->
      <script>
-    let map;
-    let heatmap;
+    Handlebars.registerHelper('default', function (value, defaultValue) {
+        return value != null ? value : defaultValue;
+    });
+    var template = Handlebars.compile($("#widget-template").html());
 
-    function initMap() {
-        map = new google.maps.Map(document.getElementById('map'), {
-            zoom: 12,
-            center: { lat: -2.1753280, lng: -79.90624 },
-            mapTypeId: 'roadmap'
-        });
 
-        heatmap = new google.maps.visualization.HeatmapLayer({
-            data: [],
-            radius: 30,
-            opacity: 0.7
-        });
-
-        heatmap.setMap(map);
-    }
-
-    // 🔄 Función para refrescar puntos con AJAX
-    function refreshHeatmap(officeId = 0, dateStart, dateEnd) {
+    function refreshReport(officeId = 0, dateStart, dateEnd) {
         $.ajax({
-            url: 'controllers/controlador_reporte_mapa_calor.php?metodo=getLocationsOrders',
+            url: 'controllers/controlador_reporte_clientes_recurrentes.php?metodo=getInfoReport',
             type: 'POST',
             contentType: 'application/json',
             data: JSON.stringify({ office_id: officeId, dateStart, dateEnd }),
             success: function(response) {
-                const points = response.map(p => new google.maps.LatLng(parseFloat(p.latitud), parseFloat(p.longitud)));
-                heatmap.setData(points);
-
-                if(points.length > 0){
-                    map.setCenter(points[0]); // centra en el primer punto
-                }
+                console.log(response);
+                createLineChart(response.chart_news_recurrents);
+                $("#client_recurrent").html(response.clients_recurrents);
+                $("#client_new").html(response.clients_news);
             }
         });
     }
 
-    // Inicia mapa
-    initMap();
-
-    // Ejemplo: refrescar al cambiar filtro
     $(".btnReporte").on('click', function(){
         const officeId = parseInt($('#sucursalSelect').val());
         const dateStart = $("#fecha_inicio").val();
         const dateEnd = $("#fecha_fin").val();
-        refreshHeatmap(officeId, dateStart, dateEnd);
+        refreshReport(officeId, dateStart, dateEnd);
     });
 
-    // $('#periodoSelect, #sucursalSelect').on('change', function() {
-        
-    // });
 
     /*Combos fecha*/
     var f4 = flatpickr(document.getElementById('fecha_inicio'), {
@@ -241,6 +270,15 @@ $alias = $session['alias'];
         enableTime: false,
         dateFormat: "Y-m-d"
     });
+
+    function createLineChart(data){
+        //Grafico venta por sucursal
+        $("#chartEvolucion").html('');
+        sharedText = `Estas son mis ventas generales 📈`;
+        chartData = createLineChartData(data, 'Ventas Totales', 300, 'number');
+        generateChart($("#chartEvolucion")[0], chartData);
+
+    }
     </script>
 
 </body>

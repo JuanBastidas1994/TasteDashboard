@@ -2,7 +2,7 @@ $(function () {
     moment.locale('es-mx');
     // getSalesMonthly();
     // getSalesWeekly();
-    getRanking();
+    // getRanking();
 
     // getOffices();
     // getMonths();
@@ -32,130 +32,6 @@ function hideGraphics(graphic) {
         $('#tab-revenueWeekly').removeClass('d-none');
 }
 
-function getSalesMonthly() {
-    const day = moment().daysInMonth();
-    const month = (moment().month() + 1).toString().padStart(2, '0');
-    const year = moment().year();
-    const dateStart = `${year}-${month}-01`;
-    const dateEnd = `${year}-${month}-${day}`;
-
-    fetch(`controllers/controlador_reporte_ventas.php?metodo=getSalesDayByDay&dateStart=${dateStart}&dateEnd=${dateEnd}&numDays=${day}`, {
-        method: 'GET',
-    })
-        .then(res => res.json())
-        .then(response => {
-            if (response.success == 1) {
-                let sales = [];
-                let labels = [];
-                response.data.forEach((item, index) => {
-                    labels.push(index + 1);
-                    sales.push(parseFloat(item.total).toFixed(2));
-                });
-
-                let series = [
-                    {
-                        name: 'Ventas',
-                        data: sales
-                    }
-                ];
-
-                let options = loadGraphic('Ventas totales', 'Ingreso del mes actual', series, labels);
-                const chart = new ApexCharts(
-                    document.querySelector("#revenueMonthly"),
-                    options
-                );
-                chart.render();
-            }
-            else {
-            }
-        })
-        .catch(error => {
-            console.log(error);
-        });
-}
-
-function getSalesWeekly() {
-    const dateStart = moment().startOf('week');
-    console.log({dateStart});
-    const dayZero = dateStart; // dateStart.subtract(1, 'day');
-    const days = [];
-    for (let index = 1; index <= 7; index++) {
-        days.push(dayZero.add(1, 'day').format('YYYY-MM-DD'));
-    }
-
-    const info = { days };
-
-    fetch(`controllers/controlador_reporte_ventas.php?metodo=getSalesDayByDay2`, {
-        method: 'POST',
-        body: JSON.stringify(info)
-    })
-        .then(res => res.json())
-        .then(response => {
-            if (response.success == 1) {
-                let sales = [];
-                let labels = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
-                response.data.forEach((item, index) => {
-                    sales.push(parseFloat(item.total).toFixed(2));
-                });
-
-                let series = [
-                    {
-                        name: 'Ventas',
-                        data: sales
-                    }
-                ];
-
-                let options = loadGraphic('Ventas totales', 'Ingreso de la semana actual', series, labels);
-                const chart = new ApexCharts(
-                    document.querySelector("#revenueWeekly"),
-                    options
-                );
-                chart.render();
-            }
-            else {
-            }
-        })
-        .catch(error => {
-            console.log(error);
-        });
-}
-
-function getRanking() {
-    fetch(`controllers/controlador_reporte_ventas.php?metodo=getRanking`,{
-        method: 'GET'
-    })
-    .then(res => res.json())
-    .then(response => {
-        console.log(response);
-        let rows = "";
-        if(response.success == 1) {
-            response.data.forEach((item, index) => {
-                rows+=`<tr>
-                    <td class="text-center">${ getPosition(index) }</td>
-                    <td>${ item.dia_semana }</td>
-                    <td class="text-right">$${ parseFloat(item.total_ventas).toFixed(2) }</td>
-                </tr>`;
-            });
-
-            $("#ranking-table tbody").html(rows);
-        }
-        else{
-        }
-    })
-    .catch(error=>{
-        console.log(error);
-    });
-}
-
-function getPosition(position) {
-    position = position + 1;
-    let html = `<span>${ position }</span>`;
-
-    if(position <=3 )
-        html = `<img src="./assets/img/reports/medal${ position }.png" width="25"/>`;
-
-    return html;
-}
 
 function loadGraphic(title, subtitle, series, labels) {
     return {

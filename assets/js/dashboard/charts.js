@@ -1,3 +1,15 @@
+let chartColors = [
+    '#2962FF', // azul
+    '#00C853', // verde
+    '#FF6D00', // naranja
+    '#D50000', // rojo
+    '#AA00FF', // morado
+    '#00B8D4', // cian
+    '#FFD600', // amarillo
+    '#FF4081', // rosa
+    '#37474F', // gris oscuro (solo uno)
+    '#795548'  // marrón
+];
 function addWidgetText(title, value, shared='', type = 'text', chartdata=[], height=120, column=4 ){
     const $divWidget = $(template({
         title: title,
@@ -95,7 +107,34 @@ function createPieChartData(data, height=250, title){
     return config;
 }
 
-function createLineChartData(trend, title = '', height = 300) {
+function createLineChartData(trend, title = '', height = 300, valueType = 'currency', decimals = null) {
+
+    function resolveDecimals(value) {
+        if (decimals !== null) return decimals;
+
+        // Si el número tiene parte decimal
+        return Number.isInteger(value) ? 0 : 2;
+    }
+    function formatValue(value) {
+        let resolvedDecimals = resolveDecimals(value);
+
+        let formatted = value.toLocaleString(undefined, {
+            minimumFractionDigits: resolvedDecimals,
+            maximumFractionDigits: resolvedDecimals
+        });
+
+        switch (valueType) {
+            case 'currency':
+                return '$' + formatted;
+
+            case 'percent':
+                return formatted + '%';
+
+            case 'number':
+            default:
+                return formatted;
+        }
+    }
 
     let config = {
         chart: {
@@ -120,7 +159,7 @@ function createLineChartData(trend, title = '', height = 300) {
         yaxis: {
             labels: {
                 formatter: function (value) {
-                    return '$' + value.toLocaleString();
+                    return formatValue(value);
                 },
                 style: { fontSize: '12px', fontFamily: 'inherit' }
             }
@@ -160,7 +199,7 @@ function createLineChartData(trend, title = '', height = 300) {
             intersect: false,
             y: {
                 formatter: function (value) {
-                    return '$' + value.toLocaleString();
+                    return formatValue(value);
                 }
             }
         }

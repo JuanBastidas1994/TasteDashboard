@@ -59,8 +59,8 @@ class Conexion {
             $rs->execute($data);
             return $rs->fetch(PDO::FETCH_ASSOC);
         } catch (Exception $ex) {
-            echo "Error al nivel de Database ".$sql.'<br/>';
-            //echo "Error: " . $ex->getMessage();
+            self::logError(__FUNCTION__, $sql, $ex);
+            return false;
         }
     }
     
@@ -84,8 +84,8 @@ class Conexion {
             $rs->execute($data);
             return $rs->fetchAll(PDO::FETCH_ASSOC);
         } catch (Exception $ex) {
-            echo "Error al nivel de Database";
-            //echo "Error: " . $ex->getMessage();
+            self::logError(__FUNCTION__, $sql, $ex);
+            return false;
         }
     }
 
@@ -113,12 +113,7 @@ class Conexion {
             }
             return false;
         } catch (Exception $ex) {
-            error_log($ex->getMessage());
-            error_log(
-                date('[Y-m-d H:i:s] ') . $ex->getMessage() . PHP_EOL,
-                3,
-                __DIR__ . '/errores_sql.log'
-            );
+            self::logError(__FUNCTION__, $sql, $ex);
             return false;
         }    
     }
@@ -129,21 +124,22 @@ class Conexion {
         $con = self::obtenerConexion();
         return $con->errorInfo();
     }
-    
-    public static function logsLogin($cod_user,$success)
-    {
-    
-        $LogsLogin =new RegisterLogs();
-        $return = $LogsLogin->login($cod_user,$success);  
-        return $return;
-    }
-    
-    public static function logs($tipo,$accion,$datelle,$medio,$cod_user)
-    {
-    
-        $LogsLog =new RegisterLogs();
-        $return = $LogsLog->logsGeneral($tipo,$accion,$datelle,$medio,$cod_user);
-        return $return;
+
+    private static function logError($metodo, $sql, $ex) {
+        $mensaje = date('[Y-m-d H:i:s] ') .
+            "Método: $metodo | " .
+            "Mensaje: " . $ex->getMessage() . " | " .
+            "SQL: $sql" . PHP_EOL;
+
+        // Log general de PHP
+        error_log($mensaje);
+
+        // Log personalizado
+        error_log(
+            $mensaje,
+            3,
+            __DIR__ . '/errores_sql.log'
+        );
     }
 
     public static function lastId()

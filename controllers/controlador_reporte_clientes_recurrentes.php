@@ -87,15 +87,14 @@ function getNewVsReturningTrend($officeId, $dateStart, $dateEnd)
 
     // Decidir agrupación
     if ($daysDiff <= 30) {
-        $periodField = "DATE(t.fecha)";
-        $labelField = "DATE_FORMAT(t.fecha, '%d %b %Y')";
+        $periodField = "DATE(o.fecha)";
+        $labelField = "DATE_FORMAT(o.fecha, '%d %b %Y')";
         $intervalUnit = "DAY";
     } else {
-        $periodField = "DATE_FORMAT(t.fecha, '%Y-%m-01')";
-        $labelField = "DATE_FORMAT(t.fecha, '%b %Y')";
+        $periodField = "DATE_FORMAT(o.fecha, '%Y-%m-01')";
+        $labelField = "DATE_FORMAT(o.fecha, '%b %Y')";
         $intervalUnit = "MONTH";
     }
-
 
     $sql = "
     SELECT 
@@ -114,27 +113,26 @@ function getNewVsReturningTrend($officeId, $dateStart, $dateEnd)
 
     FROM (
         SELECT 
-            t.cod_usuario,
-            t.first_purchase,
+            o.cod_usuario,
+            fp.first_purchase,
             $periodField AS periodo,
             $labelField AS label
-        FROM (
+        FROM tb_orden_cabecera o
+        INNER JOIN (
             SELECT 
-                o.cod_usuario,
-                o.cod_sucursal,
-                o.fecha,
-                MIN(o.fecha) OVER (PARTITION BY o.cod_usuario) AS first_purchase
-            FROM tb_orden_cabecera o
-            WHERE o.cod_empresa = :cod_empresa
-        ) t
-        WHERE t.fecha BETWEEN :start AND :end
+                cod_usuario,
+                MIN(fecha) AS first_purchase
+            FROM tb_orden_cabecera
+            WHERE cod_empresa = :cod_empresa
+            GROUP BY cod_usuario
+        ) fp ON fp.cod_usuario = o.cod_usuario
+        WHERE o.cod_empresa = :cod_empresa
+        AND o.fecha BETWEEN :start AND :end
         $officeFilter
     ) x
     GROUP BY periodo, label
     ORDER BY periodo
     ";
-
-
 
     $rows = Conexion::buscarVariosRegistro($sql, $params);
 
@@ -162,6 +160,7 @@ function getNewVsReturningTrend($officeId, $dateStart, $dateEnd)
         ]
     ];
 }
+
 
 
 

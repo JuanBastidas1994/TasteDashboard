@@ -92,24 +92,6 @@ $faltaPagos = Conexion::buscarRegistro($query);
         #tab-revenueYearly .apexcharts-legend-text {
             font-size: 10px !important;
         }
-
-        .widget-footer{
-            /* background-color: #f5f5f5; */
-            padding: 10px 15px;
-            font-size: 12px;
-            color: black;
-            text-align: right;
-        }
-
-        .widget-title{
-            padding: 10px 15px;
-            font-size: 18px;
-            color: black;
-        }
-
-        .widget-info{
-            padding: 5px 10px;
-        }
     </style>
 </head>
 <body>
@@ -200,7 +182,7 @@ $faltaPagos = Conexion::buscarRegistro($query);
                     }
                 ?>
 
-                <div class="row layout-top-spacing">
+                <div class="row ">
                     <?php
                         if($cod_rol == 1){
                             include "content_index/index_super_admin.php";
@@ -212,7 +194,7 @@ $faltaPagos = Conexion::buscarRegistro($query);
                     ?>
                 </div>
                 <script id="widget-template" type="text/x-handlebars-template">
-                    <div class="col-lg-{{default column 4}} col-md-{{default column 4}} col-sm-4 col-12 mt-{{default column 4}}">
+                    <div class="col-lg-{{default column 4}} col-md-{{default column 4}} col-sm-4 col-12 mt-4">
                         <div class="card p-2"  style="border-radius: 20px;">
                             <div class="widget-title d-flex">
                                 <div class="flex-grow-1"><b>{{title}}</b></div>
@@ -276,8 +258,8 @@ $faltaPagos = Conexion::buscarRegistro($query);
     <!-- BEGIN PAGE LEVEL PLUGINS/CUSTOM SCRIPTS -->
     <script>
         Handlebars.registerHelper('default', function (value, defaultValue) {
-                return value != null ? value : defaultValue;
-            });
+            return value != null ? value : defaultValue;
+        });
 
         $(document).ready(function(){
             if($("#mostrarModal").val() == "Si")

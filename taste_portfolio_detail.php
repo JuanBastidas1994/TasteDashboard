@@ -17,7 +17,7 @@ if (!isLogin()) {
 <!--  END NAVBAR  -->
 
 <!--  BEGIN NAVBAR  -->
-<?php echo navbar(); ?>
+<?php echo navbar(true); ?>
 <!--  END NAVBAR  -->
 
 <!--  BEGIN MAIN CONTAINER  -->
@@ -54,10 +54,17 @@ if (!isLogin()) {
 
                         <div class="form-row mb-4">
                             <div class="col-4">
-                                <input type="hidden" id="cod_taste_portfolio" class="form-control">
+                                <input type="text" id="cod_taste_portfolio" class="form-control">
+                                <input type="text" id="businessId" class="form-control">
+                                <input type="text" id="path" class="form-control">
                                 <label for="image">Imagen</label>
+                                <div>
+                                    <img src="" alt="Imagen del restaurante" id="img" class="img-fluid mb-2" width="100">
+                                </div>
                                 <input type="file" name="image" id="image" class="form-control">
                             </div>
+                        </div>
+                        <div class="form-row mb-4">
                             <div class="col-4">
                                 <label for="name">Nombre del Restaurante</label>
                                 <input type="text" id="name" class="form-control" readonly>
@@ -68,7 +75,7 @@ if (!isLogin()) {
                             </div>
                         </div>
                         <div class="form-row mb-4">
-                            <div class="col-6">
+                            <div class="col-4">
                                 <label for="name">Categorías</label>
                                 <select name="categories[]" id="categories" class="form-control" required="required" multiple>
                                     <option value="hamburguesas"> Hamburguesas </option>
@@ -92,7 +99,7 @@ if (!isLogin()) {
                                 </select>
 
                             </div>
-                            <div class="col-6">
+                            <div class="col-4">
                                 <label for="name">Ciudades</label>
                                 <select name="cities[]" id="cities" class="form-control" required multiple>
                                     <option value="guayaquil"> Guayaquil </option>

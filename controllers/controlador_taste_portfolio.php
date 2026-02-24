@@ -52,6 +52,7 @@ function getRestaurant() {
 
     $resp['categories'] = json_decode($resp['categories'], true);
     $resp['cities'] = json_decode($resp['cities'], true);
+    $resp['image'] = url_sistema . 'assets/portfolio/' . $resp['path'];
 
     $return["success"] = 1;
     $return["mensaje"] = "Portfolio detalle";
@@ -62,11 +63,12 @@ function getRestaurant() {
 
 function saveRestaurant() {
     global $Clportfolio;
-    $POST = json_decode(file_get_contents('php://input'), true);
+    // $POST = json_decode(file_get_contents('php://input'), true);
+    $POST = $_POST;
     extract($POST);
 
     if (
-        !isset($cod_empresa) || 
+        !isset($businessId) || 
         !isset($name) || 
         !isset($path) || 
         !isset($categories) || 
@@ -79,24 +81,40 @@ function saveRestaurant() {
     }
 
     if (isset($_FILES['image'])) {
-        $nombre = $_FILES['image']['name'];
+        $namePath = $_FILES['image']['name'];
         $tmp = $_FILES['image']['tmp_name'];
 
-        // $newPath = $nombre . "?no_cache= " . uniqid(); // Genera un nombre único para evitar colisiones  
+        $newPath = url_upload . "assets/portfolio/" . $namePath . "?no_cache=" . uniqid(); // Genera un nombre único para evitar colisiones  
+        $uploaded = move_uploaded_file($tmp, $newPath); // TODO: Cambiar ruta de subida
 
-        // move_uploaded_file($tmp, "uploads/" . $nombre); TODO: Cambiar ruta de subida
+        if(!$uploaded) {
+            $return['success'] = 0;
+            $return['mensaje'] = "Error al subir la imagen";
+            $return['test'] = $newPath;
+            return $return;
+        }
     }
 
-    $Clportfolio->cod_empresa = $cod_empresa;
+    $Clportfolio->cod_empresa = $businessId;
     $Clportfolio->path = $newPath ? $newPath : $path;
     $Clportfolio->categories = $categories;
     $Clportfolio->cities = $cities;
     $Clportfolio->cod_taste_portfolio = $cod_taste_portfolio;
 
-    if ($cod_taste_portfolio == 0)
-        $Clportfolio->createRestaurant();
-    else
-        $Clportfolio->updateRestaurant();
+    if ($cod_taste_portfolio == 0) {
+        if(!$Clportfolio->createRestaurant()) {
+            $return['success'] = 0;
+            $return['mensaje'] = "Error al crear el restaurant";
+            return $return;
+        }
+    }
+    else {
+        if(!$Clportfolio->updateRestaurant()) {
+            $return['success'] = 0;
+            $return['mensaje'] = "Error al actualizar el restaurant";
+            return $return;
+        }
+    }
 
     $return["success"] = 1;
     $return["mensaje"] = "Restaurant actualizado";

@@ -1,5 +1,7 @@
 //Ready
 let runfoodApi = "controllers/controlador_runfood.php";
+let ApiUrl = "https://api.mie-commerce.com/taste/v3";
+let ApiKey = "";
 let typeImportContificoProduct = "PRODUCTO";
 let productSelected = 0;
 let ingredienteSelected = 0;
@@ -12,6 +14,7 @@ let $trContificoConfirm = null;
 let OfficeId = 0;
 $(document).ready(function () {
     OfficeId = $.urlParam('id');
+    ApiKey = $("#api").val();
     loadMisProductos();
     loadIngredientes();
     loadRecipientes();
@@ -148,6 +151,9 @@ function loadProductosRunfood(){
                         }else if(typeImportContificoProduct == "DOMICILIO"){
                             hideButtonsProducts();
                             $(".btnSetDomiciliouAdicionales").show();
+                        }else if(typeImportContificoProduct == "OPCIONES"){
+                            hideButtonsProducts();
+                            $(".btnSetOpciones").show();
                         }    
                     }
                 });
@@ -598,7 +604,55 @@ $("body").on("change", ".chkInventario", function(){    //Activar/Desactivar Inv
         });
 });
 
+/*----------------OPCIONES-----------------------*/
+$("body").on("click", ".btnAsignarOpciones", function(){
+   let data = $(this).data();
+   console.log(data);
+   productSelected = data.id;
+   
+   //Ocultar boton no funcional
+   hideButtonsProducts();
+   $("#titleProductosModal").html("Ligar opción");
+   $(".btnSetOpciones").show();
+   
+   $("#modalProductosContifico").modal();
+   
+   typeImportContificoProduct = "OPCIONES";
+   $trContificoConfirm = $(this).parents("tr").find(".info-contifico");
+});
 
+$("body").on("click", ".btnSetOpciones", function(){
+    let data = $(this).data();
+    let info = {
+        "office_id": OfficeId,
+        "product_id": productSelected,
+        "contifico_id": data.id,
+        "contifico_name": data.name
+    }   
+    console.log(info);
+   fetch(`controllers/controlador_runfood.php?metodo=setOpcion`,{
+            method: 'POST',
+            body: JSON.stringify(info)
+        })
+        .then(res => res.json())
+        .then(response => {
+            if(response.success == 1){
+                console.log("Mis Productos",response);
+                
+                $trContificoConfirm.html(`${data.name}
+                                                    <dl>
+                                                      <dd>${data.id}</dd>
+                                                    </dl>`);
+                notify(response.mensaje,'success',2);
+                $("#modalProductosContifico").modal('hide');
+            }else{
+                messageDone(response.mensaje,'error');
+            }
+        })
+        .catch(error=>{
+            messageDone(error,'error');
+        });
+});
 
 function hideButtonsProducts(){
     $(".btnSetProducto").hide();
@@ -607,6 +661,7 @@ function hideButtonsProducts(){
     $(".btnSaveRecipiente").hide();
     $(".btnSetRecipiente").hide();
     $(".btnSetDomiciliouAdicionales").hide();
+    $(".btnSetOpciones").hide();
 }
 
 $.urlParam = function (name) {
@@ -618,3 +673,38 @@ $.urlParam = function (name) {
 
   return decodeURI(results[1]) || 0;
 };
+
+$("body").on('click', ".btnVerOpciones", function(){
+    let data = $(this).data();
+    getOpcionesByProduct(data.id);
+});
+
+function getOpcionesByProduct(product_id){
+    fetch(`${ApiUrl}/productos/opciones/${product_id}`,{
+        method: 'GET',
+        headers: {
+            'Api-Key':ApiKey
+        },
+    })
+    .then(res => res.json())
+    .then(response => {
+        console.log("Get Opciones",response);
+        if(response.success == 1){
+            // let template1 = Handlebars.compile($("#product-ingredientes-template").html());
+            // $("#productInformation").html(template1(response));
+            
+            let target = $("#contentOpciones");
+            let template = Handlebars.compile($("#product-data-template").html());
+            target.html(template(response));
+            feather.replace();
+
+            $("#modalOpcionesProducto").modal();
+        }
+        else{
+            messageDone(response.mensaje,'error');
+        }
+    })
+    .catch(error=>{
+        console.log(error);
+    });
+}

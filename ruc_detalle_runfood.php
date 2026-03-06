@@ -18,6 +18,7 @@ $empresa = $Clempresas->get($cod_empresa);
 if(!$empresa){
     header("location:index.php");
 }
+$api = $empresa['api_key'];
 $Clrunfood = new cl_runfood(NULL);
 
 if (isset($_GET['id'])) {
@@ -82,6 +83,94 @@ $permisos = $Clempresas->getIdPermisionByBusiness($cod_empresa);
         <?php echo sidebar(); ?>
         <!--  END SIDEBAR  -->
         
+        <!--MODAL OPCIONES PRODUCTO -->
+        <div class="modal fade bs-example-modal-lg" id="modalOpcionesProducto" tabindex="99" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" data-backdrop="static">
+            <div class="modal-dialog modal-lg" role="document" style="z-index: 9999999 !important;">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Opciones producto</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                          <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="x_content">    
+                            
+                            <div id="contentOpciones"></div>
+                            <script id="product-data-template" type="text/x-handlebars-template">
+                                {{#each opciones}}
+                                <!-- BLOQUE OPCIONES INGREDIENTES -->
+                                <div class="widget-content widget-content-area br-6 mt-4">
+                                    <div class="content">
+                                        <div class="">
+                                            <div class="d-flex">
+                                                <div><h5>{{titulo}}</h5></div>
+                                                {{#eq isDatabase "1"}}
+                                                    <div class="ml-auto text-primary"><b>Son Productos</b></div>
+                                                {{else}}
+                                                    <div class="ml-auto text-danger"><b>Opciones abiertas</b></div>  
+                                                {{/eq}}
+                                            </div>
+                                            {{#eq isDatabase "1"}}
+                                            <div>
+                                                Las opciones que ya son productos, se darán de baja del inventario automaticamente siempre que el check de inventario esté encendido <br/>
+                                                Puedes controlar debitar el producto o solo los ingredientes escogidos por ti <br/>
+                                            </div>
+                                            {{/eq}}
+                                            <hr style="margin: 0; border-top: 1px solid #cdcdcd;">
+                                        </div>
+                                        {{#each items}}
+                                        <!-- ITEM OPCION -->
+                                        <div class="ml-5 mt-3" style="border: 1px solid; padding: 15px;">
+                                            <div class="d-flex align-items-center">
+                                                <div style="font-size: 16px;"><b>- {{item}}</b></div>
+                                                {{#eq ../isDatabase "1"}}
+                                                    <div class="d-flex flex-column ml-4">
+                                                        <span style="font-size: 11px;">Inventario</span>
+                                                        <label class="switch s-icons s-outline s-outline-success">
+                                                            <input type="checkbox" class="chkIsInventario" data-id="{{cod_producto_opciones_detalle}}"
+                                                                {{#eq debitInventario "1"}} checked {{/eq}}>
+                                                            <span class="slider round"></span>
+                                                        </label>
+                                                    </div>
+                                                {{else}}
+                                                    <div class="ml-2" style="display: none;">No son bases de datos</div>    
+                                                {{/eq}}
+                                                <div class="ml-auto">
+                                                    <button class="btn btn-outline-primary btnAsignarOpciones" data-id="{{cod_producto_opciones_detalle}}">
+                                                        <i data-feather="plus-circle"></i> Asignar
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div class="ml-5">
+                                                {{#diferent facturacion false}}
+                                                <div class="d-flex align-items-center justify-content-end mt-2 item-ingrediente">
+                                                    <div class="mr-4">
+                                                        {{id_runfood}}
+                                                        {{nombre_runfood}}
+                                                    </div>
+                                                </div>
+                                                {{/diferent}}
+                                            </div>
+                                            
+                                        </div>
+                                        {{/each}}
+                                    </div>
+                                </div>
+                                {{/each}}
+                            </script>
+                            
+                                    
+                        </div>
+                    
+                    </div>
+                    <div class="modal-footer">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--MODAL OPCIONES PRODUCTO -->
+
         <!--MODAL PRODUCTOS CONTIFICO -->
         <div class="modal fade bs-example-modal-lg" id="modalProductosContifico" tabindex="99" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" data-backdrop="static">
             <div class="modal-dialog modal-lg" role="document" style="z-index: 9999999 !important;">
@@ -127,6 +216,10 @@ $permisos = $Clempresas->getIdPermisionByBusiness($cod_empresa);
                                         <button class="btn btn-dark btnSetDomiciliouAdicionales" data-id="{{id}}" data-name="{{descripcion}}" data-precio="{{pvp1}}">
                                             Seleccionar
                                         </button>
+
+                                        <button class="btn btn-dark btnSetOpciones" data-id="{{id}}" data-name="{{descripcion}}" data-precio="{{pvp1}}">
+                                            Seleccionar
+                                        </button>
                                     </td>
                                 </tr>
                             {{/each}}
@@ -158,7 +251,7 @@ $permisos = $Clempresas->getIdPermisionByBusiness($cod_empresa);
         </div>
         <!--MODAL PRODUCTOS CONTIFICO -->
         
-        <!--MODAL PRODUCTOS CONTIFICO -->
+        <!--MODAL FORMAS DE PAGO CONTIFICO -->
         <div class="modal fade bs-example-modal-lg" id="modalFormasPagoContifico" tabindex="99" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" data-backdrop="static">
             <div class="modal-dialog modal-lg" role="document" style="z-index: 9999999 !important;">
                 <div class="modal-content">
@@ -210,7 +303,9 @@ $permisos = $Clempresas->getIdPermisionByBusiness($cod_empresa);
                 </div>
             </div>
         </div>
-        <!--MODAL PRODUCTOS CONTIFICO -->
+        <!--MODAL FORMAS DE PAGO CONTIFICO -->
+        
+        
 
         <!--  BEGIN CONTENT AREA  -->
         <div id="content" class="main-content">
@@ -222,6 +317,7 @@ $permisos = $Clempresas->getIdPermisionByBusiness($cod_empresa);
                     </a>
                     <h3 id="titulo"><?php echo $nameRuc; ?></h3>
                     <h4 id="titulo"><?php echo $rucName; ?></h4>
+                     <input type="hidden"  id="api" value="<?= $api; ?>"/>
                 </div>
                 
 
@@ -289,6 +385,9 @@ $permisos = $Clempresas->getIdPermisionByBusiness($cod_empresa);
                                                     </dl>
                                                 </td>
                                                 <td class="text-center">
+                                                    <button class="btn btn-primary btnVerOpciones" data-id="{{cod_producto}}">
+                                                        Opciones
+                                                    </button>
                                                     <button class="btn btn-secondary btnAsignarProducto" data-id="{{cod_producto}}">
                                                         Asignar
                                                     </button>

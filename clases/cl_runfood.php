@@ -149,6 +149,15 @@ class cl_runfood
     		        VALUES('$id_contifico', '$cod_forma_pago', '$contifico_name', 3, $office_id)";
     	return Conexion::ejecutar($query,NULL);	
     }
+
+    function setOpcion($office_id, $cod_producto, $id_contifico, $contifico_name){
+        $query = "DELETE FROM tb_productos_opciones_detalle_facturacion WHERE cod_producto_opciones_detalle = $cod_producto AND cod_contifico_empresa = $office_id";
+        Conexion::ejecutar($query,NULL);	
+        
+        $query = "INSERT INTO tb_productos_opciones_detalle_facturacion(id_runfood, cod_producto_opciones_detalle, nombre_runfood, cod_contifico_empresa)
+    		        VALUES('$id_contifico', $cod_producto, '$contifico_name', $office_id)";
+    	return Conexion::ejecutar($query,NULL);	
+    }
     
     function setDomicilioAdicional($office_id, $alias, $cod_empresa, $id_contifico, $contifico_name){
         $query = "DELETE FROM tb_productos_envio_facturacion WHERE alias = '$alias' AND cod_contifico_empresa = $office_id AND cod_empresa = $cod_empresa";
@@ -181,6 +190,7 @@ class cl_runfood
             curl_close($ch);
 		    return json_decode($response,true);
         }else{
+            var_dump($response);
             $this->msgError = $msg;
             return false;
         }

@@ -84,7 +84,7 @@ $permisos = $Clempresas->getIdPermisionByBusiness($cod_empresa);
         <!--  END SIDEBAR  -->
         
         <!--MODAL OPCIONES PRODUCTO -->
-        <div class="modal fade bs-example-modal-lg" id="modalOpcionesProducto" tabindex="99" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" data-backdrop="static">
+        <div class="modal fade bs-example-modal-lg" id="modalOpcionesProducto" tabindex="99" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-lg" role="document" style="z-index: 9999999 !important;">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -142,16 +142,16 @@ $permisos = $Clempresas->getIdPermisionByBusiness($cod_empresa);
                                                     </button>
                                                 </div>
                                             </div>
+                                            {{#diferent facturacion false}}
                                             <div class="ml-5">
-                                                {{#diferent facturacion false}}
                                                 <div class="d-flex align-items-center justify-content-end mt-2 item-ingrediente">
                                                     <div class="mr-4">
-                                                        {{id_runfood}}
-                                                        {{nombre_runfood}}
+                                                        {{facturacion.id_runfood}}
+                                                        {{facturacion.nombre_runfood}}
                                                     </div>
                                                 </div>
-                                                {{/diferent}}
                                             </div>
+                                            {{/diferent}}
                                             
                                         </div>
                                         {{/each}}

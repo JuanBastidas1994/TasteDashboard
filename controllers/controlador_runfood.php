@@ -49,7 +49,6 @@ function getAllProducts(){
     $return['mensaje'] = "Lista de productos";
     $return['officeId'] = $id;
     $return['productos'] = $productos;
-    $return['ruc'] = $ruc;
     return $return;
 }
 
@@ -69,7 +68,6 @@ function getAllIngredientes(){
     $return['success'] = 1;
     $return['mensaje'] = "Lista de ingredientes";
     $return['ingredientes'] = $ingredientes;
-    $return['ruc'] = $ruc;
     return $return;
 }
 
@@ -89,7 +87,6 @@ function getAllRecipientes(){
     $return['success'] = 1;
     $return['mensaje'] = "Lista de recipientes";
     $return['recipientes'] = $recipientes;
-    $return['ruc'] = $ruc;
     return $return;
 }
 
@@ -109,7 +106,6 @@ function getAllFormasPago(){
     $return['success'] = 1;
     $return['mensaje'] = "Lista de formas de pago";
     $return['formaspago'] = $formaspago;
-    $return['ruc'] = $ruc;
     return $return;
 }
 
@@ -181,6 +177,23 @@ function setFormaPago(){
     }else{
         $return['success'] = 0;
         $return['mensaje'] = "Error al ligar la forma de pago";
+    }
+    return $return;
+}
+
+function setOpcion(){
+    global $Clrunfood;
+    global $cod_empresa;
+    
+    $input = json_decode(file_get_contents('php://input'), true);
+    extract($input);
+    
+    if($Clrunfood->setOpcion($office_id, $product_id, $contifico_id, $contifico_name)){
+        $return['success'] = 1;
+        $return['mensaje'] = "Producto ligado correctamente";
+    }else{
+        $return['success'] = 0;
+        $return['mensaje'] = "Error al ligar el producto";
     }
     return $return;
 }
@@ -258,7 +271,7 @@ function lstProducts(){
 
      $productos = $Clrunfood->LstProductos($id);
      if(!$productos){
-        return [ 'success' => 0, 'mensaje' => 'Ha ocurrido un problema al llamar los productos de Runfood'];
+        return [ 'success' => 0, 'mensaje' => 'Ha ocurrido un problema al llamar los productos de Runfood', 'error'=>$productos];
      }
      return [ 
         'success' => 1, 

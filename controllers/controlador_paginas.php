@@ -67,7 +67,7 @@ function guardar(){
         $return['id'] = $id;
     }
     else{
-        $return['success'] = 1;
+        $return['success'] = 0;
         $return['mensaje'] = "Error al guardar";
     }
     return $return;

@@ -1179,17 +1179,18 @@ class cl_productos
 			return Conexion::buscarVariosRegistro($query);
 		}
 
-		public function addProductosOpcionesIngredientes() {
+		public function addProductosOpcionesIngredientes($es_principal = 0) {
 			$query = "INSERT INTO tb_productos_opciones_ingredientes
 						SET cod_producto_opcion = $this->cod_producto_opcion,
 							cod_ingrediente = $this->cod_ingrediente,
-							valor = $this->valor";
+							valor = $this->valor
+							es_principal = $es_principal";
 			return Conexion::ejecutar($query, null);
 		}
 
-		public function editProductosOpcionesIngredientes() {
+		public function editProductosOpcionesIngredientes($es_principal = 0) {
 			$query = "UPDATE tb_productos_opciones_ingredientes
-						SET valor = $this->valor
+						SET valor = $this->valor, es_principal = $es_principal
 						WHERE cod_producto_opcion_ingrediente = $this->cod_producto_opcion_ingrediente";
 			return Conexion::ejecutar($query, null);
 		}

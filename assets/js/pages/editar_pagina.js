@@ -7,6 +7,9 @@ loadTemplate('templates/home-video.html').then(resp => {templateVideo = resp;});
 loadTemplate('templates/home-html.html').then(resp => {templateHtml = resp;});
 loadTemplate('templates/home-blog.html').then(resp => {templateBlog = resp;});
 
+const { API_TASTE_ECOMMERCE } = window.__CONFIG__;
+let ApiUrl = API_TASTE_ECOMMERCE;
+
 let resize = null;
 $(document).ready(function(){
     if($("#pagina-secciones").length){
@@ -405,7 +408,7 @@ function ListSections(){
     let api_key = $("#api_key").val();
     let aliasPagina = $("#aliasPagina").val();
     // fetch(`https://api.mie-commerce.com/v10/app/pagina/${aliasPagina}`,{
-    fetch(`https://api.mie-commerce.com/taste-front/v7/app/pagina/${aliasPagina}`,{
+    fetch(`${ApiUrl}/app/pagina/${aliasPagina}`,{
         method: 'GET',
         headers: {
           'Api-Key':api_key

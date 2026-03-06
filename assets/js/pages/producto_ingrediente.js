@@ -78,6 +78,7 @@ $("body").on("change", "#cmbIngredientes", function(){
 function setIngredienteToOpcion() {
     let cod_ingrediente = $("#cmbIngredientes").val();
     let valor = $("#cantidadIngrediente").val();
+    let principal = $("#cmbEsPrincipal").val();
 
     let exists = false;
     /*
@@ -107,7 +108,8 @@ function setIngredienteToOpcion() {
     let info = {
         cod_producto_opcion: opcionDetalleIdSelected,
         cod_ingrediente,
-        valor
+        valor,
+        principal
     };
     let Endpoint = `controllers/controlador_productos.php?metodo=addProductosOpcionesIngredientes`;
     if(opcionDetalleTipoSelected == "PRODUCTO"){
@@ -145,18 +147,23 @@ function setIngredienteToOpcion() {
 /*EDITAR*/
 $("body").on("click", ".btnEditarProductoIngrediente", function(){
     let data = $(this).data();
-    let $inputCantidad = $(this).parents('.item-ingrediente').find("input");
-    console.log(data, $inputCantidad.val());
+    let $container = $(this).parents('.item-ingrediente');
+
+    let $inputCantidad = $container.find("input");
+    let $checkPrincipal = $container.find(".chkPrincipal");
+    let esPrincipal = $checkPrincipal.is(':checked') ? 1 : 0;
+    console.log(data, $inputCantidad.val(), esPrincipal);
 
     if(validarCantidad($inputCantidad.val())){
-        editProductoIngrediente(data.id, data.type, $inputCantidad.val());
+        editProductoIngrediente(data.id, data.type, $inputCantidad.val(), esPrincipal);
     }
 });
 
-function editProductoIngrediente(id, type, valor) {
+function editProductoIngrediente(id, type, valor, principal) {
     let info = {
         cod_producto_opcion_ingrediente: id,
-        valor
+        valor,
+        principal
     };
     let Endpoint = `controllers/controlador_productos.php?metodo=editProductosOpcionesIngredientes`;
     if(type == "PRODUCTO"){

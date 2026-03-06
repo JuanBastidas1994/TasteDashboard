@@ -1098,7 +1098,7 @@ function addProductosOpcionesIngredientes() {
     $Clproductos->cod_ingrediente = $cod_ingrediente;
     $Clproductos->valor = $valor;
     
-    if($Clproductos->addProductosOpcionesIngredientes()) {
+    if($Clproductos->addProductosOpcionesIngredientes($principal)) {
         $return['success'] = 1;
         $return['mensaje'] = "Ingredientes agregados a la opción";
         return $return;
@@ -1116,7 +1116,7 @@ function editProductosOpcionesIngredientes() {
     $Clproductos->cod_producto_opcion_ingrediente = $cod_producto_opcion_ingrediente;
     $Clproductos->valor = $valor;
 
-    if($Clproductos->editProductosOpcionesIngredientes()) {
+    if($Clproductos->editProductosOpcionesIngredientes($principal)) {
         $return['success'] = 1;
         $return['mensaje'] = "Ingrediente de la opción editado correctamente";
         return $return;

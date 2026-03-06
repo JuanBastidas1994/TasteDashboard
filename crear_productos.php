@@ -1544,7 +1544,7 @@ function recursive($array, $posicion, &$data, &$codigos)
                         </div>
 
                         <!-- Tags -->
-                        <div class="widget-content widget-content-area br-6 d-none" style="margin-top: 15px;">
+                        <div class="widget-content widget-content-area br-6 " style="margin-top: 15px;">
                             <div>
                                 <h4>Etiquetas</h4>
                             </div>

@@ -54,6 +54,7 @@ function js_mandatory(){
 		<script>
 			window.__CONFIG__ = {
 				API_TASTE: "'.API_TASTE_URL.'",
+				API_TASTE_ECOMMERCE: "'.API_TASTE_ECOMMERCE.'",
 				API_MOTORIZADOS: "'.API_MOTORIZADOS_URL.'"
 			};
 			console.log("CONFIG CARGADA:", window.__CONFIG__);

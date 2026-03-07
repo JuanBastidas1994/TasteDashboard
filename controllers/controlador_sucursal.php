@@ -632,10 +632,25 @@ function saveCostosEnvioRango() {
 
     $Clsucursales->cod_sucursal = $cod_sucursal;
     foreach ($rangos as $key => $rango) {
+        $distanciaIni = $rango["distancia_ini"];
+        $distanciaFin = $rango["distancia_fin"];
+        $precio = $rango["precio"];
+
+        /* 
+            * Siempre el primer rango inicia en 0 y el último rango termina en 50, aunque el usuario no lo coloque así
+            * Aplica también si es una sola tarifa
+        */
+        
+        if($key == 0)
+            $distanciaIni = 0;
+        if($key == count($rangos) - 1)
+            $distanciaFin = 50;
+
+
         $Clsucursales->id = $rango["id"];
-        $Clsucursales->distancia_ini = $rango["distancia_ini"];
-        $Clsucursales->distancia_fin = $rango["distancia_fin"];
-        $Clsucursales->precio = $rango["precio"];
+        $Clsucursales->distancia_ini = $distanciaIni;
+        $Clsucursales->distancia_fin = $distanciaFin;
+        $Clsucursales->precio = $precio;
 
         if($Clsucursales->id == 0)
             $Clsucursales->saveCostosEnvioRango();

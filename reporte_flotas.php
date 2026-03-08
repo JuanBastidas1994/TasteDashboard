@@ -113,7 +113,7 @@ $alias = $session['alias'];
                                 <div class="x_content">
                                     <div class="form-row">
                                         <div class="col-md-12">
-                                            <div class="form-group col-md-3 col-sm-3 col-xs-12">
+                                            <div class="form-group col-md-4 col-sm-4 col-xs-12">
                                                 <label>Sucursales <span class="asterisco">*</span></label>
                                                 <select class="form-control  basic" id="cmb_sucursal">
                                                     <option value="0">Todas las sucursales</option>
@@ -127,7 +127,7 @@ $alias = $session['alias'];
                                                 </select>
                                             </div>
                                             
-                                            <div class="col-md-3 col-sm-3 col-xs-12">
+                                            <div class="col-md-4 col-sm-4 col-xs-12">
                                                 <label>Flota <span class="asterisco">*</span></label>
                                                 <select class="form-control  basic" id="cmb_flota">
                                                     <?php
@@ -139,7 +139,7 @@ $alias = $session['alias'];
                                                 </select>
                                             </div>
 
-                                            <div class="form-group col-md-3 col-sm-3 col-xs-12">
+                                            <div class="form-group col-md-4 col-sm-4 col-xs-12">
                                                 <label>Formas de Pago <span class="asterisco">*</span></label>
                                                 <select class="form-control  basic" id="cmb_formaPago">
                                                     <option value="">Todas las formas de pago</option>
@@ -153,7 +153,7 @@ $alias = $session['alias'];
                                                 </select>
                                             </div>
 
-                                            <div class="col-md-2 col-sm-2 col-xs-12 input-group" style="margin-bottom:10px;">
+                                            <div class="col-md-4 col-sm-2 col-xs-12 input-group" style="margin-bottom:10px;">
                                                 <label>Fecha inicio</label>
                                                 <div class="input-group mb-4">
                                                     <div class="input-group-prepend">
@@ -163,7 +163,7 @@ $alias = $session['alias'];
                                                 </div>
                                             </div>
 
-                                            <div class="col-md-2 col-sm-2 col-xs-12 input-group" style="margin-bottom:10px;">
+                                            <div class="col-md-4 col-sm-2 col-xs-12 input-group" style="margin-bottom:10px;">
                                                 <label>Fecha fin</label>
                                                 <div class="input-group mb-4">
                                                     <div class="input-group-prepend">

@@ -291,6 +291,17 @@ class cl_empresas
             $resp = Conexion::buscarVariosRegistro($query);
 			return $resp;
         }
+
+		function getFormasPagoEmpActivas($cod_empresa){
+            $query = "SELECT fp.descripcion as fp_desc, fp.cod_forma_pago as id_forma_pago, efp.nombre as nomFP, efp.*
+                        FROM tb_formas_pago fp
+                        LEFT JOIN tb_empresa_forma_pago efp
+                        ON fp.cod_forma_pago = efp.cod_forma_pago
+                        WHERE efp.cod_empresa = $cod_empresa
+						AND efp.estado = 'A'";
+            $resp = Conexion::buscarVariosRegistro($query);
+			return $resp;
+        }
         
         public function insertFormasPagoEmpresa($cod_empresa, $cod_forma_pago, $estado){
 			$query = "SELECT descripcion

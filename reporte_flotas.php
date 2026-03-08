@@ -144,9 +144,9 @@ $alias = $session['alias'];
                                                 <select class="form-control  basic" id="cmb_formaPago">
                                                     <option value="">Todas las formas de pago</option>
                                                     <?php
-                                                    $resp = $ClEmpresas->getFormasPagoEmp($cod_empresa);
+                                                    $resp = $ClEmpresas->getFormasPago($cod_empresa);
                                                     foreach ($resp as $formaPago) {
-                                                        echo '<option value="' . $formaPago['id_forma_pago'] . '">' . $formaPago['fp_desc'] . '</option>';
+                                                        echo '<option value="' . $formaPago['cod_forma_pago'] . '">' . $formaPago['descripcion'] . '</option>';
                                                     }
 
                                                     ?>

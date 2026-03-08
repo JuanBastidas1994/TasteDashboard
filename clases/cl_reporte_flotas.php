@@ -50,7 +50,7 @@ class cl_reporte_flotas {
                 ON op.cod_orden = o.cod_orden
             
             LEFT JOIN tb_formas_pago fp
-                ON fp.cod_forma_pago = op.forma_pago
+                ON fp.cod_forma_pago = o.pago
                 $formaPagoAnd
             
             WHERE 

@@ -139,6 +139,19 @@ $alias = $session['alias'];
                                                 </select>
                                             </div>
 
+                                            <div class="form-group col-md-3 col-sm-3 col-xs-12">
+                                                <label>Formas de Pago <span class="asterisco">*</span></label>
+                                                <select class="form-control  basic" id="cmb_formaPago">
+                                                    <option value="0">Todas las formas de pago</option>
+                                                    <?php
+                                                    $resp = $ClEmpresas->getFormasPago($cod_empresa);
+                                                    foreach ($resp as $formaPago) {
+                                                        echo '<option value="' . $formaPago['cod_forma_pago'] . '">' . $formaPago['descripcion'] . '</option>';
+                                                    }
+
+                                                    ?>
+                                                </select>
+                                            </div>
 
                                             <div class="col-md-2 col-sm-2 col-xs-12 input-group" style="margin-bottom:10px;">
                                                 <label>Fecha inicio</label>
@@ -225,6 +238,7 @@ $alias = $session['alias'];
             var alias = $(this).data("alias");
             var sucursal = $("#cmb_sucursal").val();
             var flota = $("#cmb_flota").val();
+            var cod_forma_pago = $("#cmb_formaPago").val() || "";
             var f_inicio = $("#fecha_inicio").val();
             var f_fin = $("#fecha_fin").val();
         
@@ -243,6 +257,7 @@ $alias = $session['alias'];
                 "alias": alias,
                 "cod_sucursal": sucursal,
                 "cod_flota": flota,
+                "cod_forma_pago": cod_forma_pago,
                 "fechaInicio": f_inicio,
                 "fechaFin": f_fin
             }

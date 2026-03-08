@@ -142,11 +142,11 @@ $alias = $session['alias'];
                                             <div class="form-group col-md-3 col-sm-3 col-xs-12">
                                                 <label>Formas de Pago <span class="asterisco">*</span></label>
                                                 <select class="form-control  basic" id="cmb_formaPago">
-                                                    <option value="0">Todas las formas de pago</option>
+                                                    <option value="">Todas las formas de pago</option>
                                                     <?php
-                                                    $resp = $ClEmpresas->getFormasPago($cod_empresa);
+                                                    $resp = $ClEmpresas->getFormasPagoEmp($cod_empresa);
                                                     foreach ($resp as $formaPago) {
-                                                        echo '<option value="' . $formaPago['cod_forma_pago'] . '">' . $formaPago['descripcion'] . '</option>';
+                                                        echo '<option value="' . $formaPago['id_forma_pago'] . '">' . $formaPago['fp_desc'] . '</option>';
                                                     }
 
                                                     ?>

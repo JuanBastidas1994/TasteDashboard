@@ -146,7 +146,7 @@ $alias = $session['alias'];
                                                     <?php
                                                     $resp = $ClEmpresas->getFormasPagoEmpActivas($cod_empresa);
                                                     foreach ($resp as $formaPago) {
-                                                        echo '<option value="' . $formaPago['cod_forma_pago'] . '">' . $formaPago['descripcion'] . '</option>';
+                                                        echo '<option value="' . $formaPago['id_forma_pago'] . '">' . $formaPago['fp_desc'] . '</option>';
                                                     }
 
                                                     ?>

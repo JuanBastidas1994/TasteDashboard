@@ -143,8 +143,8 @@ $permisos = $Clempresas->getIdPermisionByBusiness($cod_empresa);
                                                 </div>
                                             </div>
                                             {{#diferent facturacion false}}
-                                            <div class="ml-5">
-                                                <div class="d-flex align-items-center justify-content-end mt-2 item-ingrediente">
+                                            <div class="ml-3">
+                                                <div class="d-flex align-items-center justify-content-start mt-2 item-ingrediente">
                                                     <div class="mr-4">
                                                         {{facturacion.id_runfood}}
                                                         {{facturacion.nombre_runfood}}

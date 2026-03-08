@@ -15,7 +15,7 @@ class cl_reporte_flotas {
         $officeAnd = "";
         $formaPagoAnd = "";
         if($cod_sucursal > 0)
-            $officeAnd = " AND s.cod_sucursal = $cod_sucursal ";
+            $officeAnd = " AND o.pago =  $cod_forma_pago";
         if($cod_forma_pago <> "")
             $formaPagoAnd = " AND fp.cod_forma_pago = $cod_forma_pago ";
 
@@ -49,15 +49,12 @@ class cl_reporte_flotas {
             LEFT JOIN tb_orden_pagos op 
                 ON op.cod_orden = o.cod_orden
             
-            LEFT JOIN tb_formas_pago fp
-                ON fp.cod_forma_pago = o.pago
-                $formaPagoAnd
-            
             WHERE 
                 o.is_envio = 1
                 AND o.estado IN ('ENTREGADA', 'ENVIANDO', 'ASIGNADA')
                 AND o.fecha >= '$fechaInicio 00:00:00'
                 AND o.fecha <= '$fechaFin 23:59:00'
+                $formaPagoAnd
             
             GROUP BY  
                 o.cod_orden, 

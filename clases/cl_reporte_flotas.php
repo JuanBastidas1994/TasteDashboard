@@ -15,9 +15,9 @@ class cl_reporte_flotas {
         $officeAnd = "";
         $formaPagoAnd = "";
         if($cod_sucursal > 0)
-            $officeAnd = " AND o.pago =  $cod_forma_pago";
+            $officeAnd = " AND s.cod_sucursal = $cod_sucursal ";
         if($cod_forma_pago <> "")
-            $formaPagoAnd = " AND o.pago = $cod_forma_pago ";
+            $formaPagoAnd = " AND o.pago = '$cod_forma_pago' ";
 
         $query = "SELECT 
                 o.cod_orden,

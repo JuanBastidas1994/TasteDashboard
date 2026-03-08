@@ -82,12 +82,6 @@ function getOrdenesFlota(){
     $clreportFlotas = new cl_reporte_flotas();
     $envios = $clreportFlotas->orderFlotas($cod_sucursal, $cod_flota, $cod_forma_pago, $fechaInicio, $fechaFin);
 
-    // return [
-    //     "success" => 0,
-    //     "mensaje" => 'No hay información en este lapso de tiempo',
-    //     "tabla" => $envios
-    // ];
-
     if($envios){
         $totalCouriers = 0;
         foreach($envios as $envio){

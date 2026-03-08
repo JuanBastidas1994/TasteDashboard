@@ -9,12 +9,15 @@ class cl_reporte_flotas {
 		$this->cod_empresa = $this->session['cod_empresa'];
 	}
 
-	public function orderFlotas($cod_sucursal, $cod_flota, $fechaInicio, $fechaFin){
+	public function orderFlotas($cod_sucursal, $cod_flota, $cod_forma_pago, $fechaInicio, $fechaFin){
             
         $cod_empresa = $this->cod_empresa;
         $officeAnd = "";
+        $formaPagoAnd = "";
         if($cod_sucursal > 0)
             $officeAnd = " AND s.cod_sucursal = $cod_sucursal ";
+        if($cod_forma_pago <> "")
+            $formaPagoAnd = " AND fp.cod_forma_pago = $cod_forma_pago ";
 
         $query = "SELECT 
                 o.cod_orden,
@@ -48,6 +51,7 @@ class cl_reporte_flotas {
             
             LEFT JOIN tb_formas_pago fp
                 ON fp.cod_forma_pago = op.forma_pago
+                $formaPagoAnd
             
             WHERE 
                 o.is_envio = 1

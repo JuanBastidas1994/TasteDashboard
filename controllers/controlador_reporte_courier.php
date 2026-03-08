@@ -80,7 +80,7 @@ function getOrdenesFlota(){
     $resumen = [];
     require_once "../clases/cl_reporte_flotas.php";
     $clreportFlotas = new cl_reporte_flotas();
-    $envios = $clreportFlotas->orderFlotas($cod_sucursal, $cod_flota, $fechaInicio, $fechaFin);
+    $envios = $clreportFlotas->orderFlotas($cod_sucursal, $cod_flota, $cod_forma_pago, $fechaInicio, $fechaFin);
     if($envios){
         $totalCouriers = 0;
         foreach($envios as $envio){

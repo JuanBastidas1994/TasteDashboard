@@ -49,6 +49,9 @@ class cl_reporte_flotas {
             LEFT JOIN tb_orden_pagos op 
                 ON op.cod_orden = o.cod_orden
             
+            LEFT JOIN tb_formas_pago fp
+                ON fp.cod_forma_pago = op.forma_pago
+            
             WHERE 
                 o.is_envio = 1
                 AND o.estado IN ('ENTREGADA', 'ENVIANDO', 'ASIGNADA')
@@ -65,7 +68,7 @@ class cl_reporte_flotas {
                 s.nombre, 
                 o.distancia;";
        $row = Conexion::buscarVariosRegistro($query);
-        return $query;
+        return $row;
 	}	
 	
 	public function resumenPagosFlota($cod_sucursal, $cod_flota, $fechaInicio, $fechaFin)

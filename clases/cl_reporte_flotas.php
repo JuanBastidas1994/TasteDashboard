@@ -68,7 +68,7 @@ class cl_reporte_flotas {
                 s.nombre, 
                 o.distancia;";
        $row = Conexion::buscarVariosRegistro($query);
-       echo $query;
+    //    echo $query;
         return $row;
 	}	
 	

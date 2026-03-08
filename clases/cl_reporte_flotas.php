@@ -65,7 +65,7 @@ class cl_reporte_flotas {
                 s.nombre, 
                 o.distancia;";
        $row = Conexion::buscarVariosRegistro($query);
-        return $row;
+        return $query;
 	}	
 	
 	public function resumenPagosFlota($cod_sucursal, $cod_flota, $fechaInicio, $fechaFin)

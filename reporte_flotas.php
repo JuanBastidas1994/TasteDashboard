@@ -18,6 +18,8 @@ $session = getSession();
 $files = url_sistema . 'assets/empresas/' . $session['alias'] . '/';
 $alias = $session['alias'];
 
+$cod_empresa = $session['cod_empresa'];
+
 ?>
 
 <!DOCTYPE html>
@@ -144,16 +146,19 @@ $alias = $session['alias'];
                                                 <select class="form-control  basic" id="cmb_formaPago">
                                                     <option value="">Todas las formas de pago</option>
                                                     <?php
-                                                    $resp = $ClEmpresas->getFormasPago($cod_empresa);
+                                                    $resp = $ClEmpresas->getFormasPagoEmpActivas($cod_empresa);
+
                                                     foreach ($resp as $formaPago) {
-                                                        echo '<option value="' . $formaPago['cod_forma_pago'] . '">' . $formaPago['descripcion'] . '</option>';
+                                                        $id = $formaPago['id_forma_pago'];
+                                                        $descripcion = $formaPago['nomFP'];
+                                                        echo "<option value='{$id}'>{$descripcion}</option>";
                                                     }
 
                                                     ?>
                                                 </select>
                                             </div>
 
-                                            <div class="col-md-4 col-sm-2 col-xs-12 input-group" style="margin-bottom:10px;">
+                                            <div class="col-md-4 col-sm-2 col-xs-12 input-group">
                                                 <label>Fecha inicio</label>
                                                 <div class="input-group mb-4">
                                                     <div class="input-group-prepend">

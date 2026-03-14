@@ -441,10 +441,10 @@ function footer()
 {
     echo '<div class="footer-wrapper">
                 <div class="footer-section f-section-1">
-                    <p class="">Copyright © '.date('Y').' <a target="_blank" href="https://www.digitalmindtec.com">Digital Mind</a>, All rights reserved.</p>
+                    <p class="">Copyright © '.date('Y').' <a target="_blank" href="https://tastelatam.com">Taste</a>, All rights reserved.</p>
                 </div>
                 <div class="footer-section f-section-2">
-                    <p class="">Desarrollado por <a target="_blank" href="https://www.digitalmindtec.com"> Digital Mind </a> </p>
+                    <p class="">Desarrollado por <a target="_blank" href="https://tastelatam.com"> Taste </a> </p>
                 </div>
             </div>';
 }

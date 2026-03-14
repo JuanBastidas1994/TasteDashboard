@@ -135,12 +135,12 @@ if($empresa){
                             
                             <div class="">
                                 <!-- Mapa -->
-                                <div class="col-xl-9 col-lg-8 col-md-8 col-8">
+                                <div class="col-xl-9 col-lg-8 col-md-8 col-12">
                                     <div id="map" style=""></div>
                                 </div>
 
                                 <!-- Sucursales -->
-                                <div class="col-xl-3 col-lg-4 col-md-4 col-4">
+                                <div class="col-xl-3 col-lg-4 col-md-4 col-12">
                                     <div id="lstSucursales" class="mt-3"></div>
 
                                     <script id="sucursales-item" type="text/x-handlebars-template">

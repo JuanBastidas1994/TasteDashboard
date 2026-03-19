@@ -757,8 +757,8 @@ function guardar_variantes(){
 
     $html="";
     $cod_producto = $_POST['cod_producto'];
-    $variantes = $_POST['txt_opcion_titulo'];
-    $opciones = $_POST['cmb_variante_productos'];
+    // $variantes = $_POST['txt_opcion_titulo'];
+    // $opciones = $_POST['cmb_variante_productos'];
 
     $items_precio = $_POST['txt_precio_variante'];
     $items_atributos = $_POST['txt_atributos_texto'];
@@ -774,6 +774,8 @@ function guardar_variantes(){
         $producto->costo = floatval($array['costo']);
         $producto->peso = ($array['peso']);
         $producto->sku = ($array['sku']);
+        $producto->volumen = 0;
+        $producto->tiempo_preparacion = 0;
         $producto->is_combo = ($array['is_combo']);
         $producto->cobra_iva = ($array['cobra_iva']);
         $producto->iva_porcentaje = 12;
@@ -819,9 +821,9 @@ function guardar_variantes(){
             $id=0;
             if($producto->crear($id)){
                 //COPIAR IMAGEN DEL PRODUCTO PADRE
-                $img1 = url_upload.'/assets/empresas/'.$session['alias'].'/'.$array['image_min'];
-                $img2 = url_upload.'/assets/empresas/'.$session['alias'].'/'.$nameImg;
-                copy($img1, $img2);
+                // $img1 = url_upload.'/assets/empresas/'.$session['alias'].'/'.$array['image_min'];
+                // $img2 = url_upload.'/assets/empresas/'.$session['alias'].'/'.$nameImg;
+                // copy($img1, $img2);
 
                 //AGREGAR PRODUCTO VARIANTE
                 $producto->set_variante_caracteristica($id,$codigos);
@@ -853,6 +855,8 @@ function guardar_variantes(){
                 </tr>';
                                             
                 
+            }else{
+                // echo 'NO SE CREOOOOOOOOOO';
             }
         }
                 

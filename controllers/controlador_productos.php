@@ -709,8 +709,8 @@ function guardar_variantes(){
 
     $html="";
     $cod_producto = $_POST['cod_producto'];
-    $variantes = $_POST['txt_opcion_titulo'];
-    $opciones = $_POST['cmb_variante_productos'];
+    // $variantes = $_POST['txt_opcion_titulo'];
+    // $opciones = $_POST['cmb_variante_productos'];
 
     $items_precio = $_POST['txt_precio_variante'];
     $items_atributos = $_POST['txt_atributos_variante'];

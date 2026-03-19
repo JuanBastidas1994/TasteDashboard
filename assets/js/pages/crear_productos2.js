@@ -758,7 +758,7 @@ $(document).ready(function () {
 
                 if (response['success'] == 1) {
                     messageDone(response['mensaje'], 'success');
-                    location.reload();
+                    // location.reload();
 
                 }
                 else {

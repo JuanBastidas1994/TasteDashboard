@@ -86,8 +86,10 @@ function crear(){
             }
 
             //INSERT ETIQUETAS
-            for ($i=0; $i < count($cmbEtiquetas); $i++) { 
-                $Clproductos->setEtiquetas($cod_producto, $cmbEtiquetas[$i]);
+            if(!is_numeric($cmbEtiqueta)){
+                $Clproductos->createAndSetEtiqueta($cod_producto, $cmbEtiqueta);
+            }else{
+                $Clproductos->setEtiquetas($cod_producto, $cmbEtiqueta);
             }
             
             //EMPAQUE
@@ -120,8 +122,10 @@ function crear(){
 
             //INSERT ETIQUETAS
             $Clproductos->delEtiquetas($idP);
-            for ($i=0; $i < count($cmbEtiquetas); $i++) { 
-                $Clproductos->setEtiquetas($idP, $cmbEtiquetas[$i]);
+            if(!is_numeric($cmbEtiqueta)){
+                $Clproductos->createAndSetEtiqueta($idP, $cmbEtiqueta);
+            }else{
+                $Clproductos->setEtiquetas($idP, $cmbEtiqueta);
             }
             
             //EMPAQUE
@@ -342,7 +346,8 @@ function add_opcion(){
     $id=0;
     $cmb_productos = array_map('htmlentities', $cmb_productos);
     $txt_opcion_titulo = htmlentities($txt_opcion_titulo);
-    if($Clproductos->crear_opcion($cod_producto,$txt_opcion_titulo, $txt_opciones_cantidad, $txt_opciones_cantidad_max, $cmb_productos, $tipo_opcion, $cmb_isCheck, $id)){
+    $txt_opcion_descripcion = htmlentities($txt_opcion_descripcion);
+    if($Clproductos->crear_opcion($cod_producto,$txt_opcion_titulo, $txt_opcion_descripcion, $txt_opciones_cantidad, $txt_opciones_cantidad_max, $cmb_productos, $tipo_opcion, $cmb_isCheck, $id)){
         $Clproductos->setOpenDetalleTrue($cod_producto);
         $return['success'] = 1;
         $return['mensaje'] = "Opcion creada correctamente";
@@ -364,7 +369,7 @@ function add_opcion(){
         }
         for($i=0; $i<count($txt_nomItemDet); $i++){
            $aumentarPrecio = $chk_is[$i];
-            $Clproductos->crear_opcion_detalle($id, $txt_nomItemDet[$i], $aumentarPrecio, $txt_precio[$i], $i);
+            $Clproductos->crear_opcion_detalle($id, $txt_nomItemDet[$i], $txt_descItemDet[$i], $aumentarPrecio, $txt_precio[$i], $i);
         }
         
         
@@ -438,7 +443,7 @@ function importar(){
     {
         $productos = json_decode($Info['productos']);
     }
-    if($Clproductos->crear_opcion($cod_producto,$Info['titulo'], $Info['cantidad_min'], $Info['cantidad'],$productos , $Info['isDatabase'], $Info['isCheck'], $id)){
+    if($Clproductos->crear_opcion($cod_producto,$Info['titulo'], '', $Info['cantidad_min'], $Info['cantidad'],$productos , $Info['isDatabase'], $Info['isCheck'], $id)){
         $return['success'] = 1;
         $return['mensaje'] = "Opcion creada correctamente";
         $return['id'] = $id;
@@ -456,7 +461,7 @@ function importar(){
         }
 
         for($i=0; $i<count($item); $i++){
-            $Clproductos->crear_opcion_detalle($id, $item[$i], $aumentar_precio[$i], $precio[$i], $posicion[$i]);
+            $Clproductos->crear_opcion_detalle($id, $item[$i], '', $aumentar_precio[$i], $precio[$i], $posicion[$i]);
         }
         
         
@@ -492,29 +497,43 @@ function select_opcion(){
                 $readonly = "";
             }
             
-            $html.='<tr class="trItem" data-id="'.$r['cod_producto_opciones_detalle'].'" data-empresa="'.$cod_empresa.'">
-                        <td>
-                            <input class="form-control txt_id_det" name="cod_detalle[]" value="'.$r['cod_producto_opciones_detalle'].'" style="display:none">
-                            <input class="form-control txtnomDet" name="txt_nomItemDet[]" value="'.$r['item'].'">
-                            <input type="hidden" class="form-control" name="txt_codItemDet[]" value="'.$r['itemPrincipal'].'">
-                        </td>
-                        <td style="text-align: center;">
-                            <label class="switch s-icons s-outline  s-outline-success  mb-4 mr-2">
+            $html .= '<tr class="trItem" data-id="'.$r['cod_producto_opciones_detalle'].'" data-empresa="'.$cod_empresa.'">
+                    <td style="width: 60%;">
+                        <input class="form-control txt_id_det" name="cod_detalle[]" value="'.$r['cod_producto_opciones_detalle'].'" type="hidden">
+                        
+                        <input class="form-control txtnomDet mb-1 fw-bold border-0 p-1" name="txt_nomItemDet[]" value="'.$r['item'].'" placeholder="Nombre del item">
+                        
+                        
+                        <textarea  name="txt_descItemDet[]"
+                            class="form-control form-control-sm text-muted border-0 p-1"
+                            placeholder="Descripción (ej: Fría, sin cebolla)"
+                        >'.($r['detalle'] ?? '').'</textarea>
+                        
+                        <input type="hidden" class="form-control" name="txt_codItemDet[]" value="'.$r['itemPrincipal'].'">
+                    </td>
+                    
+                    <td style="width: 25%;">
+                        <div class="d-flex align-items-center justify-content-end">
                             <input class="form-control chk_is" name="chk_is[]" value="'.$isCheck.'" type="hidden">
-                                  <input class="precioCheck" type="checkbox" name="precioCheck[]" '.$check.'/>
-                                  <span class="slider round"></span>
-                            </label>
-                        </td>
-                        <td><input type="number" class="form-control txt_precio" name="txt_precio[]" placeholder="precio" value="'.$r['precio'].'" style="text-align: right;" '.$readonly.'></td>
-                        <td class="d-flex" style="text-align: center;">
-                            <button type="button" class="btn btn-danger btnDelItem mr-1">
-                                <i data-feather="trash"></i>
-                            </button>
-                            <button type="button" class="btn btn-success btnModalIngredientes no-show-ingredients" onclick="getIngredientesEnOpciones('.$r['cod_producto_opciones_detalle'].')">
-                                <i data-feather="coffee"></i>
-                            </button>
-                        </td>
-                    </tr>';
+                            
+                            <input class="precioCheck mr-1" type="checkbox" name="precioCheck[]" '.$check.' />
+                            
+                            <input type="number" class="form-control txt_precio" name="txt_precio[]" 
+                                placeholder="0.00" value="'.$r['precio'].'" 
+                                style="text-align: right;" '.$readonly.'>
+                        </div>
+                    </td>
+                    
+                    <td class="text-right" style="width: 15%; vertical-align: middle;">
+                        <button type="button" class="p-0 border-0 bg-transparent btnDelItem mr-1">
+                            <i data-feather="trash"></i>
+                        </button>
+                        <button type="button" class="p-0 border-0 bg-transparent btnModalIngredientes no-show-ingredients" 
+                                onclick="getIngredientesEnOpciones('.$r['cod_producto_opciones_detalle'].')">
+                            <i data-feather="coffee"></i>
+                        </button>
+                    </td>
+                </tr>';
                     $itemP[]=$r['item'];
           //  $opcSelesct.='<option value="'.$r['item'].'">'.$r['item'].'</option>';
         }
@@ -550,7 +569,7 @@ function edit_opcion(){
         return $return;
     }
      
-     if($Clproductos->editar_opciones($cod_producto_opcion, htmlentities($txt_opcion_titulo), $txt_opciones_cantidad, $txt_opciones_cantidad_max, $tipo_opcion, $cmb_isCheck)){
+     if($Clproductos->editar_opciones($cod_producto_opcion, htmlentities($txt_opcion_titulo), htmlentities($txt_opcion_descripcion), $txt_opciones_cantidad, $txt_opciones_cantidad_max, $tipo_opcion, $cmb_isCheck)){
        
          /*Insertar Items*/
         if ($tipo_opcion == 1){
@@ -560,10 +579,10 @@ function edit_opcion(){
                 $aumentarPrecio = $chk_is[$i];
                 
             if($Clproductos->select_opcion_detalle($cod_detalle[$i])){
-                $Clproductos->editar_opcion_detalle($cod_detalle[$i], $txt_nomItemDet[$i], $aumentarPrecio, $txt_precio[$i], $i);
+                $Clproductos->editar_opcion_detalle($cod_detalle[$i], $txt_nomItemDet[$i], $txt_descItemDet[$i], $aumentarPrecio, $txt_precio[$i], $i);
             }
             else{
-                $Clproductos->crear_opcion_detalle($cod_producto_opcion, $txt_nomItemDet[$i], $aumentarPrecio, $txt_precio[$i], $i);
+                $Clproductos->crear_opcion_detalle($cod_producto_opcion, $txt_nomItemDet[$i], $txt_descItemDet[$i], $aumentarPrecio, $txt_precio[$i], $i);
             }
         }
         

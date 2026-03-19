@@ -1225,6 +1225,25 @@ $(document).ready(function () {
         tags: true,
         tokenSeparators: [',']
     });
+    // $('#cmb_productos').on('select2:open', function () {
+    //     let input = document.querySelector('.select2-search__field');
+
+    //     input.addEventListener('keydown', function (e) {
+    //         if (e.key === 'Enter' || e.key === 'Tab') {
+    //             e.preventDefault();
+
+    //             let value = input.value.trim();
+    //             if (value !== '') {
+    //                 let option = new Option(value, value, true, true);
+    //                 $('#cmb_productos').append(option).trigger('change');
+    //                 input.value = ''; // 🔥 esto limpia el texto correctamente
+    //                 setTimeout(() => {
+    //                     $('#cmb_productos').select2('open');
+    //                 }, 50);
+    //             }
+    //         }
+    //     });
+    // });
 
     $("#cmb_productosCombo").select2({
         closeOnSelect: false,
@@ -1462,10 +1481,10 @@ $(document).ready(function () {
                                             </td>
                                             <td><input type="number" class="form-control txt_precio" name="txt_precio[]" placeholder="precio" readonly value="`+ precio.toFixed(2) + `" style="text-align: right;"></td>
                                             <td class="d-flex" style="text-align: center;">
-                                                <button type="button" class="btn btn-danger btnDelItem mr-1">
+                                                <button type="button" class="p-0 border-0 bg-transparent btnDelItem mr-1">
                                                     <i data-feather="trash"></i>
                                                 </button>
-                                                <button type="button" class="btn btn-success btnModalIngredientes no-show-ingredients">
+                                                <button type="button" class="p-0 border-0 bg-transparent btnModalIngredientes no-show-ingredients">
                                                     <i data-feather="coffee"></i>
                                                 </button>
                                             </td>
@@ -1495,31 +1514,34 @@ $(document).ready(function () {
                     cod_prod = $(this).val();
                     precio = $(this).data("precio");
                 }
-                //if(pasar){
                 var nuevaLinea = `<tr class="trItem">
-                                        <td>
-                                            <input class="form-control txt_id_det" name="cod_detalle[]" value="0" type="hidden">
-                                            <input class="form-control txtnomDet" name="txt_nomItemDet[]" value="`+ concatValor + `"  readonly>
-                                            <input type="hidden" class="form-control" name="txt_codItemDet[]" value="`+ cod_prod + `">
-                                        </td>
-                                        <td style="text-align: center;">
-                                            <label class="switch s-icons s-outline  s-outline-success  mb-4 mr-2">
-                                            <input class="form-control chk_is" name="chk_is[]" value="0" type="hidden">
-                                                  <input class="precioCheck" type="checkbox" name="precioCheck[]"/>
-                                                  <span class="slider round"></span>
-                                            </label>
-                                        </td>
-                                        <td><input type="number" class="form-control txt_precio" name="txt_precio[]" placeholder="precio" readonly value="`+ precio.toFixed(2) + `" style="text-align: right;"></td>
-                                        <td class="d-flex" style="text-align: center;">
-                                            <button type="button" class="btn btn-danger btnDelItem mr-1"><i data-feather="trash"></i></button>
-                                            <button type="button" class="btn btn-success btnModalIngredientes no-show-ingredients">
-                                                <i data-feather="coffee"></i>
-                                            </button>
-                                        </td>
-                                    </tr>`;
+                    <td style="width: 60%;">
+                        <input class="form-control txt_id_det" name="cod_detalle[]" value="0" type="hidden">
+                        <input class="form-control txtnomDet mb-1 fw-bold border-0 p-1" name="txt_nomItemDet[]" value="`+ concatValor + `" placeholder="Nombre del item">
+                        <textarea  name="txt_descItemDet[]"
+                            class="form-control form-control-sm text-muted border-0 p-1"
+                            placeholder="Descripción (ej: Fría, sin cebolla)"
+                        ></textarea>
+                        <input type="hidden" class="form-control" name="txt_codItemDet[]" value="`+ cod_prod + `">
+                    </td>
+                    <td style="width: 25%;">
+                        <div class="d-flex align-items-center justify-content-end">
+                            
+                            <input class="form-control chk_is" name="chk_is[]" value="0" type="hidden">
+                            <input class="precioCheck mr-1" type="checkbox" name="precioCheck[]"/>
+                            <input type="number" class="form-control txt_precio" name="txt_precio[]" 
+                                placeholder="0.00" readonly value="`+ precio.toFixed(2) + `" 
+                                style="text-align: right;">
+                        </div>
+                    </td>
+                    <td class="text-right" style="width: 15%; vertical-align: middle;">
+                        <button type="button" class="p-0 border-0 bg-transparent btnDelItem mr-1"><i data-feather="trash"></i></button>
+                        <button type="button" class="p-0 border-0 bg-transparent btnModalIngredientes no-show-ingredients"><i data-feather="coffee"></i></button>
+                    </td>
+                </tr>`;
+
                 $(".tbodyOPc").append(nuevaLinea);
                 feather.replace();
-                //}
             });
         }
 
@@ -1557,6 +1579,7 @@ $(document).ready(function () {
                                             <a href="javascript:void(0);" data-value="0"  class="bs-tooltip btnEliminarCombo" data-toggle="tooltip" data-placement="top" title="" data-original-title="Delete"><i data-feather="trash"></i></a>
                                           </td>
                                     </tr>`;
+                                    
                 $(".tbodyCombo").append(nuevaLinea);
                 feather.replace();
 
@@ -1663,6 +1686,7 @@ $(document).ready(function () {
 
                 if (response['success'] == 1) {
                     $("#txt_opcion_titulo").val(response['data']['titulo']);
+                    $("#txt_opcion_descripcion").val(response['data']['descripcion']);
                     $("#txt_opciones_cantidad").val(response['data']['cantidad_min']);
                     $("#txt_opciones_cantidad_max").val(response['data']['cantidad']);
                     $("#cmb_tipo_opcion").val(response['data']['isDatabase']);
@@ -1670,6 +1694,7 @@ $(document).ready(function () {
                     $("#cmb_isCheck").val(response['data']['isCheck']);
 
                     $(".tbodyOPc").html(response['html']);
+                    mostrarElementosdeOpciones();
 
                     $('#cmb_productos').html("");
                     $('#cmb_productos').select2('destroy');

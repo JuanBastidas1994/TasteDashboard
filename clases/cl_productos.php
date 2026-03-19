@@ -255,7 +255,6 @@ class cl_productos
 				':tiempo_preparacion' => $this->tiempo_preparacion,
 				':cod_producto'       => $this->cod_producto
 			];
-
 			if (Conexion::ejecutar($sql, $data)) {
 				$this->set_categorias($this->cod_producto);
 				return true;
@@ -519,10 +518,10 @@ class cl_productos
 			return $return;
 		}
 
-		public function crear_opcion($cod_producto, $titulo, $cantidad, $cantidad_max, $productos, $tipo_opcion, $cmb_isCheck, &$id){
+		public function crear_opcion($cod_producto, $titulo, $descripcion, $cantidad, $cantidad_max, $productos, $tipo_opcion, $cmb_isCheck, &$id){
 			$json = json_encode($productos);
-			$query = "INSERT INTO tb_productos_opciones(cod_producto, titulo, cantidad_min, cantidad, productos, isDatabase, isCheck) ";
-        	$query.= "VALUES($cod_producto, '$titulo', $cantidad, $cantidad_max, '$json', $tipo_opcion, $cmb_isCheck)";
+			$query = "INSERT INTO tb_productos_opciones(cod_producto, titulo, descripcion, cantidad_min, cantidad, productos, isDatabase, isCheck) ";
+        	$query.= "VALUES($cod_producto, '$titulo', '$descripcion', $cantidad, $cantidad_max, '$json', $tipo_opcion, $cmb_isCheck)";
         	if(Conexion::ejecutar($query,NULL)){
         		$id = Conexion::lastId();
         		return true;
@@ -586,7 +585,7 @@ class cl_productos
 		}
 
         public function select_opciones($id){
-            $query = "SELECT po.*, pod.cod_producto_opciones_detalle,if(po.isDatabase=0,pod.item,(select p.nombre from tb_productos p where p.cod_producto = pod.item))as item,pod.item as itemPrincipal, pod.aumentar_precio, pod.precio, pod.posicion
+            $query = "SELECT po.*, pod.cod_producto_opciones_detalle,if(po.isDatabase=0,pod.item,(select p.nombre from tb_productos p where p.cod_producto = pod.item))as item,pod.item as itemPrincipal, pod.aumentar_precio, pod.precio, pod.posicion, pod.detalle
                         FROM tb_productos_opciones po, tb_productos_opciones_detalle pod
                         WHERE po.cod_producto_opcion = pod.cod_producto_opcion
                         AND po.cod_producto_opcion = $id
@@ -601,12 +600,15 @@ class cl_productos
 			return $resp;
         }
         
-        public function editar_opciones($id_det_cab, $txt_opcion_titulo, $txt_opciones_cantidad, $txt_opciones_cantidad_max, $tipo_opcion, $cmb_isCheck){
-           // $cmb_productos = array_map('htmlentities', $cmb_productos);
-		   // $txt_opcion_titulo = htmlentities($txt_opcion_titulo);
-		//	$json = json_encode($cmb_productos);
-            //$query = "UPDATE tb_productos_opciones SET titulo = '$txt_opcion_titulo', cantidad_min = $txt_opciones_cantidad, cantidad = $txt_opciones_cantidad_max, productos = '$json', isDatabase = $tipo_opcion, isCheck = $cmb_isCheck WHERE cod_producto_opcion = $id_det_cab";
-            $query = "UPDATE tb_productos_opciones SET titulo = '$txt_opcion_titulo', cantidad_min = $txt_opciones_cantidad, cantidad = $txt_opciones_cantidad_max, isDatabase = $tipo_opcion, isCheck = $cmb_isCheck WHERE cod_producto_opcion = $id_det_cab";
+        public function editar_opciones($id_det_cab, $txt_opcion_titulo, $txt_opcion_descripcion, $txt_opciones_cantidad, $txt_opciones_cantidad_max, $tipo_opcion, $cmb_isCheck){
+            $query = "UPDATE tb_productos_opciones SET 
+					titulo = '$txt_opcion_titulo', 
+					descripcion = '$txt_opcion_descripcion',
+					cantidad_min = $txt_opciones_cantidad, 
+					cantidad = $txt_opciones_cantidad_max, 
+					isDatabase = $tipo_opcion, 
+					isCheck = $cmb_isCheck 
+				WHERE cod_producto_opcion = $id_det_cab";
             if(Conexion::ejecutar($query,NULL)){
         		return true;
         	}else{
@@ -615,8 +617,9 @@ class cl_productos
         	//return $query;
         }
         
-        public function crear_opcion_detalle($id, $txt_nomItemDet, $aumentarPrecio, $txt_precio, $posicion){
-            $query = "INSERT INTO tb_productos_opciones_detalle(cod_producto_opcion, item, aumentar_precio, precio, posicion) VALUES($id, '$txt_nomItemDet', $aumentarPrecio, '$txt_precio', $posicion)";
+        public function crear_opcion_detalle($id, $txt_nomItemDet, $txt_descItemDet, $aumentarPrecio, $txt_precio, $posicion){
+            $query = "INSERT INTO tb_productos_opciones_detalle(cod_producto_opcion, item, aumentar_precio, precio, posicion) 
+					VALUES($id, '$txt_nomItemDet', '$txt_descItemDet', $aumentarPrecio, '$txt_precio', $posicion)";
             if(Conexion::ejecutar($query,NULL)){
         		return true;
         	}else{
@@ -633,8 +636,14 @@ class cl_productos
 			    return false;
         }
         
-        public function editar_opcion_detalle($id, $txt_nomItemDet, $aumentarPrecio, $txt_precio, $posicion){
-            $query = "UPDATE tb_productos_opciones_detalle SET item = '$txt_nomItemDet', aumentar_precio = $aumentarPrecio, precio = $txt_precio, posicion = $posicion WHERE cod_producto_opciones_detalle = $id";
+        public function editar_opcion_detalle($id, $txt_nomItemDet, $txt_descItemDet, $aumentarPrecio, $txt_precio, $posicion){
+            $query = "UPDATE tb_productos_opciones_detalle SET 
+					item = '$txt_nomItemDet',
+					detalle = '$txt_descItemDet', 
+					aumentar_precio = $aumentarPrecio, 
+					precio = $txt_precio, 
+					posicion = $posicion 
+				WHERE cod_producto_opciones_detalle = $id";
             if(Conexion::ejecutar($query,NULL)){
         		return true;
         	}else{
@@ -1012,13 +1021,31 @@ class cl_productos
 		    return Conexion::buscarRegistro($query);
 		} 
 
+		// ETIQUETAS
+		public function getTodasEtiquetas(){
+			$query = "SELECT id, nombre 
+					FROM tb_tags 
+					WHERE cod_empresa IS NULL 
+					OR cod_empresa = ".$this->session['cod_empresa'];
+			return Conexion::buscarVariosRegistro($query);
+		}
+
 		public function getEtiquetas($cod_producto){
 			$query = "SELECT * FROM tb_productos_tags WHERE cod_producto = $cod_producto";
 			return Conexion::buscarVariosRegistro($query);
 		}
+
+		public function getEtiquetaProducto($cod_producto){
+			$query = "SELECT t.id, t.nombre
+					FROM tb_productos_tags pt
+					INNER JOIN tb_tags t ON t.id = pt.tag_id
+					WHERE pt.cod_producto = $cod_producto
+					LIMIT 1";
+			return Conexion::buscarRegistro($query);
+		}
 		
 		public function setEtiquetas($cod_producto, $etiqueta){
-			$query = "INSERT INTO tb_productos_tags(cod_producto, tag)
+			$query = "INSERT INTO tb_productos_tags(cod_producto, tag_id)
 						VALUES($cod_producto, '$etiqueta')";
 			return Conexion::ejecutar($query, null);
 		}
@@ -1026,6 +1053,17 @@ class cl_productos
 		public function delEtiquetas($cod_producto){
 			$query = "DELETE FROM tb_productos_tags WHERE cod_producto = $cod_producto";
 			return Conexion::ejecutar($query, null);
+		}
+
+		public function createAndSetEtiqueta($cod_producto, $nombre_etiqueta){
+			 $query = "INSERT INTO tb_tags (nombre, cod_empresa)
+              VALUES ('$nombre_etiqueta', ".$this->session['cod_empresa'].")";
+    		$resp = Conexion::ejecutar($query, null);
+			if($resp){
+				$tag_id = Conexion::lastId();
+				$this->setEtiquetas($cod_producto, $tag_id);
+			}else
+				return false;
 		}
 		
 		public function updateEmpaque($cod_producto, $unidades, $alto){

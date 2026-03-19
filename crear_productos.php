@@ -30,7 +30,7 @@ $nombre = "";
 $desc_corta = "";
 $desc_larga = "";
 $estado = "checked";
-$open_detalle = "checked";
+$open_detalle = "";
 $base = "checked";
 $combo = "";
 $displayCombo = "display:none";
@@ -47,7 +47,7 @@ $precio_no_tax = "";
 $iva_valor = "";
 $costo = "";
 $days = "";
-$etiquetas = [];
+$etiquetas = $Clproductos->getTodasEtiquetas();
 
 $showTimeline = "none";
 if ($session['alias'] == "meet-galapagos")
@@ -123,7 +123,7 @@ if (isset($_GET['id'])) {
         $desc_corta = $producto['desc_corta'];
         $desc_larga = editor_decode($producto['desc_larga']);
         $categorias = $Clproductos->get_categorias($cod_producto);
-        $etiquetas = $Clproductos->getEtiquetas($cod_producto);
+        $etiqueta = $Clproductos->getEtiquetaProducto($cod_producto);
         $precio = $producto['precio'];
         $precio_anterior = $producto['precio_anterior'];
         $peso = $producto['peso'];
@@ -133,7 +133,7 @@ if (isset($_GET['id'])) {
 
         if ($producto['estado'] == 'I')
             $estado = "";
-        if ($producto['open_detalle'] == "0")
+        if ($producto['open_detalle'] === 0)
             $open_detalle = "checked";
 
         if ($producto['is_combo'] == 1) {
@@ -368,6 +368,14 @@ function recursive($array, $posicion, &$data, &$codigos)
                                     </label>
                                     <input type="number" name="txt_opciones_cantidad_max" id="txt_opciones_cantidad_max" class="form-control" autocomplete="off" value="" required="required">
                                 </div>
+                                <div class="form-group col-md-12 col-sm-12 col-xs-12">
+                                    <label>Descripción</label>
+                                    <input type="text" class="form-control" autocomplete="off" value=""
+                                        name="txt_opcion_descripcion" 
+                                        id="txt_opcion_descripcion" 
+                                        placeholder="Agrega una descripción para el cliente"
+                                    />
+                                </div>
                             </div>
                             <div class="row">
                                 <div class="form-group col-md-6 col-sm-6 col-xs-12">
@@ -418,10 +426,9 @@ function recursive($array, $posicion, &$data, &$codigos)
                                     <table class="table table-hover table-bordered">
                                         <thead>
                                             <tr>
-                                                <th>Nombre Detalle</th>
-                                                <th>Agregar Precio</th>
+                                                <th>Item</th>
                                                 <th style="text-align: right;">Precio ($)</th>
-                                                <th>Acciones</th>
+                                                <th>&nbsp;</th>
                                             </tr>
                                         </thead>
                                         <tbody class="tbodyOPc connectedSortable">
@@ -1553,14 +1560,13 @@ function recursive($array, $posicion, &$data, &$codigos)
                                 <div class="row">
                                     <div class="form-group col-md-12 col-sm-12 col-xs-12">
                                         <label><span><i>&nbsp;Separar las etiquetas con una coma</i></span></label>
-                                        <select multiple="multiple" name="cmbEtiquetas[]" class="form-control tagging" required="required">
-                                            <?php
-                                            if (count($etiquetas) > 0) {
-                                                foreach ($etiquetas as $eti) {
-                                                    echo '<option selected value="' . $eti['tag'] . '">' . $eti['tag'] . '</option>';
-                                                }
-                                            }
-                                            ?>
+                                        <select class="tagging" name="cmbEtiqueta">
+                                            <?php foreach($etiquetas as $tag){ ?>
+                                                <option value="<?= $tag['id'] ?>"
+                                                    <?= ($etiqueta && $etiqueta['id'] == $tag['id']) ? 'selected' : '' ?>>
+                                                    <?= $tag['nombre'] ?>
+                                                </option>
+                                            <?php } ?>
                                         </select>
                                     </div>
                                 </div>

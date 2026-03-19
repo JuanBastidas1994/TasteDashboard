@@ -54,7 +54,7 @@ function createBarChartData(data, title='', height=100, shared=false){
         grid: { show: true },
         colors: chartColors,
         plotOptions: { bar: { columnWidth: '80%', borderRadius: 4, distributed: true } }, 
-        dataLabels: { enabled: true },
+        dataLabels: { enabled: false },
         states: {
             normal: { filter: { type: 'none' } },
             hover: { filter: { type: 'darken', value: 0.5 } }, 
@@ -81,7 +81,7 @@ function createPieChartData(data, height=250, title){
         series: values,
         colors: chartColors,
         dataLabels: {
-            enabled: true,
+            enabled: false,
             formatter: function (val, opts) {
                 return opts.w.globals.labels[opts.seriesIndex] + ': ' + val.toFixed(1) + '%';
             }

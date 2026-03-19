@@ -275,7 +275,7 @@ class cl_ordenes
 						AND p.cod_empresa = $empresa
 						GROUP BY p.cod_producto
 						ORDER BY SUM(d.precio_final) DESC
-						LIMIT 0,10";
+						LIMIT 0,5";
 			$resp = Conexion::buscarVariosRegistro($query);
             return $resp;
 		}

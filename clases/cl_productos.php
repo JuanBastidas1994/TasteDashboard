@@ -618,7 +618,7 @@ class cl_productos
         }
         
         public function crear_opcion_detalle($id, $txt_nomItemDet, $txt_descItemDet, $aumentarPrecio, $txt_precio, $posicion){
-            $query = "INSERT INTO tb_productos_opciones_detalle(cod_producto_opcion, item, aumentar_precio, precio, posicion) 
+            $query = "INSERT INTO tb_productos_opciones_detalle(cod_producto_opcion, item, detalle, aumentar_precio, precio, posicion) 
 					VALUES($id, '$txt_nomItemDet', '$txt_descItemDet', $aumentarPrecio, '$txt_precio', $posicion)";
             if(Conexion::ejecutar($query,NULL)){
         		return true;
@@ -956,7 +956,6 @@ class cl_productos
 		public function getNombreProducto($cod_producto){
 		    $query = "SELECT nombre FROM tb_productos WHERE cod_producto = $cod_producto";
 		    $resp = Conexion::buscarRegistro($query);
-            //echo $query;
             return $resp['nombre'];
 		}
 		

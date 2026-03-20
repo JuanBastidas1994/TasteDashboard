@@ -29,6 +29,7 @@ $(document).ready(function () {
         $("#addItem").attr("data-tipo", "G");
         $("#btnEditOpcion").hide();
         ocultarElementosdeOpciones();
+        $("#btnAgregarOpcion").show();
         $("#frmOpciones").trigger("reset");
         $(".tbodyOPc").empty();
         $("#modalItems").modal();
@@ -1434,120 +1435,64 @@ $(document).ready(function () {
 
     
     $("#addItem").on("click", function () {
-        //alert($(".txtnomDet").length);
-        if ($(".txtnomDet").length > 0) {
 
-            var tipo = $("#cmb_tipo_opcion").val();
+        var tipo = $("#cmb_tipo_opcion").val();
+
+        $("#cmb_productos option:selected").each(function () {
             var concatValor = "";
-            var txt = "";
             var cod_prod = "";
             var precio = 0;
-            $("#cmb_productos option:selected").each(function () {
-                var pasar = true;
-                if (tipo == 0) {
-                    if ($(this).val() != "") {
-                        concatValor = $(this).val();
-                    }
-                }
-                else {
-                    concatValor = $(this).html();
-                    cod_prod = $(this).val();
-                    precio = $(this).data("precio");
-                }
 
-                console.log("c--" + concatValor);
-                $("input[name='txt_nomItemDet[]']").each(function (indice, elemento) {
-                    txt = $(elemento).val();
-                    //alert(txt); 
-                    console.log(txt);
-                    if (txt == concatValor) {
-                        pasar = false;
+            if (tipo == 0) {
+                if ($(this).val() == "") return; // skip si vacío
+                concatValor = $(this).val();
+            } else {
+                concatValor = $(this).html();
+                cod_prod = $(this).val();
+                precio = $(this).data("precio");
+            }
+
+            // Validar duplicado solo si ya existen items
+            if ($(".txtnomDet").length > 0) {
+                var existe = false;
+                $("input[name='txt_nomItemDet[]']").each(function () {
+                    if ($(this).val() == concatValor) {
+                        existe = true;
+                        return false; // break
                     }
                 });
+                if (existe) return; // skip este item
+            }
 
-                if (pasar) {
-                    var nuevaLinea = `<tr class="trItem" >
-                                            <td>
-                                                <input class="form-control txt_id_det" name="cod_detalle[]" value="0" style="display:none">
-                                                <input class="form-control txtnomDet" name="txt_nomItemDet[]" value="`+ concatValor + `"  readonly>
-                                                <input type="hidden" class="form-control" name="txt_codItemDet[]" value="`+ cod_prod + `">
-                                            </td>
-                                            <td style="text-align: center;">
-                                                <label class="switch s-icons s-outline  s-outline-success  mb-4 mr-2">
-                                                <input class="form-control chk_is" name="chk_is[]" value="0" type="hidden">
-                                                      <input class="precioCheck" type="checkbox" name="precioCheck[]"/>
-                                                      <span class="slider round"></span>
-                                                </label>
-                                            </td>
-                                            <td><input type="number" class="form-control txt_precio" name="txt_precio[]" placeholder="precio" readonly value="`+ precio.toFixed(2) + `" style="text-align: right;"></td>
-                                            <td class="d-flex" style="text-align: center;">
-                                                <button type="button" class="p-0 border-0 bg-transparent btnDelItem mr-1">
-                                                    <i data-feather="trash"></i>
-                                                </button>
-                                                <button type="button" class="p-0 border-0 bg-transparent btnModalIngredientes no-show-ingredients">
-                                                    <i data-feather="coffee"></i>
-                                                </button>
-                                            </td>
-                                        </tr>`;
-                    $(".tbodyOPc").append(nuevaLinea);
-                    feather.replace();
-                }
-            });
+            var nuevaLinea = `<tr class="trItem">
+                <td style="width: 60%;">
+                    <input class="form-control txt_id_det" name="cod_detalle[]" value="0" type="hidden">
+                    <input class="form-control txtnomDet mb-1 fw-bold border-0 p-1" name="txt_nomItemDet[]" value="${concatValor}" placeholder="Nombre del item">
+                    <textarea name="txt_descItemDet[]"
+                        class="form-control form-control-sm text-muted border-0 p-1"
+                        placeholder="Descripción (ej: Fría, sin cebolla)"
+                    ></textarea>
+                    <input type="hidden" class="form-control" name="txt_codItemDet[]" value="${cod_prod}">
+                </td>
+                <td style="width: 25%;">
+                    <div class="d-flex align-items-center justify-content-end">
+                        <input class="form-control chk_is" name="chk_is[]" value="0" type="hidden">
+                        <input class="precioCheck mr-1" type="checkbox" name="precioCheck[]"/>
+                        <input type="number" class="form-control txt_precio" name="txt_precio[]"
+                            placeholder="0.00" readonly value="${precio.toFixed(2)}"
+                            style="text-align: right;">
+                    </div>
+                </td>
+                <td class="text-right" style="width: 15%; vertical-align: middle;">
+                    <button type="button" class="p-0 border-0 bg-transparent btnDelItem mr-1"><i data-feather="trash"></i></button>
+                    <button type="button" class="p-0 border-0 bg-transparent btnModalIngredientes no-show-ingredients"><i data-feather="coffee"></i></button>
+                </td>
+            </tr>`;
 
-
-        }
-        else {
-            $("#cmb_productos option:selected").each(function () {
-
-                var tipo = $("#cmb_tipo_opcion").val();
-                var concatValor = "";
-                var cod_prod = "";
-                var precio = 0;
-                if (tipo == 0) {
-                    if ($(this).val() != "") {
-                        concatValor = $(this).val();
-                        //alert($(this).html());
-                    }
-                }
-                else {
-                    concatValor = $(this).html();
-                    cod_prod = $(this).val();
-                    precio = $(this).data("precio");
-                }
-                var nuevaLinea = `<tr class="trItem">
-                    <td style="width: 60%;">
-                        <input class="form-control txt_id_det" name="cod_detalle[]" value="0" type="hidden">
-                        <input class="form-control txtnomDet mb-1 fw-bold border-0 p-1" name="txt_nomItemDet[]" value="`+ concatValor + `" placeholder="Nombre del item">
-                        <textarea  name="txt_descItemDet[]"
-                            class="form-control form-control-sm text-muted border-0 p-1"
-                            placeholder="Descripción (ej: Fría, sin cebolla)"
-                        ></textarea>
-                        <input type="hidden" class="form-control" name="txt_codItemDet[]" value="`+ cod_prod + `">
-                    </td>
-                    <td style="width: 25%;">
-                        <div class="d-flex align-items-center justify-content-end">
-                            
-                            <input class="form-control chk_is" name="chk_is[]" value="0" type="hidden">
-                            <input class="precioCheck mr-1" type="checkbox" name="precioCheck[]"/>
-                            <input type="number" class="form-control txt_precio" name="txt_precio[]" 
-                                placeholder="0.00" readonly value="`+ precio.toFixed(2) + `" 
-                                style="text-align: right;">
-                        </div>
-                    </td>
-                    <td class="text-right" style="width: 15%; vertical-align: middle;">
-                        <button type="button" class="p-0 border-0 bg-transparent btnDelItem mr-1"><i data-feather="trash"></i></button>
-                        <button type="button" class="p-0 border-0 bg-transparent btnModalIngredientes no-show-ingredients"><i data-feather="coffee"></i></button>
-                    </td>
-                </tr>`;
-
-                $(".tbodyOPc").append(nuevaLinea);
-                feather.replace();
-            });
-        }
-
-        if ($(".txtnomDet").length > 0)
-            mostrarElementosdeOpciones();
-
+            $(".tbodyOPc").append(nuevaLinea);
+            feather.replace();
+        });
+        mostrarElementosdeOpciones();
     });
 
     $("#addItemCombo").on("click", function () {
@@ -1826,8 +1771,8 @@ $(document).ready(function () {
         $("#tituOpciones").show();
         $("#divTablaOpciones").show();
         $("#divBotonesOpciones").show();
-        if ($("#addItem").data("tipo") == "G")
-            $("#btnAgregarOpcion").show();
+        // if ($("#addItem").data("tipo") == "G")
+        //     $("#btnAgregarOpcion").show();
     }
 
     function ocultarElementosdeOpciones() {

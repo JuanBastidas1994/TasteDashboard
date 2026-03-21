@@ -82,6 +82,10 @@ $classEmpaquesNoShow = "
     .contentEmpaques {
         display: none;
     }";    
+$classEventosNoShow = "
+    .contentEventos {
+        display: none;
+    }";    
 if(in_array("PRODUCTO_INGREDIENTES", $permisos))
     $classNoShow = "";
     
@@ -91,6 +95,13 @@ if(in_array("PRODUCTO_VARIANTE", $permisos))
 $empaque = [
     'unidades' => 0,
     'alto' => 0
+];
+
+$eventos = [
+    'titulo' => '',
+    'descripcion' => '',
+    'dias_anticipacion' => 0,
+    'dias_fin' => 0
 ];
 
 
@@ -172,6 +183,14 @@ if (isset($_GET['id'])) {
             $resp = $Clproductos->getEmpaque($cod_producto);
             if($resp){
                 $empaque = $resp;
+            }
+        }
+
+        if(in_array("PRODUCTO_EVENTO", $permisos)){
+            $classEventosNoShow = "";
+            $resp = $Clproductos->getEvento($cod_producto);
+            if($resp){
+                $eventos = $resp;
             }
         }
     } else {
@@ -283,6 +302,7 @@ function recursive($array, $posicion, &$data, &$codigos)
         <?=$classNoShow?>
         <?=$classVariantesNoShow?>
         <?=$classEmpaquesNoShow?>
+        <?=$$classEventosNoShow?>
     </style>
     <link href="plugins/file-upload/file-upload-with-preview.min.css" rel="stylesheet" type="text/css" />
     <link href="plugins/croppie/croppie.css" rel="stylesheet">
@@ -1550,6 +1570,37 @@ function recursive($array, $posicion, &$data, &$codigos)
                             </form>
                         </div>
 
+                        <!-- EVENTOS -->
+                        <div class="widget-content widget-content-area br-6 contentEventos" style="margin-top: 15px;">
+                            <div>
+                                <h4>Evento</h4>
+                            </div>
+                            <form id="frmEventos" method="POST" action="#">
+                                <div class="row">
+                                    <div class="col-md-12 col-sm-12 col-xs-12">
+                                        <p>Permite poner un selector de fecha en el producto para gestionar eventos.</p>
+                                    </div>
+                                    <div class="col-md-12 col-sm-12 col-xs-12">
+                                        <label>Días anticipación</label>
+                                        <input type="text" name="txt_evento_anticipacion" id="txt_evento_anticipacion" value="<?php echo $eventos['dias_anticipacion']; ?>" placeholder="0" class="form-control" required="required"/>
+                                    </div>
+                                    <div class="col-md-12 col-sm-12 col-xs-12">
+                                        <label>Días a futuro</label>
+                                        <input type="text" name="txt_evento_maximo" id="txt_evento_maximo" value="<?php echo $eventos['dias_fin']; ?>" placeholder="0" class="form-control" required="required"/>
+                                    </div>
+                                    <div class="col-md-12 col-sm-12 col-xs-12">
+                                        <label>Título que se mostrará en la web</label>
+                                        <input type="text" name="txt_evento_titulo" id="txt_evento_titulo" value="<?php echo $eventos['titulo']; ?>" placeholder="Titulo" class="form-control" required="required"/>
+                                    </div>
+                                    <div class="col-md-12 col-sm-12 col-xs-12">
+                                        <label>Descripción que se mostrará en la web</label>
+                                        <input type="text" name="txt_evento_desc" id="txt_evento_desc" value="<?php echo $eventos['descripcion']; ?>" placeholder="Descripcion" class="form-control" required="required"/>
+                                    </div>
+
+                                </div>
+                            </form>
+                        </div>
+
                         <!-- Tags -->
                         <div class="widget-content widget-content-area br-6 " style="margin-top: 15px;">
                             <div>
@@ -1561,6 +1612,7 @@ function recursive($array, $posicion, &$data, &$codigos)
                                     <div class="form-group col-md-12 col-sm-12 col-xs-12">
                                         <label><span><i>&nbsp;Separar las etiquetas con una coma</i></span></label>
                                         <select class="tagging" name="cmbEtiqueta">
+                                            <option value="">Sin etiqueta</option>
                                             <?php foreach($etiquetas as $tag){ ?>
                                                 <option value="<?= $tag['id'] ?>"
                                                     <?= ($etiqueta && $etiqueta['id'] == $tag['id']) ? 'selected' : '' ?>>

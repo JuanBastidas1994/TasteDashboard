@@ -249,6 +249,11 @@ $(document).ready(function () {
         var empaqueData = $("#frmEmpaque").serializeArray();
         for (var i = 0; i < empaqueData.length; i++)
             formData.append(empaqueData[i].name, empaqueData[i].value);    
+        
+        //EVENTO
+        var eventoData = $("#frmEventos").serializeArray();
+        for (var i = 0; i < eventoData.length; i++)
+            formData.append(eventoData[i].name, eventoData[i].value);    
             
 
         $.ajax({

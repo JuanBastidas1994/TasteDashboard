@@ -215,6 +215,131 @@ function datatable(){
     
 }
 
+function datatableEventos(){
+    global $session;
+    $cod_empresa=$session['cod_empresa'];
+    $where = "";
+    $fecha = fecha();
+    
+    $payment = $_GET['payment'] ?? '';
+    $tipo = $_GET['tipo'] ?? '';
+    $tiempo = $_GET['tiempo'] ?? '';
+    $cod_sucursal = $_GET['sucursal'] ?? '';
+    
+    if($session['cod_rol']==3){
+        $cod_sucursal = $session['cod_sucursal'];
+    }
+    
+    if($cod_sucursal !== ''){
+        $where .= " AND ca.cod_sucursal =".$cod_sucursal;
+    }
+    
+    if($tipo !== ''){
+        $where .= ' AND ca.is_envio = '.$tipo;
+    }
+    
+    if($payment !== ''){
+        $where .= " AND ca.pago = '$payment'";
+    }
+    
+    if($tiempo !== ''){
+        if($tiempo == 'programadas'){
+            $where .= " AND ca.hora_retiro > '$fecha'";
+        }
+    }
+	
+	$query = "SELECT ca.cod_orden, ca.fecha, ca.total, ca.is_envio, ca.referencia, ca.estado, ca.is_programado, ca.hora_retiro,
+                    CONCAT(u.nombre, ' ', u.apellido) as cliente, u.correo as email, 
+                    u.telefono as phone, s.nombre as sucursal, 
+                    GROUP_CONCAT(fp.descripcion SEPARATOR ', ') AS formas_pago,
+                    MAX(oe.dia) as dia_evento
+            FROM tb_orden_cabecera ca
+            JOIN tb_orden_evento oe ON oe.cod_orden = ca.cod_orden
+            JOIN tb_usuarios u ON ca.cod_usuario = u.cod_usuario
+            JOIN tb_sucursales s ON s.cod_sucursal = ca.cod_sucursal
+            JOIN tb_orden_pagos op ON op.cod_orden = ca.cod_orden
+            JOIN tb_formas_pago fp ON fp.cod_forma_pago = op.forma_pago
+            WHERE ca.estado NOT IN('CREADA')
+            AND ca.cod_empresa = ".$cod_empresa." 
+            $where
+            GROUP BY ca.cod_orden";
+    $table = "($query) temp";
+
+	
+	$primaryKey = 'cod_orden';
+    $columns = array(
+        array( 'dt' => 0, 'db' => 'cod_orden'),
+        array( 'dt' => 1, 'db' => 'cliente'),
+        array( 'dt' => 2, 'db' => 'sucursal'),
+        // array( 'dt' => 3, 'db' => 'fecha'),
+        array( 'dt' => 3, 'db' => 'fecha',
+            'formatter' => function($d, $row){
+                return fechaHoraLatinoShort($d);
+            }
+        ),
+        array( 'dt' => 4, 'db' => 'total',
+            'formatter' => function($d, $row){
+                return '$' . number_format($d, 2, '.', ','); 
+            }
+        ),
+        array( 'dt' => 5, 'db' => 'formas_pago'),
+        array( 'dt' => 6, 'db' => 'is_envio',
+            'formatter' => function($d, $row){
+                if($d==0)
+                    return "Pickup";
+                else if($d==1)
+                    return "Delivery";
+                else if($d==2)
+                    return "En mesa";
+                else
+                    return "Pickup";
+            }
+        ),
+        array( 'dt' => 7, 'db' => 'is_programado',
+            'formatter' => function($d, $row){
+                $text = fechaLatino($row['dia_evento']);
+                return "$text"; 
+            }
+        ),
+        array( 'dt' => 8, 'db' => 'phone'),
+        array( 'dt' => 9, 'db' => 'estado',
+            'formatter' => function($d, $row){
+                $status = $row['estado'];
+                $colors = [
+                    'ENTREGADA' => 'success',
+                    'ASIGNADA' => 'warning',
+                    'CANCELADA' => 'danger',
+                    'ANULADA' => 'danger'
+                ];
+                $badge = isset($colors[$status]) ? $colors[$status] : 'primary';
+                return '<span class="shadow-none badge badge-'.$badge.'">'.$status.'</span>';
+            }
+        ),
+        array( 'dt' => 10, 'db' => 'cod_orden',
+            'formatter' => function($d, $row){
+                return '<ul class="table-controls">
+                    <li><a href="orden_detalle.php?id='.$row['cod_orden'].'" title="Ver orden"><i data-feather="eye"></i></a></li>
+                </ul>';
+            }
+        ),
+        // Campos adicionales que quieres acceder pero no mostrar (invisibles en la tabla)
+        array( 'dt' => 11, 'db' => 'hora_retiro' ),
+        array( 'dt' => 11, 'db' => 'dia_evento' ),
+    );
+
+    $sql_details = array(
+        'type'=> 'mysql',
+        'user' => usuario,
+        'pass' => contrasena,
+        'db'   => db,
+        'host' => servidor
+    );
+    require( '../plugins/table/datatable/ssp.class.php' );
+    return SSP::simple( $_GET, $sql_details, $table, $primaryKey, $columns);
+    
+    
+}
+
 function getOrdersFlota(){
      global $Clordenes;
 

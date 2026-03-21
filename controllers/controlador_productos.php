@@ -57,7 +57,6 @@ function crear(){
     $cod_producto = 0;
 
     $isLoadImage = ($txt_crop != "" && $txt_crop_min != "") ? true : false;
-    $cmbEtiquetas = isset($_POST['cmbEtiquetas']) ? $_POST['cmbEtiquetas'] : [];
 
     if(!isset($_POST['cod_producto'])){
         
@@ -86,10 +85,14 @@ function crear(){
             }
 
             //INSERT ETIQUETAS
-            if(!is_numeric($cmbEtiqueta)){
-                $Clproductos->createAndSetEtiqueta($cod_producto, $cmbEtiqueta);
+            if (isset($cmbEtiqueta) && trim($cmbEtiqueta) !== '') {
+                if(!is_numeric($cmbEtiqueta)){
+                    $Clproductos->createAndSetEtiqueta($cod_producto, $cmbEtiqueta);
+                }else{
+                    $Clproductos->setEtiquetas($cod_producto, $cmbEtiqueta);
+                }
             }else{
-                $Clproductos->setEtiquetas($cod_producto, $cmbEtiqueta);
+                $Clproductos->delEtiquetas($cod_producto);
             }
             
             //EMPAQUE
@@ -99,6 +102,13 @@ function crear(){
                 if($txt_unidades > 0){
                     $Clproductos->updateEmpaque($idP, $txt_unidades, $alto);
                 }
+            }
+
+            //EVENTO
+            if(isset($txt_evento_anticipacion)){
+                $anticipacion = intval($txt_evento_anticipacion);
+                $maximo = isset($txt_evento_maximo) ? intval($txt_evento_maximo) : 0;
+                $Clproductos->updateEvento($idP, $anticipacion, $maximo, $txt_evento_titulo, $txt_evento_desc);
             }
 
         }else{
@@ -121,11 +131,14 @@ function crear(){
             $idP = $Clproductos->cod_producto;
 
             //INSERT ETIQUETAS
-            $Clproductos->delEtiquetas($idP);
-            if(!is_numeric($cmbEtiqueta)){
-                $Clproductos->createAndSetEtiqueta($idP, $cmbEtiqueta);
+            if (isset($cmbEtiqueta) && trim($cmbEtiqueta) !== '') {
+                if(!is_numeric($cmbEtiqueta)){
+                    $Clproductos->createAndSetEtiqueta($cod_producto, $cmbEtiqueta);
+                }else{
+                    $Clproductos->setEtiquetas($cod_producto, $cmbEtiqueta);
+                }
             }else{
-                $Clproductos->setEtiquetas($idP, $cmbEtiqueta);
+                $Clproductos->delEtiquetas($cod_producto);
             }
             
             //EMPAQUE
@@ -136,6 +149,15 @@ function crear(){
                 if($txt_unidades > 0){
                     $Clproductos->updateEmpaque($idP, $txt_unidades, $alto);
                 }
+            }
+
+            //EVENTO
+            if(isset($txt_evento_anticipacion)){
+                $anticipacion = intval($txt_evento_anticipacion);
+                $maximo = isset($txt_evento_maximo) ? intval($txt_evento_maximo) : 0;
+                $Clproductos->deleteEvento($idP);
+                if($maximo > 0)
+                    $Clproductos->updateEvento($idP, $anticipacion, $maximo, $txt_evento_titulo, $txt_evento_desc);
             }
 
             $data = NULL;

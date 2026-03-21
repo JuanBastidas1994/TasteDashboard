@@ -153,6 +153,20 @@ $categorias = $Clcategorias->listaNueva($session['cod_empresa']);
                     </div>
                 </div>
 
+                <div class="row">
+                  <div class="col-12 my-3">
+                      <span class="bg-info-light px-3 py-2 br-30 text-info">
+                          <a href="https://www.youtube.com/watch?v=YpcRWamNSd4"
+                              class="text-info" 
+                              data-fancybox
+                          >
+                              <i data-feather="play-circle"></i>
+                              Ver turorial
+                          </a>
+                      </span>
+                  </div>
+                </div>
+
                 <div class="row layout-top-spacing">
                 
                     <div class="col-xl-7 col-lg-12 col-sm-12  layout-spacing">

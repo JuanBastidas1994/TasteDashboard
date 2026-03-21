@@ -1169,6 +1169,26 @@ $permisos = $Clempresas->getIdPermisionByBusiness($session['cod_empresa']);
                 <div class="row layout-top-spacing">
                     <div class="col-xl-12 col-lg-12 col-md-12">
                         <div class="row">
+                            <div class="col-12 mt-3">
+                                <span class="bg-info-light px-3 py-2 br-30 text-info mr-3">
+                                    <a href="https://www.youtube.com/watch?v=dUwJLE5trrI"
+                                        class="text-info"
+                                        data-fancybox>
+                                        <i data-feather="play-circle"></i>
+                                        Tutorial pickup
+                                    </a>
+                                </span>
+                                <span class="bg-info-light px-3 py-2 br-30 text-info">
+                                    <a href="https://www.youtube.com/watch?v=nK8eSvC7Y_Y"
+                                        class="text-info"
+                                        data-fancybox>
+                                        <i data-feather="play-circle"></i>
+                                        Tutorial delivery
+                                    </a>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="row">
                             <div class="col-xl-12  col-md-12">
                                 <div class="col-xl-6 col-md-6">
                                     <div class="" style="margin-bottom:15px;text-align:left;">

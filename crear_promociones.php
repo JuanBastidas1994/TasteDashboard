@@ -172,6 +172,27 @@ $tiposEntrega = [
                     </div>
                     <h3 id="titulo"><?php echo ($descripcion != "") ? $descripcion : "Agregar Promoción"; ?></h3>
 
+                    <div class="row">
+                        <div class="col-12 my-3">
+                            <span class="bg-info-light px-3 py-2 br-30 text-info mr-3">
+                                <a href="https://www.youtube.com/watch?v=B7AQlycdY40"
+                                    class="text-info"
+                                    data-fancybox>
+                                    <i data-feather="play-circle"></i>
+                                    Ver tutorial
+                                </a>
+                            </span>
+                            <span class="bg-info-light px-3 py-2 br-30 text-info">
+                                <a href="https://www.youtube.com/watch?v=TJRvx2A4NHw"
+                                    class="text-info"
+                                    data-fancybox>
+                                    <i data-feather="play-circle"></i>
+                                    Ver tutorial 2
+                                </a>
+                            </span>
+                        </div>
+                    </div>
+
                     <div class="btnAcciones" style="margin-bottom: 15px; <?php echo ($cod_promocion != 0) ? "" : "display: none;";  ?>">
                         <span id="btnNuevo" style="cursor: pointer;margin-right: 15px;">
                             <i class="feather-16" data-feather="plus"></i><span style="font-size: 16px; vertical-align: middle;color:#888ea8;"> Nueva Promoción</span>

@@ -170,6 +170,19 @@ $files = url_sistema.'assets/empresas/'.$session['alias'].'/';
         <!--  BEGIN CONTENT AREA  -->
         <div id="content" class="main-content">
             <div class="layout-px-spacing">
+                <div class="row">
+                  <div class="col-12 my-3">
+                      <span class="bg-info-light px-3 py-2 br-30 text-info">
+                          <a href="https://www.youtube.com/watch?v=YpcRWamNSd4"
+                              class="text-info" 
+                              data-fancybox
+                          >
+                              <i data-feather="play-circle"></i>
+                              Ver turorial
+                          </a>
+                      </span>
+                  </div>
+                </div>
                 
                 <div class="row layout-top-spacing">
                 

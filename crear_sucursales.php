@@ -215,9 +215,30 @@ $listaProductos = $Clproductos->listaProductBySucursal($cod_sucursal);
                                 </svg><span style="font-size: 16px; vertical-align: middle;color:#888ea8;">Sucursales</span></span>
                         </div>
                         <h3 id="titulo"><?php echo ($nombre != "") ? $nombre : "Agregar Sucursal"; ?></h3>
+                    </div>                    
+
+                    <div class="row">
+                        <div class="col-12 my-3">
+                            <span class="bg-info-light px-3 py-2 br-30 text-info">
+                                <a href="https://www.youtube.com/watch?v=fffd9hwQEnY"
+                                    class="text-info" 
+                                    data-fancybox
+                                >
+                                    <i data-feather="play-circle"></i>
+                                    Ver turorial
+                                </a>
+                            </span>
+                            <span class="bg-info-light px-3 py-2 br-30 text-info ml-3">
+                                <a href="https://www.youtube.com/watch?v=XAeitpdF4RI"
+                                    class="text-info" 
+                                    data-fancybox
+                                >
+                                    <i data-feather="play-circle"></i>
+                                    Ver turorial 2
+                                </a>
+                            </span>
+                        </div>
                     </div>
-
-
 
                     <div class="layout-top-spacing" style="display: block;">
 

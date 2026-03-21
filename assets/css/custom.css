@@ -7,6 +7,9 @@
 .bg-dark-light{
     background-color: #e3e4eb !important;
 }
+.bg-info-light{
+    background-color: #d1ecf1 !important;
+}
 .text-ellipsis {
   white-space: nowrap; /* Evita que el texto se rompa en varias líneas */
   overflow: hidden;    /* Oculta el texto que no cabe en el contenedor */

@@ -578,31 +578,103 @@ $listaProductos = $Clproductos->listaProductBySucursal($cod_sucursal);
 
                                     <!-- Tab costo de Envio -->
                                     <div class="tab-pane fade" id="tab-costo-envio" role="tabpanel">
-
                                         <div>
-                                            <div>
-                                                <h4>Costo de envío</h4>
+                                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                                <h4 class="mb-0">Costo de envío</h4>
+                                                <button class="btn btn-success btn-sm" onclick="nuevaTarifa()">
+                                                    <i data-feather="plus"></i> Nueva tarifa
+                                                </button>
                                             </div>
-                                            <div class="row">
-                                                <div class="col-xl-12 col-lg-12 col-sm-12">
-                                                    <div class="row">
-                                                        <div class="col-12">
-                                                            <h5>Precios por rangos</h5>
-                                                        </div>
-                                                        <div class="col-12">
-                                                            <button class="btn btn-success" onclick="addRango()">Agregar rango</button>
-                                                            <button class="btn btn-primary" onclick="saveRangos()">Guardar</button>
-                                                        </div>
-                                                        <div class="col-12 lst-rangos">
-                                                            <!-- TEMPLATE ID: rango-template -->
+                                    
+                                            <!-- Pills de tarifas -->
+                                            <ul class="nav nav-tabs mb-3" id="tarifas-tabs" role="tablist">
+                                                <!-- Se pinta dinámicamente via tarifas.js -->
+                                            </ul>
+                                    
+                                            <!-- Contenido de cada tarifa -->
+                                            <div class="tab-content" id="tarifas-content">
+                                                <!-- Se pinta dinámicamente via tarifas.js -->
+                                            </div>
+                                        </div>
+                                        <!-- Template: tab pill de una tarifa -->
+                                        <script id="tarifa-tab-template" type="text/x-handlebars-template">
+                                            <li class="nav-item tarifa-tab-item" id="tab-tarifa-{{ cod_tarifa }}">
+                                                <a class="nav-link {{ active }} tarifa-tab-header d-flex align-items-center gap-2"
+                                                data-toggle="pill"
+                                                href="#pane-tarifa-{{ cod_tarifa }}"
+                                                role="tab">
+                                                    <span class="tarifa-label">{{ nombre }}</span>
+                                                    <button type="button" class="btn btn-sm btn-transparent p-0 ml-3 btnEditarTarifa"
+                                                        data-tarifa="{{ cod_tarifa }}"
+                                                        data-peso="{{ peso_max_kg }}"
+                                                        title="Editar tarifa"
+                                                    >
+                                                        <i data-feather="edit-2" style="width:14px;height:14px;"></i>
+                                                    </button>
+                                                    <button type="button" class="btn btn-sm btn-transparent p-0 text-danger btnEliminarTarifa"
+                                                            data-tarifa="{{ cod_tarifa }}" title="Eliminar tarifa">
+                                                        <i data-feather="trash-2" style="width:14px;height:14px;"></i>
+                                                    </button>
+                                                </a>
+                                            </li>
+                                        </script>
+                                        <!-- Template: panel de contenido de una tarifa -->
+                                        <script id="tarifa-pane-template" type="text/x-handlebars-template">
+                                            <div class="tab-pane fade {{ show }}" id="pane-tarifa-{{ cod_tarifa }}" role="tabpanel">
+                                        
+                                                <!-- Peso máximo (opcional) -->
+                                                <div class="row mb-3">
+                                                    <div class="col-12 col-md-4">
+                                                        <div>
+                                                            <b>Peso máximo</b>
+                                                            <span class="tarifa-peso">{{ peso_max_kg }} kg</span>
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <!-- <div class="col-xl-6 col-lg-6 col-sm-12">
-                                            <h5>xxxxx</h5>
-                                        </div> -->
+                                        
+                                                <h5>Rangos de precio</h5>
+                                        
+                                                <div class="mb-2">
+                                                    <button class="btn btn-success btn-sm" onclick="addRango({{ cod_tarifa }})">
+                                                        <i data-feather="plus"></i> Agregar rango
+                                                    </button>
+                                                    <button class="btn btn-primary btn-sm" onclick="saveRangos({{ cod_tarifa }})">
+                                                        <i data-feather="save"></i> Guardar rangos
+                                                    </button>
+                                                </div>
+                                        
+                                                <!-- Lista de rangos -->
+                                                <div class="lst-rangos"></div>
                                             </div>
-                                        </div>
+                                        </script>
+                                        
+                                        <!-- Template: fila de un rango  (reemplaza el que ya tenías) -->
+                                        <script id="rango-template" type="text/x-handlebars-template">
+                                            <div class="row mt-3 rango rango-id-{{ id }}">
+                                                <div class="col-12 col-lg-3 mt-2 mt-lg-0">
+                                                    <label>Distancia inicial</label>
+                                                    <input type="hidden"  value="{{ id }}"           class="rango-id">
+                                                    <input type="hidden"  value="{{ cod_tarifa }}"   class="rango-tarifa">
+                                                    <input type="number"  class="form-control distancia-ini"
+                                                        placeholder="0" value="{{ distancia_ini }}">
+                                                </div>
+                                                <div class="col-12 col-lg-3 mt-2 mt-lg-0">
+                                                    <label>Distancia final</label>
+                                                    <input type="number" class="form-control distancia-fin"
+                                                        placeholder="5" value="{{ distancia_fin }}">
+                                                </div>
+                                                <div class="col-12 col-lg-3 mt-2 mt-lg-0">
+                                                    <label>Precio</label>
+                                                    <input type="number" class="form-control rango-precio"
+                                                        placeholder="1.50" value="{{ precio }}">
+                                                </div>
+                                                <div class="col-12 col-lg-3 mt-2 mt-lg-0 d-flex align-items-end">
+                                                    <button class="btn btn-danger btn-sm btnRemoverRango" data-id="{{ id }}">
+                                                        <i data-feather="x"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </script>
                                     </div>
 
 
@@ -789,8 +861,10 @@ $listaProductos = $Clproductos->listaProductBySucursal($cod_sucursal);
     <script src="//maps.googleapis.com/maps/api/js?key=AIzaSyAWo6DXlAmrqEiKiaEe9UyOGl3NJ208lI8&libraries=places"></script>
     <script src="plugins/maps-latlon/jquery-gmaps-latlon-picker.js"></script>
     <script src="assets/js/pages/sucursales.js?v=1" type="text/javascript"></script>
+    <script src="assets/js/pages/tarifas.js?v=1" type="text/javascript"></script>
     <script src="plugins/croppie/croppie.js"></script>
     <script>
+        initTarifas();
         var myTable = $('#style-3').DataTable({
             dom: '<"row"<"col-md-12"<"row"<"col-md-6"B><"col-md-6"f> > ><"col-md-12"rt> <"col-md-12"<"row"<"col-md-5"i><"col-md-7"p>>> >',
             buttons: {

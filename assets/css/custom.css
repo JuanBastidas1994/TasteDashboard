@@ -39,3 +39,7 @@
 #widgetsInfo h3{
     color: black !important;
 }
+
+.btn-transparent{
+    background-color: transparent !important;
+}

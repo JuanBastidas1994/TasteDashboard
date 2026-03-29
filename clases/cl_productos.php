@@ -618,7 +618,7 @@ class cl_productos
         }
         
         public function crear_opcion_detalle($id, $txt_nomItemDet, $txt_descItemDet, $aumentarPrecio, $txt_precio, $posicion){
-            $query = "INSERT INTO tb_productos_opciones_detalle(cod_producto_opcion, item, aumentar_precio, precio, posicion) 
+            $query = "INSERT INTO tb_productos_opciones_detalle(cod_producto_opcion, item, detalle, aumentar_precio, precio, posicion) 
 					VALUES($id, '$txt_nomItemDet', '$txt_descItemDet', $aumentarPrecio, '$txt_precio', $posicion)";
             if(Conexion::ejecutar($query,NULL)){
         		return true;
@@ -956,7 +956,6 @@ class cl_productos
 		public function getNombreProducto($cod_producto){
 		    $query = "SELECT nombre FROM tb_productos WHERE cod_producto = $cod_producto";
 		    $resp = Conexion::buscarRegistro($query);
-            //echo $query;
             return $resp['nombre'];
 		}
 		
@@ -1065,6 +1064,11 @@ class cl_productos
 			}else
 				return false;
 		}
+
+		public function getEmpaque($cod_producto){
+			$query = "SELECT * FROM tb_producto_empaque_detalle where cod_producto = $cod_producto";
+			return Conexion::buscarRegistro($query);
+		}
 		
 		public function updateEmpaque($cod_producto, $unidades, $alto){
 			$query = "INSERT INTO tb_producto_empaque_detalle(cod_producto, unidades, alto)
@@ -1074,6 +1078,22 @@ class cl_productos
 		
 		public function deleteEmpaque($cod_producto){
 			$query = "DELETE FROM tb_producto_empaque_detalle WHERE cod_producto = $cod_producto";
+			return Conexion::ejecutar($query, null);
+		}
+
+		public function getEvento($cod_producto){
+			$query = "SELECT * FROM tb_producto_evento where cod_producto = $cod_producto";
+			return Conexion::buscarRegistro($query);
+		}
+
+		public function updateEvento($cod_producto, $anticipacion, $fin, $titulo, $desc){
+			$query = "INSERT INTO tb_producto_evento(cod_producto, dias_anticipacion, dias_fin, titulo, descripcion, activo)
+						VALUES($cod_producto, $anticipacion, $fin, '$titulo', '$desc', 1)";
+			return Conexion::ejecutar($query, null);
+		}
+
+		public function deleteEvento($cod_producto){
+			$query = "DELETE FROM tb_producto_evento WHERE cod_producto = $cod_producto";
 			return Conexion::ejecutar($query, null);
 		}
 		
@@ -1387,9 +1407,6 @@ class cl_productos
 		    return Conexion::ejecutar($query, null);
 		}
 		
-		public function getEmpaque($cod_producto){
-			$query = "SELECT * FROM tb_producto_empaque_detalle where cod_producto = $cod_producto";
-			return Conexion::buscarRegistro($query);
-		}
+		
 }
 ?>

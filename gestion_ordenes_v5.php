@@ -1168,22 +1168,32 @@ $permisos = $Clempresas->getIdPermisionByBusiness($session['cod_empresa']);
             <div class="layout-px-spacing">
                 <div class="row layout-top-spacing">
                     <div class="col-xl-12 col-lg-12 col-md-12">
-                        <div class="row">
-                            <div class="col-12 mt-3">
+                        <div class="row ml-2">
+                            <div class="col-12 col-md-12 my-3">
                                 <span class="bg-info-light px-3 py-2 br-30 text-info mr-3">
                                     <a href="https://www.youtube.com/watch?v=dUwJLE5trrI"
                                         class="text-info"
                                         data-fancybox>
                                         <i data-feather="play-circle"></i>
-                                        Tutorial pickup
+                                        ¿Cómo administrar órdenes pickup?
                                     </a>
                                 </span>
+                                <span class="bg-info-light px-3 py-2 br-30 mt-4 text-info d-none d-md-inline">
+                                    <a href="https://www.youtube.com/watch?v=nK8eSvC7Y_Y"
+                                        class="text-info"
+                                        data-fancybox>
+                                        <i data-feather="play-circle"></i>
+                                        ¿Cómo administrar órdenes delivery?
+                                    </a>
+                                </span>
+                            </div>
+                            <div class="col-12 col-md-6 mb-1 my-md-3 my-0 d-md-none d-block">
                                 <span class="bg-info-light px-3 py-2 br-30 text-info">
                                     <a href="https://www.youtube.com/watch?v=nK8eSvC7Y_Y"
                                         class="text-info"
                                         data-fancybox>
                                         <i data-feather="play-circle"></i>
-                                        Tutorial delivery
+                                        ¿Cómo administrar órdenes delivery?
                                     </a>
                                 </span>
                             </div>

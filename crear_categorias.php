@@ -154,14 +154,14 @@ $categorias = $Clcategorias->listaNueva($session['cod_empresa']);
                 </div>
 
                 <div class="row">
-                  <div class="col-12 my-3">
-                      <span class="bg-info-light px-3 py-2 br-30 text-info">
+                  <div class="col-12 my-3 ml-2">
+                      <span class="bg-info-light px-3 py-2 br-30 text-info ml-2">
                           <a href="https://www.youtube.com/watch?v=YpcRWamNSd4"
                               class="text-info" 
                               data-fancybox
                           >
                               <i data-feather="play-circle"></i>
-                              Ver turorial
+                              ¿Cómo crear categoría?
                           </a>
                       </span>
                   </div>

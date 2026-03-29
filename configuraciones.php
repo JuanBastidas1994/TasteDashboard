@@ -192,7 +192,7 @@ if ($Clempresas->getPermisoTienda($cod_empresa))
                                 class="text-info"
                                 data-fancybox>
                                 <i data-feather="play-circle"></i>
-                                Ver turorial
+                                ¿Cómo configurar información general?
                             </a>
                         </span>
                     </div>

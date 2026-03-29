@@ -231,7 +231,7 @@ $files = url_sistema.'assets/empresas/'.$session['alias'].'/';
                                             class="text-info"
                                             data-fancybox>
                                             <i data-feather="play-circle"></i>
-                                            Ver turorial
+                                            ¿Cómo crear promoción de envío?
                                         </a>
                                     </span>
                                 </div>

@@ -218,23 +218,14 @@ $listaProductos = $Clproductos->listaProductBySucursal($cod_sucursal);
                     </div>                    
 
                     <div class="row">
-                        <div class="col-12 my-3">
+                        <div class="col-12 my-3 ml-4">
                             <span class="bg-info-light px-3 py-2 br-30 text-info">
                                 <a href="https://www.youtube.com/watch?v=fffd9hwQEnY"
                                     class="text-info" 
                                     data-fancybox
                                 >
                                     <i data-feather="play-circle"></i>
-                                    Ver turorial
-                                </a>
-                            </span>
-                            <span class="bg-info-light px-3 py-2 br-30 text-info ml-3">
-                                <a href="https://www.youtube.com/watch?v=XAeitpdF4RI"
-                                    class="text-info" 
-                                    data-fancybox
-                                >
-                                    <i data-feather="play-circle"></i>
-                                    Ver turorial 2
+                                    ¿Cómo crear una sucursal?
                                 </a>
                             </span>
                         </div>
@@ -441,31 +432,32 @@ $listaProductos = $Clproductos->listaProductBySucursal($cod_sucursal);
                                                                 <div class="col-md-12 col-sm-12 col-xs-12" style="margin-bottom:10px;">
                                                                     <label>Ubicaci&oacute;n <span class="asterisco">*</span></label>
                                                                 </div>
-                                                                <div class="col-md-12 col-sm-12 col-xs-12" style="text-align: center;">
+                                                                <div class="col-md-12 col-sm-12 col-xs-12"
+                                                                    >
                                                                     <fieldset class="gllpLatlonPicker">
                                                                         <div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
                                                                             <input type="text" class="gllpSearchField form-control" placeholder="Direcci&oacute;n de busqueda">
                                                                         </div>
                                                                         <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
-                                                                            <button type="button" class="gllpSearchButton btn btn-primary form-control"><i data-feather="search"></i> Buscar</button>
+                                                                            <button type="button" class="gllpSearchButton btn btn-primary form-control mt-3 mt-md-0"><i data-feather="search"></i> Buscar</button>
                                                                         </div>
                                                                         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12" style="margin-top: 15px; margin-bottom: 15px;">
                                                                             <div class="gllpMap" style="margin-left: 0; width: 100%;">Google Maps</div>
                                                                         </div>
 
                                                                         <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
-                                                                            <label>Latitud:</label>
+                                                                            <label class="mt-1">Latitud:</label>
                                                                             <input type="text" class="gllpLatitude form-control" id="txt_latitud" name="txt_latitud" value="<?php echo $latitud; ?>" />
                                                                         </div>
                                                                         <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
-                                                                            <label>Longitud:</label>
+                                                                            <label class="mt-1">Longitud:</label>
                                                                             <input type="text" class="gllpLongitude form-control" id="txt_longitud" name="txt_longitud" value="<?php echo $longitud; ?>" />
                                                                         </div>
                                                                         <div class="col-lg-2 col-md-2 col-sm-6 col-xs-12">
-                                                                            <label>Zoom:</label>
+                                                                            <label class="mt-1">Zoom:</label>
                                                                             <input type="number" class="gllpZoom form-control" value="15" />
                                                                         </div>
-                                                                        <div class="col-lg-2 col-md-2 col-sm-6 col-xs-12">
+                                                                        <div class="col-lg-2 col-md-2 col-sm-6 col-xs-12 mt-3 mt-md-0">
                                                                             <label>&nbsp;</label>
                                                                             <input type="button" class="gllpUpdateButton btn btn-primary" value="Actualizar">
                                                                         </div>
@@ -601,10 +593,23 @@ $listaProductos = $Clproductos->listaProductBySucursal($cod_sucursal);
                                     <div class="tab-pane fade" id="tab-costo-envio" role="tabpanel">
 
                                         <div>
-                                            <div>
-                                                <h4>Costo de envío</h4>
+                                            <div class="d-flex">
+                                                <h4>Costo de envío</h4>  
                                             </div>
-                                            <div class="row">
+
+                                            <div class="mt-3 mb-5">
+                                                <span class="bg-info-light px-3 py-2 br-30 text-info my-5">
+                                                    <a href="https://www.youtube.com/watch?v=XAeitpdF4RI"
+                                                        class="text-info" 
+                                                        data-fancybox
+                                                    >
+                                                        <i data-feather="play-circle"></i>
+                                                        ¿Cómo configurar el costo de envío?
+                                                    </a>
+                                                </span>
+                                            </div>
+
+                                            <div class="row mt-2">
                                                 <div class="col-xl-12 col-lg-12 col-sm-12">
                                                     <div class="row">
                                                         <div class="col-12">

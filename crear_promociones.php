@@ -173,21 +173,31 @@ $tiposEntrega = [
                     <h3 id="titulo"><?php echo ($descripcion != "") ? $descripcion : "Agregar Promoción"; ?></h3>
 
                     <div class="row">
-                        <div class="col-12 my-3">
+                        <div class="col-12 col-md-12 my-3">
                             <span class="bg-info-light px-3 py-2 br-30 text-info mr-3">
                                 <a href="https://www.youtube.com/watch?v=B7AQlycdY40"
                                     class="text-info"
                                     data-fancybox>
                                     <i data-feather="play-circle"></i>
-                                    Ver tutorial
+                                    ¿Cómo crear promoción?
                                 </a>
                             </span>
-                            <span class="bg-info-light px-3 py-2 br-30 text-info">
+                            <span class="bg-info-light px-3 py-2 br-30 mt-4 text-info d-none d-md-inline">
                                 <a href="https://www.youtube.com/watch?v=TJRvx2A4NHw"
                                     class="text-info"
                                     data-fancybox>
                                     <i data-feather="play-circle"></i>
-                                    Ver tutorial 2
+                                    ¿Cómo crear promoción recurrente?
+                                </a>
+                            </span>
+                        </div>
+                        <div class="col-12 col-md-6 mb-3 my-md-3 my-0 d-md-none d-block">
+                            <span class="bg-info-light px-3 py-2 br-30 mt-4 text-info">
+                                <a href="https://www.youtube.com/watch?v=TJRvx2A4NHw"
+                                    class="text-info"
+                                    data-fancybox>
+                                    <i data-feather="play-circle"></i>
+                                    ¿Cómo crear promoción recurrente?
                                 </a>
                             </span>
                         </div>

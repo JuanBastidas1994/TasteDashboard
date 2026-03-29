@@ -654,13 +654,13 @@ function recursive($array, $posicion, &$data, &$codigos)
                     <h3 id="titulo"><?php echo ($nombre != "") ? $nombre : "Agregar Producto"; ?></h3>
 
                     <div class="row">
-                        <div class="col-12 my-3">
+                        <div class="col-12 my-3 ml-2">
                             <span class="bg-info-light px-3 py-2 br-30 text-info">
                                 <a href="https://www.youtube.com/watch?v=VKWUj51xylc"
                                     class="text-info"
                                     data-fancybox>
                                     <i data-feather="play-circle"></i>
-                                    Ver turorial
+                                    ¿Cómo crear un producto?
                                 </a>
                             </span>
                         </div>

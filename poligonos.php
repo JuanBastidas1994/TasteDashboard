@@ -80,7 +80,7 @@ if($empresa){
 
         <!--  BEGIN CONTENT AREA  -->
         <div id="content" class="main-content">
-            <div class="row">
+            <div class="row px-2">
                 <div class="col-12 my-3">
                     <span class="bg-info-light px-3 py-2 br-30 text-info">
                         <a href="https://www.youtube.com/watch?v=SZA9vPE1w-E"
@@ -88,7 +88,7 @@ if($empresa){
                             data-fancybox
                         >
                             <i data-feather="play-circle"></i>
-                            Ver turorial
+                            ¿Cómo crear polígono de cobertura?
                         </a>
                     </span>
                 </div>

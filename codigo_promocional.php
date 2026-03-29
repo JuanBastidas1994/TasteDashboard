@@ -176,15 +176,32 @@ $files = url_sistema.'assets/empresas/'.$session['alias'].'/';
                     <div class="col-xl-12 col-lg-12 col-sm-12  layout-spacing ">
                         <div class="widget-content widget-content-area br-6">
                             <div class="col-xl-12 col-md-12 col-sm-12 col-12">
-                                <div class="col-xl-8 col-md-8 col-sm-8 col-8">
-                                    <h4>C&oacute;digos Promocionales</h4>
+                                <div class="row">
+                                    <div class="col-xl-8 col-md-8 col-sm-8 col-8">
+                                        <h4>C&oacute;digos Promocionales</h4>
+                                    </div>
+                                    
+                                    <div class="col-xl-4 col-md-4 col-sm-4 col-4 text-right">
+                                        <button class="btn btn-primary" id="btnOpenModal">Nuevo c&oacute;digo</button>
+                                    </div>
                                 </div>
-                                <div class="col-xl-4 col-md-4 col-sm-4 col-4 text-right">
-                                    <button class="btn btn-primary" id="btnOpenModal">Nuevo c&oacute;digo</button>
+                                <div class="row">
+                                    <div class="col-12 my-3">
+                                        <span class="bg-info-light px-3 py-2 br-30 text-info">
+                                            <a href="https://www.youtube.com/watch?v=O0eR9-cozKA"
+                                                class="text-info" 
+                                                data-fancybox
+                                            >
+                                                <i data-feather="play-circle"></i>
+                                                ¿Cómo crea un código?
+                                            </a>
+                                        </span>
+                                    </div>
                                 </div>
                                 <div class="col-xl-12 col-md-12 col-sm-12 col-12">
                                     <hr/>
                                 </div>
+
                             </div> 
                             
                             <div class="table-responsive mb-4 mt-4">

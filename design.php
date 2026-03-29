@@ -46,6 +46,8 @@ function css_mandatory(){
     	<link href="plugins/notification/snackbar/snackbar.min.css" rel="stylesheet" type="text/css" />
 		<link rel="stylesheet" type="text/css" href="assets/css/custom.css">
 		<link href="plugins/toastr/toastr.min.css" rel="stylesheet" type="text/css" />
+
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@6.1/dist/fancybox/fancybox.css"/>
 	';
 }
 
@@ -158,6 +160,13 @@ function js_mandatory(){
         <script src="plugins/ion.sound/ion.sound.js"></script>
         <script src="assets/js/gestion-ordenes-v5/sounds.js" type="text/javascript"></script>
         <script src="assets/js/gestion-ordenes-v5/toastJc.js?v=001" type="text/javascript"></script>
+
+		<script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@6.1/dist/fancybox/fancybox.umd.js"></script>
+		<script>
+			Fancybox.bind("[data-fancybox]", {
+			// Your custom options
+			});
+		</script>
 	    ';
 }
 

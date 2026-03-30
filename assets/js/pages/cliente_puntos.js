@@ -37,7 +37,7 @@ function getClient(cod_usuario) {
         if(response.success == 1){
             let client = response.data.cliente;
             $("#historic-total-orders").html("$" + client.total_ordenes);
-            $("#historic-points").html(client.puntos);
+            $("#historic-points").html(client.puntos || 0);
             $("#historic-used-credit").html("$" + client.total_credito_utilizado);
             
             $("#current-level").html(client.nivel.nombre);

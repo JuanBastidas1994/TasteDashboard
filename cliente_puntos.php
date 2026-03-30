@@ -150,7 +150,7 @@ function datetimeShort($fecha)
                 <div class="layout-top-spacing">
                     <div class="widget-content widget-content-area br-6">
                         <div class="row my-4">
-                            <div class="col-lg-4 col-6">
+                            <div class="col-md-4 col-12">
                                 <div class="alert alert-info">
                                     <div class="row">
                                         <div class="col-12 text-center">
@@ -212,7 +212,7 @@ function datetimeShort($fecha)
                             </div>
                         </div>
                         <div class="row my-4">
-                            <div class="col-lg-4 col-6">
+                            <div class="col-md-4 col-12">
                                 <div class="alert alert-success">
                                     <div class="row">
                                         <div class="col-12 text-center">
@@ -245,7 +245,11 @@ function datetimeShort($fecha)
                                             <i data-feather="dollar-sign"></i>
                                         </div>
                                         <div class="col-12 text-center">
-                                            <p class="mt-3">Total dinero actual</p>
+                                            <p class="mt-3">
+                                                Total dinero 
+                                                <br class="d-md-none d-block">
+                                                actual
+                                            </p>
                                             <h3 class="mt-2" id="current-money">$0.00</h3>
                                         </div>
                                     </div>
@@ -328,82 +332,82 @@ function datetimeShort($fecha)
 
         <script id="current-credit-template" type="text/x-handlebars-template">
             <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>N. orden</th>
-                    <th>Fecha orden</th>
-                    <th>Sucursal</th>
-                    <th>Total</th>
-                    <th>Tipo/origen</th>
-                    <th>Estado</th>
-                    <th>Nivel</th>
-                    <th>Puntos ganados</th>
-                    <th>Crédito ganado</th>
-                    <th>Crédito usado</th>
-                    <th>Crédito estado</th>
-                    <th>Detalle</th>
-                </tr>
-            </thead>
-            <tbody>
-                {{#each this}}
+                <thead>
                     <tr>
-                        <td>{{ cod_orden }}</td>
-                        <td>{{ fecha }}</td>
-                        <td>{{ sucursal }}</td>
-                        <td>$ {{ total }} </td>
-                        <td>{{ tipo }}/{{strToUpperCase medio_compra}}</td>
-                        <td>
-                            <span class='badge badge-success'>{{ estado }}</span>
-                        </td>
-                        <td class="text-center">{{ nivel }}</td>
-                        <td class="text-center">
-                            {{#mayor puntos 0 }}
-                                {{ puntos }}
-                                <i data-feather="heart"></i>
-                            {{else}}
-                                {{ puntos }}               
-                            {{/mayor}}
-                        </td>
-                        <td class="text-center">
-                            {{#mayor dinero_ganado 0 }}
-                                <span class="badge outline-badge-{{#eq dinero_status 'EXPIRADO'}}warning{{else}}success{{/eq}}">
-                                    + {{ dinero_ganado }}
-                                    <i data-feather="arrow-up"></i>
-                                </span>
-                            {{else}}
-                                {{ dinero_ganado }}               
-                            {{/mayor}}
-                        </td>
-                        <td class="text-center">
-                            {{#mayor dinero_utilizado 0 }}
-                                <span class='badge outline-badge-danger'>
-                                    - {{ dinero_utilizado }}
-                                    <i data-feather="arrow-down"></i>
-                                </span>
-                            {{else}}
-                                {{ dinero_utilizado }}               
-                            {{/mayor}}
-                        </td>
-                        <td class="text-center">
-                            <span class="badge outline-badge-{{#eq dinero_status 'EXPIRADO'}}warning{{else}}info{{/eq}}">
-                                {{ saldo }} {{ dinero_status }}
-                                <!-- <i data-feather="arrow-right"></i> -->
-                            </span>
-                        </td>
-                        <td>
-                            <ul class='table-controls list-unstyled'>
-                                <li>
-                                    <a href='./orden_detalle.php?id={{cod_orden}}' target="_blank">
-                                        <i data-feather='eye'></i>
-                                    </a>
-                                </li>
-                            </ul>
-                        </td>
+                        <th>N. orden</th>
+                        <th>Fecha orden</th>
+                        <th>Sucursal</th>
+                        <th>Total</th>
+                        <th>Tipo/origen</th>
+                        <th>Estado</th>
+                        <th>Nivel</th>
+                        <th>Puntos ganados</th>
+                        <th>Crédito ganado</th>
+                        <th>Crédito usado</th>
+                        <th>Crédito estado</th>
+                        <th>Detalle</th>
                     </tr>
-                {{/each}}
-            </tbody>
-        </table>
-    </script>
+                </thead>
+                <tbody>
+                    {{#each this}}
+                        <tr>
+                            <td>{{ cod_orden }}</td>
+                            <td>{{ fecha }}</td>
+                            <td>{{ sucursal }}</td>
+                            <td>$ {{ total }} </td>
+                            <td>{{ tipo }}/{{strToUpperCase medio_compra}}</td>
+                            <td>
+                                <span class='badge badge-success'>{{ estado }}</span>
+                            </td>
+                            <td class="text-center">{{ nivel }}</td>
+                            <td class="text-center">
+                                {{#mayor puntos 0 }}
+                                    {{ puntos }}
+                                    <i data-feather="heart"></i>
+                                {{else}}
+                                    {{ puntos }}               
+                                {{/mayor}}
+                            </td>
+                            <td class="text-center">
+                                {{#mayor dinero_ganado 0 }}
+                                    <span class="badge outline-badge-{{#eq dinero_status 'EXPIRADO'}}warning{{else}}success{{/eq}}">
+                                        + {{ dinero_ganado }}
+                                        <i data-feather="arrow-up"></i>
+                                    </span>
+                                {{else}}
+                                    {{ dinero_ganado }}               
+                                {{/mayor}}
+                            </td>
+                            <td class="text-center">
+                                {{#mayor dinero_utilizado 0 }}
+                                    <span class='badge outline-badge-danger'>
+                                        - {{ dinero_utilizado }}
+                                        <i data-feather="arrow-down"></i>
+                                    </span>
+                                {{else}}
+                                    {{ dinero_utilizado }}               
+                                {{/mayor}}
+                            </td>
+                            <td class="text-center">
+                                <span class="badge outline-badge-{{#eq dinero_status 'EXPIRADO'}}warning{{else}}info{{/eq}}">
+                                    {{ saldo }} {{ dinero_status }}
+                                    <!-- <i data-feather="arrow-right"></i> -->
+                                </span>
+                            </td>
+                            <td>
+                                <ul class='table-controls list-unstyled'>
+                                    <li>
+                                        <a href='./orden_detalle.php?id={{cod_orden}}' target="_blank">
+                                            <i data-feather='eye'></i>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </td>
+                        </tr>
+                    {{/each}}
+                </tbody>
+            </table>
+        </script>
 
         <script id="expired-points-template" type="text/x-handlebars-template">
             <div class="my-4">
@@ -485,7 +489,7 @@ function datetimeShort($fecha)
         </table>
     </script>
 
-    <script id="other-credits-template" type="text/x-handlebars-template">
+        <script id="other-credits-template" type="text/x-handlebars-template">
             <table class="table table-striped">
             <thead>
                 <tr>

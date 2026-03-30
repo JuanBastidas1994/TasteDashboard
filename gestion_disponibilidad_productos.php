@@ -54,7 +54,7 @@ $files = url_sistema.'assets/empresas/'.$session['alias'].'/';
                     </a>
                     <h3 id="titulo">Disponibilidad</h3>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-4 mb-4 mb-md-0">
                     <select class="form-control" id="cmbSucursal">
                     <?php
                     if($session['cod_rol']==2){

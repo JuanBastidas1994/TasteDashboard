@@ -802,7 +802,7 @@ function recursive($array, $posicion, &$data, &$codigos)
                                         </div>
 
                                         <div class="form-group col-md-4 col-sm-4 col-xs-12" style="margin-bottom:10px;">
-                                            <label>Agregar directo al carrito <span class="asterisco">*</span>
+                                            <label>Agregar directo al carrito <?php echo $producto['open_detalle']; ?> <span class="asterisco">*</span>
                                                 <span class="far fa-question-circle rounded bs-tooltip" data-placement="top" title="No abrirá el detalle del producto, el item se agregará directamente al carrito (Si tiene opciones o variantes no se podra activar)"></span>
                                             </label>
                                             <div>

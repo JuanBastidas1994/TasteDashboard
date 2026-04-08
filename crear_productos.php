@@ -144,7 +144,7 @@ if (isset($_GET['id'])) {
 
         if ($producto['estado'] == 'I')
             $estado = "";
-        if ($producto['open_detalle'] === 0)
+        if ($producto['open_detalle'] == 0)
             $open_detalle = "checked";
 
         if ($producto['is_combo'] == 1) {

@@ -7,6 +7,7 @@ class cl_productos
 		var $precio, $precio_no_tax, $iva_valor, $iva_porcentaje, $precio_anterior, $costo;
 		var $nomOpcion, $precio_min, $precio_max, $isCheck, $isDatabase, $cod_producto_opcion, $nomDetalle, $precioDet, $aumentar_precio, $posicion;
 		var $cod_producto_ingrediente, $cod_ingrediente, $valor, $cod_producto_opcion_ingrediente;
+		var $venta_delivery, $venta_pickup, $venta_mesa;
 
 		public function __construct($pcod_producto=null)
 		{
@@ -197,7 +198,10 @@ class cl_productos
 				':is_combo'           => $this->is_combo,
 				':cobra_iva'          => $this->cobra_iva,
 				':noStock'            => $this->facturar_sin_stock,
-				':tiempo_preparacion' => $this->tiempo_preparacion
+				':tiempo_preparacion' => $this->tiempo_preparacion,
+				':venta_delivery' => $this->venta_delivery ?? 1,
+				':venta_pickup'   => $this->venta_pickup ?? 1,
+				':venta_mesa'     => $this->venta_mesa ?? 1,
 			];
 
 			if (Conexion::ejecutar($sql, $params)) {
@@ -230,6 +234,9 @@ class cl_productos
 				cobra_iva = :cobra_iva,
 				noStock = :noStock,
 				tiempo_preparacion = :tiempo_preparacion,
+				venta_delivery = :venta_delivery,
+    			venta_pickup = :venta_pickup,
+    			venta_mesa = :venta_mesa,
 				fecha_modificacion = NOW()
 			WHERE cod_producto = :cod_producto";
 
@@ -253,6 +260,9 @@ class cl_productos
 				':cobra_iva'          => $this->cobra_iva,
 				':noStock'            => $this->facturar_sin_stock,
 				':tiempo_preparacion' => $this->tiempo_preparacion,
+				':venta_delivery' => $this->venta_delivery,
+				':venta_pickup'   => $this->venta_pickup,
+				':venta_mesa'     => $this->venta_mesa,
 				':cod_producto'       => $this->cod_producto
 			];
 			if (Conexion::ejecutar($sql, $data)) {

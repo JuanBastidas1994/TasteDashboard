@@ -53,6 +53,9 @@ function crear(){
     $Clproductos->cobra_iva = (isset($_POST['chk_base'])) ? 1 : 0;
     $Clproductos->is_combo = (isset($_POST['chk_combo'])) ? 1 : 0;
     $Clproductos->facturar_sin_stock = (isset($_POST['chk_fSinStock'])) ? 1 : 0;
+    $Clproductos->venta_delivery = (isset($_POST['venta_delivery'])) ? 1 : 0;
+    $Clproductos->venta_pickup = (isset($_POST['venta_pickup'])) ? 1 : 0;
+    $Clproductos->venta_mesa = (isset($_POST['venta_mesa'])) ? 1 : 0;
     
     $cod_producto = 0;
 

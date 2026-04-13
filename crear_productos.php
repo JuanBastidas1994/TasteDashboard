@@ -48,6 +48,9 @@ $iva_valor = "";
 $costo = "";
 $days = "";
 $etiquetas = $Clproductos->getTodasEtiquetas();
+$venta_delivery = "checked";
+$venta_pickup = "checked";
+$venta_mesa = "checked";
 
 $showTimeline = "none";
 if ($session['alias'] == "meet-galapagos")
@@ -151,6 +154,10 @@ if (isset($_GET['id'])) {
             $combo = "checked";
             $displayCombo = "";
         }
+
+        $venta_delivery = ($producto['venta_delivery'] == 1) ? "checked" : "";
+        $venta_pickup = ($producto['venta_pickup'] == 1) ? "checked" : "";
+        $venta_mesa = ($producto['venta_mesa'] == 1) ? "checked" : "";
 
         $fecha_create = $producto['fecha_create'];
 
@@ -302,7 +309,7 @@ function recursive($array, $posicion, &$data, &$codigos)
         <?=$classNoShow?>
         <?=$classVariantesNoShow?>
         <?=$classEmpaquesNoShow?>
-        <?=$$classEventosNoShow?>
+        <?=$classEventosNoShow?>
     </style>
     <link href="plugins/file-upload/file-upload-with-preview.min.css" rel="stylesheet" type="text/css" />
     <link href="plugins/croppie/croppie.css" rel="stylesheet">
@@ -802,12 +809,12 @@ function recursive($array, $posicion, &$data, &$codigos)
                                         </div>
 
                                         <div class="form-group col-md-4 col-sm-4 col-xs-12" style="margin-bottom:10px;">
-                                            <label>Agregar directo al carrito <?php echo $producto['open_detalle']; ?> <span class="asterisco">*</span>
+                                            <label>Agregar directo al carrito  <span class="asterisco">*</span>
                                                 <span class="far fa-question-circle rounded bs-tooltip" data-placement="top" title="No abrirá el detalle del producto, el item se agregará directamente al carrito (Si tiene opciones o variantes no se podra activar)"></span>
                                             </label>
                                             <div>
                                                 <label class="switch s-icons s-outline  s-outline-success  mb-4 mr-2">
-                                                    <input type="checkbox" name="chk_detalle" id="chk_detalle" <?php echo $open_detalle; ?> />
+                                                    <input type="checkbox" name="chk_detalle" id="chk_detalle" <?php echo $open_detalle; ?> data-opendetalle="<?php echo $producto['open_detalle']; ?>" />
                                                     <span class="slider round"></span>
                                                 </label>
                                             </div>
@@ -838,6 +845,8 @@ function recursive($array, $posicion, &$data, &$codigos)
                                         </div>
                                     </div>
 
+                                    
+
                                     <div class="form-row">
                                         <div class="form-group col-md-12 col-sm-12 col-xs-12" style="margin-bottom:10px;">
                                             <label>Descripción</label>
@@ -849,6 +858,42 @@ function recursive($array, $posicion, &$data, &$codigos)
                                         <div class="form-group col-md-12 col-sm-12 col-xs-12" style="margin-bottom:10px;">
                                             <label>Descripción Larga</label>
                                             <textarea name="txt_descripcion_larga" id="editor1" class="form-control" autocomplete="off" style="resize: none;"><?php echo $desc_larga; ?></textarea>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-row mt-4">
+                                        <div class="form-group">
+                                            <h6>Tipo de venta</h6>
+                                            <p>Si deseas que este producto no se venda en el alguna forma de entrega desmarca la casilla</p>
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="form-group col-md-4 col-sm-4 col-xs-12" style="margin-bottom:10px;">
+                                            <label>Delivery <span class="asterisco">*</span></label>
+                                            <div>
+                                                <label class="switch s-icons s-outline  s-outline-success  mb-4 mr-2">
+                                                    <input type="checkbox" name="venta_delivery" id="venta_delivery" <?php echo $venta_delivery; ?> />
+                                                    <span class="slider round"></span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="form-group col-md-4 col-sm-4 col-xs-12" style="margin-bottom:10px;">
+                                            <label>Pickup <span class="asterisco">*</span></label>
+                                            <div>
+                                                <label class="switch s-icons s-outline  s-outline-success  mb-4 mr-2">
+                                                    <input type="checkbox" name="venta_pickup" id="venta_pickup" <?php echo $venta_pickup; ?> />
+                                                    <span class="slider round"></span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="form-group col-md-4 col-sm-4 col-xs-12" style="margin-bottom:10px;">
+                                            <label>En mesa <span class="asterisco">*</span></label>
+                                            <div>
+                                                <label class="switch s-icons s-outline  s-outline-success  mb-4 mr-2">
+                                                    <input type="checkbox" name="venta_mesa" id="venta_mesa" <?php echo $venta_mesa; ?> />
+                                                    <span class="slider round"></span>
+                                                </label>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

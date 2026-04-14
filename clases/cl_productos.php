@@ -166,13 +166,13 @@ class cl_productos
 				image_min, image_max, fecha_create, user_create, estado, precio,
 				precio_no_tax, iva_valor, iva_porcentaje, precio_anterior,
 				costo, open_detalle, peso, volumen, sku, is_combo, cobra_iva,
-				noStock, tiempo_preparacion
+				noStock, tiempo_preparacion, venta_delivery, venta_pickup, venta_mesa
 			) VALUES (
 				:cod_producto_padre, :empresa, :alias, :nombre, :desc_corta, :desc_larga,
 				:image_min, :image_max, NOW(), :usuario, 'A', :precio,
 				:precio_no_tax, :iva_valor, :iva_porcentaje, :precio_anterior,
 				:costo, :open_detalle, :peso, :volumen, :sku, :is_combo, :cobra_iva,
-				:noStock, :tiempo_preparacion
+				:noStock, :tiempo_preparacion, :venta_delivery, :venta_pickup, :venta_mesa
 			)";
 
 			$params = [

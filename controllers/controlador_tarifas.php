@@ -50,7 +50,9 @@ function saveTarifa()
 
     $Cltarifas->cod_sucursal = intval($POST['cod_sucursal']);
     $Cltarifas->nombre       = trim($POST['nombre']);
-    $Cltarifas->peso_max_kg  = isset($POST['peso_max_kg']) && $POST['peso_max_kg'] !== '' ? floatval($POST['peso_max_kg']) : null;
+
+    $peso = isset($_POST['peso_max_kg']) ? floatval($_POST['peso_max_kg']) : null;
+    $Cltarifas->peso_max_kg = ($peso !== null && $peso != 0) ? $peso : null;
 
     $cod_tarifa = isset($POST['cod_tarifa']) ? intval($POST['cod_tarifa']) : 0;
 
@@ -105,6 +107,11 @@ function saveRangos()
     }
 
     $cod_tarifa = intval($POST['cod_tarifa']);
+
+    if($cod_tarifa == 0){        
+        return ['success' => 0, 'mensaje' => 'Tarifa aun no creada'];
+    }
+
     $rangos     = $POST['rangos'];
     $total      = count($rangos);
 

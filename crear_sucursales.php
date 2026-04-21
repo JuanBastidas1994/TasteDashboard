@@ -39,6 +39,7 @@ $correo = "";
 $chkSucursal = "checked ";
 $dChecked = "checked ";
 $pChecked = "checked ";
+$iChecked = "checked ";
 $egiChecked = "checked ";
 $chkProgramar = "";
 $empresa = $Clempresas->get($session['cod_empresa']);

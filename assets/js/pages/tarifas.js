@@ -25,7 +25,7 @@ function initTarifas() {
             if (response.success == 1) {
                 if (response.data.length === 0) {
                     // Sucursal nueva sin tarifas: creamos una por defecto
-                    _crearTarifaUI({ cod_tarifa: 0, nombre: 'Estándar', peso_max_kg: '', rangos: [] }, true);
+                    // _crearTarifaUI({ cod_tarifa: 0, nombre: 'Estándar', peso_max_kg: '', rangos: [] }, true);
                 } else {
                     response.data.forEach((tarifa, idx) => {
                         _crearTarifaUI(tarifa, idx === 0);

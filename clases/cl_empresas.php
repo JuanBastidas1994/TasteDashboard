@@ -791,6 +791,63 @@ class cl_empresas
 						WHERE cod_empresa_forma_pago = $cod_empresa_forma_pago";
 			return Conexion::ejecutar($query, null);
 		}
+
+		public function getFormasPagoSucursal($cod_sucursal) {
+			$cod_empresa = $this->session['cod_empresa'];
+			$query = "SELECT fp.descripcion as fp_desc, fp.cod_forma_pago as id_forma_pago,
+						efp.nombre as nomFP, efp.cod_empresa_forma_pago,
+						sfp.cod_sucursal_forma_pago,
+						COALESCE(sfp.monto_maximo, 0) as monto_maximo,
+						COALESCE(sfp.descripcion, '') as descripcion,
+						COALESCE(sfp.is_delivery, 1) as is_delivery,
+						COALESCE(sfp.is_pickup, 1) as is_pickup,
+						COALESCE(sfp.estado, 'A') as estado
+					FROM tb_formas_pago fp
+					INNER JOIN tb_empresa_forma_pago efp ON fp.cod_forma_pago = efp.cod_forma_pago
+						AND efp.cod_empresa = $cod_empresa
+						AND efp.estado != 'D'
+					LEFT JOIN tb_sucursal_forma_pago sfp ON fp.cod_forma_pago = sfp.cod_forma_pago
+						AND sfp.cod_sucursal = $cod_sucursal";
+			return Conexion::buscarVariosRegistro($query);
+		}
+
+		public function insertFormasPagoSucursal($cod_sucursal) {
+			$cod_empresa = $this->session['cod_empresa'];
+			$query = "SELECT cod_forma_pago FROM tb_empresa_forma_pago WHERE cod_empresa = $cod_empresa AND estado != 'D'";
+			$formas = Conexion::buscarVariosRegistro($query);
+			if ($formas) {
+				foreach ($formas as $forma) {
+					$cod_fp = $forma['cod_forma_pago'];
+					$check = "SELECT cod_sucursal_forma_pago FROM tb_sucursal_forma_pago WHERE cod_sucursal = $cod_sucursal AND cod_forma_pago = '$cod_fp'";
+					if (!Conexion::buscarRegistro($check)) {
+						$insert = "INSERT INTO tb_sucursal_forma_pago (cod_sucursal, cod_forma_pago, monto_maximo, descripcion, is_delivery, is_pickup, estado) VALUES ($cod_sucursal, '$cod_fp', 0, '', 1, 1, 'A')";
+						Conexion::ejecutar($insert, null);
+					}
+				}
+			}
+		}
+
+		public function setSucursalFormaPagoEstado($cod, $estado) {
+			$query = "UPDATE tb_sucursal_forma_pago SET estado = '$estado' WHERE cod_sucursal_forma_pago = $cod";
+			return Conexion::ejecutar($query, null);
+		}
+
+		public function setSucursalFormaPagoMonto($cod, $monto) {
+			$query = "UPDATE tb_sucursal_forma_pago SET monto_maximo = $monto WHERE cod_sucursal_forma_pago = $cod";
+			return Conexion::ejecutar($query, null);
+		}
+
+		public function setSucursalFormaPagoDescripcion($cod, $desc) {
+			$desc = addslashes($desc);
+			$query = "UPDATE tb_sucursal_forma_pago SET descripcion = '$desc' WHERE cod_sucursal_forma_pago = $cod";
+			return Conexion::ejecutar($query, null);
+		}
+
+		public function setSucursalFormaPagoTipoEnvio($tipo, $encendido, $cod) {
+			$field = ($tipo == 'P') ? 'is_pickup' : 'is_delivery';
+			$query = "UPDATE tb_sucursal_forma_pago SET $field = $encendido WHERE cod_sucursal_forma_pago = $cod";
+			return Conexion::ejecutar($query, null);
+		}
 		
 		//Permisos
 		public function getPermisionsByGroup($grupo){

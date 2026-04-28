@@ -261,8 +261,15 @@ $listaProductos = $Clproductos->listaProductBySucursal($cod_sucursal);
 
                                     <li class="nav-item">
                                         <a class="nav-link" data-toggle="tab" href="#tab-transferencias" role="tab" aria-controls="pills-pago" aria-selected="false">
-                                            <i data-feather="credit-card"></i>
+                                            <i data-feather="image"></i>
                                             <span>Imagenes adicionales</span>
+                                        </a>
+                                    </li>
+
+                                    <li class="nav-item">
+                                        <a class="nav-link" data-toggle="tab" href="#tab-formas-pago-suc" role="tab" aria-controls="pills-fpago-suc" aria-selected="false">
+                                            <i data-feather="credit-card"></i>
+                                            <span>Formas de Pago</span>
                                         </a>
                                     </li>
                                 </ul>
@@ -796,6 +803,33 @@ $listaProductos = $Clproductos->listaProductBySucursal($cod_sucursal);
                                     </div>
 
 
+                                    <!-- Tab Formas de Pago por Sucursal -->
+                                    <div class="tab-pane fade" id="tab-formas-pago-suc" role="tabpanel">
+                                        <div class="mt-3">
+                                            <?php if ($cod_sucursal == 0): ?>
+                                            <div class="alert alert-info">
+                                                Guarda la sucursal primero para configurar las formas de pago.
+                                            </div>
+                                            <?php else: ?>
+                                            <h4>Formas de Pago</h4>
+                                            <table class="table style-3 table-hover">
+                                                <thead>
+                                                    <tr>
+                                                        <th class="text-center">Forma Pago</th>
+                                                        <th class="text-center">Monto máximo ($)<br><small>(0 = sin límite)</small></th>
+                                                        <th class="text-center">Descripción</th>
+                                                        <th class="text-center">Estado</th>
+                                                        <th class="text-center">Acciones</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="tbodyFormasPagoSuc">
+                                                    <tr><td colspan="5" class="text-center">Cargando...</td></tr>
+                                                </tbody>
+                                            </table>
+                                            <?php endif; ?>
+                                        </div>
+                                    </div>
+
                                     <!-- Tab Imagenes -->
                                     <div class="tab-pane fade" id="tab-transferencias" role="tabpanel">
 
@@ -874,8 +908,8 @@ $listaProductos = $Clproductos->listaProductBySucursal($cod_sucursal);
     <!-- Mapas -->
     <script src="//maps.googleapis.com/maps/api/js?key=AIzaSyAWo6DXlAmrqEiKiaEe9UyOGl3NJ208lI8&libraries=places"></script>
     <script src="plugins/maps-latlon/jquery-gmaps-latlon-picker.js"></script>
-    <script src="assets/js/pages/sucursales.js?v=1" type="text/javascript"></script>
-    <script src="assets/js/pages/tarifas.js?v=1" type="text/javascript"></script>
+    <script src="assets/js/pages/sucursales.js?v=3" type="text/javascript"></script>
+    <script src="assets/js/pages/tarifas.js?v=3" type="text/javascript"></script>
     <script src="plugins/croppie/croppie.js"></script>
     <script>
         initTarifas();

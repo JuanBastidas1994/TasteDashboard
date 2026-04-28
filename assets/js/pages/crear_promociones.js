@@ -186,14 +186,36 @@ $('.input-hijo').on('change', function () {
     $(`.input-padre${$(this).data('padre')}`).prop('checked', true)
 })
 
+
 $("#cmb_tipo_descuento").on('change', function(){
-    let val = $(this).val();
-    if(val == 0){
+    const val = $(this).val();
+
+    // Ocultar todo primero
+    $(".inputPorcentaje").hide();
+    $(".inputMontoMinimo").hide();
+    $(".inputProductoRegalo").hide();
+    // El bloque de productos participantes: mostrar u ocultar
+    $("#bloqueProductosParticipantes").show(); // por defecto visible
+
+    if (val == "0") {
+        // Porcentaje
         $(".inputPorcentaje").show();
-    }else{
-        $(".inputPorcentaje").hide();
+        $("#tituloProductos").text("Productos");
+        $("#descProductos").text("Escoje los productos a los que le vayas a aplicar el descuento");
+    } else if (["2","3","4","5"].includes(val)) {
+        // 2x1, 3x2, etc — no necesita nada extra
+        $("#tituloProductos").text("Productos");
+        $("#descProductos").text("Escoje los productos a los que le vayas a aplicar el descuento");
+    } else if (val == "compra_x_lleva_y") {
+        $(".inputProductoRegalo").show();
+        $("#tituloProductos").text("Productos Participantes");
+        $("#descProductos").text("Escoje los productos que el cliente debe comprar para llevarse el regalo");
+    } else if (val == "monto_minimo") {
+        $(".inputMontoMinimo").show();
+        $(".inputProductoRegalo").show();
+        $("#bloqueProductosParticipantes").hide(); // no aplica en monto mínimo
     }
-});
+}).trigger('change'); 
 
 $("#btnNuevo").on("click",function(){
     messageConfirm('¿Estas seguro?', '¡Perderas todos los cambios que no hayas guardado!', "warning")

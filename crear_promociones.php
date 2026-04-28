@@ -256,53 +256,61 @@ $tiposEntrega = [
                                     <div class="form-group col-md-12 col-sm-12 col-xs-12" style="margin-bottom:10px;">
                                         <?php
                                             $resp = $Clproductos->GetProductosbyEmpresaOrder();
-                                            $aux = 0;
-                                            $auxCategoria = 0;
-                                            $open = 0;
+                                            $categorias = [];
+                                            foreach ($resp as $p) {
+                                                if ($p['cod_producto_padre'] == 0) {
+                                                    $categorias[$p['cod_categoria']]['nombre'] = $p['categoria'];
+                                                    $categorias[$p['cod_categoria']]['productos'][] = $p;
+                                                }
+                                            }
                                         ?>
-                                        <?php foreach($resp as $clave => $itemCat): ?>
-                                            <?php if($itemCat['cod_categoria'] != $auxCategoria):?>
-                                                <div class="row  justify-content-start mt-2">
-                                                    <div class="col-12 my-1 bt-primary ">
-                                                        <div class="n-chk">
-                                                            <label class="new-control new-checkbox checkbox-outline-default">
-                                                            <input type="checkbox" class="new-control-input input-category" data-category="<?=$itemCat['cod_categoria']?>">
-                                                            <span class="new-control-indicator"></span> <h5 ><?= $itemCat['categoria']?> </h5>
-                                                            </label>
-                                                        </div>
+                                        <?php foreach ($categorias as $codCategoria => $dataCategoria): ?>
+    
+                                            <div class="row justify-content-start mt-2">
+
+                                                <!-- Checkbox categoría -->
+                                                <div class="col-12 my-1 bt-primary">
+                                                    <div class="n-chk">
+                                                        <label class="new-control new-checkbox checkbox-outline-default">
+                                                            <input type="checkbox"
+                                                                class="new-control-input input-category"
+                                                                data-category="<?= $codCategoria ?>">
+                                                            <span class="new-control-indicator"></span>
+                                                            <h5><?= htmlspecialchars($dataCategoria['nombre']) ?></h5>
+                                                        </label>
                                                     </div>
-                                                <?php foreach($resp as $comidaPadre): ?>
-                                                    <?php if($comidaPadre['cod_categoria'] == $itemCat['cod_categoria'] && $comidaPadre['cod_producto_padre'] == 0): ?>
-                                                        <div class="col-4  ">
-                                                            <div class="n-chk">
-                                                                <label class="new-control new-checkbox new-checkbox-rounded checkbox-success">
-                                                                <!-- <input type="checkbox" name="cmb_productos[]" value="<?=$comidaPadre['cod_producto']?>" class="new-control-input input-padre cat-<?=$itemCat['cod_categoria']?> input-padre<?=$comidaPadre['cod_producto'] ?>" data-padre="<?=$comidaPadre['cod_producto'] ?>"> -->
+                                                </div>
+
+                                                <!-- Productos de la categoría -->
+                                                <?php foreach ($dataCategoria['productos'] as $producto): ?>
+                                                    <div class="col-4">
+                                                        <div class="n-chk">
+                                                            <label class="new-control new-checkbox new-checkbox-rounded checkbox-success">
 
                                                                 <input
                                                                     type="checkbox"
                                                                     name="cmb_productos[]"
-                                                                    value="<?=$comidaPadre['cod_producto']?>"
-                                                                    class="new-control-input input-padre cat-<?=$itemCat['cod_categoria']?> input-padre<?=$comidaPadre['cod_producto'] ?>"
-                                                                    data-padre="<?=$comidaPadre['cod_producto'] ?>"
-                                                                    <?= in_array($comidaPadre['cod_producto'], $productos) ? 'checked' : '' ?>
+                                                                    value="<?= $producto['cod_producto'] ?>"
+                                                                    class="new-control-input input-padre cat-<?= $codCategoria ?>"
+                                                                    data-padre="<?= $producto['cod_producto'] ?>"
+                                                                    <?= (isset($productos) && in_array($producto['cod_producto'], $productos)) ? 'checked' : '' ?>
                                                                 >
-                                                                <span class="new-control-indicator"></span> <b class="text-primary"><?= $comidaPadre['nombre']?></b>
-                                                                </label>
-                                                            </div>
+
+                                                                <span class="new-control-indicator"></span>
+                                                                <b class="text-primary"><?= htmlspecialchars($producto['nombre']) ?></b>
+
+                                                            </label>
                                                         </div>
-        
-                                                    <?php endif ?>
+                                                    </div>
                                                 <?php endforeach; ?>
-                                                </div>
-                                                <?php if($clave != count($resp)-1  ):?>
-                                                    <hr  size="8px" color="black">
-                                                <?php endif?>
-                                            <?php endif ?>
-                                            
-        
-                                            <?php $auxCategoria = $itemCat['cod_categoria'];?> 
-        
+
+                                            </div>
+
+                                            <hr>
+
                                         <?php endforeach; ?>
+                                        
+                                        
                                     </div>
                                 </div>
                             </form>
@@ -325,20 +333,52 @@ $tiposEntrega = [
                                         <input name="fecha_fin" id="hora_fin" class="form-control flatpickr-input active" type="text" placeholder="Seleccione hora" value="<?php echo $fecha_fin ?>" required>
                                     </div>
                                 </div>
+                                <!-- REEMPLAZA el bloque del combo y porcentaje en frmDisponibilidad -->
                                 <div class="row">
                                     <div class="form-group col-md-6 col-sm-6 col-xs-12">
-                                        <label>Descuento <span class="asterisco">*</span></label>
+                                        <label>Tipo de promoción <span class="asterisco">*</span></label>
                                         <select class="form-control" name="cmb_tipo_descuento" id="cmb_tipo_descuento">
-                                                <option value="0" <?php if($is_porcentaje == 1) echo 'checked'; ?> >Porcentaje</option>
-                                                <option value="2" <?php if($is_porcentaje == 0 && $texto == '2x1') echo 'selected'; ?>>2X1</option>
-                                                <option value="3" <?php if($is_porcentaje == 0 && $texto == '3x2') echo 'selected'; ?>>3x2</option>
-                                                <option value="4" <?php if($is_porcentaje == 0 && $texto == '4x3') echo 'selected'; ?>>4x3</option>
-                                                <option value="5" <?php if($is_porcentaje == 0 && $texto == '5x4') echo 'selected'; ?>>5x4</option>
+                                            <option value="0"               <?php if($is_porcentaje == 1) echo 'selected'; ?>>Porcentaje</option>
+                                            <option value="2"               <?php if($is_porcentaje == 0 && $texto == '2x1')           echo 'selected'; ?>>2X1</option>
+                                            <option value="3"               <?php if($is_porcentaje == 0 && $texto == '3x2')           echo 'selected'; ?>>3x2</option>
+                                            <option value="4"               <?php if($is_porcentaje == 0 && $texto == '4x3')           echo 'selected'; ?>>4x3</option>
+                                            <option value="5"               <?php if($is_porcentaje == 0 && $texto == '5x4')           echo 'selected'; ?>>5x4</option>
+                                            <option value="compra_x_lleva_y"<?php if($is_porcentaje == 0 && $texto == 'compra_x_lleva_y') echo 'selected'; ?>>Compra X lleva Y</option>
+                                            <option value="monto_minimo"    <?php if($is_porcentaje == 0 && $texto == 'monto_minimo')  echo 'selected'; ?>>Monto mínimo</option>
                                         </select>
                                     </div>
-                                    <div class="form-group col-md-6 col-sm-6 col-xs-12 inputPorcentaje" style="<?php if($is_porcentaje == 0) echo 'display:none;'; ?>">
+
+                                    <!-- Solo para Porcentaje -->
+                                    <div class="form-group col-md-6 col-sm-6 col-xs-12 inputPorcentaje">
                                         <label>Porcentaje descuento <span class="asterisco">*</span></label>
-                                        <input type="number" name="porcentaje_descuento" id="porcentaje_descuento" class="form-control" type="text" placeholder="Porcentaje de descuento" value="<?php echo $valor; ?>">
+                                        <input type="number" name="porcentaje_descuento" id="porcentaje_descuento"
+                                            class="form-control" placeholder="Ej: 20" value="<?php echo $valor; ?>">
+                                    </div>
+
+                                    <!-- Solo para Monto mínimo -->
+                                    <div class="form-group col-md-6 col-sm-6 col-xs-12 inputMontoMinimo" style="display:none;">
+                                        <label>Monto mínimo de compra <span class="asterisco">*</span></label>
+                                        <input type="number" name="monto_minimo" id="monto_minimo"
+                                            class="form-control" placeholder="Ej: 15.00" value="<?php echo $valor; ?>">
+                                    </div>
+                                </div>
+
+                                <!-- Solo para Compra X lleva Y y Monto mínimo: producto regalo -->
+                                <div class="row inputProductoRegalo" style="display:none;">
+                                    <div class="form-group col-md-12">
+                                        <label>Producto gratis <span class="asterisco">*</span></label>
+                                        <select class="form-control" name="producto_regalo" id="producto_regalo">
+                                            <?php foreach ($categorias as $codCategoria => $dataCategoria): ?>
+                                                <optgroup label="<?= htmlspecialchars($dataCategoria['nombre']) ?>">
+                                                    <?php foreach ($dataCategoria['productos'] as $producto): ?>
+                                                        <option value="<?= $producto['cod_producto'] ?>"
+                                                            <?= (isset($producto_regalo) && $producto_regalo == $producto['cod_producto']) ? 'selected' : '' ?>>
+                                                            <?= htmlspecialchars($producto['nombre']) ?>
+                                                        </option>
+                                                    <?php endforeach; ?>
+                                                </optgroup>
+                                            <?php endforeach; ?>
+                                        </select>
                                     </div>
                                 </div>
 

@@ -126,6 +126,15 @@ class cl_promociones_nueva
 
         $promocion['tipo_entrega'] = array_column($tipos_entrega, 'tipo_entrega');
 
+        // 6. Producto regalo (si aplica)
+        $query = "SELECT cod_producto_regalo
+                FROM promocion_recompensa
+                WHERE cod_promocion = :cod
+                LIMIT 1";
+
+        $recompensa = Conexion::buscarRegistro($query, [':cod' => $cod_promocion]);
+        $promocion['producto_regalo'] = $recompensa ? $recompensa['cod_producto_regalo'] : null;
+
         return $promocion;
     }
 

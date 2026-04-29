@@ -42,7 +42,10 @@ function importar() {
     }
 
     $data = procesarFilas($xlsx->rows());
-    $ok   = count(array_filter($data, fn($r) => $r['importado'] === true));
+    // $ok   = count(array_filter($data, fn($r) => $r['importado'] === true));
+    $ok = count(array_filter($data, function($r) {
+        return $r['importado'] === true;
+    }));
     $err  = count($data) - $ok;
 
     return [

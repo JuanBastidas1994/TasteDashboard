@@ -9,7 +9,7 @@ use Shuchkin\SimpleXLSX;
 use Shuchkin\SimpleXLSXGen;
 
 $session = getSession();
-$filesUP = '../assets/empresas/'.$session['alias'].'/';
+$filesUP = url_upload.'/assets/empresas/'.$session['alias'].'/';
 
 controller_create();
 
@@ -53,7 +53,7 @@ function importar() {
 }
 
 function procesarFilas(array $rows) {
-    global $session, $filesUP;
+    global $session;
 
     $resultado   = [];
     $cod_empresa = intval($session['cod_empresa']);
@@ -158,7 +158,7 @@ function procesarFilas(array $rows) {
             $resultado[] = crearProducto(
                 $nombre, $descripcion,
                 $precio_no_tax, $precio_final, $iva_valor, $iva_porcentaje, $cobra_iva,
-                $categorias, $i, $fila, $session, $filesUP
+                $categorias, $i, $fila, $session
             );
         } else {
             $resultado[] = actualizarProducto(
@@ -264,7 +264,7 @@ function encontrarOCrearCategoria($nombre_categoria, $session) {
     return null;
 }
 
-function crearProducto($nombre, $descripcion, $precio_no_tax, $precio_final, $iva_valor, $iva_porcentaje, $cobra_iva, $categorias, $i, $fila, $session, $filesUP) {
+function crearProducto($nombre, $descripcion, $precio_no_tax, $precio_final, $iva_valor, $iva_porcentaje, $cobra_iva, $categorias, $i, $fila, $session) {
     $Clproductos = new cl_productos();
 
     $aux = "";
@@ -273,10 +273,6 @@ function crearProducto($nombre, $descripcion, $precio_no_tax, $precio_final, $iv
         $aux   = intval(rand(1, 100));
     } while (!$Clproductos->aliasDisponible($alias));
 
-    $nameImg = 'product_'.datetime_format().'_'.$i.'_'.rand(1, 100).'.png';
-    $img1    = url_upload.'/assets/img/200x200.jpg';
-    copy($img1, $filesUP.$nameImg);
-    copy($img1, $filesUP.'min_'.$nameImg);
 
     $Clproductos->cod_producto_padre = 0;
     $Clproductos->alias              = $alias;
@@ -300,8 +296,8 @@ function crearProducto($nombre, $descripcion, $precio_no_tax, $precio_final, $iv
     $Clproductos->venta_delivery     = 1;
     $Clproductos->venta_pickup       = 1;
     $Clproductos->venta_mesa         = 1;
-    $Clproductos->image_min          = 'min_'.$nameImg;
-    $Clproductos->image_max          = $nameImg;
+    $Clproductos->image_min          = '';
+    $Clproductos->image_max          = '';
     $Clproductos->categorias         = $categorias;
 
     $id = null;

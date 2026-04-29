@@ -73,44 +73,61 @@ function procesarFilas(array $rows) {
         $precio_sin_iva_raw = $row[4] ?? '';
         $precio_con_iva_raw = $row[5] ?? '';
 
-        if ($nombre === '' && $nombre_categoria === '' && (string)$precio_sin_iva_raw === '') {
+        $tiene_e = $precio_sin_iva_raw !== '' && $precio_sin_iva_raw !== null && is_numeric($precio_sin_iva_raw);
+        $tiene_f = $precio_con_iva_raw !== '' && $precio_con_iva_raw !== null && is_numeric($precio_con_iva_raw);
+
+        // Saltar fila si todo está vacío
+        if ($nombre === '' && $nombre_categoria === '' && !$tiene_e && !$tiene_f) {
             continue;
         }
+
+        $precio_display = $tiene_f ? $precio_con_iva_raw : $precio_sin_iva_raw;
 
         $fila = [
             'fila'      => $i + 1,
             'categoria' => $nombre_categoria,
             'nombre'    => $nombre,
-            'precio'    => $precio_sin_iva_raw,
+            'precio'    => $precio_display,
             'importado' => false,
             'motivo'    => '',
         ];
 
-        if ($nombre === '' || $precio_sin_iva_raw === '' || $precio_sin_iva_raw === null) {
-            $fila['motivo'] = 'FALTAN CAMPOS OBLIGATORIOS (nombre y precio sin IVA)';
+        if ($nombre === '') {
+            $fila['motivo'] = 'FALTA EL NOMBRE DEL PRODUCTO';
             $resultado[]    = $fila;
             continue;
         }
 
-        if (!is_numeric($precio_sin_iva_raw)) {
-            $fila['motivo'] = 'PRECIO SIN IVA NO ES NUMÉRICO';
+        if (!$tiene_e && !$tiene_f) {
+            $fila['motivo'] = 'FALTA EL PRECIO (completa la columna E o F)';
             $resultado[]    = $fila;
             continue;
         }
 
-        // Lógica de IVA: F vacío o igual a E → sin IVA; F ≠ E → cobra IVA 12%
-        $precio_sin_iva   = floatval($precio_sin_iva_raw);
-        $precio_con_iva_v = ($precio_con_iva_raw === '' || $precio_con_iva_raw === null)
-            ? null
-            : floatval($precio_con_iva_raw);
+        // Lógica de IVA:
+        // Solo E (F vacío o F==E) → sin IVA
+        // F presente y F≠E      → cobra IVA; precio_no_tax se calcula desde F (no se confía en E)
+        // Solo F (E vacío)      → cobra IVA; precio_no_tax se calcula desde F
+        $precio_e = $tiene_e ? floatval($precio_sin_iva_raw) : null;
+        $precio_f = $tiene_f ? floatval($precio_con_iva_raw) : null;
 
-        if ($precio_con_iva_v === null || abs($precio_con_iva_v - $precio_sin_iva) < 0.0001) {
-            $cobra_iva = 0;  $precio_no_tax = $precio_sin_iva;
-            $precio_final = $precio_sin_iva; $iva_valor = 0; $iva_porcentaje = 0;
+        $iguales = ($tiene_e && $tiene_f && abs($precio_f - $precio_e) < 0.0001);
+
+        if (!$tiene_f || $iguales) {
+            // Sin IVA: el precio dado (E) es el precio final
+            $cobra_iva      = 0;
+            $precio_no_tax  = $precio_e;
+            $precio_final   = $precio_e;
+            $iva_valor      = 0;
+            $iva_porcentaje = 0;
         } else {
-            $cobra_iva = 1;  $precio_no_tax = $precio_sin_iva;
-            $precio_final = $precio_con_iva_v;
-            $iva_valor = $precio_con_iva_v - $precio_sin_iva; $iva_porcentaje = $iva_empresa;
+            // Con IVA: F es el precio final con impuesto incluido
+            // precio_no_tax se recalcula matemáticamente — no se confía en E
+            $cobra_iva      = 1;
+            $precio_final   = $precio_f;
+            $precio_no_tax  = $precio_f / (1 + $iva_empresa / 100);
+            $iva_valor      = $precio_final - $precio_no_tax;
+            $iva_porcentaje = $iva_empresa;
         }
 
         // Categoría: case-insensitive, crear si no existe

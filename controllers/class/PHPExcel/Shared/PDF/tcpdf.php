@@ -2872,7 +2872,7 @@ class TCPDF {
 		if (empty($orientation)) {
 			$orientation = $default_orientation;
 		} else {
-			$orientation = strtoupper($orientation{0});
+			$orientation = strtoupper($orientation[0]);
 		}
 		if (in_array($orientation, $valid_orientations) AND ($orientation != $default_orientation)) {
 			$this->CurOrientation = $orientation;
@@ -3324,7 +3324,7 @@ class TCPDF {
 			$slen = strlen($brd);
 			$newbrd = array();
 			for ($i = 0; $i < $slen; ++$i) {
-				$newbrd[$brd{$i}] = true;
+				$newbrd[$brd[$i]] = true;
 			}
 			$brd = $newbrd;
 		} elseif (($brd === 1) OR ($brd === true) OR (is_numeric($brd) AND (intval($brd) > 0))) {
@@ -5757,7 +5757,7 @@ class TCPDF {
 			$slen = strlen($brd);
 			$newbrd = array();
 			for ($i = 0; $i < $slen; ++$i) {
-				$newbrd[$brd{$i}] = array('cap' => 'square', 'join' => 'miter');
+				$newbrd[$brd[$i]] = array('cap' => 'square', 'join' => 'miter');
 			}
 			$brd = $newbrd;
 		}
@@ -6260,7 +6260,7 @@ class TCPDF {
 			$slen = strlen($brd);
 			$newbrd = array();
 			for ($i = 0; $i < $slen; ++$i) {
-				$newbrd[$brd{$i}] = array('cap' => 'square', 'join' => 'miter');
+				$newbrd[$brd[$i]] = array('cap' => 'square', 'join' => 'miter');
 			}
 			$brd = $newbrd;
 		}
@@ -7343,7 +7343,7 @@ class TCPDF {
 	public function set_mqr($mqr) {
 		if(!defined('PHP_VERSION_ID')) {
 			$version = PHP_VERSION;
-			define('PHP_VERSION_ID', (($version{0} * 10000) + ($version{2} * 100) + $version{4}));
+			define('PHP_VERSION_ID', (($version[0] * 10000) + ($version[2] * 100) + $version[4]));
 		}
 		if (PHP_VERSION_ID < 50300) {
 			@set_magic_quotes_runtime($mqr);
@@ -7358,7 +7358,7 @@ class TCPDF {
 	public function get_mqr() {
 		if(!defined('PHP_VERSION_ID')) {
 			$version = PHP_VERSION;
-			define('PHP_VERSION_ID', (($version{0} * 10000) + ($version{2} * 100) + $version{4}));
+			define('PHP_VERSION_ID', (($version[0] * 10000) + ($version[2] * 100) + $version[4]));
 		}
 		if (PHP_VERSION_ID < 50300) {
 			return @get_magic_quotes_runtime();
@@ -7834,7 +7834,7 @@ class TCPDF {
 			$dest = $dest ? 'D' : 'F';
 		}
 		$dest = strtoupper($dest);
-		if ($dest{0} != 'F') {
+		if ($dest[0] != 'F') {
 			$name = preg_replace('/[\s]+/', '_', $name);
 			$name = preg_replace('/[^a-zA-Z0-9_\.-]/', '', $name);
 		}
@@ -9520,7 +9520,7 @@ class TCPDF {
 				$font = file_get_contents($fontfile);
 				$compressed = (substr($file, -2) == '.z');
 				if ((!$compressed) AND (isset($info['length2']))) {
-					$header = (ord($font{0}) == 128);
+					$header = (ord($font[0]) == 128);
 					if ($header) {
 						//Strip first binary header
 						$font = substr($font, 6);
@@ -10990,7 +10990,7 @@ class TCPDF {
 			$strarr = array();
 			$strlen = strlen($str);
 			for ($i=0; $i < $strlen; ++$i) {
-				$strarr[] = ord($str{$i});
+				$strarr[] = ord($str[$i]);
 			}
 			// insert new value on cache
 			$this->cache_UTF8StringToArray[$strkey]['s'] = $strarr;
@@ -11004,7 +11004,7 @@ class TCPDF {
 		$str .= ''; // force $str to be a string
 		$length = strlen($str);
 		for ($i = 0; $i < $length; ++$i) {
-			$char = ord($str{$i}); // get one string character at time
+			$char = ord($str[$i]); // get one string character at time
 			if (count($bytes) == 0) { // get starting octect
 				if ($char <= 0x7F) {
 					$unichar = $char; // use the character "as is" because is ASCII
@@ -11286,7 +11286,7 @@ class TCPDF {
 	 * @access public
 	 */
 	public function addHtmlLink($url, $name, $fill=false, $firstline=false, $color='', $style=-1, $firstblock=false) {
-		if (!$this->empty_string($url) AND ($url{0} == '#')) {
+		if (!$this->empty_string($url) AND ($url[0] == '#')) {
 			// convert url to internal link
 			$lnkdata = explode(',', $url);
 			if (isset($lnkdata[0])) {
@@ -11645,7 +11645,7 @@ class TCPDF {
 			$j = 0;
 			for ($i = 0; $i < 256; ++$i) {
 				$t = $rc4[$i];
-				$j = ($j + $t + ord($k{$i})) % 256;
+				$j = ($j + $t + ord($k[$i])) % 256;
 				$rc4[$i] = $rc4[$j];
 				$rc4[$j] = $t;
 			}
@@ -11665,7 +11665,7 @@ class TCPDF {
 			$rc4[$a] = $rc4[$b];
 			$rc4[$b] = $t;
 			$k = $rc4[($rc4[$a] + $rc4[$b]) % 256];
-			$out .= chr(ord($text{$i}) ^ $k);
+			$out .= chr(ord($text[$i]) ^ $k);
 		}
 		return $out;
 	}
@@ -11770,7 +11770,7 @@ class TCPDF {
 				for ($i = 1; $i <= 19; ++$i) {
 					$ek = '';
 					for ($j = 0; $j < $len; ++$j) {
-						$ek .= chr(ord($owner_key{$j}) ^ $i);
+						$ek .= chr(ord($owner_key[$j]) ^ $i);
 					}
 					$enc = $this->_RC4($ek, $enc);
 				}
@@ -12084,7 +12084,7 @@ class TCPDF {
 			++$bslenght;
 		}
 		for ($i = 0; $i < $bslenght; $i += 2) {
-			$string .= chr(hexdec($bs{$i}.$bs{($i + 1)}));
+			$string .= chr(hexdec($bs[$i].$bs{($i + 1)}));
 		}
 		return $string;
 	}
@@ -16410,7 +16410,7 @@ class TCPDF {
 		$cnt = count($lines);
 		for ($i=0; $i < $cnt; ++$i) {
 			$line = $lines[$i];
-			if (($line == '') OR ($line{0} == '%')) {
+			if (($line == '') OR ($line[0] == '%')) {
 				continue;
 			}
 			$len = strlen($line);
@@ -17383,7 +17383,7 @@ class TCPDF {
 				$attrib = strtolower(trim($attrib[0]));
 				if (!empty($attrib)) {
 					// check if matches class, id, attribute, pseudo-class or pseudo-element
-					switch ($attrib{0}) {
+					switch ($attrib[0]) {
 						case '.': { // class
 							if (in_array(substr($attrib, 1), $class)) {
 								$valid = true;
@@ -17450,7 +17450,7 @@ class TCPDF {
 							break;
 						}
 						case ':': { // pseudo-class or pseudo-element
-							if ($attrib{1} == ':') { // pseudo-element
+							if ($attrib[1] == ':') { // pseudo-element
 								// pseudo-elements are not supported!
 								// (::first-line, ::first-letter, ::before, ::after)
 							} else { // pseudo-class
@@ -18039,7 +18039,7 @@ class TCPDF {
 				$tagname = strtolower($tag[1]);
 				// check if we are inside a table header
 				if ($tagname == 'thead') {
-					if ($element{0} == '/') {
+					if ($element[0] == '/') {
 						$thead = false;
 					} else {
 						$thead = true;
@@ -18054,7 +18054,7 @@ class TCPDF {
 				} else {
 					$dom[$key]['block'] = false;
 				}
-				if ($element{0} == '/') {
+				if ($element[0] == '/') {
 					// *** closing html tag
 					$dom[$key]['opening'] = false;
 					$dom[$key]['parent'] = end($level);
@@ -18291,13 +18291,13 @@ class TCPDF {
 							foreach ($decors as $dec) {
 								$dec = trim($dec);
 								if (!$this->empty_string($dec)) {
-									if ($dec{0} == 'u') {
+									if ($dec[0] == 'u') {
 										// underline
 										$dom[$key]['fontstyle'] .= 'U';
-									} elseif ($dec{0} == 'l') {
+									} elseif ($dec[0] == 'l') {
 										// line-trough
 										$dom[$key]['fontstyle'] .= 'D';
-									} elseif ($dec{0} == 'o') {
+									} elseif ($dec[0] == 'o') {
 										// overline
 										$dom[$key]['fontstyle'] .= 'O';
 									}
@@ -20286,7 +20286,7 @@ Putting 1 is equivalent to putting 0 and calling Ln() just after. Default value:
 					$imglink = '';
 					if (isset($this->HREF['url']) AND !$this->empty_string($this->HREF['url'])) {
 						$imglink = $this->HREF['url'];
-						if ($imglink{0} == '#') {
+						if ($imglink[0] == '#') {
 							// convert url to internal link
 							$lnkdata = explode(',', $imglink);
 							if (isset($lnkdata[0])) {
@@ -25457,11 +25457,11 @@ Putting 1 is equivalent to putting 0 and calling Ln() just after. Default value:
 					$this->SVGTransform($tm);
 					$obstyle = $this->setSVGStyles($svgstyle, $prev_svgstyle, $x, $y, $w, $h);
 					// fix image path
-					if (!$this->empty_string($this->svgdir) AND (($img{0} == '.') OR (basename($img) == $img))) {
+					if (!$this->empty_string($this->svgdir) AND (($img[0] == '.') OR (basename($img) == $img))) {
 						// replace relative path with full server path
 						$img = $this->svgdir.'/'.$img;
 					}
-					if (($img{0} == '/') AND ($_SERVER['DOCUMENT_ROOT'] != '/')) {
+					if (($img[0] == '/') AND ($_SERVER['DOCUMENT_ROOT'] != '/')) {
 						$findroot = strpos($img, $_SERVER['DOCUMENT_ROOT']);
 						if (($findroot === false) OR ($findroot > 1)) {
 							// replace relative path with full server path

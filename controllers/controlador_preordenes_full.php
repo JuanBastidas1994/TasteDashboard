@@ -45,9 +45,6 @@ function datatable() {
         array('dt' => $x++, 'db' => 'fecha_create'),
         array('dt' => $x++, 'db' => 'fecha_update'),
         array('dt' => $x++, 'db' => 'estado'),
-        array('dt' => $x++, 'db' => 'api_key',
-            'formatter' => function ($d) { return ''; }
-        ),
         array('dt' => $x++, 'db' => 'json',
             'formatter' => function ($d, $row) {
                 $json   = $row['json'];
@@ -80,6 +77,9 @@ function datatable() {
                     </ul>
                 ';
             }
+        ),
+        array('dt' => $x++, 'db' => 'api_key',
+            'formatter' => function ($_d) { return ''; }
         )
     );
 

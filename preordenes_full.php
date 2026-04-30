@@ -112,6 +112,7 @@ $empresas   = $ClEmpresas->lista();
                                             <th>Fecha actualización</th>
                                             <th class="text-center">Estado</th>
                                             <th class="text-center">Acciones</th>
+                                            <th style="display:none;"></th>
                                         </tr>
                                     </thead>
                                     <tbody></tbody>

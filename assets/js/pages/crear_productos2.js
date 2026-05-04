@@ -1457,6 +1457,8 @@ $(document).ready(function () {
                 precio = $(this).data("precio");
             }
 
+            precio = parseFloat($(this).data("precio")) || 0;
+
             // Validar duplicado solo si ya existen items
             if ($(".txtnomDet").length > 0) {
                 var existe = false;

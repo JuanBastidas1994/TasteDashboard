@@ -1752,7 +1752,7 @@ function recursive($array, $posicion, &$data, &$codigos)
     <!-- END MAIN CONTAINER -->
 
     <?php js_mandatory(); ?>
-    <script src="assets/js/pages/crear_productos2.js?v=124" type="text/javascript"></script>
+    <script src="assets/js/pages/crear_productos2.js?v=128" type="text/javascript"></script>
 
     <!-- HANDLEBARS -->
     <script src="./assets/js/libs/handlebars/handlebars.js"></script>

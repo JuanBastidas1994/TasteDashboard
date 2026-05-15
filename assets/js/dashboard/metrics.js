@@ -89,4 +89,10 @@ function processWidgets(widget){
     let $divChartPlatform = addWidgetText('Ventas por plataforma', '', '', 'piechart', PieData, 320);
     generateChart($divChartPlatform.find('.widget-chart')[0], PiePlatformData);
 
+    //Ordenes por estado
+    sharedText = `El día que mas generó fue ${getMaxValue(widget.ordenesPorEstado)}`;
+    chartData = createBarChartData(widget.ordenesPorEstado, 'Ventas por Día', 300);
+    let $divChartStatuses = addWidgetText('Ordenes por estado', '', sharedText, 'barchart', chartData, 320);
+    generateChart($divChartStatuses.find('.widget-chart')[0], chartData);
+
 }

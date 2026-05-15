@@ -32,6 +32,20 @@
                                 </td>
                                 <td class="text-right">${{ total }}</td>
                             </tr>
+                            {{#eq es_regalo "1"}}
+                            <tr>
+                                <td colspan="4">
+                                    <span class="badge badge-success">GRATIS</span>
+                                </td>
+                            </tr>
+                            {{/eq}}
+                            {{#diferent evento null}}
+                            <tr>
+                                <td colspan="4">
+                                    <span class="badge badge-primary">EVENTO {{evento}} 🎉</span>
+                                </td>
+                            </tr>
+                            {{/diferent}}
                             {{#each opciones}}
                                 <tr>
                                     <td colspan="4">

@@ -39,10 +39,11 @@ class cl_ordenes
 						AND oc.cod_orden = $cod_orden";
             $resp = Conexion::buscarRegistro($query);
             if($resp){
-            	$query = "SELECT o.*, p.nombre
-							FROM tb_orden_detalle o, tb_productos p
-							WHERE o.cod_producto = p.cod_producto
-							AND o.cod_orden = $cod_orden";
+            	$query = "SELECT o.*, p.nombre, e.dia as evento, e.estado as estado_evento
+							FROM tb_orden_detalle o
+							INNER JOIN tb_productos p ON o.cod_producto = p.cod_producto
+							LEFT JOIN tb_orden_evento e ON o.cod_orden_detalle = e.cod_orden_detalle
+							WHERE o.cod_orden =  $cod_orden";
 				$resp['detalle'] = Conexion::buscarVariosRegistro($query, NULL);
 
 				$query = "SELECT p.forma_pago, p.monto, f.descripcion

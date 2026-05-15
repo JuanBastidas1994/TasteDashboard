@@ -2,6 +2,9 @@ var mapTrack = null;
 var markerMoto = null;
 var intervalTrackingId = 0;
 
+const { API_TASTE_ECOMMERCE } = window.__CONFIG__;
+// let ApiUrl = API_TASTE_ECOMMERCE;
+
 $(function() {
 });
 
@@ -77,7 +80,7 @@ function loadMapTracking(order){
 }
 
 function tracking(order){
-    fetch(`https://api.mie-commerce.com/v8/tracking/${order.id}`,{
+    fetch(`${API_TASTE_ECOMMERCE}/tracking/${order.id}`,{
             method: 'GET',
             headers: {
             'Api-Key':ApiKey

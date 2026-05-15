@@ -113,6 +113,31 @@ function crearNew(){
     $Clpromociones->is_recurrente = $is_recurrencia;
     $Clpromociones->estado        = $estado;
 
+    // ── Manejo de imagen ─────────────────────────────────────────────────────
+    $txt_crop         = $_POST['txt_crop'] ?? '';
+    $txt_delete_imagen = $_POST['txt_delete_imagen'] ?? '0';
+    $imagen_actual    = '';
+
+    if (isset($_POST['id'])) {
+        $row = Conexion::buscarRegistro(
+            "SELECT imagen FROM promociones WHERE cod_promocion = :cod AND cod_empresa = :emp LIMIT 1",
+            [':cod' => $_POST['id'], ':emp' => $Clpromociones->cod_empresa]
+        );
+        if ($row) $imagen_actual = $row['imagen'];
+    }
+
+    if ($txt_delete_imagen == '1') {
+        if ($imagen_actual) deleteFile($imagen_actual);
+        $Clpromociones->imagen = '';
+    } elseif ($txt_crop !== '') {
+        $nombre_nuevo = 'promo_' . uniqid() . '.jpg';
+        base64ToImage($txt_crop, $nombre_nuevo);
+        if ($imagen_actual) deleteFile($imagen_actual);
+        $Clpromociones->imagen = $nombre_nuevo;
+    } else {
+        $Clpromociones->imagen = $imagen_actual;
+    }
+
     $productos  = $cmb_productos ?? [];
     $sucursales = $chkSucursal;
     $isNewPromotion = false;
@@ -342,8 +367,15 @@ function delete(){
     require_once "../clases/cl_promociones_nueva.php";
     $Clpromociones = new cl_promociones_nueva();
     try {
+        $rowImg = Conexion::buscarRegistro(
+            "SELECT imagen FROM promociones WHERE cod_promocion = :cod AND cod_empresa = :emp LIMIT 1",
+            [':cod' => $cod_promocion, ':emp' => $Clpromociones->cod_empresa]
+        );
         if (!$Clpromociones->eliminar($cod_promocion)) {
             throw new Exception('No se pudo eliminar la promoción');
+        }
+        if ($rowImg && $rowImg['imagen']) {
+            deleteFile($rowImg['imagen']);
         }
         return [
             'success' => 1,

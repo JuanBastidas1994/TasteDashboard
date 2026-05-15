@@ -29,8 +29,9 @@ $promocion = [
     'sucursales'    => [],
     'productos'     => [],
     'recurrencia'   => [],
-    'tipo_entrega'   => [],
-    'estado' => 'A'
+    'tipo_entrega'  => [],
+    'estado'        => 'A',
+    'imagen'        => '',
 ];
 if (isset($_GET['id'])) {
     $cod_promocion = $_GET['id'];
@@ -141,9 +142,34 @@ $tiposEntrega = [
     </style>
     <link href="plugins/file-upload/file-upload-with-preview.min.css" rel="stylesheet" type="text/css" />
     <link href="plugins/croppie/croppie.css" rel="stylesheet">
+    <link href="plugins/dropify/dropify.min.css" rel="stylesheet">
 </head>
 
 <body>
+
+    <!-- MODAL RECORTADOR PROMO -->
+    <div class="modal fade" id="modalCroppiePromo" tabindex="99" role="dialog" aria-hidden="true" data-backdrop="static">
+        <div class="modal-dialog modal-xl modal-dialog-scrollable" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">RECORTADOR</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="col-md-12" style="margin-bottom:10px;">
+                        <img id="promoImgCrop" src="#" style="width:100%;max-height:420px;" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-dark promo-crop-rotate" data-deg="-90">Rotate Left</button>
+                    <button class="btn btn-dark promo-crop-rotate" data-deg="90">Rotate Right</button>
+                    <button type="button" class="btn btn-primary" id="promoCropGet">Recortar</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!--  BEGIN NAVBAR  -->
     <?php echo top() ?>
@@ -242,6 +268,32 @@ $tiposEntrega = [
                                         </div>
                                     </div>
                                 </div>
+
+                                <div class="form-row mt-2">
+                                    <div class="form-group col-md-12">
+                                        <label>Imagen <small class="text-muted">(opcional · PNG o JPG · 500×300 px)</small></label>
+
+                                        <div id="promoImgContainer" <?= $imagen ? '' : 'style="display:none"' ?>>
+                                            <img id="promoImgPreview"
+                                                 src="<?= $imagen ? $files . $imagen : '' ?>"
+                                                 style="max-width:100%;max-height:180px;border-radius:6px;border:1px solid #ddd;object-fit:cover;display:block;margin-bottom:8px;">
+                                            <button type="button" class="btn btn-sm btn-outline-danger" id="btnQuitarImgPromo">
+                                                <i data-feather="trash-2"></i> Quitar imagen
+                                            </button>
+                                        </div>
+
+                                        <div id="promoImgUploader" <?= $imagen ? 'style="display:none"' : '' ?>>
+                                            <input type="file" id="inputImgPromo" class="dropify-promo"
+                                                   accept=".jpg,.jpeg,.png"
+                                                   data-allowed-file-extensions="jpg jpeg png"
+                                                   data-max-file-size="5M">
+                                        </div>
+
+                                        <input type="hidden" id="txt_crop_promo" value="">
+                                        <input type="hidden" id="txt_delete_imagen" value="0">
+                                    </div>
+                                </div>
+
                             </form>
                         </div>
 
@@ -564,7 +616,7 @@ $tiposEntrega = [
     <!-- END MAIN CONTAINER -->
 
     <?php js_mandatory(); ?>
-    <script src="assets/js/pages/crear_promociones.js?v=995" type="text/javascript"></script>
+    <script src="assets/js/pages/crear_promociones.js?v=996" type="text/javascript"></script>
 
     <!-- HANDLEBARS -->
     <script src="./assets/js/libs/handlebars/handlebars.js"></script>
@@ -573,6 +625,8 @@ $tiposEntrega = [
     <!-- BEGIN PAGE LEVEL CUSTOM SCRIPTS -->
     <script src="assets/js/scrollspyNav.js"></script>
     <script src="plugins/file-upload/file-upload-with-preview.min.js"></script>
+    <script src="plugins/croppie/croppie.js"></script>
+    <script src="plugins/dropify/dropify.min.js"></script>
     <!-- END PAGE LEVEL CUSTOM SCRIPTS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
 </body>

@@ -220,70 +220,72 @@ function datatableEventos(){
     $cod_empresa=$session['cod_empresa'];
     $where = "";
     $fecha = fecha();
-    
+
     $payment = $_GET['payment'] ?? '';
     $tipo = $_GET['tipo'] ?? '';
     $tiempo = $_GET['tiempo'] ?? '';
     $cod_sucursal = $_GET['sucursal'] ?? '';
-    
+
     if($session['cod_rol']==3){
         $cod_sucursal = $session['cod_sucursal'];
     }
-    
+
     if($cod_sucursal !== ''){
         $where .= " AND ca.cod_sucursal =".$cod_sucursal;
     }
-    
+
     if($tipo !== ''){
         $where .= ' AND ca.is_envio = '.$tipo;
     }
-    
+
     if($payment !== ''){
         $where .= " AND ca.pago = '$payment'";
     }
-    
+
     if($tiempo !== ''){
         if($tiempo == 'programadas'){
             $where .= " AND ca.hora_retiro > '$fecha'";
         }
     }
-	
+
 	$query = "SELECT ca.cod_orden, ca.fecha, ca.total, ca.is_envio, ca.referencia, ca.estado, ca.is_programado, ca.hora_retiro,
-                    CONCAT(u.nombre, ' ', u.apellido) as cliente, u.correo as email, 
-                    u.telefono as phone, s.nombre as sucursal, 
+                    CONCAT(u.nombre, ' ', u.apellido) as cliente, u.correo as email,
+                    u.telefono as phone, s.nombre as sucursal,
                     GROUP_CONCAT(fp.descripcion SEPARATOR ', ') AS formas_pago,
-                    MAX(oe.dia) as dia_evento
+                    oe.dia as dia_evento,
+                    oe.estado as estado_evento,
+                    oe.cod_producto,
+                    p.nombre as nombre_producto
             FROM tb_orden_cabecera ca
             JOIN tb_orden_evento oe ON oe.cod_orden = ca.cod_orden
             JOIN tb_usuarios u ON ca.cod_usuario = u.cod_usuario
             JOIN tb_sucursales s ON s.cod_sucursal = ca.cod_sucursal
             JOIN tb_orden_pagos op ON op.cod_orden = ca.cod_orden
             JOIN tb_formas_pago fp ON fp.cod_forma_pago = op.forma_pago
+            LEFT JOIN tb_productos p ON p.cod_producto = oe.cod_producto
             WHERE ca.estado NOT IN('CREADA')
-            AND ca.cod_empresa = ".$cod_empresa." 
+            AND ca.cod_empresa = ".$cod_empresa."
             $where
-            GROUP BY ca.cod_orden";
+            GROUP BY ca.cod_orden, oe.dia, oe.estado, oe.cod_producto, p.nombre";
     $table = "($query) temp";
 
-	
+
 	$primaryKey = 'cod_orden';
     $columns = array(
         array( 'dt' => 0, 'db' => 'cod_orden'),
         array( 'dt' => 1, 'db' => 'cliente'),
-        array( 'dt' => 2, 'db' => 'sucursal'),
-        // array( 'dt' => 3, 'db' => 'fecha'),
-        array( 'dt' => 3, 'db' => 'fecha',
+        array( 'dt' => 2, 'db' => 'fecha',
             'formatter' => function($d, $row){
                 return fechaHoraLatinoShort($d);
             }
         ),
-        array( 'dt' => 4, 'db' => 'total',
+        array( 'dt' => 3, 'db' => 'total',
             'formatter' => function($d, $row){
-                return '$' . number_format($d, 2, '.', ','); 
+                return '$' . number_format($d, 2, '.', ',');
             }
         ),
-        array( 'dt' => 5, 'db' => 'formas_pago'),
-        array( 'dt' => 6, 'db' => 'is_envio',
+        array( 'dt' => 4, 'db' => 'formas_pago'),
+        array( 'dt' => 5, 'db' => 'is_envio',
             'formatter' => function($d, $row){
                 if($d==0)
                     return "Pickup";
@@ -295,36 +297,34 @@ function datatableEventos(){
                     return "Pickup";
             }
         ),
-        array( 'dt' => 7, 'db' => 'is_programado',
+        array( 'dt' => 6, 'db' => 'dia_evento',
             'formatter' => function($d, $row){
-                $text = fechaLatino($row['dia_evento']);
-                return "$text"; 
+                return fechaLatino($d);
             }
         ),
-        array( 'dt' => 8, 'db' => 'phone'),
-        array( 'dt' => 9, 'db' => 'estado',
+        array( 'dt' => 7, 'db' => 'phone'),
+        array( 'dt' => 8, 'db' => 'nombre_producto'),
+        array( 'dt' => 9, 'db' => 'estado_evento',
             'formatter' => function($d, $row){
-                $status = $row['estado'];
-                $colors = [
-                    'ENTREGADA' => 'success',
-                    'ASIGNADA' => 'warning',
-                    'CANCELADA' => 'danger',
-                    'ANULADA' => 'danger'
-                ];
-                $badge = isset($colors[$status]) ? $colors[$status] : 'primary';
+                $status = $row['estado_evento'];
+                $badge = $status === 'EJECUTADO' ? 'success' : 'primary';
                 return '<span class="shadow-none badge badge-'.$badge.'">'.$status.'</span>';
             }
         ),
         array( 'dt' => 10, 'db' => 'cod_orden',
             'formatter' => function($d, $row){
+                $checkBtn = '';
+                if($row['estado_evento'] === 'EJECUTAR'){
+                    $checkBtn = '<li><a href="javascript:void(0)" class="btnEjecutarEvento" data-cod_orden="'.$row['cod_orden'].'" title="Marcar como ejecutado"><i data-feather="check-circle"></i></a></li>';
+                }
                 return '<ul class="table-controls">
                     <li><a href="orden_detalle.php?id='.$row['cod_orden'].'" title="Ver orden"><i data-feather="eye"></i></a></li>
+                    '.$checkBtn.'
                 </ul>';
             }
         ),
-        // Campos adicionales que quieres acceder pero no mostrar (invisibles en la tabla)
         array( 'dt' => 11, 'db' => 'hora_retiro' ),
-        array( 'dt' => 11, 'db' => 'dia_evento' ),
+        array( 'dt' => 12, 'db' => 'estado_evento' ),
     );
 
     $sql_details = array(
@@ -336,8 +336,18 @@ function datatableEventos(){
     );
     require( '../plugins/table/datatable/ssp.class.php' );
     return SSP::simple( $_GET, $sql_details, $table, $primaryKey, $columns);
-    
-    
+
+
+}
+
+function ejecutarEvento(){
+    $cod_orden = $_POST['cod_orden'] ?? '';
+    if(empty($cod_orden)){
+        return ['success' => 0, 'mensaje' => 'Falta información'];
+    }
+    $query = "UPDATE tb_orden_evento SET estado = 'EJECUTADO' WHERE cod_orden = ?";
+    Conexion::ejecutar($query, [intval($cod_orden)]);
+    return ['success' => 1, 'mensaje' => 'Evento marcado como ejecutado'];
 }
 
 function getOrdersFlota(){

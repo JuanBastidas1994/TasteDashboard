@@ -52,7 +52,7 @@ function processWidgets(widget){
     
     //Numero de ordenes
     sharedText = `Este mes ingresaron ${widget.ticketPromedio} ordenes 📈`;
-    addWidgetText('Número de Ordenes', `${widget.total}`, sharedText);
+    addWidgetText('Número de Ordenes entregadas', `${widget.total}`, sharedText);
 
     //Grafico venta por sucursal
     sharedText = `Estas son mis ventas generales 📈`;

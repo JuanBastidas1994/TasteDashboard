@@ -1,8 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Bash(Get-ChildItem -Path \"c:\\\\laragon\\\\www\\\\taste\" -Filter \"*.sql\" -Recurse)",
-      "Bash(Select-Object -First 10)"
-    ]
-  }
-}

@@ -94,6 +94,9 @@ if(in_array("PRODUCTO_INGREDIENTES", $permisos))
     
 if(in_array("PRODUCTO_VARIANTE", $permisos))
     $classVariantesNoShow = "";   
+
+if(in_array("PRODUCTO_EVENTO", $permisos))
+    $classEventosNoShow = "";
     
 $empaque = [
     'unidades' => 0,
@@ -127,7 +130,7 @@ if ($sizeCrop) {
 
 if (isset($_GET['id'])) {
     $alias = $_GET['id'];
-    $producto = NULL;
+    $producto = [];
     if ($Clproductos->getArrayByAlias($alias, $producto)) {
         $cod_producto = $producto['cod_producto'];
         $cod_producto_padre = $producto['cod_producto_padre'];
@@ -194,7 +197,6 @@ if (isset($_GET['id'])) {
         }
 
         if(in_array("PRODUCTO_EVENTO", $permisos)){
-            $classEventosNoShow = "";
             $resp = $Clproductos->getEvento($cod_producto);
             if($resp){
                 $eventos = $resp;

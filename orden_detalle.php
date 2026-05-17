@@ -393,6 +393,7 @@ function datetimeShort($fecha)
                                     		        $detalle['adicional_total'] = $detalle['adicional_total'] / $ivaDivider;
                                     		        $detalle['descuento'] = ($detalle['descuento'] > 0) ? $detalle['descuento'] / $ivaDivider : 0;
                                     		    }
+                                                $badges = '';
                                                 
                                                 if ($detalle['descripcion'] != "") {
                                                     if ($numVersion < 1 && $empresa["cod_empresa"] != 152)
@@ -404,8 +405,9 @@ function datetimeShort($fecha)
                                                             $texto = $detalle['descripcion'];
                                                         } else {
                                                             foreach ($arr as $det) {
+                                                                $textdetail = isset($det['text']) ? $det['text'] : $det['nombre'];
                                                                 $classText = "";
-                                                                if (strrpos($det['text'], 'Promo martes') === 0)
+                                                                if (strrpos($textdetail, 'Promo martes') === 0)
                                                                     $classText = 'style="margin-left: -20px !important;font-size: 15px !important; font-weight: bold !important; color: black !important;"';
 
                                                                 $textdetail = isset($det['text']) ? $det['text'] : $det['nombre'];
@@ -426,18 +428,22 @@ function datetimeShort($fecha)
                                                     }
 
                                                     $comentariosDetalle = '<dl>
-										  <dd class="text-comments" style="padding-left: 20px;">' . $texto . '</dd>
-										</dl>';
+                                                                    <dd class="text-comments" style="padding-left: 20px;">' . $texto . '</dd>
+                                                                    </dl>';
+                                                }
+                                                if($detalle['evento']){
+                                                    $badges = '<span class="shadow-none badge badge-primary">EVENTO '.$detalle['evento'].'</span>';
                                                 }
                                                 echo '<tr>
-                                        <td>' . $detalle['nombre'] . '
-                                          ' . $comentariosDetalle . '
-                                        </td>
-                                        <td>' . $detalle['cantidad'] . '</td>
-                                        <td>$' . number_format($detalle['precio'], 2) . '</td>
-                                        <td>(-)$' . number_format($detalle['descuento'], 2) . '</td>
-                                        <td>$' . number_format(($detalle['precio_final']), 2) . '</td>
-                                      </tr>';
+                                                    <td>' . $detalle['nombre'] . '
+                                                    ' . $comentariosDetalle . '
+                                                    ' . $badges . '
+                                                    </td>
+                                                    <td>' . $detalle['cantidad'] . '</td>
+                                                    <td>$' . number_format($detalle['precio'], 2) . '</td>
+                                                    <td>(-)$' . number_format($detalle['descuento'], 2) . '</td>
+                                                    <td>$' . number_format(($detalle['precio_final']), 2) . '</td>
+                                                </tr>';
                                             }
 
                                             ?>

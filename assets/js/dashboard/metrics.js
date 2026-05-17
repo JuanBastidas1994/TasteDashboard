@@ -52,7 +52,7 @@ function processWidgets(widget){
     
     //Numero de ordenes
     sharedText = `Este mes ingresaron ${widget.ticketPromedio} ordenes 📈`;
-    addWidgetText('Número de Ordenes', `${widget.total}`, sharedText);
+    addWidgetText('Número de Ordenes entregadas', `${widget.total}`, sharedText);
 
     //Grafico venta por sucursal
     sharedText = `Estas son mis ventas generales 📈`;
@@ -85,8 +85,25 @@ function processWidgets(widget){
     generateChart($divChartDays.find('.widget-chart')[0], chartData);
 
     //Plataforma
-    let PiePlatformData = createPieChartData(widget.topPlatforms, 300);
-    let $divChartPlatform = addWidgetText('Ventas por plataforma', '', '', 'piechart', PieData, 320);
-    generateChart($divChartPlatform.find('.widget-chart')[0], PiePlatformData);
+    //topPlatforms
+    if(widget.topPlatforms.length > 1){
+        let PiePlatformData = createPieChartData(widget.topPlatforms, 300);
+        let $divChartPlatform = addWidgetText('Ventas por plataforma', '', '', 'piechart', PieData, 320);
+        generateChart($divChartPlatform.find('.widget-chart')[0], PiePlatformData);
+    }
+
+    //Ordenes por estado
+    // sharedText = `El día que mas generó fue ${getMaxValue(widget.ordenesPorEstado)}`;
+    // chartData = createBarChartData(widget.ordenesPorEstado, 'Ventas por Día', 300);
+    // let $divChartStatuses = addWidgetText('Ordenes por estado', '', sharedText, 'barchart', chartData, 320);
+    // generateChart($divChartStatuses.find('.widget-chart')[0], chartData);
+
+
+    //Ordenes por estado
+    sharedText = `El rango de hora en el que más tengo ventas es ${getMaxValue(widget.topHours)}`;
+    chartData = createBarChartData(widget.ordenesPorEstado, 'Ordenes por estado', 300);
+    chartData.plotOptions.bar.horizontal = true;
+    let $divChartStatuses = addWidgetText('Ordenes por estado', '', sharedText, 'barchart', chartData, 320);
+    generateChart($divChartStatuses.find('.widget-chart')[0], chartData);
 
 }

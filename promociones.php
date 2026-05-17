@@ -125,6 +125,11 @@ $session = getSession();
                                                     <td class="text-center">
                                                         <ul class="table-controls">
                                                             <li>
+                                                                <a href="javascript:void(0);" data-value="'.$promocion['cod_promocion'].'" data-desc="'.htmlspecialchars($promocion['descripcion']).'" class="bs-tooltip btnProgreso" data-toggle="tooltip" data-placement="top" title="" data-original-title="Progreso">
+                                                                    <i data-feather="bar-chart"></i>
+                                                                </a>
+                                                            </li>
+                                                            <li>
                                                                 <a href="crear_promociones.php?id='.$promocion['cod_promocion'].'" class="bs-tooltip" data-toggle="tooltip" data-placement="top" title="" data-original-title="Editar">
                                                                     <i data-feather="edit-2"></i>
                                                                 </a>
@@ -153,6 +158,47 @@ $session = getSession();
     </div>
     <!-- END MAIN CONTAINER -->
     
+    <!-- Modal Progreso Promoción -->
+    <div class="modal fade bs-example-modal-lg" id="promoProgreso" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-xl" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Progreso de promoción: <span id="promofilterText"></span></h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div>
+                        <h3>Total órdenes con esta promoción: <span id="totalPromoOrders">0</span></h3>
+                    </div>
+                    <input type="hidden" id="promofilter" value=""/>
+                    <table id="table-ordenes-promo" class="table style-3 table-hover" style="margin-top: 10px !important;">
+                        <thead>
+                            <tr>
+                                <th>N.</th>
+                                <th>Cliente</th>
+                                <th>Sucursal</th>
+                                <th>Fecha</th>
+                                <th>Total</th>
+                                <th>Pago</th>
+                                <th>Tipo</th>
+                                <th>Entrega</th>
+                                <th>Teléfono</th>
+                                <th class="text-center">Estado</th>
+                                <th class="text-center">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn" data-dismiss="modal"><i class="flaticon-cancel-12"></i> Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <?php js_mandatory(); ?>
     <script src="assets/js/pages/promociones_nueva.js" type="text/javascript"></script>
     <script>

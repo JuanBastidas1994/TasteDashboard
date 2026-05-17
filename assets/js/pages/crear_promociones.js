@@ -48,12 +48,83 @@ $(function() {
             }
         }
 
+        data.append('txt_crop', $("#txt_crop_promo").val());
+        data.append('txt_delete_imagen', $("#txt_delete_imagen").val());
+
         var id = parseInt($("#id").val());
         if (id > 0) {
             data.append('id', id);
         }
         storePromotion(data);
 
+    });
+
+    // ── Imagen: dropify + croppie 500×300 ──────────────────────────────────
+    var resizePromo = null;
+
+    var drPromo = $('#inputImgPromo').dropify({
+        messages: {
+            'default': 'Click para subir o arrastra (PNG / JPG)',
+            'remove':  'X',
+            'replace': 'Cambiar imagen'
+        }
+    });
+
+    drPromo.on('dropify.fileReady', function (event, element) {
+        console.log('fileReady');
+        if (resizePromo !== null) {
+            resizePromo.destroy();
+            resizePromo = null;
+        }
+        $('#modalCroppiePromo').modal({ backdrop: 'static', keyboard: false });
+    });
+
+    $('#modalCroppiePromo').on('shown.bs.modal', function () {
+        console.log('OPEN MODAL CROPPIE');
+        var file = $('#inputImgPromo').get(0).files[0];
+        if (!file) return;
+        var reader = new FileReader();
+        reader.onload = function (e) {
+            $('#promoImgCrop').attr('src', e.target.result);
+            resizePromo = new Croppie($('#promoImgCrop')[0], {
+                viewport:         { width: 500, height: 300 },
+                boundary:         { width: 520, height: 380 },
+                showZoomer:       true,
+                enableResize:     false,
+                enableOrientation: true
+            });
+            $('#promoCropGet').off('click').on('click', function () {
+                resizePromo.result({ type: 'base64', format: 'jpeg', quality: 1 }).then(function (dataImg) {
+                    $('#txt_crop_promo').val(dataImg);
+                    $('#txt_delete_imagen').val('0');
+                    $('#promoImgPreview').attr('src', dataImg);
+                    $('#promoImgContainer').show();
+                    $('#promoImgUploader').hide();
+                    $('#modalCroppiePromo').modal('hide');
+                });
+            });
+            $('.promo-crop-rotate').off('click').on('click', function () {
+                resizePromo.rotate(parseInt($(this).data('deg')));
+            });
+        };
+        reader.readAsDataURL(file);
+    });
+
+    $('#modalCroppiePromo').on('hidden.bs.modal', function () {
+        if (resizePromo !== null) {
+            resizePromo.destroy();
+            resizePromo = null;
+        }
+    });
+
+    $('#btnQuitarImgPromo').on('click', function () {
+        $('#txt_crop_promo').val('');
+        $('#txt_delete_imagen').val('1');
+        $('#promoImgContainer').hide();
+        var dr = $('#inputImgPromo').data('dropify');
+        if (dr) dr.resetPreview();
+        $('#promoImgUploader').show();
+        if (typeof feather !== 'undefined') feather.replace();
     });
 });
 
@@ -186,14 +257,36 @@ $('.input-hijo').on('change', function () {
     $(`.input-padre${$(this).data('padre')}`).prop('checked', true)
 })
 
+
 $("#cmb_tipo_descuento").on('change', function(){
-    let val = $(this).val();
-    if(val == 0){
+    const val = $(this).val();
+
+    // Ocultar todo primero
+    $(".inputPorcentaje").hide();
+    $(".inputMontoMinimo").hide();
+    $(".inputProductoRegalo").hide();
+    // El bloque de productos participantes: mostrar u ocultar
+    $("#bloqueProductosParticipantes").show(); // por defecto visible
+
+    if (val == "0") {
+        // Porcentaje
         $(".inputPorcentaje").show();
-    }else{
-        $(".inputPorcentaje").hide();
+        $("#tituloProductos").text("Productos");
+        $("#descProductos").text("Escoje los productos a los que le vayas a aplicar el descuento");
+    } else if (["2","3","4","5"].includes(val)) {
+        // 2x1, 3x2, etc — no necesita nada extra
+        $("#tituloProductos").text("Productos");
+        $("#descProductos").text("Escoje los productos a los que le vayas a aplicar el descuento");
+    } else if (val == "compra_x_lleva_y") {
+        $(".inputProductoRegalo").show();
+        $("#tituloProductos").text("Productos Participantes");
+        $("#descProductos").text("Escoje los productos que el cliente debe comprar para llevarse el regalo");
+    } else if (val == "monto_minimo") {
+        $(".inputMontoMinimo").show();
+        $(".inputProductoRegalo").show();
+        $("#bloqueProductosParticipantes").hide(); // no aplica en monto mínimo
     }
-});
+}).trigger('change'); 
 
 $("#btnNuevo").on("click",function(){
     messageConfirm('¿Estas seguro?', '¡Perderas todos los cambios que no hayas guardado!', "warning")

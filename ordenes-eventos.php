@@ -76,19 +76,6 @@ $clsucursales = new cl_sucursales(NULL);
                             </div>
 
                             <div class="row">
-                                <div class="col-md-2 col-12 mb-md-0 mb-4<?php if ($session['cod_rol'] == 3) echo "d-none"; ?> ">
-                                    <label>Sucursal <i data-feather="map-pin"></i></label>
-                                    <select id="cmbSucursal" class="form-control basic">
-                                        <option value="">Todas</option>
-                                        <?php
-                                        $resp = $clsucursales->lista();
-                                        foreach ($resp as $sucursales) {
-                                            echo '<option value="' . $sucursales['cod_sucursal'] . '">' . $sucursales['nombre'] . '</option>';
-                                        }
-
-                                        ?>
-                                    </select>
-                                </div>
                                 <div class="col-md-2 col-12 mb-md-0 mb-4">
                                     <label>Tipo <i data-feather="truck"></i></label>
                                     <select id="cmbType" class="form-control">
@@ -131,13 +118,13 @@ $clsucursales = new cl_sucursales(NULL);
                                         <tr>
                                             <th>N.</th>
                                             <th>Cliente</th>
-                                            <th>Sucursal</th>
                                             <th>Fecha</th>
                                             <th>Total</th>
                                             <th>Pago</th>
                                             <th>Tipo</th>
                                             <th>Día del evento</th>
                                             <th>Teléfono</th>
+                                            <th>Producto</th>
                                             <th class="text-center">Estado</th>
                                             <th class="text-center">Acciones</th>
                                         </tr>
@@ -166,7 +153,7 @@ $clsucursales = new cl_sucursales(NULL);
         $(function() {
             loadDatatable();
 
-            $('#cmbPayment, #cmbType, #cmbTiempo, #cmbSucursal').on('change', function() {
+            $('#cmbPayment, #cmbType, #cmbTiempo').on('change', function() {
                 table.ajax.reload();
             });
         });
@@ -214,6 +201,37 @@ $clsucursales = new cl_sucursales(NULL);
                 table.search(this.value).draw();
             });
         }
+
+        $("body").on("click", ".btnEjecutarEvento", function() {
+            let cod_orden = $(this).data("cod_orden");
+            Swal.fire({
+                title: '¿Marcar evento como ejecutado?',
+                text: 'Esta acción no se puede deshacer.',
+                type: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Aceptar',
+                cancelButtonText: 'Cancelar',
+                padding: '2em'
+            }).then(function(result) {
+                if (result.value) {
+                    OpenLoad("Actualizando evento...");
+                    $.post('./controllers/controlador_ordenes.php?metodo=ejecutarEvento', { cod_orden: cod_orden })
+                        .done(function(response) {
+                            CloseLoad();
+                            if (response.success == 1) {
+                                notify(response.mensaje, "success", 2);
+                                table.ajax.reload(null, false);
+                            } else {
+                                messageDone(response.mensaje, 'error');
+                            }
+                        })
+                        .fail(function() {
+                            CloseLoad();
+                            messageDone('Ocurrió un error', 'error');
+                        });
+                }
+            });
+        });
 
         $("body").on("click", ".btnSetStatus", function() {
             let btn = $(this);

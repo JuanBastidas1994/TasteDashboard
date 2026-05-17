@@ -292,25 +292,6 @@ $tiposEntrega = [
                                         <input type="text" class="form-control" value="0">
                                     </div>
                                 </div>
-                                <div class="mt-4">
-                                    <h4>Productos Gratis</h4>
-                                    <p>Escoje el producto que el cliente recibirá gratis</p>
-                                </div>
-                                <div class="">
-                                    <select class="form-control" name="producto_regalo">
-                                        <?php foreach ($categorias as $codCategoria => $dataCategoria): ?>
-                                            <optgroup label="<?= htmlspecialchars($dataCategoria['nombre']) ?>">
-                                                <?php foreach ($dataCategoria['productos'] as $producto): ?>
-                                                    <option value="<?= $producto['cod_producto'] ?>">
-                                                        <?= htmlspecialchars($producto['nombre']) ?>
-                                                    </option>
-                                                <?php endforeach; ?>
-                                            </optgroup>
-                                        <?php endforeach; ?>
-
-                                    </select>
-
-                                </div>
                             </form>
                         </div>
                     </div>
@@ -339,6 +320,25 @@ $tiposEntrega = [
                                                 <option value="1" <?php if($is_porcentaje == 0) echo 'selected'; ?>>Monto mínimo</option>
                                         </select>
                                     </div>
+                                </div>
+                                <div class="mt-4">
+                                    <h4>Productos Gratis</h4>
+                                    <p>Escoje el producto que el cliente recibirá gratis</p>
+                                </div>
+                                <div class="">
+                                    <select class="form-control" name="producto_regalo">
+                                        <?php foreach ($categorias as $codCategoria => $dataCategoria): ?>
+                                            <optgroup label="<?= htmlspecialchars($dataCategoria['nombre']) ?>">
+                                                <?php foreach ($dataCategoria['productos'] as $producto): ?>
+                                                    <option value="<?= $producto['cod_producto'] ?>">
+                                                        <?= htmlspecialchars($producto['nombre']) ?>
+                                                    </option>
+                                                <?php endforeach; ?>
+                                            </optgroup>
+                                        <?php endforeach; ?>
+
+                                    </select>
+
                                 </div>
 
                                 <div class="mt-3">

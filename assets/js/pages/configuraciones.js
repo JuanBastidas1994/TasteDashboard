@@ -1,16 +1,4 @@
 $(document).ready(function() {
-    $("#moveCategorias").sortable({
-        connectWith: ".connectedSortable",
-        update: function (event, ui) {
-            var selectedData = new Array();
-            $('#moveCategorias>tr').each(function() {
-                
-                selectedData.push($(this).attr("data-id"));
-            });
-            ordenarItems(selectedData,"opciones");
-        }
-    });
-
     getSucursalesCourier();
 });
 
@@ -109,76 +97,6 @@ function UpdateRedes(id,text,codigo)
                 });
 }
     
-    function ordenarItems(data,tipo){
-      var parametros = {
-          "datos": data,
-          "tipo":tipo
-        }
-    $.ajax({
-      url:'controllers/controlador_configuraciones.php?metodo=actualizarPosicion',
-      type:'POST',
-      data:parametros,
-      success:function(response){
-        console.log(response);
-        if(response['success']==1){
-          notify("Actualizado correctamente", "success", 2);
-        }
-          //alert(response['mensaje']);
-      },
-      error: function(data){
-        console.log(data);
-      }
-  });
-    }
-
-//COMPONENTES
-    CKEDITOR.replace("editor1");
-    
-    $("body").on("click",".btnDescripcion",function(){
-        $("#frmDescripcion").trigger("reset");
-        $("#modalDescripcion").modal();
-        var codigo=$(this).attr("data-id");
-        CKEDITOR.instances.editor1.setData($("#txt_descripcion"+codigo).val());
-        $(".btnSaveDesc").attr("data-id",codigo);
-    });
-    
-    $("body").on("click",".btnEditarFormaP",function(){
-        var codigo=$(this).attr("data-id");
-        var sl = $("#chk_estado"+codigo).prop("checked");
-        var parametros = {
-                    "codigo":codigo,
-                    "estado":sl
-                }
-                console.log(parametros);
-                $.ajax({
-                    beforeSend: function(){
-                        OpenLoad("Por favor espere...");
-                    },
-                    url: 'controllers/controlador_configuraciones.php?metodo=update_formas_pago',
-                    type: 'GET',
-                    data: parametros,
-                    success: function(response){
-                        console.log(response);
-                        if( response['success'] == 1)
-                        {
-                            messageDone(response['mensaje'],'success');
-                        } 
-                        else
-                        {
-                            messageDone(response['mensaje'],'error');
-                        } 
-                                                
-                    },
-                    error: function(data){
-                        console.log(data);
-                        
-                    },
-                    complete: function(resp)
-                    {
-                        CloseLoad();
-                    }
-                });
-    });
 
  $("#btnActualizarCostoEnvio").on("click",function(event){
         event.preventDefault();
@@ -384,46 +302,6 @@ $(".btnNiveles").on("click",function(event){
     }
 });
 
-  $("body").on("click",".btnSaveDesc",function(){
-        var codigo=$(this).attr("data-id");
-        var formData = new FormData($("#frmDescripcion")[0]);
-        var data = CKEDITOR.instances.editor1.getData();
-        formData.append('desc_larga', data);
-        var parametros = {
-                    "codigo": codigo,
-                    "desc_larga":data
-                }
-
-         $.ajax({
-                    beforeSend: function(){
-                        OpenLoad("Buscando informacion, por favor espere...");
-                    },
-                    url: 'controllers/controlador_configuraciones.php?metodo=update_descripcion',
-                    type: 'GET',
-                    data: parametros,
-                    success: function(response){
-                        console.log(response);
-                        if( response['success'] == 1)
-                        {
-                            messageDone(response['mensaje'],'success');
-                        } 
-                        else
-                        {
-                            messageDone(response['mensaje'],'error');
-                        } 
-                                                
-                    },
-                    error: function(data){
-                        console.log(data);
-                        
-                    },
-                    complete: function(resp)
-                    {
-                        CloseLoad();
-                    }
-                });
-
-    });
 
     $("#chk_envioIva").on("change", function(){
         let checkb = $(this);
@@ -754,50 +632,6 @@ $("#frmConfigTransporte").on('submit', function(event){
 
 
 
-$("body").on("click", ".btnEditarMaximo", function(){
-    $(this).hide();
-    let id = $(this).data("id");
-    let formaPago = $(this).data("fp");
-    $(this).parents(".rowMontoMaximo").find(".txtMontoMaximo").attr("disabled", false);
-    $(this).next().show();
-});
-
-$("body").on("click", ".btnGuardarMaximo", function(){
-    let btn = $(this);
-    let btnEdit = $(this).prev();
-    let formaPago = $(this).data("fp");
-    let txtMonto = $(this).parents(".rowMontoMaximo").find(".txtMontoMaximo");
-    let monto = $(this).parents(".rowMontoMaximo").find(".txtMontoMaximo").val();
-    let data = {
-       formaPago,
-       monto
-    }
-
-    $.ajax({
-       url:'controllers/controlador_configuraciones.php?metodo=setMontoMaximo',
-       data,
-       type: "POST",
-       headers:{
-           Accept: 'application/json'
-       },
-       success: function(response){
-          console.log(response);
-          if(response['success']==1){
-            btn.hide();
-            btnEdit.show();
-            txtMonto.attr("disabled", true);
-            messageDone(response.mensaje, "success");
-          }
-          else{
-            messageDone(response.mensaje, "error");
-          }
-       },
-       error: function(data){
-       },
-       complete: function(){
-       },
-    });
-});
 
 $("body").on("click", ".btnEditarNombreFP", function () {
     $(this).hide();
@@ -843,38 +677,3 @@ $("body").on("click", ".btnGuardarNombreFP", function () {
     });
 });
 
-$("body").on("change", ".ckTipoEnvio", function () {
-    let ck = $(this);
-    let ckData = ck.data("fp");
-    let encendido = 0;
-    if (ck.is(":checked"))
-        encendido = 1;
-    let data = {
-        cod_empresa_forma_pago: ckData.id,
-        tipo_envio: ckData.tipo_envio,
-        encendido
-    }
-
-    $.ajax({
-        url: 'controllers/controlador_configuraciones.php?metodo=setPermisoTipoEnvio',
-        data,
-        type: "POST",
-        headers: {
-            Accept: 'application/json'
-        },
-        success: function (response) {
-            console.log(response);
-            if (response['success'] == 1) {
-                messageDone(response.mensaje, "success");
-            }
-            else {
-                messageDone(response.mensaje, "error");
-            }
-        },
-        error: function (data) {
-            console.log(data);
-        },
-        complete: function () {
-        },
-    });
-});

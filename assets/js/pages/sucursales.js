@@ -285,20 +285,6 @@ $(document).ready(function () {
         feather.replace();
     }
 
-    /*time picker*/
-    /*
-    var f4 = flatpickr(document.getElementById('hora_ini'), {
-        enableTime: true,
-        noCalendar: true,
-        dateFormat: "H:i"
-    });
-
-    var f5 = flatpickr(document.getElementById('hora_fin'), {
-        enableTime: true,
-        noCalendar: true,
-        dateFormat: "H:i"
-    });*/
-
     /*--NUEVO--*/
     /*time picker*/
     flatpickr('.hora_iniD', {
@@ -418,6 +404,85 @@ $(document).ready(function () {
             padre.find(".sucSelect").val(0);
     });
 
+    // ===== FORMAS DE PAGO POR SUCURSAL =====
+
+    function cargarFormasPagoSucursal() {
+        console.log('CARGAR FOFRMAS DE PAGO!!!!!!!!!');
+        let codSucursal = $("#cod_sucursal").val();
+        if (!codSucursal || codSucursal == 0) return;
+        $.ajax({
+            url: 'controllers/controlador_sucursal.php?metodo=getFormasPagoSucursal',
+            type: 'GET',
+            data: { cod_sucursal: codSucursal },
+            headers: { Accept: 'application/json' },
+            success: function(response) {
+                if (response.success == 1 && response.datos.length > 0) {
+                    let html = '';
+                    response.datos.forEach(function(fp) {
+                        let chk = fp.estado == 'A' ? 'checked' : '';
+                        let cKDelivery = fp.is_delivery == 1 ? 'checked' : '';
+                        let cKPickup = fp.is_pickup == 1 ? 'checked' : '';
+                        let fpData = JSON.stringify({ id: fp.cod_sucursal_forma_pago, tipo_envio: 'P' });
+                        let fpDataD = JSON.stringify({ id: fp.cod_sucursal_forma_pago, tipo_envio: 'D' });
+                        html += `<tr>
+                            <td class="text-center">${fp.nomFP}</td>
+                            <td>
+                                <div class="row rowMontoSuc align-items-center pl-2">
+                                    <div class="col-9 pr-1">
+                                        <input type="number" class="form-control txtMontoSuc" value="${fp.monto_maximo}" disabled>
+                                    </div>
+                                    <div class="pl-0 col-3 d-flex">
+                                        <button class="btn btn-primary btn-sm btnEditarMontoSuc" data-id="${fp.cod_sucursal_forma_pago}"><i data-feather="edit-2"></i></button>
+                                        <button class="btn btn-success btn-sm btnGuardarMontoSuc" data-id="${fp.cod_sucursal_forma_pago}" style="display:none;"><i data-feather="save"></i></button>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="row rowDescSuc align-items-center">
+                                    <div class="col-9 pr-1">
+                                        <input type="text" class="form-control txtDescSuc" value="${fp.descripcion}" disabled>
+                                    </div>
+                                    <div class="pl-0 col-3 d-flex">
+                                        <button class="btn btn-primary btn-sm btnEditarDescSuc" data-id="${fp.cod_sucursal_forma_pago}"><i data-feather="edit-2"></i></button>
+                                        <button class="btn btn-success btn-sm btnGuardarDescSuc" data-id="${fp.cod_sucursal_forma_pago}" style="display:none;"><i data-feather="save"></i></button>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="text-center">
+                                <label class="switch s-icons s-outline s-outline-success">
+                                    <input type="checkbox" class="ckEstadoFPSuc" data-id="${fp.cod_sucursal_forma_pago}" ${chk}>
+                                    <span class="slider round"></span>
+                                </label>
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center mb-1">
+                                    <label class="switch s-icons s-outline s-outline-success mr-2">
+                                        <input type="checkbox" class="ckTipoEnvioSuc" ${cKPickup} data-fp='{"id": ${fp.cod_sucursal_forma_pago}, "tipo_envio": "P"}'>
+                                        <span class="slider round"></span>
+                                    </label>
+                                    <label class="mb-0">Pickup</label>
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    <label class="switch s-icons s-outline s-outline-success mr-2">
+                                        <input type="checkbox" class="ckTipoEnvioSuc" ${cKDelivery} data-fp='{"id": ${fp.cod_sucursal_forma_pago}, "tipo_envio": "D"}'>
+                                        <span class="slider round"></span>
+                                    </label>
+                                    <label class="mb-0">Delivery</label>
+                                </div>
+                            </td>
+                        </tr>`;
+                    });
+                    $("#tbodyFormasPagoSuc").html(html);
+                    feather.replace();
+                } else {
+                    $("#tbodyFormasPagoSuc").html('<tr><td colspan="5" class="text-center">No hay formas de pago configuradas para esta empresa.</td></tr>');
+                }
+            }
+        });
+    }
+
+    cargarFormasPagoSucursal();
+
 });
 
 $("body").on("click", ".btnGuardarProgramar", function () {
@@ -515,6 +580,7 @@ $("#btnBack").on("click", function () {
 // RANGOS
 function addRango(rango = null) {
     let target = $(".lst-rangos");
+    console.log('RANGOOOO', rango);
     let template = Handlebars.compile($("#rango-template").html());
 
     if (rango == null) {
@@ -707,5 +773,97 @@ $(".flLogos").change(function(){
        },
        complete: function(){
        },
+    });
+});
+
+$(document).on('shown.bs.tab', 'a[href="#tab-formas-pago-suc"]', function() {
+    console.log('CLICK EN TAB FORMA PAGO');
+    cargarFormasPagoSucursal();
+});
+
+$("body").on("click", ".btnEditarMontoSuc", function() {
+    $(this).hide();
+    $(this).parents(".rowMontoSuc").find(".txtMontoSuc").attr("disabled", false);
+    $(this).next(".btnGuardarMontoSuc").show();
+});
+
+$("body").on("click", ".btnGuardarMontoSuc", function() {
+    let btn = $(this);
+    let btnEdit = btn.prev();
+    let cod = btn.data("id");
+    let txtMonto = btn.parents(".rowMontoSuc").find(".txtMontoSuc");
+    $.ajax({
+        url: 'controllers/controlador_sucursal.php?metodo=setSucursalFormaPagoMonto',
+        data: { cod: cod, monto: txtMonto.val() },
+        type: "POST",
+        headers: { Accept: 'application/json' },
+        success: function(response) {
+            if (response.success == 1) {
+                btn.hide();
+                btnEdit.show();
+                txtMonto.attr("disabled", true);
+                messageDone(response.mensaje, "success");
+            } else {
+                messageDone(response.mensaje, "error");
+            }
+        }
+    });
+});
+
+$("body").on("click", ".btnEditarDescSuc", function() {
+    $(this).hide();
+    $(this).parents(".rowDescSuc").find(".txtDescSuc").attr("disabled", false);
+    $(this).next(".btnGuardarDescSuc").show();
+});
+
+$("body").on("click", ".btnGuardarDescSuc", function() {
+    let btn = $(this);
+    let btnEdit = btn.prev();
+    let cod = btn.data("id");
+    let txtDesc = btn.parents(".rowDescSuc").find(".txtDescSuc");
+    $.ajax({
+        url: 'controllers/controlador_sucursal.php?metodo=setSucursalFormaPagoDescripcion',
+        data: { cod: cod, descripcion: txtDesc.val() },
+        type: "POST",
+        headers: { Accept: 'application/json' },
+        success: function(response) {
+            if (response.success == 1) {
+                btn.hide();
+                btnEdit.show();
+                txtDesc.attr("disabled", true);
+                messageDone(response.mensaje, "success");
+            } else {
+                messageDone(response.mensaje, "error");
+            }
+        }
+    });
+});
+
+$("body").on("change", ".ckEstadoFPSuc", function() {
+    let cod = $(this).data("id");
+    let estado = $(this).is(":checked");
+    $.ajax({
+        url: 'controllers/controlador_sucursal.php?metodo=setSucursalFormaPagoEstado',
+        data: { cod: cod, estado: estado },
+        type: "GET",
+        headers: { Accept: 'application/json' },
+        success: function(response) {
+            messageDone(response.mensaje, response.success == 1 ? "success" : "error");
+        }
+    });
+});
+
+$("body").on("change", ".ckTipoEnvioSuc", function() {
+    let ck = $(this);
+    let ckData = ck.data("fp");
+    let encendido = ck.is(":checked") ? 1 : 0;
+    $.ajax({
+        url: 'controllers/controlador_sucursal.php?metodo=setSucursalFormaPagoTipoEnvio',
+        data: { cod: ckData.id, tipo_envio: ckData.tipo_envio, encendido: encendido },
+        type: "POST",
+        headers: { Accept: 'application/json' },
+        success: function(response) {
+            messageDone(response.mensaje, response.success == 1 ? "success" : "error");
+        }
     });
 });

@@ -254,6 +254,33 @@ function getIndicators($officeId, $dateStart, $dateEnd, $period)
     }
 
     // ================================
+    // 8️⃣ ÓRDENES POR ESTADO
+    // ================================
+    $officeJoinFilter = $officeId > 0 ? "AND o.cod_sucursal = :officeId" : "";
+
+    $sqlByState = "
+        SELECT
+            e.nombre AS estado_nombre,
+            e.icono,
+            e.posicion,
+            COUNT(o.cod_orden) AS total
+        FROM tb_estado_ordenes e
+        LEFT JOIN tb_orden_cabecera o
+            ON o.estado = e.cod_estado
+            AND o.cod_empresa = :cod_empresa
+            AND o.fecha BETWEEN :start AND :end
+            $officeJoinFilter
+        GROUP BY e.cod_estado, e.nombre, e.icono, e.posicion
+        ORDER BY e.posicion
+    ";
+
+    $statesRaw = Conexion::buscarVariosRegistro($sqlByState, $params);
+    $ordenesPorEstado = [];
+    foreach ($statesRaw as $row) {
+        $ordenesPorEstado[$row['estado_nombre']] = (int)$row['total'];
+    }
+
+    // ================================
     // RETURN FINAL
     // ================================
 
@@ -267,7 +294,8 @@ function getIndicators($officeId, $dateStart, $dateEnd, $period)
         "topPlatforms" => $topPlatforms,
         "deliveryTotals" => $topDelivery,
         "trend" => $trend,
-        'clientes_recurrentes' => $clientes_recurrentes
+        'clientes_recurrentes' => $clientes_recurrentes,
+        'ordenesPorEstado' => $ordenesPorEstado
     ];
 }
 

@@ -137,42 +137,6 @@ if ($Clempresas->getPermisoTienda($cod_empresa))
         <?php echo sidebar(); ?>
         <!--  END SIDEBAR  -->
 
-        <!--MODAL DESCRIPCION -->
-        <div class="modal fade bs-example-modal-lg" id="modalDescripcion" tabindex="99" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" data-backdrop="static">
-            <div class="modal-dialog modal-lg" role="document" style="z-index: 9999999 !important;">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">Escriba una descripcion</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x">
-                                <line x1="18" y1="6" x2="6" y2="18"></line>
-                                <line x1="6" y1="6" x2="18" y2="18"></line>
-                            </svg>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-
-                        <div class="x_content">
-                            <form id="frmDescripcion" method="POST" action="#">
-                                <div class="row">
-                                    <div class="col-md-12 col-sm-12 col-xs-12">
-                                        <div class="form-group col-md-12 col-sm-12 col-xs-12" style="margin-bottom:10px;">
-                                            <label>Descripción Larga</label>
-                                            <textarea name="txt_descripcion_larga" id="editor1" class="form-control txt_descripcion_larga" autocomplete="off" style="resize: none;"></textarea>
-                                        </div>
-                                    </div>
-                                </div>
-                            </form>
-                        </div>
-
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-outline-primary btnSaveDesc" data-id="">Guardar</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!--MODAL DESCRIPCION -->
 
         <!--  BEGIN CONTENT AREA  -->
         <div id="content" class="main-content">
@@ -571,120 +535,49 @@ if ($Clempresas->getPermisoTienda($cod_empresa))
 
                                 </div>
 
-                                <div class="tab-pane fade" id="tab-formaspago" role="tabpanel" aria-labelledby="pills-pago-tab2" style="height: 350px;">
-                                    <div class="col-xl-12 col-lg-12 col-sm-12  layout-spacing">
+                                <div class="tab-pane fade" id="tab-formaspago" role="tabpanel" aria-labelledby="pills-pago-tab2">
+                                    <div class="col-xl-12 col-lg-12 col-sm-12 layout-spacing">
                                         <div class="widget-content widget-content-area br-6">
-                                            <div class="col-xl-12 col-md-12 col-sm-12 col-12" wfd-id="42">
+                                            <div class="col-xl-12 col-md-12 col-sm-12 col-12">
                                                 <h4>Formas de pago</h4>
                                             </div>
-                                            <table class="table style-3  table-hover">
+                                            <table class="table style-3 table-hover">
                                                 <thead>
                                                     <tr>
                                                         <th class="text-center">Forma Pago</th>
-                                                        <th class="text-center">Monto máximo ($) <br> <small>(0 = sin límite)</small></th>
-                                                        <th class="text-center">Estado</th>
-                                                        <th class="text-center">Descripción</th>
-                                                        <th class="text-center">Acciones</th>
                                                     </tr>
                                                 </thead>
-                                                <tbody id="moveCategorias" class="connectedSortable">
+                                                <tbody>
                                                     <?php
                                                     $resp = $Clempresas->getFormasPagoEmp($session['cod_empresa']);
                                                     foreach ($resp as $forma) {
-                                                        $chk = "";
-                                                        if ($forma['estado'] == "A")
-                                                            $chk = "checked ";
-                                                        $desc_larga = editor_decode($forma['descripcion']);
-
-                                                        //TIPO ENVIO
-                                                        $cKDelivery = "";
-                                                        $cKPickup = "";
-                                                        if ($forma["is_delivery"] == 1)
-                                                            $cKDelivery = "checked";
-                                                        if ($forma["is_pickup"] == 1)
-                                                            $cKPickup = "checked";
-
                                                         if ($forma['estado'] != "" && $forma['estado'] != "D") {
                                                             echo '
                                                     <tr data-id="' . $forma['cod_empresa_forma_pago'] . '">
-                                                        <td class="text-center" >
+                                                        <td class="text-center">
                                                             <div class="row rowNombreFP">
                                                                 <div class="col-10 pr-1">
                                                                     <input type="text" id="txt_nombre' . $forma['id_forma_pago'] . '" class="form-control nombreFP" style="text-align: center;" value="' . $forma['nomFP'] . '" disabled>
-                                                                    <input type="hidden" id="txt_descripcion' . $forma['cod_empresa_forma_pago'] . '" class="form-control" style="text-align: center;" value="' . $desc_larga . '" >
                                                                 </div>
-                                                                                                                           
                                                                 <div class="pl-0 col-2 align-self-center">
                                                                     <button class="btn btn-primary btnEditarNombreFP" data-fp=\'{"forma_pago": "' . $forma['id_forma_pago'] . '", "id": ' . $forma['cod_empresa_forma_pago'] . '}\'>
-                                                                        <i data-feather="edit-2"></i>    
+                                                                        <i data-feather="edit-2"></i>
                                                                     </button>
                                                                     <button class="btn btn-success btnGuardarNombreFP" data-fp=\'{"forma_pago": "' . $forma['id_forma_pago'] . '", "id": ' . $forma['cod_empresa_forma_pago'] . '}\' style="display: none;">
-                                                                        <i data-feather="save"></i>    
+                                                                        <i data-feather="save"></i>
                                                                     </button>
                                                                 </div>
-                                                            </div>
-                                                        
-                                                        </td>
-                                                        
-                                                        <td class="text-right">
-                                                            <div class="row rowMontoMaximo pl-4">
-                                                                <div class="col-10 pr-1">
-                                                                    <input type="number" class="form-control txtMontoMaximo" value="' . $forma['monto_maximo'] . '" disabled>
-                                                                </div>
-                                                                <div class="pl-0 col-2 align-self-center">
-                                                                    <button class="btn btn-primary btnEditarMaximo" data-fp="' . $forma['id_forma_pago'] . '" data-id="' . $forma['cod_empresa_forma_pago'] . '">
-                                                                        <i data-feather="edit-2"></i>    
-                                                                    </button>
-                                                                    <button class="btn btn-success btnGuardarMaximo" data-fp="' . $forma['id_forma_pago'] . '" data-id="' . $forma['cod_empresa_forma_pago'] . '" style="display: none;">
-                                                                        <i data-feather="save"></i>    
-                                                                    </button>
-                                                                </div>
-                                                            </div>
-                                                            
-                                                        </td>
-                                                        
-                                                        <td class="text-center">
-                                                            <div class="col-md-12 col-sm-12 col-xs-12" >
-                                                                <div>
-                                                                    <label class="switch s-icons s-outline  s-outline-success">
-                                                                        <input type="checkbox" name="chk_estado" id="chk_estado' . $forma['cod_empresa_forma_pago'] . '" class="btnEditarFormaP" data-id="' . $forma['cod_empresa_forma_pago'] . '" ' . $chk . '>
-                                                                        <span class="slider round"></span>
-                                                                    </label>
-                                                                </div>
-                                                            </div>
-                                                        </td>
-                                                        <td class="text-center"><button type="button" class="btn btn-outline-primary btnDescripcion" data-id="' . $forma['cod_empresa_forma_pago'] . '">Ingresar Descripción</button></td>
-                                                     
-                                                        <td>
-                                                            <div class="d-flex">
-                                                                <label class="switch s-icons s-outline  s-outline-success">
-                                                                    <input type="checkbox" ' . $cKPickup . ' class="ckTipoEnvio" data-fp=\'{"id": ' . $forma['cod_empresa_forma_pago'] . ', "tipo_envio": "P"}\'>
-                                                                    <span class="slider round"></span>
-                                                                </label>
-                                                                <label>Pickup</label> 
-                                                            </div>
-                                                            <div class="d-flex">
-                                                                <label class="switch s-icons s-outline  s-outline-success">
-                                                                    <input type="checkbox" ' . $cKDelivery . ' class="ckTipoEnvio"  data-fp=\'{"id": ' . $forma['cod_empresa_forma_pago'] . ', "tipo_envio": "D"}\'>
-                                                                    <span class="slider round"></span>
-                                                                </label>
-                                                                <label>Delivery</label> 
                                                             </div>
                                                         </td>
                                                     </tr>
                                                     ';
                                                         }
-
-                                                        $c++;
                                                     }
-
                                                     ?>
-
                                                 </tbody>
                                             </table>
                                         </div>
                                     </div>
-
                                 </div>
 
                                 <div class="tab-pane fade" id="tab-cumple" role="tabpanel" aria-labelledby="pills-info-tab">
@@ -792,9 +685,6 @@ if ($Clempresas->getPermisoTienda($cod_empresa))
 
     <?php js_mandatory(); ?>
     <script src="assets/js/scrollspyNav.js"></script>
-    <script src="plugins/ckeditor-standar/ckeditor.js"></script>
-    <script src="plugins/ckeditor-standar/plugins2/link/dialogs/link.js"></script>
-    <!--<script src="plugins/ckeditor-standar/plugins2/link/dialogs/link.js"></script>-->
     <script src="plugins/croppie/croppie.js"></script>
     <script src="assets/js/pages/configuraciones.js" type="text/javascript"></script>
     <script src="assets/js/pages/sucursales/config_couriers.js" type="text/javascript"></script>

@@ -108,7 +108,10 @@ function crear(){
             foreach ($lista as $l) {
                 $return['match']= $Clproductos->setProductSucursal($l['cod_producto'],$id);
 			}
-            
+
+            /*ASIGNAR FORMAS DE PAGO*/
+            $Clempresas->insertFormasPagoSucursal($id);
+
             /* AUMENTAR PROGRESO DE LA EMPRESA*/
             $Clempresas->updateProgresoEmpresa($session['cod_empresa'], 'Sucursal creada', 10);
 
@@ -744,6 +747,100 @@ function subirImagenesAdicionales(){
     else{
         $return['success'] = 0;
         $return['mensaje'] = "No se encontro la empresa, recargue la pagina";
+    }
+    return $return;
+}
+
+function getFormasPagoSucursal() {
+    global $Clempresas;
+    if (!isset($_GET['cod_sucursal'])) {
+        $return['success'] = 0;
+        $return['mensaje'] = "Falta informacion";
+        return $return;
+    }
+    $cod_sucursal = intval($_GET['cod_sucursal']);
+    $Clempresas->insertFormasPagoSucursal($cod_sucursal);
+    $formas = $Clempresas->getFormasPagoSucursal($cod_sucursal);
+    $return['success'] = 1;
+    $return['datos'] = $formas ?: [];
+    return $return;
+}
+
+function setSucursalFormaPagoEstado() {
+    global $Clempresas;
+    if (!isset($_GET['cod']) || !isset($_GET['estado'])) {
+        $return['success'] = 0;
+        $return['mensaje'] = "Falta informacion";
+        return $return;
+    }
+    $cod = intval($_GET['cod']);
+    $estadoVal = ($_GET['estado'] == "true") ? 'A' : 'I';
+    if ($Clempresas->setSucursalFormaPagoEstado($cod, $estadoVal)) {
+        $return['success'] = 1;
+        $return['mensaje'] = "Estado actualizado correctamente";
+    } else {
+        $return['success'] = 0;
+        $return['mensaje'] = "Error al actualizar el estado";
+    }
+    return $return;
+}
+
+function setSucursalFormaPagoMonto() {
+    global $Clempresas;
+    if (!isset($_POST['cod']) || !isset($_POST['monto'])) {
+        $return['success'] = 0;
+        $return['mensaje'] = "Falta informacion";
+        return $return;
+    }
+    $cod = intval($_POST['cod']);
+    $monto = floatval($_POST['monto']);
+    if ($Clempresas->setSucursalFormaPagoMonto($cod, $monto)) {
+        $return['success'] = 1;
+        $return['mensaje'] = "Monto máximo editado correctamente";
+    } else {
+        $return['success'] = 0;
+        $return['mensaje'] = "Error al editar el monto máximo";
+    }
+    return $return;
+}
+
+function setSucursalFormaPagoDescripcion() {
+    global $Clempresas;
+    if (!isset($_POST['cod']) || !isset($_POST['descripcion'])) {
+        $return['success'] = 0;
+        $return['mensaje'] = "Falta informacion";
+        return $return;
+    }
+    $cod = intval($_POST['cod']);
+    $descripcion = $_POST['descripcion'];
+    if ($Clempresas->setSucursalFormaPagoDescripcion($cod, $descripcion)) {
+        $return['success'] = 1;
+        $return['mensaje'] = "Descripción actualizada correctamente";
+    } else {
+        $return['success'] = 0;
+        $return['mensaje'] = "Error al actualizar la descripción";
+    }
+    return $return;
+}
+
+function setSucursalFormaPagoTipoEnvio() {
+    global $Clempresas;
+    if (!isset($_POST['cod']) || !isset($_POST['tipo_envio']) || !isset($_POST['encendido'])) {
+        $return['success'] = 0;
+        $return['mensaje'] = "Falta informacion";
+        return $return;
+    }
+    $cod = intval($_POST['cod']);
+    $tipo_envio = $_POST['tipo_envio'];
+    $encendido = intval($_POST['encendido']);
+    if ($Clempresas->setSucursalFormaPagoTipoEnvio($tipo_envio, $encendido, $cod)) {
+        $encendidoText = ($encendido == 1) ? "Activada" : "Desactivada";
+        $formapagoText = ($tipo_envio == "D") ? "Delivery" : "Pickup";
+        $return['success'] = 1;
+        $return['mensaje'] = "$encendidoText esta forma de pago para pedidos $formapagoText";
+    } else {
+        $return['success'] = 0;
+        $return['mensaje'] = "Error al cambiar el tipo de envío";
     }
     return $return;
 }

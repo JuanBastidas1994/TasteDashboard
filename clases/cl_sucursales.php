@@ -12,7 +12,7 @@ class cl_sucursales
 			if($pcod_sucursal != null)
 				$this->pcod_sucursal = $pcod_sucursal;
 			$this->session = getSession();
-			$this->cod_empresa = $this->session['cod_empresa'];
+			$this->cod_empresa = isset($this->session['cod_empresa']) ? $this->session['cod_empresa'] : 0;
 		}
 
 		public function all(){

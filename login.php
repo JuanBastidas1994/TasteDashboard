@@ -16,7 +16,7 @@ if(isLogin()){
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no">
-    <title>Login | Tasté</title>
+    <title>Login | Taste</title>
     <link rel="icon" type="image/x-icon" href="assets/img/favicon.ico"/>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,400;0,600;0,700;0,800;0,900;1,900&display=swap" rel="stylesheet">
     <link href="plugins/sweetalerts/sweetalert2-v11.min.css" rel="stylesheet" type="text/css" />
@@ -175,7 +175,7 @@ if(isLogin()){
         }
 
         /* Button */
-        .btn-ingresar {
+        .btnLogin {
             width: 100%;
             padding: 8px;
             background: #e63c2f;
@@ -191,7 +191,7 @@ if(isLogin()){
             transition: background 0.2s;
         }
 
-        .btn-ingresar:hover {
+        .btnLogin:hover {
             background: #c0392b;
         }
 
@@ -286,7 +286,7 @@ if(isLogin()){
                         </svg>
                     </div>
 
-                    <button type="submit" name="btnLogin" class="btn-ingresar">Ingresar</button>
+                    <button type="submit" name="btnLogin" class="btnLogin">Ingresar</button>
 
                     <!-- <p class="forgot-link">¿Olvidaste tu contraseña ? <a href="recuperar_password.php">Haz click aquí</a></p> -->
                 </form>

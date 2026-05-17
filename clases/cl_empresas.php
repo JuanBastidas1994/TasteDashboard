@@ -10,7 +10,7 @@ class cl_empresas
 		
 		public function __construct(){
 			$this->session = getSession();
-			$this->cod_empresa = $this->session['cod_empresa'];
+			$this->cod_empresa = isset($this->session['cod_empresa']) ? $this->session['cod_empresa'] : 0;
 		}
 
         /*GET*/

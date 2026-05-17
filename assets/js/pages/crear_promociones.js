@@ -268,6 +268,7 @@ $("#cmb_tipo_descuento").on('change', function(){
     // El bloque de productos participantes: mostrar u ocultar
     $("#bloqueProductosParticipantes").show(); // por defecto visible
 
+    $(".divMontoXY").hide();
     if (val == "0") {
         // Porcentaje
         $(".inputPorcentaje").show();
@@ -281,7 +282,9 @@ $("#cmb_tipo_descuento").on('change', function(){
         $(".inputProductoRegalo").show();
         $("#tituloProductos").text("Productos Participantes");
         $("#descProductos").text("Escoje los productos que el cliente debe comprar para llevarse el regalo");
+        $(".divMontoXY").show();
     } else if (val == "monto_minimo") {
+        $("#descProductos").text("Escoje los productos que el cliente debe comprar para llevarse el regalo superando el monto mínimo");
         $(".inputMontoMinimo").show();
         $(".inputProductoRegalo").show();
         $("#bloqueProductosParticipantes").hide(); // no aplica en monto mínimo

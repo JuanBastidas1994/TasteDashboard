@@ -138,6 +138,11 @@ function crearNew(){
         $Clpromociones->imagen = $imagen_actual;
     }
 
+    // ── Imagen obligatoria para compra_x_lleva_y y monto_minimo ──────────────
+    if (in_array($cmb_tipo_descuento, ['compra_x_lleva_y', 'monto_minimo']) && $Clpromociones->imagen === '') {
+        return [ 'success' => 0, 'mensaje' => 'Debes subir una imagen para este tipo de promoción' ];
+    }
+
     $productos  = $cmb_productos ?? [];
     $sucursales = $chkSucursal;
     $isNewPromotion = false;

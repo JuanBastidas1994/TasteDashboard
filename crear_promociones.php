@@ -271,7 +271,7 @@ $tiposEntrega = [
 
                                 <div class="form-row mt-2">
                                     <div class="form-group col-md-12">
-                                        <label>Imagen <small class="text-muted">(opcional · PNG o JPG · 500×300 px)</small></label>
+                                        <label>Imagen <small class="text-muted">(· PNG o JPG · 500×300 px)</small></label>
 
                                         <div id="promoImgContainer" <?= $imagen ? '' : 'style="display:none"' ?>>
                                             <img id="promoImgPreview"
@@ -301,8 +301,8 @@ $tiposEntrega = [
                         <div class="widget-content widget-content-area br-6" style="margin-top: 15px;">
                             <form id="frmProductos" method="POST" action="#">
                                 <div class="">
-                                    <h4>Productos</h4>
-                                    <p>Escoje los productos a los que le vayas a aplicar el descuento</p>
+                                    <h4>Productos <span class="divMontoXY">(X)</span></h4>
+                                    <p id="descProductos">Escoje los productos a los que le vayas a aplicar el descuento</p>
                                 </div>
                                 <div class="row">
                                     <div class="form-group col-md-12 col-sm-12 col-xs-12" style="margin-bottom:10px;">
@@ -418,7 +418,7 @@ $tiposEntrega = [
                                 <!-- Solo para Compra X lleva Y y Monto mínimo: producto regalo -->
                                 <div class="row inputProductoRegalo" style="display:none;">
                                     <div class="form-group col-md-12">
-                                        <label>Producto gratis <span class="asterisco">*</span></label>
+                                        <label>Producto gratis que llevará el cliente <span class="divMontoXY">(Y)</span> <span class="asterisco">*</span></label>
                                         <select class="form-control" name="producto_regalo" id="producto_regalo">
                                             <?php foreach ($categorias as $codCategoria => $dataCategoria): ?>
                                                 <optgroup label="<?= htmlspecialchars($dataCategoria['nombre']) ?>">

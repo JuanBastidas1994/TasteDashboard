@@ -97,12 +97,6 @@ $faltaPagos = Conexion::buscarRegistro($query);
 <body>
         <input type="hidden" id="id" value="<?= $cod_empresa ?>">
 
-    <!-- BEGIN LOADER -->
-    <div id="load_screen"> <div class="loader"> <div class="loader-content">
-        <div class="spinner-grow align-self-center"></div>
-    </div></div></div>
-    <!--  END LOADER -->
-
     <!--  BEGIN NAVBAR  -->
     <?php echo top() ?>
     <!--  END NAVBAR  -->
@@ -161,75 +155,77 @@ $faltaPagos = Conexion::buscarRegistro($query);
         
         <!--  BEGIN CONTENT AREA  -->
         <div id="content" class="main-content">
-            <div class="layout-px-spacing">
-                <?php
-                    $allowedRoles = [1,2];
-                    if($faltaPagos && in_array($cod_rol, $allowedRoles)) {
-                        $tituloFp = $faltaPagos['titulo'];
-                        $mensajeFp = $faltaPagos['mensaje'];
-                        echo '
-                            <div class="row">
-                                <div class="col-12">
-                                    <div class="alert alert-info" role="alert">
-                                        <h4 class="alert-heading">'.$tituloFp.'</h4>
-                                        <p>
-                                            '.$mensajeFp.'
-                                        </p>
+            <div class="fondoHome">
+                <div class="layout-px-spacing">
+                    <?php
+                        $allowedRoles = [1,2];
+                        if($faltaPagos && in_array($cod_rol, $allowedRoles)) {
+                            $tituloFp = $faltaPagos['titulo'];
+                            $mensajeFp = $faltaPagos['mensaje'];
+                            echo '
+                                <div class="row">
+                                    <div class="col-12">
+                                        <div class="alert alert-info" role="alert">
+                                            <h4 class="alert-heading">'.$tituloFp.'</h4>
+                                            <p>
+                                                '.$mensajeFp.'
+                                            </p>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        ';
-                    }
-                ?>
-
-                <div class="row ">
-                    <?php
-                        if($cod_rol == 1){
-                            include "content_index/index_super_admin.php";
+                            ';
                         }
-                        else if($cod_rol == 3)
-                            include "content_index/index_admin_sucursal.php";
-                        else if($cod_rol == 2)
-                            include "content_index/index_admin_empresa.php";
                     ?>
-                </div>
-                <script id="widget-template" type="text/x-handlebars-template">
-                    <div class="col-lg-{{default column 4}} col-md-{{default column 4}} col-sm-4 col-12 mt-4">
-                        <div class="card p-2"  style="border-radius: 20px;">
-                            <div class="widget-title d-flex">
-                                <div class="flex-grow-1"><b>{{title}}</b></div>
-                                <div class="btnShare" 
-                                    data-type="{{type}}" 
-                                    data-title="{{title}}"
-                                    data-value="{{value}}"
-                                    data-shared="{{sharedText}}"
-                                    data-options="{{chartdata}}">
-                                    <i data-feather="share-2"></i>
+    
+                    <div class="row mt-3" style="padding-right: 150px; padding-left: 150px;">
+                        <?php
+                            if($cod_rol == 1){
+                                include "content_index/index_super_admin.php";
+                            }
+                            else if($cod_rol == 3)
+                                include "content_index/index_admin_sucursal.php";
+                            else if($cod_rol == 2)
+                                include "content_index/index_admin_empresa.php";
+                        ?>
+                    </div>
+                    <script id="widget-template" type="text/x-handlebars-template">
+                        <div class="col-lg-{{default column 4}} col-md-{{default column 4}} col-sm-4 col-12 mt-4">
+                            <div class="card p-2"  style="border-radius: 20px;">
+                                <div class="widget-title d-flex">
+                                    <div class="flex-grow-1"><b>{{title}}</b></div>
+                                    <div class="btnShare" 
+                                        data-type="{{type}}" 
+                                        data-title="{{title}}"
+                                        data-value="{{value}}"
+                                        data-shared="{{sharedText}}"
+                                        data-options="{{chartdata}}">
+                                        <i data-feather="share-2"></i>
+                                    </div>
+                                </div>
+                                <div class="widget-info" style="height: {{default height 120}}px;">
+                                    <h3 style="font-weight: bolder; ">{{value}}</h3>
+                                    <div class="widget-chart"></div>
+                                </div>
+                                <div class="widget-footer">
+                                    
                                 </div>
                             </div>
-                            <div class="widget-info" style="height: {{default height 120}}px;">
-                                <h3 style="font-weight: bolder; ">{{value}}</h3>
-                                <div class="widget-chart"></div>
-                            </div>
-                            <div class="widget-footer">
-                                
-                            </div>
+                        </div>
+                    </script>
+                    <div id="share-chart-container" class="p-2" style="text-align: center; display:none;">
+                        <h3 id="shared-title" class="mt-2"></h3>
+                        <div id="shared-chart-render"></div>
+                        <h5 id="shared-footer" class="mb-2"></h5>
+                        <div style="text-align: right;">
+                            Datos generados por 
+                            <span style="font-weight: bolder;">
+                                <img src="/assets/img/logo.png" alt="logo" style="width: 80px;">
+                            </span>
                         </div>
                     </div>
-                </script>
-                <div id="share-chart-container" class="p-2" style="text-align: center; display:none;">
-                    <h3 id="shared-title" class="mt-2"></h3>
-                    <div id="shared-chart-render"></div>
-                    <h5 id="shared-footer" class="mb-2"></h5>
-                    <div style="text-align: right;">
-                        Datos generados por 
-                        <span style="font-weight: bolder;">
-                            <img src="/assets/img/logo.png" alt="logo" style="width: 80px;">
-                        </span>
-                    </div>
                 </div>
+                <?php footer(); ?>
             </div>
-            <?php footer(); ?>
         </div>
         <!--  END CONTENT AREA  -->
 

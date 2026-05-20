@@ -48,6 +48,9 @@ function css_mandatory(){
 		<link href="plugins/toastr/toastr.min.css" rel="stylesheet" type="text/css" />
 
 		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@6.1/dist/fancybox/fancybox.css"/>
+
+		<!-- MUNDIAL 2026 - ECUADOR | Para revertir: comentar la siguiente línea -->
+		<link href="assets/css/mundial2026.css" rel="stylesheet" type="text/css" />
 	';
 }
 

@@ -172,11 +172,11 @@ $tiposEntrega = [
     </div>
 
     <!--  BEGIN NAVBAR  -->
-    <?php echo top() ?>
+    <?php top() ?>
     <!--  END NAVBAR  -->
 
     <!--  BEGIN NAVBAR  -->
-    <?php echo navbar(true, "productos.php"); ?>
+    <?php navbar(true, "productos.php"); ?>
     <!--  END NAVBAR  -->
 
     <!--  BEGIN MAIN CONTAINER  -->
@@ -186,7 +186,7 @@ $tiposEntrega = [
         <div class="search-overlay"></div>
 
         <!--  BEGIN SIDEBAR  -->
-        <?php echo sidebar(); ?>
+        <?php sidebar(); ?>
         <!--  END SIDEBAR  -->
 
         <!--  BEGIN CONTENT AREA  -->

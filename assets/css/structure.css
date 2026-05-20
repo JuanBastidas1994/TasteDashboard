@@ -93,7 +93,8 @@ code {
   -webkit-box-pack: start;
   -ms-flex-pack: start;
   justify-content: flex-start;
-  padding: 0 0 0 16px; }
+  padding: 0 0 0 0px; 
+}
 
 #container.fixed-header {
   margin-top: 56px; }

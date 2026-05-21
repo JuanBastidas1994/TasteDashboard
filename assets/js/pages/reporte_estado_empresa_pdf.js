@@ -36,7 +36,7 @@ async function generarPDF() {
             iconUserPlus,
             iconTruckSuccess,
         ] = await Promise.all([
-            TastePDF.loadImageBase64('assets/img/logo.png'),
+            TastePDF.loadImageBase64('assets/img/logo-dark.png'),
             TastePDF.loadKpiIcons(),
             TastePDF.loadIcon('check-circle',   [22,  163, 74],  48),
             TastePDF.loadIcon('alert-triangle',  [234, 88,  12], 48),

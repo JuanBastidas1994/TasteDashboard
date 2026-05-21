@@ -14,9 +14,9 @@ $(function () {
     template = Handlebars.compile($("#widget-template").html());
 
     const today    = new Date();
-    // const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
-    // $('#fecha_inicio').val(isoDate(firstDay));
-    // $('#fecha_fin').val(isoDate(today));
+    const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+    $('#fecha_inicio').val(isoDate(firstDay));
+    $('#fecha_fin').val(isoDate(today));
 
     $('#cmbEmpresa').on('change', function () { loadSucursales($(this).val()); });
     $('#btnGenerar').on('click', generarReporte);

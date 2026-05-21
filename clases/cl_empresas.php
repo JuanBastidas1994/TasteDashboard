@@ -74,6 +74,12 @@ class cl_empresas
             return $resp;
 		}
 
+		public function listaOrderByName(){
+			$query = "SELECT * FROM tb_empresas WHERE estado IN ('A','I') ORDER BY nombre ASC";
+            $resp = Conexion::buscarVariosRegistro($query);
+            return $resp;
+		}
+
 		public function listaWithProgress(){
 		    $query = "SELECT e.cod_empresa, e.nombre, e.alias, e.logo, e.impuesto, e.folder,  e.representante_nombre, 
 		                        SUM(ep.porcentaje) as porcentaje, u.imagen as foto, CONCAT(u.nombre, ' ', u.apellido) as usuario

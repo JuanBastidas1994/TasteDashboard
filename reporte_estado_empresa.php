@@ -8,7 +8,7 @@ if (!isLogin()) {
 }
 
 $Clempresa   = new cl_empresas(null);
-$empresas    = $Clempresa->lista();
+$empresas    = $Clempresa->listaOrderByName();
 $session     = getSession();
 ?>
 <!DOCTYPE html>

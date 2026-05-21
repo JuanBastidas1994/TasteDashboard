@@ -121,7 +121,7 @@ $session     = getSession();
                                                 <i data-feather="calendar" style="width:16px;height:16px;"></i>
                                             </span>
                                         </div>
-                                        <input type="date" class="form-control" id="fecha_inicio">
+                                        <input type="date" class="form-control" id="fecha_inicio" value="2026-01-01">
                                     </div>
                                 </div>
 
@@ -134,7 +134,7 @@ $session     = getSession();
                                                 <i data-feather="calendar" style="width:16px;height:16px;"></i>
                                             </span>
                                         </div>
-                                        <input type="date" class="form-control" id="fecha_fin">
+                                        <input type="date" class="form-control" id="fecha_fin"  value="2026-05-21">
                                     </div>
                                 </div>
 
@@ -226,6 +226,9 @@ $session     = getSession();
         });
     </script>
 
+
+    <script src="assets/js/libs/pdf/utils.js"></script>
     <script src="assets/js/pages/reporte_estado_empresa.js?v=1"></script>
+    <script src="assets/js/pages/reporte_estado_empresa_pdf.js"></script>
 </body>
 </html>

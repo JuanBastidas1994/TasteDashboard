@@ -121,7 +121,7 @@ $session     = getSession();
                                                 <i data-feather="calendar" style="width:16px;height:16px;"></i>
                                             </span>
                                         </div>
-                                        <input type="date" class="form-control" id="fecha_inicio" value="2026-01-01">
+                                        <input type="date" class="form-control" id="fecha_inicio" >
                                     </div>
                                 </div>
 
@@ -134,7 +134,7 @@ $session     = getSession();
                                                 <i data-feather="calendar" style="width:16px;height:16px;"></i>
                                             </span>
                                         </div>
-                                        <input type="date" class="form-control" id="fecha_fin"  value="2026-05-21">
+                                        <input type="date" class="form-control" id="fecha_fin" >
                                     </div>
                                 </div>
 

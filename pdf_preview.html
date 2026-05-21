@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Preview PDF — Taste</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: system-ui, sans-serif; background: #f0f0f0; padding: 24px; }
+        .toolbar {
+            background: #1e1e2e; color: #fff; border-radius: 12px;
+            padding: 16px 24px; margin-bottom: 20px;
+            display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+        }
+        .toolbar h2 { font-size: 16px; flex: 1; }
+        .toolbar label { font-size: 13px; color: #aaa; }
+        .toolbar input, .toolbar select {
+            background: #2a2a3e; color: #fff; border: 1px solid #444;
+            border-radius: 6px; padding: 5px 10px; font-size: 13px;
+        }
+        .btn {
+            background: #dc2626; color: #fff; border: none;
+            border-radius: 8px; padding: 10px 20px; font-size: 14px;
+            font-weight: 600; cursor: pointer; transition: opacity .2s;
+        }
+        .btn:hover { opacity: .85; }
+        .btn:disabled { opacity: .5; cursor: not-allowed; }
+        .status { font-size: 13px; color: #aaa; margin-left: auto; }
+
+        /* Los gráficos se renderizan aquí pero están ocultos */
+        #chart-container {
+            position: fixed; left: -9999px; top: 0;
+            width: 900px; background: white; padding: 10px;
+        }
+        .chart-wrap { width: 100%; margin-bottom: 10px; }
+
+        .info {
+            background: #fff; border-radius: 10px; padding: 16px 20px;
+            font-size: 13px; color: #555; line-height: 1.7;
+        }
+        .info code { background: #f5f5f5; padding: 2px 6px; border-radius: 4px; font-size: 12px; }
+        .info b { color: #dc2626; }
+    </style>
+</head>
+<body>
+
+<div class="toolbar">
+    <h2>&#127358; Preview PDF — Taste</h2>
+
+    <div>
+        <label>Empresa</label><br>
+        <input id="mockEmpresa" value="Hamburguesas DM" style="width:160px">
+    </div>
+    <div>
+        <label>Sucursal</label><br>
+        <input id="mockSucursal" value="Todas las sucursales" style="width:160px">
+    </div>
+    <div>
+        <label>Fecha inicio</label><br>
+        <input type="date" id="mockFechaInicio" value="2026-01-01">
+    </div>
+    <div>
+        <label>Fecha fin</label><br>
+        <input type="date" id="mockFechaFin" value="2026-05-20">
+    </div>
+
+    <button class="btn" id="btnPreview" onclick="generarPreview()">
+        &#8595; Descargar PDF
+    </button>
+    <span class="status" id="statusMsg">Listo</span>
+</div>
+
+<div class="info">
+    <b>Cómo usar:</b> Edita el código en <code>pdf-utils.js</code> o <code>reporte_estado_empresa_pdf.js</code>,
+    recarga esta página y pulsa <b>Descargar PDF</b>. Sin filtros, sin login, sin servidor.<br>
+    Los gráficos se generan con datos mock. Los <b>KPIs</b> también son mock — edítalos en el objeto
+    <code>MOCK_DATA</code> de esta página.
+</div>
+
+<!-- Contenedor oculto donde ApexCharts renderiza los gráficos -->
+<div id="chart-container">
+    <div class="chart-wrap" id="ch0" style="height:300px"></div>
+    <div class="chart-wrap" id="ch1" style="height:320px"></div>
+    <div class="chart-wrap" id="ch2" style="height:320px"></div>
+    <div class="chart-wrap" id="ch3" style="height:320px"></div>
+    <div class="chart-wrap" id="ch4" style="height:320px"></div>
+    <div class="chart-wrap" id="ch6" style="height:320px"></div>
+</div>
+
+<!-- ── Dependencias ── -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/apexcharts/3.41.0/apexcharts.min.js"></script>
+
+<!--
+    RUTAS RELATIVAS — ajusta si tu estructura es diferente.
+    Estos archivos son los que vas a editar para ver cambios.
+-->
+<script src="assets/js/libs/pdf/utils.js"></script>
+<script src="assets/js/pages/reporte_estado_empresa_pdf.js"></script>
+
+<script>
+/* ================================================================
+   DATOS MOCK — edita aquí para probar distintos escenarios
+================================================================ */
+const MOCK_DATA = {
+    success: 1,
+    total:          1609,
+    totalAmount:    28213.63,
+    ticketPromedio: 17.53,
+
+    trend: {
+        categories: ['1','2','3','4','5','6','7','8','9','10','11','12','13','14','15',
+                     '16','17','18','19','20','21','22','23','24','25','26','27','28','29','30'],
+        series: [
+            { name: 'Plaza Sports Garden', data: [120,130,115,140,160,150,170,155,180,175,165,190,185,195,200,195,205,210,198,215,220,208,225,215,230,218,235,228,240,235] },
+            { name: 'Urdesa',              data: [350,360,340,380,400,390,420,410,440,430,415,450,445,460,470,458,475,480,465,488,492,478,500,490,505,495,510,502,515,508] },
+            { name: 'HiperMarket Buijo',   data: [80,85,78,90,95,88,100,95,105,100,92,110,108,112,115,110,118,120,115,122,125,118,128,122,130,124,132,128,135,130] },
+            { name: 'La Marquesa',         data: [30,32,28,35,38,34,40,38,42,40,36,44,43,45,47,44,48,50,46,51,52,48,54,50,55,51,56,53,57,55] },
+            { name: 'Aventura Plaza',      data: [15,16,14,18,20,17,21,19,22,21,18,23,22,24,25,23,25,26,24,27,28,25,29,26,30,27,31,28,32,30] },
+        ]
+    },
+
+    topHours: {
+        '02:00-03:00': 2, '12:00-13:00': 3, '13:00-14:00': 4,
+        '14:00-15:00': 3, '15:00-16:00': 5, '16:00-17:00': 6,
+        '17:00-18:00': 8, '18:00-19:00': 7, '19:00-20:00': 5,
+        '20:00-21:00': 3, '23:00-24:00': 2,
+    },
+
+    deliveryTotals: { Pickup: 6201.00, Delivery: 22012.63 },
+
+    clientes_recurrentes: { nuevos: 844, recurrentes: 629 },
+
+    topDaysSales: { Lun: 3200, Mar: 3800, Mié: 4600, Jue: 3400, Vie: 4200, Sáb: 4900, Dom: 4100 },
+
+    topPlatforms: { WEB: 900, APP: 709 },
+
+    ordenesPorEstado: {
+        Entrante: 26, Aceptada: 112, Preparando: 314, Asignada: 96,
+        Enviando: 68, Entregada: 939, Cancelada: 34, 'No entregada': 20, Anulada: 8
+    }
+};
+
+/* ================================================================
+   Variables globales que espera el PDF
+================================================================ */
+let chartInstances = [];
+let kpiData        = [];
+let widgetData     = {};
+
+/* KPI styles del mismo mockup */
+const kpiConfig = [
+    { key: 'ventas',   label: 'VENTAS TOTALES',  value: `$${MOCK_DATA.totalAmount.toFixed(2)}`, change: '+14%', up: true  },
+    { key: 'ordenes',  label: 'ÓRDENES',          value: `${MOCK_DATA.total}`,                  change: '+9%',  up: true  },
+    { key: 'clientes', label: 'CLIENTES',          value: `${MOCK_DATA.clientes_recurrentes.nuevos + MOCK_DATA.clientes_recurrentes.recurrentes}`, change: '+11%', up: true },
+    { key: 'ticket',   label: 'TICKET PROMEDIO',  value: `$${MOCK_DATA.ticketPromedio}`,         change: '-3%',  up: false },
+];
+
+/* ── Opciones comunes ApexCharts ── */
+const CHART_COLORS = ['#3b82f6','#22c55e','#ef4444','#f97316','#eab308','#a855f7','#06b6d4'];
+
+function lineChartOpts(trend) {
+    const series = trend.series.map((s, i) => ({
+        name: s.name, data: s.data, color: CHART_COLORS[i % CHART_COLORS.length]
+    }));
+    return {
+        chart: { type: 'line', height: 300, animations: { enabled: false }, toolbar: { show: false } },
+        series,
+        xaxis: { categories: trend.categories, labels: { style: { fontSize: '9px' } } },
+        yaxis: { labels: { formatter: v => '$' + v } },
+        stroke: { curve: 'smooth', width: 2 },
+        legend: { show: true },
+        grid:   { borderColor: '#e5e7eb' },
+    };
+}
+
+function barChartOpts(obj, horizontal = false) {
+    const labels = Object.keys(obj);
+    const values = Object.values(obj);
+    return {
+        chart: { type: 'bar', height: 320, animations: { enabled: false }, toolbar: { show: false } },
+        series: [{ name: 'Total', data: values }],
+        xaxis:  { categories: labels, labels: { style: { fontSize: '9px' } } },
+        plotOptions: { bar: { horizontal, distributed: true, borderRadius: 3 } },
+        colors: CHART_COLORS,
+        legend: { show: false },
+        grid:   { borderColor: '#e5e7eb' },
+    };
+}
+
+function pieChartOpts(obj) {
+    return {
+        chart: { type: 'pie', height: 320, animations: { enabled: false } },
+        series: Object.values(obj),
+        labels: Object.keys(obj).map(k => `${k}: ${obj[k]}`),
+        colors: CHART_COLORS,
+        legend: { show: true, position: 'bottom' },
+    };
+}
+
+/* ── Renderizar todos los gráficos mock ── */
+function renderMockCharts() {
+    chartInstances = [];
+
+    const defs = [
+        { id: 'ch0', opts: lineChartOpts(MOCK_DATA.trend),                        title: 'EVOLUCIÓN DE VENTAS' },
+        { id: 'ch1', opts: barChartOpts(MOCK_DATA.topHours, true),                title: 'VENTAS POR HORA' },
+        { id: 'ch2', opts: barChartOpts(MOCK_DATA.deliveryTotals),                title: 'VENTAS POR CANAL' },
+        { id: 'ch3', opts: pieChartOpts(MOCK_DATA.clientes_recurrentes),          title: 'CLIENTES RECURRENTES' },
+        { id: 'ch4', opts: barChartOpts(MOCK_DATA.topDaysSales),                  title: 'VENTAS POR DÍA' },
+        { id: 'ch6', opts: barChartOpts(MOCK_DATA.ordenesPorEstado, true),        title: 'ÓRDENES POR ESTADO' },
+    ];
+
+    defs.forEach(d => {
+        const el    = document.getElementById(d.id);
+        const chart = new ApexCharts(el, d.opts);
+        chartInstances.push({ title: d.title, el, chart, rendered: chart.render() });
+    });
+}
+
+/* ── Stub de jQuery-like para que el PDF lea empresa/sucursal/fechas ── */
+function setupMockSelectors() {
+    // El PDF usa $('#cmbEmpresa option:selected').text() etc.
+    // Aquí simulamos esas lecturas sobreescribiendo temporalmente
+    // No necesitamos jQuery real para estos — se leen de los inputs del toolbar.
+}
+
+/* ── Función principal ── */
+async function generarPreview() {
+    const btn = document.getElementById('btnPreview');
+    const status = document.getElementById('statusMsg');
+    btn.disabled = true;
+    status.textContent = 'Renderizando gráficos...';
+
+    // Limpiar gráficos anteriores
+    chartInstances.forEach(c => { try { c.chart.destroy(); } catch(e){} });
+    ['ch0','ch1','ch2','ch3','ch4','ch6'].forEach(id => {
+        document.getElementById(id).innerHTML = '';
+    });
+
+    // Preparar datos globales
+    widgetData = MOCK_DATA;
+    kpiData    = kpiConfig.map(k => ({ ...k }));
+
+    // Renderizar gráficos
+    renderMockCharts();
+
+    // Esperar que todos terminen
+    await Promise.all(chartInstances.map(c => c.rendered));
+    // Pequeño delay para asegurar que el SVG esté pintado
+    await new Promise(r => setTimeout(r, 600));
+
+    status.textContent = 'Generando PDF...';
+
+    // Parchar jQuery para que el PDF lea los inputs del toolbar
+    const _origVal = $.fn.val;
+    const _origText = $.fn.text;
+
+    const mockSelectors = {
+        '#cmbEmpresa':          { val: '1', text: document.getElementById('mockEmpresa').value },
+        '#cmbSucursal':         { val: '0', text: document.getElementById('mockSucursal').value },
+        '#fecha_inicio':        { val: document.getElementById('mockFechaInicio').value },
+        '#fecha_fin':           { val: document.getElementById('mockFechaFin').value },
+        '#cmbEmpresa option:selected': { text: document.getElementById('mockEmpresa').value },
+        '#cmbSucursal option:selected':{ text: document.getElementById('mockSucursal').value },
+        '#btnGenerarPDF':       { val: '', text: '' },
+    };
+
+    // Stub simple: sobreescribir generarPDF para inyectar meta sin jQuery
+    // En lugar de parchear jQuery usamos un override limpio:
+    const _origGenerarPDF = window.generarPDF;
+
+    // Inyectamos las variables globales que generarPDF lee
+    window._mockMeta = {
+        empresaName:  document.getElementById('mockEmpresa').value,
+        sucursalName: document.getElementById('mockSucursal').value,
+        fechaInicio:  document.getElementById('mockFechaInicio').value,
+        fechaFin:     document.getElementById('mockFechaFin').value,
+    };
+
+    try {
+        await generarPDFMock();
+        status.textContent = 'PDF descargado ✓';
+    } catch(e) {
+        console.error(e);
+        status.textContent = 'Error: ' + e.message;
+    }
+
+    btn.disabled = false;
+}
+
+/* ================================================================
+   generarPDFMock — versión de generarPDF sin jQuery de formulario
+   Reutiliza TastePDF igual que la versión real.
+================================================================ */
+async function generarPDFMock() {
+    await Promise.all(chartInstances.map(c => c.rendered));
+
+    const charts = await Promise.all(
+        chartInstances.map(({ title, el }) =>
+            TastePDF.svgToPng(el).then(r => ({ title, img: r }))
+        )
+    );
+
+    // Logo: intenta cargarlo desde la ruta relativa del proyecto
+    // Si no existe en preview, usa null y el PDF mostrará "taste" en texto
+    const logoB64 = await TastePDF.loadImageBase64('assets/img/logo.png').catch(() => null);
+    let logoNatW = 120, logoNatH = 40;
+    if (logoB64) {
+        const d = await TastePDF.imageDimensions(logoB64);
+        logoNatW = d.w; logoNatH = d.h;
+    }
+
+    const meta = window._mockMeta;
+    const hoy  = new Date().toLocaleDateString('es-ES', { day:'2-digit', month:'long', year:'numeric' });
+    const hora = new Date().toLocaleTimeString('es-ES', { hour:'2-digit', minute:'2-digit' });
+
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+
+    const B = new TastePDF.PDFBuilder(pdf, {
+        pageW: 297, pageH: 210, marginX: 12, hdrH: 20, ftrH: 11
+    }, logoB64);
+    B.setLogoDimensions(logoNatW, logoNatH);
+
+    const { PW, PH, M, CW, HDR, FTR, CONT_Y, BOT, C } = B;
+    let pageNum = 1;
+
+    function getDeliveryPct() {
+        const vals  = Object.values(MOCK_DATA.deliveryTotals);
+        const total = vals.reduce((a, b) => a + b, 0);
+        return total > 0 ? (MOCK_DATA.deliveryTotals['Delivery'] || 0) / total : 0.78;
+    }
+
+    /* ── PÁGINA 1 ── */
+    B.pageBg();
+    B.drawHeader(
+        'REPORTE EJECUTIVO',
+        `PERIODO: ${meta.fechaInicio}  \u2013  ${meta.fechaFin}`,
+        `${meta.empresaName}  |  ${meta.sucursalName}`
+    );
+
+    const F1_H  = 36, F1_Y = CONT_Y;
+    const F2_H  = 48, F2_Y = F1_Y + F1_H + 4;
+    const F3_Y  = F2_Y + F2_H + 13;
+    const F3_H  = BOT - F3_Y;
+    const SPLIT = 82;
+    const R_X   = M + SPLIT + 4;
+    const R_W   = CW - SPLIT - 4;
+
+    /* Resumen */
+    pdf.setFontSize(11); pdf.setFont('helvetica', 'bold'); pdf.setTextColor(...C.DARK);
+    pdf.text('Resumen Ejecutivo', M, F1_Y + 7);
+    pdf.setFontSize(6.5); pdf.setFont('helvetica', 'normal'); pdf.setTextColor(...C.GRAY);
+    const resText = `Este es el desempe\u00F1o de tu restaurante en Taste durante el per\u00EDodo ${meta.fechaInicio} al ${meta.fechaFin}. Los datos te ayudar\u00E1n a tomar mejores decisiones para seguir creciendo.`;
+    pdf.text(pdf.splitTextToSize(resText, SPLIT - 2), M, F1_Y + 14);
+
+    /* KPIs */
+    const kpiW = (R_W - 9) / 4;
+    kpiConfig.forEach((kpi, i) => {
+        const kx = R_X + i * (kpiW + 3), ky = F1_Y;
+        B.card(kx, ky, kpiW, F1_H);
+        B.kpiIcon(kpi.key, kx + 7, ky + 9, 9);
+        pdf.setFontSize(5); pdf.setFont('helvetica', 'bold'); pdf.setTextColor(...C.GRAY);
+        pdf.text(pdf.splitTextToSize(kpi.label, kpiW - 16), kx + 15, ky + 6);
+        const valStr = String(kpi.value);
+        pdf.setFontSize(valStr.length > 9 ? 9 : 11); pdf.setFont('helvetica', 'bold'); pdf.setTextColor(...C.DARK);
+        pdf.text(valStr, kx + 4, ky + 24);
+        B.variationBadge(kx + 4, ky + 32, kpi.change, kpi.up);
+    });
+
+    /* Insights */
+    B.card(M, F2_Y, SPLIT, F2_H + 11, { bg: [252, 252, 255], border: C.GRAY_LIGHT });
+    pdf.setFontSize(8); pdf.setFont('helvetica', 'bold'); pdf.setTextColor(...C.RED);
+    pdf.text('Insights del mes', M + 4, F2_Y + 7);
+    pdf.setDrawColor(...C.RED); pdf.setLineWidth(0.5);
+    pdf.line(M + 4, F2_Y + 8.5, M + 4 + pdf.getTextWidth('Insights del mes'), F2_Y + 8.5);
+
+    const insights = [
+        'Tus ventas aumentaron 14% respecto al mes anterior.',
+        'El horario m\u00E1s fuerte fue de 15h00 a 17h00.',
+        'Delivery representa el 78% de tus ventas.',
+        'Los mi\u00E9rcoles fueron tu mejor d\u00EDa.',
+        'Tienes 42% de clientes recurrentes.',
+        'Tu ticket promedio baj\u00F3 $1.20.',
+        'La sucursal Urdesa gener\u00F3 el 61% de tus ventas.',
+    ];
+    insights.forEach((ins, i) => {
+        const iy = F2_Y + 14 + i * 7;
+        if (iy + 5 > F2_Y + F2_H + 9) return;
+        pdf.setFillColor(...C.RED_DARK); pdf.circle(M + 7, iy - 1.5, 2, 'F');
+        pdf.setTextColor(...C.WHITE); pdf.setFontSize(4.5); pdf.setFont('helvetica', 'bold');
+        pdf.text('\u2713', M + 5.9, iy - 0.2);
+        pdf.setTextColor(...C.DARK2); pdf.setFontSize(6.5); pdf.setFont('helvetica', 'normal');
+        pdf.text(pdf.splitTextToSize(ins, SPLIT - 14), M + 11, iy);
+    });
+
+    if (charts[0]?.img) B.chartCard(charts[0].img, 'Evoluci\u00F3n de Ventas', R_X, F2_Y, R_W, F2_H);
+
+    /* Fila 3 */
+    const F3_BW = (CW - 8) / 3;
+    const F3_CH = F3_H - 2;
+    if (charts[1]?.img) B.chartCard(charts[1].img, 'Ventas por Hora del D\u00EDa', M, F3_Y, F3_BW, F3_CH);
+    if (charts[2]?.img) B.chartCard(charts[2].img, 'Ventas por Canal', M + F3_BW + 4, F3_Y, F3_BW, F3_CH);
+
+    /* Donut */
+    const F3_X3 = M + (F3_BW + 4) * 2;
+    B.card(F3_X3, F3_Y, F3_BW, F3_CH + 11);
+    B.sectionTitle('Delivery vs Pickup', F3_X3 + 4, F3_Y + 7);
+    const pct = getDeliveryPct();
+    const dCX = F3_X3 + F3_BW / 2, dCY = F3_Y + 11 + F3_CH * 0.42;
+    const dR  = Math.min(F3_BW, F3_CH) * 0.27, dRi = dR * 0.60;
+    B.drawDonut(dCX, dCY, dR, dRi, pct, C.RED);
+    pdf.setFontSize(13); pdf.setFont('helvetica', 'bold'); pdf.setTextColor(...C.RED);
+    pdf.text(Math.round(pct * 100) + '%', dCX, dCY + 3.5, { align: 'center' });
+    const legY = F3_Y + 11 + F3_CH * 0.80;
+    pdf.setFontSize(6.5); pdf.setFont('helvetica', 'bold'); pdf.setTextColor(...C.DARK);
+    pdf.text('de tus ventas fueron por Delivery', dCX, legY, { align: 'center' });
+    const indY = legY + 5;
+    if (indY + 8 < F3_Y + F3_CH + 11) {
+        pdf.setFillColor(...C.RED); pdf.circle(F3_X3 + 10, indY + 2, 2, 'F');
+        pdf.setFontSize(5.8); pdf.setFont('helvetica', 'bold'); pdf.setTextColor(...C.DARK);
+        pdf.text('Delivery', F3_X3 + 14, indY + 3.5);
+        pdf.setFontSize(7.5); pdf.setFont('helvetica', 'bold'); pdf.setTextColor(...C.RED);
+        pdf.text(Math.round(pct*100)+'%', F3_X3+14, indY+9);
+        const px = F3_X3 + F3_BW / 2 + 4;
+        pdf.setFillColor(...C.GRAY_LIGHT); pdf.circle(px, indY + 2, 2, 'F');
+        pdf.setFontSize(5.8); pdf.setFont('helvetica', 'bold'); pdf.setTextColor(...C.DARK);
+        pdf.text('Pickup', px + 4, indY + 3.5);
+        pdf.setFontSize(7.5); pdf.setFont('helvetica', 'bold'); pdf.setTextColor(...C.GRAY);
+        pdf.text(Math.round((1-pct)*100)+'%', px+4, indY+9);
+    }
+
+    B.drawFooter(hoy, hora, pageNum, 2);
+
+    /* ── PÁGINA 2 ── */
+    pdf.addPage(); pageNum++;
+    B.pageBg();
+    B.drawHeader('REPORTE EJECUTIVO', `${meta.empresaName}  |  ${meta.sucursalName}`, `${meta.fechaInicio}  \u2013  ${meta.fechaFin}`);
+
+    const C3W = (CW - 8) / 3;
+    const C3Y = CONT_Y;
+    const P1x = M, P2x = M + C3W + 4, P3x = M + (C3W + 4) * 2;
+
+    /* Col 1 */
+    let p1y = C3Y;
+    if (charts[3]?.img) { B.chartCard(charts[3].img, 'Clientes Recurrentes', P1x, p1y, C3W, 48); }
+    p1y += 48 + 13;
+    B.insightBadge(P1x, p1y, C3W, 12, '4 de cada 10 clientes regresaron a comprar este mes.', C.ORANGE_BG, C.ORANGE);
+    p1y += 16;
+    const ordH = Math.min(BOT - p1y - 14, 48);
+    if (charts[5]?.img && ordH > 15) { B.chartCard(charts[5].img, '\u00D3rdenes por Estado', P1x, p1y, C3W, ordH); p1y += ordH + 13; }
+    if (p1y + 12 < BOT) B.insightBadge(P1x, p1y, C3W, 12, 'El 89% de las \u00F3rdenes fueron entregadas exitosamente.', C.GREEN_BG, C.GREEN);
+
+    /* Col 2 */
+    let p2y = C3Y;
+    if (charts[4]?.img) { B.chartCard(charts[4].img, 'Ventas por D\u00EDa', P2x, p2y, C3W, 52); }
+    p2y += 52 + 13;
+    B.insightBadge(P2x, p2y, C3W, 12, 'El mi\u00E9rcoles fue tu mejor d\u00EDa con mayores ventas.', C.YELLOW_BG, C.YELLOW);
+    p2y += 16;
+    B.sectionTitle('Top 5 Productos', P2x, p2y + 5); p2y += 8;
+    B.tableHeader(P2x, p2y, C3W, [{ label:'PRODUCTO', x:3 },{ label:'CANT.', x:C3W-25 },{ label:'VENTAS', x:C3W-14 }]);
+    const topProds = [
+        { n:'Caja de 3 Rolls', c:'5,285', v:'$51,595.25' },
+        { n:'Caja de 6 rolls', c:'2,304', v:'$44,957.50' },
+        { n:'Caja de 3 Rolls', c:'2,511', v:'$24,497.25' },
+        { n:'Caja de 6 rolls', c:'1,095', v:'$21,364.00' },
+        { n:'Ferrero rocher',  c:'3,335', v:'$12,249.90' },
+    ];
+    const dots = [C.RED,C.BLUE,C.GREEN,C.ORANGE,C.YELLOW];
+    topProds.forEach((p,i) => {
+        const ry = p2y+5.5+i*6.5; if(ry+6.5>BOT) return;
+        B.tableRow(P2x,ry,C3W,6.5,[{value:p.n,x:6},{value:p.c,x:C3W-25},{value:p.v,x:C3W-18}],i%2===1,dots[i]);
+    });
+    B.tableBorder(P2x, p2y, C3W, 5.5 + topProds.length * 6.5);
+
+    /* Col 3 */
+    let p3y = C3Y;
+    B.sectionTitle('Rendimiento por Sucursal', P3x, p3y + 5); p3y += 8;
+    B.tableHeader(P3x, p3y, C3W, [{label:'SUCURSAL',x:3},{label:'VENTAS',x:28},{label:'% VTA',x:47},{label:'\u00D3RD.',x:55},{label:'T.PROM',x:63}]);
+    const sucs = [
+        {n:'Plaza Sports Garden',v:'$7,432.10', p:'26%',o:'412',t:'$18.03'},
+        {n:'Urdesa',             v:'$17,289.45',p:'61%',o:'942',t:'$18.34'},
+        {n:'HiperMarket Buijo',  v:'$2,941.30', p:'10%',o:'178',t:'$16.52'},
+        {n:'La Marquesa',        v:'$1,105.40', p:'4%', o:'52', t:'$21.26'},
+        {n:'Aventura Plaza',     v:'$445.38',   p:'2%', o:'25', t:'$17.82'},
+    ];
+    const sds=[C.BLUE,C.RED,C.GREEN,C.ORANGE,C.YELLOW];
+    sucs.forEach((s,i)=>{ B.tableRow(P3x,p3y+5.5+i*6.5,C3W,6.5,[{value:s.n,x:6},{value:s.v,x:28},{value:s.p,x:47},{value:s.o,x:55},{value:s.t,x:63}],i%2===1,sds[i]); });
+    B.tableBorder(P3x,p3y,C3W,5.5+sucs.length*6.5); p3y+=5.5+sucs.length*6.5+5;
+
+    if (p3y+28<BOT) {
+        B.card(P3x,p3y,C3W,28,{bg:C.LIGHT_BG,border:C.GRAY_LIGHT});
+        pdf.setFontSize(7);pdf.setFont('helvetica','bold');pdf.setTextColor(...C.DARK);pdf.text('Calificaci\u00F3n Promedio',P3x+4,p3y+6);
+        pdf.setFontSize(14);pdf.setTextColor(...C.YELLOW);pdf.text('\u2605',P3x+4,p3y+16);
+        pdf.setFontSize(11);pdf.setFont('helvetica','bold');pdf.setTextColor(...C.DARK);pdf.text('4.7 / 5',P3x+12,p3y+16);
+        pdf.setFontSize(5.8);pdf.setFont('helvetica','normal');pdf.setTextColor(...C.GRAY);pdf.text('Basado en 1.328 rese\u00F1as',P3x+4,p3y+21);
+        const hX=P3x+C3W/2;
+        pdf.setFontSize(6.5);pdf.setFont('helvetica','bold');pdf.setTextColor(...C.DARK);pdf.text('Restaurante',P3x+4,p3y+27);pdf.setFontSize(8);pdf.setTextColor(...C.YELLOW);pdf.text('\u2605 4.8 / 5',P3x+4,p3y+33);
+        pdf.setFontSize(6.5);pdf.setFont('helvetica','bold');pdf.setTextColor(...C.DARK);pdf.text('Delivery',hX+2,p3y+27);pdf.setFontSize(8);pdf.setTextColor(...C.YELLOW);pdf.text('\u2605 4.5 / 5',hX+2,p3y+33);
+        p3y+=38;
+    }
+    if (p3y+18<BOT) {
+        pdf.setFontSize(7);pdf.setFont('helvetica','bold');pdf.setTextColor(...C.DARK);pdf.text('Alertas del mes',P3x+4,p3y+5);p3y+=7;
+        B.insightBadge(P3x,p3y,C3W,12,'El ticket promedio disminuy\u00F3 3% respecto al mes anterior.',C.ORANGE_BG,C.ORANGE);p3y+=16;
+    }
+    if (p3y+10<BOT) {
+        B.sectionTitle('Recomendaciones Taste',P3x,p3y+5);p3y+=8;
+        const recs=['Activa promociones entre 18h y 20h para impulsar horas bajas.','Crea combos para aumentar tu ticket promedio.','Tu canal de delivery funciona muy bien, sigue potenci\u00E1ndolo.','Aumenta clientes recurrentes con cupones exclusivos.','Mant\u00E9n la calidad del delivery para mejorar tus calificaciones.'];
+        recs.forEach(rec=>{
+            if(p3y+9>BOT)return;
+            B.card(P3x,p3y,C3W,8,{bg:C.LIGHT_BG,border:C.GRAY_LIGHT,radius:2});
+            pdf.setFillColor(...C.RED);pdf.circle(P3x+4,p3y+4,1.8,'F');
+            pdf.setFontSize(5.8);pdf.setFont('helvetica','normal');pdf.setTextColor(...C.DARK2);
+            pdf.text(pdf.splitTextToSize(rec,C3W-12),P3x+9,p3y+5.5);
+            p3y+=10;
+        });
+    }
+
+    B.drawFooter(hoy, hora, pageNum, 2);
+
+    const empresa = meta.empresaName.replace(/\s+/g,'_');
+    pdf.save(`reporte_${empresa}_${meta.fechaInicio}_${meta.fechaFin}.pdf`);
+}
+</script>
+</body>
+</html>

@@ -109,6 +109,7 @@ $eventos = [
     'dias_anticipacion' => 0,
     'dias_fin' => 0
 ];
+$esEvento = false;
 
 
 
@@ -200,6 +201,7 @@ if (isset($_GET['id'])) {
             $resp = $Clproductos->getEvento($cod_producto);
             if($resp){
                 $eventos = $resp;
+                $esEvento = true;
             }
         }
     } else {
@@ -1631,35 +1633,48 @@ function recursive($array, $posicion, &$data, &$codigos)
                         </div>
 
                         <!-- EVENTOS -->
+                        <?php if(in_array("PRODUCTO_EVENTO", $permisos)): ?>
                         <div class="widget-content widget-content-area br-6 contentEventos" style="margin-top: 15px;">
                             <div>
                                 <h4>Evento</h4>
                             </div>
                             <form id="frmEventos" method="POST" action="#">
+                                <!-- sentinel: siempre se envía cuando la sección es visible -->
+                                <input type="hidden" name="evento_section_rendered" value="1">
                                 <div class="row">
                                     <div class="col-md-12 col-sm-12 col-xs-12">
                                         <p>Permite poner un selector de fecha en el producto para gestionar eventos.</p>
                                     </div>
-                                    <div class="col-md-12 col-sm-12 col-xs-12">
-                                        <label>Días anticipación</label>
-                                        <input type="text" name="txt_evento_anticipacion" id="txt_evento_anticipacion" value="<?php echo $eventos['dias_anticipacion']; ?>" placeholder="0" class="form-control" required="required"/>
+                                    <div class="col-md-12 col-sm-12 col-xs-12" style="margin-bottom:10px;">
+                                        <div class="custom-control custom-checkbox">
+                                            <input type="checkbox" class="custom-control-input" id="chk_es_evento" name="chk_es_evento" value="1" <?php echo $esEvento ? 'checked' : ''; ?>>
+                                            <label class="custom-control-label" for="chk_es_evento">Este producto es un evento</label>
+                                        </div>
                                     </div>
-                                    <div class="col-md-12 col-sm-12 col-xs-12">
-                                        <label>Días a futuro</label>
-                                        <input type="text" name="txt_evento_maximo" id="txt_evento_maximo" value="<?php echo $eventos['dias_fin']; ?>" placeholder="0" class="form-control" required="required"/>
+                                </div>
+                                <div id="eventoFields" <?php if(!$esEvento) echo 'style="display:none;"'; ?>>
+                                    <div class="row">
+                                        <div class="col-md-12 col-sm-12 col-xs-12">
+                                            <label>Días anticipación</label>
+                                            <input type="text" name="txt_evento_anticipacion" id="txt_evento_anticipacion" value="<?php echo $eventos['dias_anticipacion']; ?>" placeholder="0" class="form-control" <?php if(!$esEvento) echo 'disabled'; ?>/>
+                                        </div>
+                                        <div class="col-md-12 col-sm-12 col-xs-12">
+                                            <label>Días a futuro</label>
+                                            <input type="text" name="txt_evento_maximo" id="txt_evento_maximo" value="<?php echo $eventos['dias_fin']; ?>" placeholder="0" class="form-control" <?php if(!$esEvento) echo 'disabled'; ?>/>
+                                        </div>
+                                        <div class="col-md-12 col-sm-12 col-xs-12">
+                                            <label>Título que se mostrará en la web</label>
+                                            <input type="text" name="txt_evento_titulo" id="txt_evento_titulo" value="<?php echo $eventos['titulo']; ?>" placeholder="Titulo" class="form-control" <?php if(!$esEvento) echo 'disabled'; ?>/>
+                                        </div>
+                                        <div class="col-md-12 col-sm-12 col-xs-12">
+                                            <label>Descripción que se mostrará en la web</label>
+                                            <input type="text" name="txt_evento_desc" id="txt_evento_desc" value="<?php echo $eventos['descripcion']; ?>" placeholder="Descripcion" class="form-control" <?php if(!$esEvento) echo 'disabled'; ?>/>
+                                        </div>
                                     </div>
-                                    <div class="col-md-12 col-sm-12 col-xs-12">
-                                        <label>Título que se mostrará en la web</label>
-                                        <input type="text" name="txt_evento_titulo" id="txt_evento_titulo" value="<?php echo $eventos['titulo']; ?>" placeholder="Titulo" class="form-control" required="required"/>
-                                    </div>
-                                    <div class="col-md-12 col-sm-12 col-xs-12">
-                                        <label>Descripción que se mostrará en la web</label>
-                                        <input type="text" name="txt_evento_desc" id="txt_evento_desc" value="<?php echo $eventos['descripcion']; ?>" placeholder="Descripcion" class="form-control" required="required"/>
-                                    </div>
-
                                 </div>
                             </form>
                         </div>
+                        <?php endif; ?>
 
                         <!-- Tags -->
                         <div class="widget-content widget-content-area br-6 " style="margin-top: 15px;">

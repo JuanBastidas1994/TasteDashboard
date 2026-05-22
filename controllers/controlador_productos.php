@@ -108,9 +108,9 @@ function crear(){
             }
 
             //EVENTO
-            if(isset($txt_evento_anticipacion)){
+            if(isset($evento_section_rendered) && isset($chk_es_evento)){
                 $anticipacion = intval($txt_evento_anticipacion);
-                $maximo = isset($txt_evento_maximo) ? intval($txt_evento_maximo) : 0;
+                $maximo = intval($txt_evento_maximo);
                 $Clproductos->updateEvento($idP, $anticipacion, $maximo, $txt_evento_titulo, $txt_evento_desc);
             }
 
@@ -155,12 +155,13 @@ function crear(){
             }
 
             //EVENTO
-            if(isset($txt_evento_anticipacion)){
-                $anticipacion = intval($txt_evento_anticipacion);
-                $maximo = isset($txt_evento_maximo) ? intval($txt_evento_maximo) : 0;
+            if(isset($evento_section_rendered)){
                 $Clproductos->deleteEvento($idP);
-                if($maximo > 0)
+                if(isset($chk_es_evento)){
+                    $anticipacion = intval($txt_evento_anticipacion);
+                    $maximo = intval($txt_evento_maximo);
                     $Clproductos->updateEvento($idP, $anticipacion, $maximo, $txt_evento_titulo, $txt_evento_desc);
+                }
             }
 
             $data = NULL;

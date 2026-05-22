@@ -18,6 +18,17 @@ $(document).ready(function () {
     }
     
     
+    $("#chk_es_evento").on("change", function() {
+        var checked = $(this).is(":checked");
+        if (checked) {
+            $("#eventoFields").slideDown();
+            $("#eventoFields input").prop("disabled", false);
+        } else {
+            $("#eventoFields").slideUp();
+            $("#eventoFields input").prop("disabled", true);
+        }
+    });
+
     $("#btnOpenModal").on("click", function (event) {
         $("#id").val(0);
         $("#frmSave").trigger("reset");

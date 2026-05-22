@@ -10,7 +10,7 @@ class cl_promociones_nueva
     // 7 = Domingo
     public $session;
     public $cod_promocion, $descripcion, $is_porcentaje, $cantidad, $valor, $texto, $fecha_inicio, $fecha_fin, $is_recurrente, $estado;
-    public $cod_sucursal, $cod_producto, $cod_empresa, $imagen;
+    public $cod_sucursal, $cod_producto, $cod_empresa, $imagen, $is_distintivo;
 
     public function __construct()
     {
@@ -59,7 +59,8 @@ class cl_promociones_nueva
                     fecha_fin,
                     is_recurrente,
                     estado,
-                    imagen
+                    imagen,
+                    is_distintivo
                 FROM promociones
                 WHERE cod_promocion = :cod_promocion
                     AND cod_empresa = :cod_empresa
@@ -143,8 +144,8 @@ class cl_promociones_nueva
     // Método para crear una nueva promoción
     public function crear(&$id)
     {
-        $query = "INSERT INTO promociones (cod_empresa, descripcion, is_porcentaje, cantidad, valor, texto, fecha_inicio, fecha_fin, is_recurrente, estado, imagen)
-                  VALUES (:cod_empresa, :descripcion, :is_porcentaje, :cantidad, :valor, :texto, :fecha_inicio, :fecha_fin, :is_recurrente, :estado, :imagen)";
+        $query = "INSERT INTO promociones (cod_empresa, descripcion, is_porcentaje, cantidad, valor, texto, fecha_inicio, fecha_fin, is_recurrente, estado, imagen, is_distintivo)
+                  VALUES (:cod_empresa, :descripcion, :is_porcentaje, :cantidad, :valor, :texto, :fecha_inicio, :fecha_fin, :is_recurrente, :estado, :imagen, :is_distintivo)";
 
         $params = array(
             ':cod_empresa' => $this->cod_empresa,
@@ -158,6 +159,7 @@ class cl_promociones_nueva
             ':is_recurrente' => $this->is_recurrente,
             ':estado' => $this->estado,
             ':imagen' => $this->imagen ?? '',
+            ':is_distintivo' => $this->is_distintivo ?? 0,
         );
 
         if (Conexion::ejecutar($query, $params)) {
@@ -173,7 +175,8 @@ class cl_promociones_nueva
     {
         $query = "UPDATE promociones
                   SET descripcion = :descripcion, is_porcentaje = :is_porcentaje, cantidad = :cantidad, valor = :valor, texto = :texto,
-                      fecha_inicio = :fecha_inicio, fecha_fin = :fecha_fin, is_recurrente = :is_recurrente, estado = :estado, imagen = :imagen
+                      fecha_inicio = :fecha_inicio, fecha_fin = :fecha_fin, is_recurrente = :is_recurrente, estado = :estado, imagen = :imagen,
+                      is_distintivo = :is_distintivo
                   WHERE cod_promocion = :cod_promocion";
 
         $params = array(
@@ -187,6 +190,7 @@ class cl_promociones_nueva
             ':is_recurrente' => $this->is_recurrente,
             ':estado' => $this->estado,
             ':imagen' => $this->imagen ?? '',
+            ':is_distintivo' => $this->is_distintivo ?? 0,
             ':cod_promocion' => $this->cod_promocion
         );
 

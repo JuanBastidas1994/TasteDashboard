@@ -633,6 +633,54 @@ $("#frmConfigTransporte").on('submit', function(event){
 
 
 
+$("body").on("click", "#btnActualizarImpuesto", function () {
+    var cod_empresa = $("#cod_empresa_imp").val();
+    var impuesto    = parseInt($("#txt_impuesto_conf").val());
+    var tipo        = $("#cmb_tipo_impuesto").val();
+
+    if (isNaN(impuesto) || impuesto < 0 || impuesto > 100) {
+        messageDone("Ingrese un porcentaje válido entre 0 y 100", "error");
+        return;
+    }
+
+    swal.fire({
+        title: "¿Actualizar el impuesto?",
+        text: "Esta acción actualizará el impuesto y recalculará los precios de todos los productos.",
+        type: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Sí, actualizar",
+        cancelButtonText: "Cancelar"
+    }).then(function (result) {
+        if (!result.value) return;
+
+        $.ajax({
+            beforeSend: function () {
+                OpenLoad("Actualizando impuesto, por favor espere...");
+            },
+            url: "controllers/controlador_empresa.php?metodo=actualizarImpuesto",
+            type: "GET",
+            data: {
+                cod_empresa: cod_empresa,
+                impuesto:    impuesto,
+                tipo:        tipo
+            },
+            success: function (response) {
+                if (response["success"] == 1) {
+                    messageDone(response["mensaje"], "success");
+                } else {
+                    messageDone(response["mensaje"], "error");
+                }
+            },
+            error: function () {
+                messageDone("Error al conectar con el servidor", "error");
+            },
+            complete: function () {
+                CloseLoad();
+            }
+        });
+    });
+});
+
 $("body").on("click", ".btnEditarNombreFP", function () {
     $(this).hide();
     $(this).parents(".rowNombreFP").find(".nombreFP").attr("disabled", false);

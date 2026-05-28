@@ -1355,6 +1355,28 @@ function setStatusEnvironmentPedidosYa() {
 
 }
 
+function setCartAbandonmentMinutes(){
+    global $Clempresas;
+    global $session;
+
+    $minutos = intval($_GET['minutos']);
+
+    if ($minutos <= 0) {
+        $return['success'] = 0;
+        $return['mensaje'] = "Ingrese un valor válido mayor a 0";
+        return $return;
+    }
+
+    if ($Clempresas->setCartAbandonmentMinutes($session['cod_empresa'], $minutos)) {
+        $return['success'] = 1;
+        $return['mensaje'] = "Tiempo de abandono actualizado correctamente";
+    } else {
+        $return['success'] = 0;
+        $return['mensaje'] = "Error al actualizar el tiempo de abandono";
+    }
+    return $return;
+}
+
 function actualizarImpuesto(){
     global $Clempresas;
     

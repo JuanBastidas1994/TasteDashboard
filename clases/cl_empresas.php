@@ -673,6 +673,13 @@ class cl_empresas
 			return Conexion::ejecutar($query, null);
 		}
 
+		public function setCartAbandonmentMinutes($cod_empresa, $minutos){
+			$query = "UPDATE tb_empresas
+						SET cart_abandonment_minutes = $minutos
+						WHERE cod_empresa = $cod_empresa";
+			return Conexion::ejecutar($query, null);
+		}
+
 		public function updateFolder($cod_empresa, $folder){
 			$query = "UPDATE tb_empresas
 						SET folder = '$folder'

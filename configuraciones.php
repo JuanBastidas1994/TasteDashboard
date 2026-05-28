@@ -26,6 +26,7 @@ $direccion = $empresa['direccion'];
 $telefono = $empresa['telefono'];
 $correo = $empresa['correo'];
 $isFidelizacion = $empresa['fidelizacion'];
+$impuesto = $empresa['impuesto'];
 $chkGravaIva = "checked";
 if ($empresa['envio_grava_iva'] == 0) {
     $chkGravaIva = "";
@@ -219,7 +220,13 @@ if ($Clempresas->getPermisoTienda($cod_empresa))
                                         <span data-translate="conf-tab5">Courier</span>
                                     </a>
                                 </li>
-                                <!-- 
+                                <li class="nav-item">
+                                    <a class="nav-link" data-toggle="tab" href="#tab-impuesto" role="tab" aria-selected="false">
+                                        <i data-feather="percent"></i>
+                                        Impuesto
+                                    </a>
+                                </li>
+                                <!--
                             <li class="nav-item">
                                 <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
                             </li>-->
@@ -666,6 +673,43 @@ if ($Clempresas->getPermisoTienda($cod_empresa))
 
                                                 </div>
                                             </div>
+                                        </div>
+                                    </div>
+                                    <br />
+                                </div>
+
+                                <div class="tab-pane fade" id="tab-impuesto" role="tabpanel">
+                                    <br>
+                                    <div class="row">
+                                        <div class="col-md-12 mb-3">
+                                            <h4>Impuesto</h4>
+                                            <p class="text-muted" style="font-size:13px;">
+                                                Al actualizar el impuesto puedes elegir si mantener el precio de venta (PVP)
+                                                o mantener el precio base sin impuesto.
+                                            </p>
+                                        </div>
+                                        <input type="hidden" id="cod_empresa_imp" value="<?= $cod_empresa ?>">
+                                        <div class="form-group col-md-4">
+                                            <label>Porcentaje de impuesto <span class="asterisco">*</span></label>
+                                            <div class="input-group">
+                                                <input type="number" id="txt_impuesto_conf" class="form-control"
+                                                       value="<?= $impuesto ?>" min="0" max="100" step="1">
+                                                <div class="input-group-append">
+                                                    <span class="input-group-text">%</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group col-md-5">
+                                            <label>Acción sobre los precios existentes <span class="asterisco">*</span></label>
+                                            <select class="form-control" id="cmb_tipo_impuesto">
+                                                <option value="mantener_precioNoTax">Mantener precio base (sin impuesto)</option>
+                                                <option value="mantener_pvp">Mantener PVP (precio de venta al público)</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-3 d-flex align-items-end mb-3">
+                                            <button class="btn btn-primary w-100" id="btnActualizarImpuesto">
+                                                <i data-feather="save"></i> Actualizar impuesto
+                                            </button>
                                         </div>
                                     </div>
                                     <br />

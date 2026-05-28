@@ -1377,6 +1377,37 @@ function setCartAbandonmentMinutes(){
     return $return;
 }
 
+function saveCartConfig(){
+    global $Clempresas;
+    global $session;
+
+    $config = [
+        'cart_minutes'      => intval($_GET['cart_minutes']      ?? 60),
+        'cart_expiry'       => intval($_GET['cart_expiry']        ?? 72),
+        'campaigns_enabled' => intval($_GET['campaigns_enabled']  ?? 0),
+        'campaign_interval' => intval($_GET['campaign_interval']  ?? 60),
+        'campaign_max'      => intval($_GET['campaign_max']        ?? 3),
+        'recovery_email'    => intval($_GET['recovery_email']     ?? 0),
+        'recovery_push'     => intval($_GET['recovery_push']      ?? 0),
+        'recovery_whatsapp' => intval($_GET['recovery_whatsapp']  ?? 0),
+    ];
+
+    if ($config['cart_minutes'] <= 0 || $config['cart_expiry'] <= 0) {
+        $return['success'] = 0;
+        $return['mensaje'] = "Los tiempos de abandono y expiración deben ser mayores a 0";
+        return $return;
+    }
+
+    if ($Clempresas->saveCartConfig($session['cod_empresa'], $config)) {
+        $return['success'] = 1;
+        $return['mensaje'] = "Configuración de carrito guardada correctamente";
+    } else {
+        $return['success'] = 0;
+        $return['mensaje'] = "Error al guardar la configuración de carrito";
+    }
+    return $return;
+}
+
 function actualizarImpuesto(){
     global $Clempresas;
     

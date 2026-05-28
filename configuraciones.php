@@ -26,8 +26,15 @@ $direccion = $empresa['direccion'];
 $telefono = $empresa['telefono'];
 $correo = $empresa['correo'];
 $isFidelizacion = $empresa['fidelizacion'];
-$impuesto                 = $empresa['impuesto'];
-$cart_abandonment_minutes = $empresa['cart_abandonment_minutes'] ?? 60;
+$impuesto                   = $empresa['impuesto'];
+$cart_abandonment_minutes   = $empresa['cart_abandonment_minutes']  ?? 60;
+$cart_expiry_hours          = $empresa['cart_expiry_hours']          ?? 72;
+$cart_campaigns_enabled     = $empresa['cart_campaigns_enabled']     ?? 0;
+$cart_campaign_min_interval = $empresa['cart_campaign_min_interval'] ?? 60;
+$cart_campaign_max          = $empresa['cart_campaign_max']          ?? 3;
+$cart_recovery_email        = $empresa['cart_recovery_email']        ?? 0;
+$cart_recovery_push         = $empresa['cart_recovery_push']         ?? 0;
+$cart_recovery_whatsapp     = $empresa['cart_recovery_whatsapp']     ?? 0;
 $chkGravaIva = "checked";
 if ($empresa['envio_grava_iva'] == 0) {
     $chkGravaIva = "";
@@ -122,11 +129,11 @@ if ($Clempresas->getPermisoTienda($cod_empresa))
         </div>
     </div>
     <!--  BEGIN NAVBAR  -->
-    <?php echo top() ?>
+    <?php top() ?>
     <!--  END NAVBAR  -->
 
     <!--  BEGIN NAVBAR  -->
-    <?php echo navbar(); ?>
+    <?php navbar(); ?>
     <!--  END NAVBAR  -->
 
     <!--  BEGIN MAIN CONTAINER  -->
@@ -136,7 +143,7 @@ if ($Clempresas->getPermisoTienda($cod_empresa))
         <div class="search-overlay"></div>
 
         <!--  BEGIN SIDEBAR  -->
-        <?php echo sidebar(); ?>
+        <?php sidebar(); ?>
         <!--  END SIDEBAR  -->
 
 
@@ -726,31 +733,98 @@ if ($Clempresas->getPermisoTienda($cod_empresa))
                                 <!-- Tab Carrito Abandonado -->
                                 <div class="tab-pane fade" id="tab-carrito" role="tabpanel">
                                     <br>
+
+                                    <!-- Tiempos -->
+                                    <h5>Tiempos</h5>
+                                    <hr>
                                     <div class="row">
-                                        <div class="col-md-12 mb-3">
-                                            <h4>Carrito Abandonado</h4>
-                                            <p class="text-muted" style="font-size:13px;">
-                                                Define cuántos minutos deben pasar sin actividad para que
-                                                el sistema marque un carrito como abandonado.
-                                            </p>
-                                        </div>
                                         <div class="form-group col-md-4">
-                                            <label>Tiempo de inactividad <span class="asterisco">*</span></label>
+                                            <label>Minutos para considerar ABANDONADO <span class="asterisco">*</span></label>
                                             <div class="input-group">
                                                 <input type="number" id="txt_cart_minutes" class="form-control"
                                                        value="<?= $cart_abandonment_minutes ?>" min="1" step="1">
-                                                <div class="input-group-append">
-                                                    <span class="input-group-text">min</span>
-                                                </div>
+                                                <div class="input-group-append"><span class="input-group-text">min</span></div>
                                             </div>
-                                            <small class="text-muted">Ej: 30 minutos, 60 minutos, 120 minutos</small>
                                         </div>
-                                        <div class="col-md-3 d-flex align-items-center mt-2">
-                                            <button class="btn btn-primary" id="btnGuardarCartMinutes">
-                                                <i data-feather="save"></i> Guardar
+                                        <div class="form-group col-md-4">
+                                            <label>Horas para EXPIRADO <span class="asterisco">*</span></label>
+                                            <div class="input-group">
+                                                <input type="number" id="txt_cart_expiry" class="form-control"
+                                                       value="<?= $cart_expiry_hours ?>" min="1" step="1">
+                                                <div class="input-group-append"><span class="input-group-text">hrs</span></div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Campañas recovery -->
+                                    <h5 class="mt-3">Campañas de Recovery</h5>
+                                    <hr>
+                                    <div class="row">
+                                        <div class="form-group col-md-4">
+                                            <label>Habilitar campañas</label>
+                                            <div>
+                                                <label class="switch s-icons s-outline s-outline-success mb-4 mr-2">
+                                                    <input type="checkbox" id="chk_campaigns_enabled" <?= $cart_campaigns_enabled ? 'checked' : '' ?>>
+                                                    <span class="slider round"></span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="form-group col-md-4">
+                                            <label>Tiempo mínimo entre campañas</label>
+                                            <div class="input-group">
+                                                <input type="number" id="txt_campaign_interval" class="form-control"
+                                                       value="<?= $cart_campaign_min_interval ?>" min="1" step="1">
+                                                <div class="input-group-append"><span class="input-group-text">min</span></div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group col-md-4">
+                                            <label>Máximo de campañas por carrito</label>
+                                            <input type="number" id="txt_campaign_max" class="form-control"
+                                                   value="<?= $cart_campaign_max ?>" min="1" step="1">
+                                        </div>
+                                    </div>
+
+                                    <!-- Canales recovery -->
+                                    <h5 class="mt-3">Canales de Recovery</h5>
+                                    <hr>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <label>Email</label>
+                                            <div>
+                                                <label class="switch s-icons s-outline s-outline-success mb-4 mr-2">
+                                                    <input type="checkbox" id="chk_recovery_email" <?= $cart_recovery_email ? 'checked' : '' ?>>
+                                                    <span class="slider round"></span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label>Push</label>
+                                            <div>
+                                                <label class="switch s-icons s-outline s-outline-success mb-4 mr-2">
+                                                    <input type="checkbox" id="chk_recovery_push" <?= $cart_recovery_push ? 'checked' : '' ?>>
+                                                    <span class="slider round"></span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label>WhatsApp</label>
+                                            <div>
+                                                <label class="switch s-icons s-outline s-outline-success mb-4 mr-2">
+                                                    <input type="checkbox" id="chk_recovery_whatsapp" <?= $cart_recovery_whatsapp ? 'checked' : '' ?>>
+                                                    <span class="slider round"></span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-12 text-right mt-2 mb-3">
+                                            <button class="btn btn-primary" id="btnGuardarCartConfig">
+                                                <i data-feather="save"></i> Guardar configuración
                                             </button>
                                         </div>
                                     </div>
+
                                     <br />
                                 </div>
 

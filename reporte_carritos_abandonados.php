@@ -9,15 +9,8 @@ if (!isLogin()) {
 $session      = getSession();
 $clsucursales = new cl_sucursales(NULL);
 $cod_rol      = $session["cod_rol"];
-$cod_sucursal = 0;
-$selectedAll  = "selected";
-$enabled      = "";
-
-if ($cod_rol == 3) {
-    $enabled      = "disabled";
-    $selectedAll  = "";
-    $cod_sucursal = $session["cod_sucursal"];
-}
+$enabled      = $cod_rol == 3 ? "disabled" : "";
+$cod_sucursal = $cod_rol == 3 ? $session["cod_sucursal"] : 0;
 ?>
 
 <!DOCTYPE html>
@@ -27,127 +20,188 @@ if ($cod_rol == 3) {
     <meta charset="UTF-8">
     <?php css_mandatory(); ?>
     <style>
-        .stat-card {
-            border-radius: 10px;
-            padding: 22px 24px;
-            color: #fff;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        .stat-card .stat-value { font-size: 2.4rem; font-weight: 700; line-height: 1.1; }
-        .stat-card .stat-label { font-size: 0.9rem; opacity: 0.9; margin-bottom: 4px; }
-        .stat-card .stat-delta { font-size: 0.82rem; margin-top: 6px; }
-        .stat-card svg { width: 48px; height: 48px; opacity: 0.7; }
-        .bg-orange { background: linear-gradient(135deg, #f6a623, #e2890a); }
-        .bg-golden { background: linear-gradient(135deg, #c8962a, #a07820); }
-        .tip-box {
-            background: #fff8e7;
-            border-left: 4px solid #f6a623;
-            border-radius: 6px;
-            padding: 14px 20px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        .tip-box svg { color: #f6a623; min-width: 22px; }
+        .metric-card { border-radius:8px; padding:18px 20px; color:#fff; }
+        .metric-card .metric-val { font-size:2rem; font-weight:700; line-height:1.1; }
+        .metric-card .metric-lbl { font-size:.82rem; opacity:.9; margin-bottom:3px; }
+        .bg-danger-g  { background:linear-gradient(135deg,#e55353,#c0392b); }
+        .bg-success-g { background:linear-gradient(135deg,#1abc9c,#16a085); }
+        .bg-warning-g { background:linear-gradient(135deg,#f6a623,#e2890a); }
+        .bg-info-g    { background:linear-gradient(135deg,#2980b9,#1a6fa8); }
+        .bg-dark-g    { background:linear-gradient(135deg,#555,#333); }
     </style>
 </head>
 
 <body>
-    <?php echo top(); ?>
-    <?php echo navbar(); ?>
+    <?php top(); ?>
+    <?php navbar(); ?>
 
     <div class="main-container" id="container">
         <div class="overlay"></div>
         <div class="search-overlay"></div>
-        <?php echo sidebar(); ?>
+        <?php sidebar(); ?>
 
         <div id="content" class="main-content">
             <div class="layout-px-spacing">
 
                 <div class="col-md-12" style="margin-top:25px;">
-                    <h3>Carritos en Abandono</h3>
-                    <p class="text-muted">Visualiza la cantidad de carritos abandonados y su <strong>monto</strong> estimado.</p>
+                    <h3>Carritos Abandonados</h3>
+                    <p class="text-muted">Analiza el comportamiento de los carritos: activos, abandonados, convertidos y expirados.</p>
                 </div>
 
                 <!-- Filtros -->
                 <div class="row mt-3">
-                    <div class="col-md-4 col-sm-6">
-                        <div class="form-group">
-                            <label>Sucursal</label>
-                            <select class="form-control" id="cmb_sucursal" <?= $enabled ?>>
-                                <option value="0" <?= $selectedAll ?>>Todas las sucursales</option>
-                                <?php foreach ($clsucursales->all() as $suc): ?>
-                                    <option value="<?= $suc['cod_sucursal'] ?>"
-                                        <?= ($suc['cod_sucursal'] == $cod_sucursal) ? 'selected' : '' ?>>
-                                        <?= htmlspecialchars($suc['nombre']) ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-md-3 col-sm-6">
-                        <div class="form-group">
-                            <label>Período</label>
-                            <select class="form-control" id="cmb_periodo">
-                                <option value="mes_actual">Mes Actual</option>
-                                <option value="mes_anterior">Mes Anterior</option>
-                                <option value="ultimos_3_meses">Últimos 3 meses</option>
-                                <option value="ultimos_6_meses">Últimos 6 meses</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Stat cards -->
-                <div class="row mt-2" id="seccionStats" style="display:none;">
-                    <div class="col-md-6 layout-spacing">
-                        <div class="stat-card bg-orange">
-                            <div>
-                                <div class="stat-label">Carritos Abandonados</div>
-                                <div class="stat-value" id="statCount">0</div>
-                                <div class="stat-delta" id="statDeltaCount"></div>
-                            </div>
-                            <i data-feather="shopping-cart"></i>
-                        </div>
-                    </div>
-                    <div class="col-md-6 layout-spacing">
-                        <div class="stat-card bg-golden">
-                            <div>
-                                <div class="stat-label">Dinero abandonado</div>
-                                <div class="stat-value" id="statAmount">$0</div>
-                                <div class="stat-delta" id="statDeltaAmount"></div>
-                            </div>
-                            <i data-feather="dollar-sign"></i>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Charts -->
-                <div class="row" id="seccionCharts" style="display:none;">
-                    <div class="col-md-5 layout-spacing">
-                        <div class="widget-content widget-content-area br-6">
-                            <h5 class="mb-1">Distribución de Carritos</h5>
-                            <div id="chartDonut"></div>
-                        </div>
-                    </div>
-                    <div class="col-md-7 layout-spacing">
-                        <div class="widget-content widget-content-area br-6">
-                            <h5 class="mb-1">Valor de Carritos Abandonados</h5>
-                            <div id="chartLine"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Tip -->
-                <div class="row" id="seccionTip" style="display:none;">
                     <div class="col-md-12 layout-spacing">
-                        <div class="tip-box">
-                            <i data-feather="info"></i>
-                            <span id="txtTip"></span>
+                        <div class="widget-content widget-content-area br-6">
+                            <div class="form-row align-items-end">
+
+                                <div class="form-group col-md-2 col-sm-4">
+                                    <label>Fecha inicio</label>
+                                    <input type="date" class="form-control" id="f_ini">
+                                </div>
+
+                                <div class="form-group col-md-2 col-sm-4">
+                                    <label>Fecha fin</label>
+                                    <input type="date" class="form-control" id="f_fin">
+                                </div>
+
+                                <div class="form-group col-md-2 col-sm-4">
+                                    <label>Estado</label>
+                                    <select class="form-control" id="cmb_estado">
+                                        <option value="">Todos</option>
+                                        <option value="ACTIVO">ACTIVO</option>
+                                        <option value="ABANDONADO">ABANDONADO</option>
+                                        <option value="CONVERTIDO">CONVERTIDO</option>
+                                        <option value="EXPIRADO">EXPIRADO</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group col-md-2 col-sm-4">
+                                    <label>Origen</label>
+                                    <select class="form-control" id="cmb_origen">
+                                        <option value="">Todos</option>
+                                        <option value="WEB">WEB</option>
+                                        <option value="APP">APP</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group col-md-2 col-sm-4">
+                                    <label>Recovery</label>
+                                    <select class="form-control" id="cmb_recovery">
+                                        <option value="">Todos</option>
+                                        <option value="EMAIL">EMAIL</option>
+                                        <option value="PUSH">PUSH</option>
+                                        <option value="WHATSAPP">WHATSAPP</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group col-md-2 col-sm-4">
+                                    <label>Sucursal</label>
+                                    <select class="form-control" id="cmb_sucursal" <?= $enabled ?>>
+                                        <option value="0">Todas</option>
+                                        <?php foreach ($clsucursales->all() as $suc): ?>
+                                            <option value="<?= $suc['cod_sucursal'] ?>"
+                                                <?= ($suc['cod_sucursal'] == $cod_sucursal) ? 'selected' : '' ?>>
+                                                <?= htmlspecialchars($suc['nombre']) ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+
+                                <div class="form-group col-md-2 col-sm-4">
+                                    <label>Usuario</label>
+                                    <select class="form-control" id="cmb_tipo_usuario">
+                                        <option value="0">Todos</option>
+                                        <option value="1">Identificado</option>
+                                        <option value="2">Anónimo</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group col-md-2 col-sm-4">
+                                    <button class="btn btn-primary w-100" id="btnGenerar">
+                                        <i data-feather="bar-chart-2"></i> Generar
+                                    </button>
+                                </div>
+
+                            </div>
                         </div>
                     </div>
+                </div>
+
+                <div id="seccionResultados" style="display:none;">
+
+                    <!-- Métricas -->
+                    <div class="row">
+                        <div class="col-md-3 col-sm-6 layout-spacing">
+                            <div class="metric-card bg-info-g">
+                                <div class="metric-lbl">Total Carritos</div>
+                                <div class="metric-val" id="mTotal">—</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-sm-6 layout-spacing">
+                            <div class="metric-card bg-danger-g">
+                                <div class="metric-lbl">Abandonados</div>
+                                <div class="metric-val" id="mAbandonados">—</div>
+                                <div style="font-size:.82rem;opacity:.85;">Tasa: <span id="mTasaAbandono">—</span></div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-sm-6 layout-spacing">
+                            <div class="metric-card bg-success-g">
+                                <div class="metric-lbl">Convertidos</div>
+                                <div class="metric-val" id="mConvertidos">—</div>
+                                <div style="font-size:.82rem;opacity:.85;">Tasa: <span id="mTasaConversion">—</span></div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-sm-6 layout-spacing">
+                            <div class="metric-card bg-warning-g">
+                                <div class="metric-lbl">Monto Abandonado</div>
+                                <div class="metric-val" id="mMontoAbandonado">—</div>
+                                <div style="font-size:.82rem;opacity:.85;">Recuperado: <span id="mMontoConvertido">—</span></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recovery por canal -->
+                    <div class="row">
+                        <div class="col-md-12 layout-spacing">
+                            <div class="widget-content widget-content-area br-6 py-3">
+                                <span class="font-weight-bold mr-3">Recovery por canal:</span>
+                                <span id="mRecovery"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tabla -->
+                    <div class="row">
+                        <div class="col-md-12 layout-spacing">
+                            <div class="widget-content widget-content-area br-6">
+                                <div class="table-responsive">
+                                    <table id="tblCarritos" class="table style-3 table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>Cart Token</th>
+                                                <th>Usuario</th>
+                                                <th>Email</th>
+                                                <th>Teléfono</th>
+                                                <th>Origen</th>
+                                                <th>Estado</th>
+                                                <th class="text-right">Total Est.</th>
+                                                <th class="text-center">Productos</th>
+                                                <th>Actualizado</th>
+                                                <th>Abandonado</th>
+                                                <th>Recuperado</th>
+                                                <th>Convertido</th>
+                                                <th>Recovery</th>
+                                                <th>Preorden</th>
+                                                <th>Orden</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
 
             </div>
@@ -156,8 +210,7 @@ if ($cod_rol == 3) {
     </div>
 
     <?php js_mandatory(); ?>
-    <script src="plugins/apex/apexcharts.min.js"></script>
-    <script src="assets/js/pages/reporte_carritos_abandonados.js?v=1"></script>
+    <script src="assets/js/pages/reporte_carritos_abandonados.js?v=2"></script>
 </body>
 
 </html>

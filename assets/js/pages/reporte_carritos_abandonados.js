@@ -1,34 +1,43 @@
-var donutChart = null;
-var lineChart  = null;
+var tabla = null;
 
 $(document).ready(function () {
+    var hoy   = new Date().toISOString().split('T')[0];
+    var priMes = hoy.substring(0, 8) + '01';
+    $("#f_ini").val(priMes);
+    $("#f_fin").val(hoy);
+
     cargarDatos();
 
-    $("#cmb_sucursal, #cmb_periodo").on("change", function () {
+    $("#btnGenerar").on("click", function () {
         cargarDatos();
     });
 });
 
 function cargarDatos() {
-    var cod_sucursal = $("#cmb_sucursal").val();
-    var periodo      = $("#cmb_periodo").val();
+    var params = {
+        f_ini:        $("#f_ini").val(),
+        f_fin:        $("#f_fin").val(),
+        estado:       $("#cmb_estado").val(),
+        origen:       $("#cmb_origen").val(),
+        recovery_src: $("#cmb_recovery").val(),
+        cod_sucursal: $("#cmb_sucursal").val(),
+        tipo_usuario: $("#cmb_tipo_usuario").val()
+    };
 
     OpenLoad("Cargando datos...");
 
     $.ajax({
-        url: "controllers/controlador_reporte_carritos_abandonados.php?metodo=getDatos",
+        url:  "controllers/controlador_reporte_carritos_abandonados.php?metodo=getDatos",
         type: "GET",
-        data: { cod_sucursal: cod_sucursal, periodo: periodo },
+        data: params,
         success: function (response) {
             if (response.success == 1) {
-                renderStats(response);
-                renderDonut(response);
-                renderLine(response);
-                renderTip(response);
-                $("#seccionStats, #seccionCharts, #seccionTip").show();
+                renderMetrics(response.metrics, response.recovery);
+                renderTabla(response.rows);
+                $("#seccionResultados").show();
                 feather.replace();
             } else {
-                messageDone(response.mensaje || "Error al cargar los datos", "error");
+                messageDone(response.mensaje || "Error al cargar", "error");
             }
         },
         error: function () {
@@ -40,138 +49,105 @@ function cargarDatos() {
     });
 }
 
-function formatMoney(value) {
-    return "$" + parseFloat(value).toLocaleString("es-EC", {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
+function fmt$(val) {
+    return "$" + parseFloat(val || 0).toLocaleString("es-EC", {
+        minimumFractionDigits: 2, maximumFractionDigits: 2
     });
 }
 
-function renderDelta(val, elementId) {
-    if (val === null || val === undefined) {
-        $("#" + elementId).html("");
-        return;
+function fmtDate(val) {
+    if (!val || val === "0000-00-00 00:00:00") return "—";
+    return val.substring(0, 16).replace("T", " ");
+}
+
+function renderMetrics(m, recovery) {
+    $("#mTotal").text(m.total || 0);
+    $("#mAbandonados").text(m.abandonados || 0);
+    $("#mConvertidos").text(m.convertidos || 0);
+    $("#mTasaAbandono").text((m.tasa_abandono || 0) + "%");
+    $("#mTasaConversion").text((m.tasa_conversion || 0) + "%");
+    $("#mMontoAbandonado").text(fmt$(m.monto_abandonado));
+    $("#mMontoConvertido").text(fmt$(m.monto_convertido));
+
+    // Recovery por canal
+    var recHtml = "";
+    var canales = ["EMAIL", "PUSH", "WHATSAPP"];
+    canales.forEach(function (c) {
+        var cnt = recovery[c] || 0;
+        recHtml += '<span class="badge badge-secondary mr-2" style="font-size:.9em;padding:6px 10px;">'
+                 + c + ': <strong>' + cnt + '</strong></span>';
+    });
+    if (!recHtml) recHtml = '<span class="text-muted">Sin datos</span>';
+    $("#mRecovery").html(recHtml);
+}
+
+var estadoBadge = {
+    ACTIVO:     '<span class="badge badge-success">ACTIVO</span>',
+    ABANDONADO: '<span class="badge badge-danger">ABANDONADO</span>',
+    CONVERTIDO: '<span class="badge badge-primary">CONVERTIDO</span>',
+    EXPIRADO:   '<span class="badge badge-secondary">EXPIRADO</span>'
+};
+
+var origenBadge = {
+    WEB: '<span class="badge badge-info">WEB</span>',
+    APP: '<span class="badge badge-warning">APP</span>'
+};
+
+function renderTabla(rows) {
+    if (tabla) {
+        tabla.destroy();
+        $("#tblCarritos tbody").empty();
+        tabla = null;
     }
-    var arrow = val <= 0 ? "▼" : "▲";
-    var color = val <= 0 ? "rgba(255,255,255,0.85)" : "#ffe0e0";
-    var sign  = val >= 0 ? "+" : "";
-    $("#" + elementId).html(
-        '<span style="color:' + color + ';">' + arrow + " " + sign + val + "% este período</span>"
-    );
-}
 
-function renderStats(data) {
-    $("#statCount").text(data.count_aban);
-    $("#statAmount").text(formatMoney(data.amount_aban));
-    renderDelta(data.delta_count,  "statDeltaCount");
-    renderDelta(data.delta_amount, "statDeltaAmount");
-}
+    var tbody = "";
+    (rows || []).forEach(function (r) {
+        tbody += "<tr>"
+            + "<td>" + (r.cart_token || "—") + "</td>"
+            + "<td>" + (r.nombre_usuario || (r.cod_usuario ? r.cod_usuario : '<em class="text-muted">Anón.</em>')) + "</td>"
+            + "<td>" + (r.email     || "—") + "</td>"
+            + "<td>" + (r.telefono  || "—") + "</td>"
+            + "<td>" + (origenBadge[r.origen]  || r.origen  || "—") + "</td>"
+            + "<td>" + (estadoBadge[r.estado]  || r.estado  || "—") + "</td>"
+            + "<td class='text-right'>" + fmt$(r.total_estimado) + "</td>"
+            + "<td class='text-center'>" + (r.cantidad_productos || 0) + "</td>"
+            + "<td>" + fmtDate(r.updated_at) + "</td>"
+            + "<td>" + fmtDate(r.abandoned_at) + "</td>"
+            + "<td>" + fmtDate(r.recovered_at) + "</td>"
+            + "<td>" + fmtDate(r.converted_at) + "</td>"
+            + "<td>" + (r.recovery_source || "—") + "</td>"
+            + "<td>" + (r.cod_preorden || "—") + "</td>"
+            + "<td>" + (r.cod_orden    || "—") + "</td>"
+            + "</tr>";
+    });
 
-function renderDonut(data) {
-    var countAban      = parseInt(data.count_aban_donut)      || 0;
-    var countCompleted = parseInt(data.count_completed_donut) || 0;
-    var total          = countAban + countCompleted;
-    var pct            = total > 0 ? Math.round((countAban / total) * 100) : 0;
+    $("#tblCarritos tbody").html(tbody);
 
-    var options = {
-        chart: { type: "donut", height: 300 },
-        series: [countAban, countCompleted],
-        labels: ["En Abandono", "Órdenes Completadas"],
-        colors: ["#f6a623", "#1abc9c"],
-        plotOptions: {
-            pie: {
-                donut: {
-                    size: "65%",
-                    labels: {
-                        show: true,
-                        total: {
-                            show: true,
-                            label: "",
-                            fontWeight: 700,
-                            fontSize: "22px",
-                            color: "#333",
-                            formatter: function () { return pct + "%"; }
-                        }
-                    }
-                }
-            }
+    tabla = $("#tblCarritos").DataTable({
+        dom: '<"row"<"col-md-12"<"row"<"col-md-6"B><"col-md-6"f>>>><"col-md-12"rt><"col-md-12"<"row"<"col-md-5"i><"col-md-7"p>>>',
+        buttons: {
+            buttons: [
+                { extend: "copy",  className: "btn" },
+                { extend: "excel", className: "btn" },
+                { extend: "pdf",   className: "btn" }
+            ]
         },
-        legend: {
-            position: "right",
-            offsetY: 30,
-            markers: { width: 12, height: 12, radius: 50 }
-        },
-        dataLabels: { enabled: false },
-        tooltip: {
-            y: { formatter: function (val) { return val + " carritos"; } }
+        scrollX: true,
+        order: [[8, "desc"]],
+        pageLength: 25,
+        oLanguage: {
+            oPaginate: {
+                sPrevious: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-left"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>',
+                sNext:     '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-right"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>'
+            },
+            sInfo:           "Mostrando _START_ a _END_ de _TOTAL_ registros",
+            sInfoEmpty:      "Sin registros",
+            sInfoFiltered:   "(filtrado de _MAX_ total)",
+            sSearch:         '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-search"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>',
+            sSearchPlaceholder: "Buscar...",
+            sLengthMenu:     "Resultados: _MENU_",
+            sEmptyTable:     "No se encontraron carritos",
+            sZeroRecords:    "No se encontraron registros"
         }
-    };
-
-    if (donutChart) {
-        donutChart.destroy();
-        donutChart = null;
-    }
-    donutChart = new ApexCharts(document.querySelector("#chartDonut"), options);
-    donutChart.render();
-}
-
-function renderLine(data) {
-    var labels = data.trend_labels || [];
-    var values = data.trend_values || [];
-
-    var options = {
-        chart: {
-            type: "area",
-            height: 265,
-            toolbar: { show: false },
-            zoom: { enabled: false }
-        },
-        series: [{ name: "Monto Abandonado ($)", data: values }],
-        xaxis: { categories: labels },
-        yaxis: {
-            labels: {
-                formatter: function (val) {
-                    return "$" + parseFloat(val).toLocaleString("es-EC", { minimumFractionDigits: 0 });
-                }
-            }
-        },
-        colors: ["#f6a623"],
-        fill: {
-            type: "gradient",
-            gradient: { shadeIntensity: 1, opacityFrom: 0.45, opacityTo: 0.05 }
-        },
-        stroke: { curve: "smooth", width: 3 },
-        markers: { size: 5, colors: ["#f6a623"], strokeWidth: 0 },
-        tooltip: {
-            y: {
-                formatter: function (val) {
-                    return "$" + parseFloat(val).toLocaleString("es-EC", {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2
-                    });
-                }
-            }
-        },
-        dataLabels: { enabled: false },
-        grid: { borderColor: "#f1f1f1" }
-    };
-
-    if (lineChart) {
-        lineChart.destroy();
-        lineChart = null;
-    }
-    lineChart = new ApexCharts(document.querySelector("#chartLine"), options);
-    lineChart.render();
-}
-
-function renderTip(data) {
-    var msg = "";
-    if (data.delta_count === null || data.delta_count === undefined) {
-        msg = "No hay datos del período anterior para comparar. Monitorea tus carritos abandonados regularmente.";
-    } else if (data.delta_count <= 0) {
-        msg = "Tus carritos en abandono bajaron este período. <strong>Reenvía un recordatorio con descuento</strong> para recuperar ventas perdidas.";
-    } else {
-        msg = "Tus carritos en abandono aumentaron un <strong>" + data.delta_count + "%</strong> este período. Considera enviar recordatorios personalizados a los usuarios.";
-    }
-    $("#txtTip").html(msg);
+    });
 }

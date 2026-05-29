@@ -218,19 +218,152 @@ function getIndicatorsCustom($officeId, $dateStart, $dateEnd, $empresa)
         $ordenesPorEstado[$row['estado_nombre']] = (int)$row['total'];
     }
 
+    // 9. TOP 5 PRODUCTOS
+    $sqlTopProds = "
+        SELECT
+            p.nombre,
+            SUM(od.cantidad)              AS cantidad,
+            SUM(od.precio * od.cantidad)  AS total_ventas
+        FROM tb_orden_cabecera o
+        INNER JOIN tb_orden_detalle od ON o.cod_orden  = od.cod_orden
+        INNER JOIN tb_productos     p  ON p.cod_producto = od.cod_producto
+        WHERE $baseWhere
+        GROUP BY od.cod_producto, p.nombre
+        ORDER BY total_ventas DESC
+        LIMIT 5
+    ";
+    $topProdsRaw  = Conexion::buscarVariosRegistro($sqlTopProds, $params);
+    $topProductos = [];
+    foreach ($topProdsRaw as $row) {
+        $topProductos[] = [
+            'nombre'       => html_entity_decode($row['nombre'], ENT_QUOTES, 'UTF-8'),
+            'cantidad'     => (int)$row['cantidad'],
+            'total_ventas' => round((float)$row['total_ventas'], 2),
+        ];
+    }
+
+    // 10. RENDIMIENTO POR SUCURSAL (siempre a nivel empresa, sin filtro de sucursal)
+    $paramsNoSuc = [
+        ':cod_empresa' => $empresa,
+        ':start'       => $dateStart,
+        ':end'         => $dateEnd,
+    ];
+    $sqlSucursales = "
+        SELECT
+            s.nombre          AS sucursal,
+            SUM(o.total)      AS ventas,
+            COUNT(o.cod_orden) AS ordenes,
+            AVG(o.total)      AS ticket_promedio
+        FROM tb_orden_cabecera o
+        INNER JOIN tb_sucursales s ON s.cod_sucursal = o.cod_sucursal
+        WHERE o.cod_empresa = :cod_empresa
+          AND o.estado      = 'ENTREGADA'
+          AND o.fecha       BETWEEN :start AND :end
+        GROUP BY o.cod_sucursal, s.nombre
+        ORDER BY ventas DESC
+        LIMIT 5
+    ";
+    $sucursalesRaw    = Conexion::buscarVariosRegistro($sqlSucursales, $paramsNoSuc);
+    $totalVentasSuc   = array_sum(array_column($sucursalesRaw, 'ventas'));
+    $rendimientoSucursal = [];
+    foreach ($sucursalesRaw as $row) {
+        $rendimientoSucursal[] = [
+            'sucursal'        => html_entity_decode($row['sucursal'], ENT_QUOTES, 'UTF-8'),
+            'ventas'          => round((float)$row['ventas'], 2),
+            'porcentaje'      => $totalVentasSuc > 0
+                                    ? round(($row['ventas'] / $totalVentasSuc) * 100)
+                                    : 0,
+            'ordenes'         => (int)$row['ordenes'],
+            'ticket_promedio' => round((float)$row['ticket_promedio'], 2),
+        ];
+    }
+
+    // 11. CALIFICACIÓN PROMEDIO
+    $calSucFilter = $officeId > 0 ? " AND c.cod_sucursal = :officeId " : "";
+    $sqlCal = "
+        SELECT
+            ROUND(AVG(oc.calificacion), 1) AS promedio,
+            COUNT(*)                        AS total_resenas
+        FROM tb_orden_calificacion oc
+        INNER JOIN tb_orden_cabecera c ON c.cod_orden = oc.cod_orden
+        WHERE c.cod_empresa = :cod_empresa
+          AND c.fecha        BETWEEN :start AND :end
+          $calSucFilter
+    ";
+    $calRaw      = Conexion::buscarRegistro($sqlCal, $params);
+    $calificacion = [
+        'promedio'      => (float)($calRaw['promedio']     ?? 0),
+        'total_resenas' => (int)($calRaw['total_resenas']  ?? 0),
+    ];
+
+    // INSIGHTS AUTOMÁTICOS
+    $insights = [];
+
+    // Horario más fuerte
+    if (!empty($topHours)) {
+        $hoursSorted = $topHours;
+        arsort($hoursSorted);
+        $peakLabel = array_key_first($hoursSorted);
+        $insights[] = "El horario más fuerte fue de $peakLabel.";
+    }
+
+    // Canal de entrega dominante
+    if (!empty($topDelivery)) {
+        $totalVentasCanal = array_sum($topDelivery);
+        if ($totalVentasCanal > 0) {
+            $topDeliverySorted = $topDelivery;
+            arsort($topDeliverySorted);
+            $topCanal   = array_key_first($topDeliverySorted);
+            $pctCanal   = round(($topDeliverySorted[$topCanal] / $totalVentasCanal) * 100);
+            $insights[] = "$topCanal representa el {$pctCanal}% de tus ventas.";
+        }
+    }
+
+    // Mejor día de ventas
+    if (!empty($topDaysSales)) {
+        $daysSorted = $topDaysSales;
+        arsort($daysSorted);
+        $bestDay = array_key_first($daysSorted);
+        $dayMap  = ['Lun' => 'Lunes', 'Mar' => 'Martes', 'Mié' => 'Miércoles',
+                    'Jue' => 'Jueves', 'Vie' => 'Viernes', 'Sáb' => 'Sábados', 'Dom' => 'Domingos'];
+        $insights[] = "Los " . ($dayMap[$bestDay] ?? $bestDay) . " fueron tu mejor día de ventas.";
+    }
+
+    // Clientes recurrentes
+    $totalCli = ($clientes_recurrentes['nuevos'] + $clientes_recurrentes['recurrentes']);
+    if ($totalCli > 0) {
+        $pctRec     = round(($clientes_recurrentes['recurrentes'] / $totalCli) * 100);
+        $insights[] = "Tienes el {$pctRec}% de clientes recurrentes.";
+    }
+
+    // Sucursal top
+    if (!empty($rendimientoSucursal)) {
+        $topSuc     = $rendimientoSucursal[0];
+        $insights[] = "La sucursal {$topSuc['sucursal']} generó el {$topSuc['porcentaje']}% de tus ventas.";
+    }
+
+    // Producto estrella
+    if (!empty($topProductos)) {
+        $insights[] = "Tu producto estrella es {$topProductos[0]['nombre']}.";
+    }
+
     return [
-        'success'           => 1,
-        'total'             => (int)($totals['total']          ?? 0),
-        'totalAmount'       => (float)($totals['total_amount'] ?? 0),
-        'ticketPromedio'    => round((float)($totals['ticket_promedio'] ?? 0), 2),
-        'topHours'          => $topHours,
-        'topDays'           => $topDays,
-        'topDaysSales'      => $topDaysSales,
-        'topPlatforms'      => $topPlatforms,
-        'deliveryTotals'    => $topDelivery,
-        'trend'             => $trend,
+        'success'              => 1,
+        'total'                => (int)($totals['total']          ?? 0),
+        'totalAmount'          => (float)($totals['total_amount'] ?? 0),
+        'ticketPromedio'       => round((float)($totals['ticket_promedio'] ?? 0), 2),
+        'topHours'             => $topHours,
+        'topDays'              => $topDays,
+        'topDaysSales'         => $topDaysSales,
+        'topPlatforms'         => $topPlatforms,
+        'deliveryTotals'       => $topDelivery,
+        'trend'                => $trend,
         'clientes_recurrentes' => $clientes_recurrentes,
-        'ordenesPorEstado'  => $ordenesPorEstado
+        'ordenesPorEstado'     => $ordenesPorEstado,
+        'topProductos'         => $topProductos,
+        'rendimientoSucursal'  => $rendimientoSucursal,
+        'calificacion'         => $calificacion,
+        'insights'             => $insights,
     ];
 }
 

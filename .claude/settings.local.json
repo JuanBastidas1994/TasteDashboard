@@ -11,7 +11,8 @@
       "Bash(grep \"\\\\.php$\")",
       "Bash(grep -E \"\\\\.php$\")",
       "Bash(sed 's/ .*//')",
-      "PowerShell($content = Get-Content \"c:\\\\laragon\\\\www\\\\taste\\\\plugins\\\\apex\\\\apexcharts.min.js\" -Raw; $content.Substring\\(0, 500\\))"
+      "PowerShell($content = Get-Content \"c:\\\\laragon\\\\www\\\\taste\\\\plugins\\\\apex\\\\apexcharts.min.js\" -Raw; $content.Substring\\(0, 500\\))",
+      "Bash(node -e ' *)"
     ]
   }
 }

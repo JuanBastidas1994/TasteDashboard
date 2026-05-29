@@ -6,7 +6,7 @@
 
 async function generarPDF() {
     const $btn = $('#btnGenerarPDF');
-    $btn.prop('disabled', true).html('Generando PDF\u2026');
+    $btn.prop('disabled', true).html('Generando PDF…');
 
     try {
         /* ── 1. Esperar que todos los gráficos terminen de renderizar ── */
@@ -89,6 +89,48 @@ async function generarPDF() {
                 : 0.78;
         }
 
+        /* helper formato dinero para PDF */
+        function fmtPDF(v) {
+            return '$' + parseFloat(v || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        /* ── Textos dinámicos calculados desde widgetData ── */
+        const wd = widgetData || {};
+
+        // 1. "X de cada 10 clientes regresaron…"
+        const _cr       = wd.clientes_recurrentes || { nuevos: 0, recurrentes: 0 };
+        const _totalCli = (_cr.nuevos + _cr.recurrentes) || 1;
+        const _cadaDiez = Math.round((_cr.recurrentes / _totalCli) * 10);
+        const txtClientes = `${_cadaDiez} de cada 10 clientes regresaron a comprar este mes.`;
+
+        // 2. "Los X fueron tu mejor día con mayores ventas."
+        const _dayMap  = { Lun:'Lunes', Mar:'Martes', 'Mié':'Miércoles', Jue:'Jueves', Vie:'Viernes', 'Sáb':'Sábados', Dom:'Domingos' };
+        const _days    = wd.topDaysSales || {};
+        const _bestDay = Object.keys(_days).length
+            ? Object.keys(_days).reduce((a, b) => _days[a] >= _days[b] ? a : b)
+            : null;
+        const txtMejorDia = _bestDay
+            ? `Los ${_dayMap[_bestDay] || _bestDay} fueron tu mejor día con mayores ventas.`
+            : 'Consulta tus ventas por día para identificar los picos.';
+
+        // 3. "El X% de las órdenes fueron entregadas exitosamente."
+        const _estados     = wd.ordenesPorEstado || {};
+        const _totalOrd    = Object.values(_estados).reduce((a, b) => a + b, 0) || 1;
+        const _entKey      = Object.keys(_estados).find(k => k.toLowerCase().includes('entregad')) || null;
+        const _entregadas  = _entKey ? _estados[_entKey] : 0;
+        const _pctEnt      = Math.round((_entregadas / _totalOrd) * 100);
+        const txtEntregadas = `El ${_pctEnt}% de las órdenes fueron entregadas exitosamente.`;
+
+        // 4. Hora más baja para la recomendación de promociones
+        const _hours   = wd.topHours || {};
+        const _horaKeys = Object.keys(_hours);
+        const _horaLow  = _horaKeys.length
+            ? _horaKeys.reduce((a, b) => _hours[a] <= _hours[b] ? a : b)
+            : null;
+        const txtHoraPromo = _horaLow
+            ? `Activa promociones en el horario ${_horaLow} para impulsar las horas bajas.`
+            : 'Activa promociones en horarios bajos para impulsar tus ventas.';
+
         /* ============================================================
            PÁGINA 1 — Layout de 3 filas
            ┌─────────────────────────────────────────────────────────┐
@@ -102,7 +144,7 @@ async function generarPDF() {
         B.pageBg();
         B.drawHeader(
             'REPORTE EJECUTIVO',
-            `PERIODO: ${fechaInicio}  \u2013  ${fechaFin}`,
+            `PERIODO: ${fechaInicio}  –  ${fechaFin}`,
             `${empresaName}  |  ${sucursalName}`
         );
 
@@ -125,14 +167,14 @@ async function generarPDF() {
 
         pdf.setFontSize(6.5); pdf.setFont('helvetica', 'normal');
         pdf.setTextColor(...C.GRAY);
-        const resText = `Este es el desempe\u00F1o de tu restaurante en Taste durante el per\u00EDodo ${fechaInicio} al ${fechaFin}. Los datos te ayudar\u00E1n a tomar mejores decisiones para seguir creciendo.`;
+        const resText = `Este es el desempeño de tu restaurante en Taste durante el período ${fechaInicio} al ${fechaFin}. Los datos te ayudarán a tomar mejores decisiones para seguir creciendo.`;
         pdf.text(pdf.splitTextToSize(resText, SPLIT - 2), M, F1_Y + 14);
 
         const kpiW = (R_W - 9) / 4;
         const kpiH = F1_H;
         const kpis = [
             { key: 'ventas',   label: 'VENTAS TOTALES',  value: kpiData[0]?.value || '$0', change: '+14%', up: true  },
-            { key: 'ordenes',  label: '\u00D3RDENES',    value: kpiData[1]?.value || '0',  change: '+9%',  up: true  },
+            { key: 'ordenes',  label: 'ÓRDENES',    value: kpiData[1]?.value || '0',  change: '+9%',  up: true  },
             { key: 'clientes', label: 'CLIENTES',        value: kpiData[2]?.value || '0',  change: '+11%', up: true  },
             { key: 'ticket',   label: 'TICKET PROMEDIO', value: kpiData[3]?.value || '$0', change: '-3%',  up: false },
         ];
@@ -172,15 +214,7 @@ async function generarPDF() {
         pdf.setDrawColor(...C.RED); pdf.setLineWidth(0.5);
         pdf.line(M + 4, F2_Y + 8.5, M + 4 + pdf.getTextWidth('Insights del mes'), F2_Y + 8.5);
 
-        const insights = [
-            'Tus ventas aumentaron 14% respecto al mes anterior.',
-            'El horario m\u00E1s fuerte fue de 15h00 a 17h00.',
-            'Delivery representa el 78% de tus ventas.',
-            'Los mi\u00E9rcoles fueron tu mejor d\u00EDa.',
-            'Tienes 42% de clientes recurrentes.',
-            'Tu ticket promedio baj\u00F3 $1.20.',
-            'La sucursal Urdesa gener\u00F3 el 61% de tus ventas.',
-        ];
+        const insights = widgetData.insights || [];
 
         insights.forEach((ins, i) => {
             const iy = F2_Y + 14 + i * 7;
@@ -193,7 +227,7 @@ async function generarPDF() {
                 pdf.circle(M + 7, iy - 1.5, 2, 'F');
                 pdf.setTextColor(...C.WHITE);
                 pdf.setFontSize(4.5); pdf.setFont('helvetica', 'bold');
-                pdf.text('\u2713', M + 5.9, iy - 0.2);
+                pdf.text('✓', M + 5.9, iy - 0.2);
             }
             pdf.setTextColor(...C.DARK2);
             pdf.setFontSize(6.5); pdf.setFont('helvetica', 'normal');
@@ -201,7 +235,7 @@ async function generarPDF() {
         });
 
         if (charts[0]?.img) {
-            B.chartCard(charts[0].img, 'Evoluci\u00F3n de Ventas', R_X, F2_Y, R_W, F2_H);
+            B.chartCard(charts[0].img, 'Evolución de Ventas', R_X, F2_Y, R_W, F2_H);
         }
 
         /* ─── FILA 3: 3 bloques col-4 ─── */
@@ -212,7 +246,7 @@ async function generarPDF() {
         const F3_CH = F3_H - 15;
 
         if (charts[1]?.img) {
-            B.chartCard(charts[1].img, 'Ventas por Hora del D\u00EDa', F3_X1, F3_Y, F3_BW, F3_CH);
+            B.chartCard(charts[1].img, 'Ventas por Hora del Día', F3_X1, F3_Y, F3_BW, F3_CH);
         }
 
         if (charts[2]?.img) {
@@ -278,7 +312,7 @@ async function generarPDF() {
         B.drawHeader(
             'REPORTE EJECUTIVO',
             `${empresaName}  |  ${sucursalName}`,
-            `${fechaInicio}  \u2013  ${fechaFin}`
+            `${fechaInicio}  –  ${fechaFin}`
         );
 
         const P2_CY  = CONT_Y;
@@ -303,24 +337,30 @@ async function generarPDF() {
         if (charts[3]?.img)
             B.chartCard(charts[3].img, 'Clientes Recurrentes', C1x, P2_CY, COL3W, F1_GH);
         B.insightBadge(C1x, P2_CY + F1_GH + 14, COL3W, F1_BH,
-            '4 de cada 10 clientes regresaron a comprar este mes.',
+            txtClientes,
             C.ORANGE_BG, C.ORANGE, iconAlert);
 
         if (charts[4]?.img)
-            B.chartCard(charts[4].img, 'Ventas por D\u00EDa', C2x, P2_CY, COL3W, F1_GH);
+            B.chartCard(charts[4].img, 'Ventas por Día', C2x, P2_CY, COL3W, F1_GH);
         B.insightBadge(C2x, P2_CY + F1_GH + 14, COL3W, F1_BH,
-            'El mi\u00E9rcoles fue tu mejor d\u00EDa con mayores ventas.',
+            txtMejorDia,
             C.YELLOW_BG, C.YELLOW, iconStar);
 
         if (charts[5]?.img)
-            B.chartCard(charts[5].img, '\u00D3rdenes por Estado', C3x, P2_CY, COL3W, F1_GH);
+            B.chartCard(charts[5].img, 'Órdenes por Estado', C3x, P2_CY, COL3W, F1_GH);
         B.insightBadge(C3x, P2_CY + F1_GH + 14, COL3W, F1_BH,
-            'El 89% de las \u00F3rdenes fueron entregadas exitosamente.',
+            txtEntregadas,
             C.GREEN_BG, C.GREEN, iconTruck);
 
         /* ─── FILA 2: Top Productos │ Rendimiento │ Calificación ─── */
 
-        /* Top 5 Productos */
+        /* --- Top 5 Productos (datos reales) --- */
+        const topProds = (widgetData.topProductos || []).map(p => ({
+            n: p.nombre,
+            c: p.cantidad.toLocaleString('en-US'),
+            v: fmtPDF(p.total_ventas),
+        }));
+
         B.sectionTitle('Top 5 Productos', C1x, F2_Y2 + 5);
         const tblY = F2_Y2 + 8;
         B.tableHeader(C1x, tblY, COL3W, [
@@ -328,13 +368,6 @@ async function generarPDF() {
             { label: 'CANTIDAD',  x: COL3W - 28 },
             { label: 'VENTAS',    x: COL3W - 13 },
         ]);
-        const topProds = [
-            { n: 'Caja de 3 Rolls', c: '5,285', v: '$51,595.25' },
-            { n: 'Caja de 6 rolls', c: '2,304', v: '$44,957.50' },
-            { n: 'Caja de 3 Rolls', c: '2,511', v: '$24,497.25' },
-            { n: 'Caja de 6 rolls', c: '1,095', v: '$21,364.00' },
-            { n: 'Ferrero rocher',  c: '3,335', v: '$12,249.90' },
-        ];
         const dotColors = [C.RED, C.BLUE, C.GREEN, C.ORANGE, C.YELLOW];
         topProds.forEach((p, i) => {
             const ry = tblY + 5.5 + i * 7;
@@ -345,25 +378,30 @@ async function generarPDF() {
                 { value: p.v, x: COL3W - 17 },
             ], i % 2 === 1, dotColors[i]);
         });
-        B.tableBorder(C1x, tblY, COL3W, 5.5 + topProds.length * 7);
+        if (topProds.length === 0) {
+            pdf.setFontSize(6); pdf.setFont('helvetica', 'normal'); pdf.setTextColor(...C.GRAY);
+            pdf.text('Sin datos en el período', C1x + 3, tblY + 9);
+        }
+        B.tableBorder(C1x, tblY, COL3W, 5.5 + Math.max(topProds.length, 1) * 7);
 
-        /* Rendimiento por Sucursal */
+        /* --- Rendimiento por Sucursal (datos reales) --- */
+        const sucursales = (widgetData.rendimientoSucursal || []).map(s => ({
+            n: s.sucursal,
+            v: fmtPDF(s.ventas),
+            p: s.porcentaje + '%',
+            o: String(s.ordenes),
+            t: fmtPDF(s.ticket_promedio),
+        }));
+
         B.sectionTitle('Rendimiento por Sucursal', C2x, F2_Y2 + 5);
         const sucTblY = F2_Y2 + 8;
         B.tableHeader(C2x, sucTblY, COL3W, [
             { label: 'SUCURSAL', x: 3  },
             { label: 'VENTAS',   x: 28 },
             { label: '% VTA',    x: 46 },
-            { label: '\u00D3RD.',x: 54 },
+            { label: 'ÓRD.',     x: 54 },
             { label: 'T.PROM',   x: 62 },
         ]);
-        const sucursales = [
-            { n: 'Plaza Sports Garden', v: '$7,432.10',  p: '26%', o: '412', t: '$18.03' },
-            { n: 'Urdesa',              v: '$17,289.45', p: '61%', o: '942', t: '$18.34' },
-            { n: 'HiperMarket Buijo',   v: '$2,941.30',  p: '10%', o: '178', t: '$16.52' },
-            { n: 'La Marquesa',         v: '$1,105.40',  p: '4%',  o: '52',  t: '$21.26' },
-            { n: 'Aventura Plaza',      v: '$445.38',    p: '2%',  o: '25',  t: '$17.82' },
-        ];
         const sucDots = [C.BLUE, C.RED, C.GREEN, C.ORANGE, C.YELLOW];
         sucursales.forEach((s, i) => {
             const ry = sucTblY + 5.5 + i * 7;
@@ -375,48 +413,49 @@ async function generarPDF() {
                 { value: s.t, x: 62 },
             ], i % 2 === 1, sucDots[i]);
         });
-        B.tableBorder(C2x, sucTblY, COL3W, 5.5 + sucursales.length * 7);
+        if (sucursales.length === 0) {
+            pdf.setFontSize(6); pdf.setFont('helvetica', 'normal'); pdf.setTextColor(...C.GRAY);
+            pdf.text('Sin datos en el período', C2x + 3, sucTblY + 9);
+        }
+        B.tableBorder(C2x, sucTblY, COL3W, 5.5 + Math.max(sucursales.length, 1) * 7);
 
-        /* Calificación Promedio */
+        /* --- Calificación Promedio (datos reales) --- */
+        const cal = widgetData.calificacion || { promedio: 0, total_resenas: 0 };
+        const calPromedio = cal.promedio ? cal.promedio.toFixed(1) : '0.0';
+        const calResenas  = cal.total_resenas
+            ? cal.total_resenas.toLocaleString('en-US') + ' reseñas'
+            : 'Sin reseñas';
+
         B.card(C3x, F2_Y2, COL3W, F2_H2, { bg: C.LIGHT_BG, border: C.GRAY_LIGHT });
-        B.sectionTitle('Calificaci\u00F3n Promedio', C3x + 2, F2_Y2 + 5);
-        pdf.setFontSize(7.5); pdf.setFont('helvetica', 'bold'); pdf.setTextColor(...C.DARK);
-        // pdf.text('Calificaci\u00F3n Promedio', C3x + 2, F2_Y2 + 7);
+        B.sectionTitle('Calificación Promedio', C3x + 2, F2_Y2 + 5);
 
-        /* Estrella SVG real + número */
         if (iconStar) {
             pdf.addImage(iconStar, 'PNG', C3x + 2, F2_Y2 + 10, 5, 5);
         }
         pdf.setFontSize(16); pdf.setFont('helvetica', 'bold'); pdf.setTextColor(...TastePDF.COLORS.RED);
-        pdf.text('4.7', C3x + 10, F2_Y2 + 15);
+        pdf.text(calPromedio, C3x + 10, F2_Y2 + 15);
         pdf.setFontSize(9); pdf.setTextColor(...C.GRAY);
         pdf.text('/ 5', C3x + 18, F2_Y2 + 15);
         pdf.setFontSize(5.8); pdf.setFont('helvetica', 'normal'); pdf.setTextColor(...C.GRAY);
-        pdf.text('Basado en 1.328 rese\u00F1as', C3x + 25, F2_Y2 + 15);
+        pdf.text('Basado en ' + calResenas, C3x + 25, F2_Y2 + 15);
 
         /* Divisor */
         pdf.setDrawColor(...C.GRAY_LIGHT); pdf.setLineWidth(0.2);
         pdf.line(C3x + 4, F2_Y2 + 20, C3x + COL3W - 4, F2_Y2 + 20);
 
-        /* Restaurante | Delivery sub-métricas */
-        const halfX = C3x + COL3W / 2;
-        [
-            { label: 'Restaurante', val: '4.8 / 5', x: C3x + 4 },
-            { label: 'Delivery',    val: '4.5 / 5', x: halfX + 4 },
-        ].forEach(item => {
-            pdf.setFontSize(6.5); pdf.setFont('helvetica', 'bold'); pdf.setTextColor(...C.DARK);
-            pdf.text(item.label, item.x, F2_Y2 + 25);
-            if (iconStar) pdf.addImage(iconStar, 'PNG', item.x, F2_Y2 + 27, 5, 5);
-            pdf.setFontSize(8); pdf.setFont('helvetica', 'bold'); pdf.setTextColor(...C.YELLOW);
-            pdf.text(item.val, item.x + 7, F2_Y2 + 30);
-        });
+        /* Calificación general (sin split por ahora) */
+        pdf.setFontSize(6.5); pdf.setFont('helvetica', 'bold'); pdf.setTextColor(...C.DARK);
+        pdf.text('Calificación General', C3x + 4, F2_Y2 + 25);
+        if (iconStar) pdf.addImage(iconStar, 'PNG', C3x + 4, F2_Y2 + 28, 5, 5);
+        pdf.setFontSize(8); pdf.setFont('helvetica', 'bold'); pdf.setTextColor(...C.YELLOW);
+        pdf.text(calPromedio + ' / 5', C3x + 11, F2_Y2 + 31);
 
         /* Alertas del mes */
-        pdf.setFontSize(7); pdf.setFont('helvetica', 'bold'); pdf.setTextColor(...C.DARK);
-        pdf.text('Alertas del mes', C3x + 4, F2_Y2 + 40);
-        B.insightBadge(C3x + 2, F2_Y2 + 42, COL3W - 4, 10,
-            'El ticket promedio disminuy\u00F3 3% respecto al mes anterior.',
-            C.ORANGE_BG, C.ORANGE, iconAlert);
+        // pdf.setFontSize(7); pdf.setFont('helvetica', 'bold'); pdf.setTextColor(...C.DARK);
+        // pdf.text('Alertas del mes', C3x + 4, F2_Y2 + 40);
+        // B.insightBadge(C3x + 2, F2_Y2 + 42, COL3W - 4, 10,
+        //     'El ticket promedio disminuyó 3% respecto al mes anterior.',
+        //     C.ORANGE_BG, C.ORANGE, iconAlert);
 
         /* ─── FILA 3: Recomendaciones Taste ─── */
         if (F3_H2 > 14) {
@@ -425,11 +464,11 @@ async function generarPDF() {
             B.sectionTitle('Recomendaciones Taste', M + 6, F3_Y2 + 7);
 
             const recItems = [
-                { icon: iconClock,    text: 'Activa promociones entre 18h y 20h para impulsar las horas bajas.' },
-                { icon: iconPackage,  text: 'Crea combos y men\u00fas especiales para aumentar tu ticket promedio.' },
-                { icon: iconTruck,    text: 'Tu canal de delivery funciona muy bien, \u00A1sigue potenci\u00E1ndolo!' },
+                { icon: iconClock,    text: txtHoraPromo },
+                { icon: iconPackage,  text: 'Crea combos y menús especiales para aumentar tu ticket promedio.' },
+                { icon: iconTruck,    text: 'Tu canal de delivery funciona muy bien, ¡sigue potenciándolo!' },
                 { icon: iconUserPlus, text: 'Aumenta tus clientes recurrentes con cupones o beneficios exclusivos.' },
-                { icon: iconStar,     text: 'Mant\u00E9n la calidad del delivery para mejorar tus calificaciones.' },
+                { icon: iconStar,     text: 'Mantén la calidad del delivery para mejorar tus calificaciones.' },
             ];
 
             const recW  = (CW - 16) / 5;

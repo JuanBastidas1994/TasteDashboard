@@ -178,6 +178,59 @@ $session     = getSession();
                     <!-- Widgets (KPIs + gráficas) -->
                     <div class="row" id="widgetsInfo"></div>
 
+                    <!-- Tablas: Top 5 Productos · Rendimiento por Sucursal · Calificación -->
+                    <div class="row mt-2" id="tablesSection">
+
+                        <!-- Top 5 Productos -->
+                        <div class="col-lg-4 col-md-12 mt-4">
+                            <div class="card p-3" style="border-radius:20px;">
+                                <h6 style="font-weight:700;color:#e7515a;" class="mb-3">Top 5 Productos</h6>
+                                <div class="table-responsive">
+                                    <table class="table table-sm mb-0">
+                                        <thead>
+                                            <tr style="font-size:11px;text-transform:uppercase;color:#888ea8;">
+                                                <th>Producto</th>
+                                                <th class="text-right">Cant.</th>
+                                                <th class="text-right">Ventas</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="tbodyTopProductos"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Rendimiento por Sucursal -->
+                        <div class="col-lg-4 col-md-12 mt-4">
+                            <div class="card p-3" style="border-radius:20px;">
+                                <h6 style="font-weight:700;color:#e7515a;" class="mb-3">Rendimiento por Sucursal</h6>
+                                <div class="table-responsive">
+                                    <table class="table table-sm mb-0">
+                                        <thead>
+                                            <tr style="font-size:11px;text-transform:uppercase;color:#888ea8;">
+                                                <th>Sucursal</th>
+                                                <th class="text-right">Ventas</th>
+                                                <th class="text-right">% Vta</th>
+                                                <th class="text-right">Órd.</th>
+                                                <th class="text-right">T.Prom</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="tbodySucursales"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Calificación Promedio -->
+                        <div class="col-lg-4 col-md-12 mt-4">
+                            <div class="card p-3" style="border-radius:20px;">
+                                <h6 style="font-weight:700;color:#e7515a;" class="mb-3">Calificación Promedio</h6>
+                                <div id="calificacionWidget" class="py-2"></div>
+                            </div>
+                        </div>
+
+                    </div>
+
                     <!-- Espaciado inferior -->
                     <div style="height: 40px;"></div>
 

@@ -32,6 +32,7 @@ $promocion = [
     'tipo_entrega'  => [],
     'estado'        => 'A',
     'imagen'        => '',
+    'is_distintivo' => 1,
 ];
 if (isset($_GET['id'])) {
     $cod_promocion = $_GET['id'];
@@ -345,6 +346,8 @@ $tiposEntrega = [
                                                                     value="<?= $producto['cod_producto'] ?>"
                                                                     class="new-control-input input-padre cat-<?= $codCategoria ?>"
                                                                     data-padre="<?= $producto['cod_producto'] ?>"
+                                                                    data-imagen="<?= $producto['imagen_preview'] ? $files . $producto['imagen_preview'] : '' ?>"
+                                                                    data-nombre="<?= htmlspecialchars($producto['nombre']) ?>"
                                                                     <?= (isset($productos) && in_array($producto['cod_producto'], $productos)) ? 'checked' : '' ?>
                                                                 >
 
@@ -431,6 +434,54 @@ $tiposEntrega = [
                                                 </optgroup>
                                             <?php endforeach; ?>
                                         </select>
+                                    </div>
+                                </div>
+
+                                <!-- Distintivo de promoción -->
+                                <div class="row mt-3 mb-1">
+                                    <div class="col-md-12">
+                                        <div class="d-flex align-items-center">
+                                            <div class="flex-grow-1">
+                                                <label class="mb-0" style="font-size:14px;color:#495057;font-weight:600;">Aplicar distintivo a productos</label>
+                                                <p class="mb-0 text-muted" style="font-size:12px;">Muestra una insignia visual sobre los productos afectados por esta promo</p>
+                                            </div>
+                                            <label class="switch s-icons s-outline s-outline-success mb-0 mr-2">
+                                                <input type="checkbox" name="chk_is_distintivo" id="chk_is_distintivo"
+                                                    <?= (isset($is_distintivo) && $is_distintivo == 1) ? 'checked' : '' ?>>
+                                                <span class="slider round"></span>
+                                            </label>
+                                        </div>
+                                        <input type="hidden" name="is_distintivo" id="is_distintivo"
+                                               value="<?= (isset($is_distintivo) && $is_distintivo == 1) ? '1' : '0' ?>">
+                                    </div>
+                                </div>
+
+                                <!-- Preview del distintivo (siempre visible) -->
+                                <div id="previewDistintivo" class="row mt-2 mb-3">
+                                    <div class="col-md-12">
+                                        <p style="font-size:10px;letter-spacing:1px;color:#aaa;text-transform:uppercase;margin-bottom:8px;">Vista previa</p>
+                                        <div style="max-width:320px;border:1px solid #e0e6ed;border-radius:12px;overflow:hidden;background:#fff;box-shadow:0 2px 10px rgba(0,0,0,0.07);display:flex;align-items:stretch;">
+                                            <!-- Imagen del producto -->
+                                            <div style="position:relative;width:120px;min-width:120px;flex-shrink:0;">
+                                                <img id="previewProductoImg"
+                                                     src=""
+                                                     style="width:100%;height:100%;min-height:100px;object-fit:cover;display:none;"
+                                                     onerror="this.style.display='none';document.getElementById('previewImgPlaceholder').style.display='flex';">
+                                                <div id="previewImgPlaceholder"
+                                                     style="width:100%;height:100%;min-height:100px;background:#f3f4f6;display:flex;align-items:center;justify-content:center;">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                                </div>
+                                                <!-- Badge distintivo -->
+                                                <img id="previewBadge"
+                                                     src="assets/img/distintivo-promo.png"
+                                                     style="position:absolute;top:0;left:0;width:75px;height:auto;pointer-events:none;z-index:5;display:none;">
+                                            </div>
+                                            <!-- Info producto -->
+                                            <div style="padding:12px 14px;flex:1;display:flex;flex-direction:column;justify-content:center;">
+                                                <p id="previewProductoNombreCard" style="font-size:13px;font-weight:700;color:#2d2d2d;margin:0 0 4px;line-height:1.3;"></p>
+                                                <p id="previewHint" style="font-size:11px;color:#bbb;margin:0;">Selecciona un producto</p>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -616,7 +667,7 @@ $tiposEntrega = [
     <!-- END MAIN CONTAINER -->
 
     <?php js_mandatory(); ?>
-    <script src="assets/js/pages/crear_promociones.js?v=996" type="text/javascript"></script>
+    <script src="assets/js/pages/crear_promociones.js?v=112" type="text/javascript"></script>
 
     <!-- HANDLEBARS -->
     <script src="./assets/js/libs/handlebars/handlebars.js"></script>

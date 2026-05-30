@@ -129,7 +129,7 @@ class cl_productos
 		public function GetProductosbyEmpresaOrder()
 		{
 		    $empresa = $this->session['cod_empresa'];
-		    $query = "select p.*, c.* 
+		    $query = "select p.*, c.*, p.image_min as imagen_preview 
                     from tb_productos p, tb_productos_categorias pc, tb_categorias c
                     where p.cod_producto = pc.cod_producto
                     AND pc.cod_categoria = c.cod_categoria

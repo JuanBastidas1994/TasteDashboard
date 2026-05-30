@@ -112,6 +112,7 @@ function crearNew(){
     $Clpromociones->fecha_fin     = $fecha_fin;
     $Clpromociones->is_recurrente = $is_recurrencia;
     $Clpromociones->estado        = $estado;
+    $Clpromociones->is_distintivo = isset($_POST['is_distintivo']) ? intval($_POST['is_distintivo']) : 0;
 
     // ── Manejo de imagen ─────────────────────────────────────────────────────
     $txt_crop         = $_POST['txt_crop'] ?? '';

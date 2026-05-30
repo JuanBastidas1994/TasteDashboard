@@ -360,3 +360,42 @@ $("#btnBack").on("click",function(){
         }
     });
 });
+
+// ── Distintivo de promoción ────────────────────────────────────────────────
+function updateDistintivoPreview() {
+    var $checked = $('input[name="cmb_productos[]"]:checked').first();
+    if ($checked.length) {
+        var nombre  = $checked.data('nombre') || $checked.closest('label').find('b').text().trim();
+        var imagen  = $checked.data('imagen');
+        $('#previewProductoNombreCard').text(nombre);
+        $('#previewHint').hide();
+        if (imagen) {
+            $('#previewProductoImg').attr('src', imagen).show();
+            $('#previewImgPlaceholder').hide();
+        } else {
+            $('#previewProductoImg').hide();
+            $('#previewImgPlaceholder').show();
+        }
+    } else {
+        $('#previewProductoNombreCard').text('');
+        $('#previewHint').show();
+        $('#previewProductoImg').attr('src', '').hide();
+        $('#previewImgPlaceholder').show();
+    }
+}
+
+$('#chk_is_distintivo').on('change', function () {
+    $('#is_distintivo').val($(this).is(':checked') ? '1' : '0');
+    $('#previewBadge').toggle($(this).is(':checked'));
+});
+
+$('input[name="cmb_productos[]"]').on('change', function () {
+    updateDistintivoPreview();
+});
+
+$(function () {
+    updateDistintivoPreview();
+    if ($('#chk_is_distintivo').is(':checked')) {
+        $('#previewBadge').show();
+    }
+});

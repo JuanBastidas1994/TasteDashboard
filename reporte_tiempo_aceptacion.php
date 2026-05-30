@@ -5,147 +5,163 @@ require_once "clases/cl_sucursales.php";
 if (!isLogin()) {
     header("location:login.php");
 }
-$clsucursales = new cl_sucursales(NULL);
-$session = getSession();
-$alias = $session['alias'];
-?>
 
+$clsucursales = new cl_sucursales(NULL);
+$session      = getSession();
+$alias        = $session['alias'];
+$cod_rol      = $session['cod_rol'];
+$enabled      = $cod_rol == 3 ? "disabled" : "";
+$cod_sucursal = $cod_rol == 3 ? $session["cod_sucursal"] : 0;
+?>
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <?php css_mandatory(); ?>
+    <style>
+        .leyenda-item { display:inline-flex; align-items:center; margin-right:18px; font-size:13px; }
+        .leyenda-dot  { width:12px; height:12px; border-radius:50%; display:inline-block; margin-right:5px; }
+        #chartResumen { min-height: 320px; }
+    </style>
 </head>
-
 <body>
-    <!--  BEGIN NAVBAR  -->
-    <?php echo top() ?>
-    <!--  END NAVBAR  -->
 
-    <!--  BEGIN NAVBAR  -->
-    <?php echo navbar(); ?>
-    <!--  END NAVBAR  -->
+    <?php top() ?>
+    <?php navbar() ?>
 
-    <!--  BEGIN MAIN CONTAINER  -->
     <div class="main-container" id="container">
-
         <div class="overlay"></div>
         <div class="search-overlay"></div>
+        <?php sidebar() ?>
 
-        <!--  BEGIN SIDEBAR  -->
-        <?php echo sidebar(); ?>
-        <!--  END SIDEBAR  -->
-
-        <!--  BEGIN CONTENT AREA  -->
         <div id="content" class="main-content">
-            <div class="layout-px-spacing bg-white">
+            <div class="layout-px-spacing">
+
                 <div class="col-md-12" style="margin-top:25px;">
-                    <div><span id="btnBack" data-module-back="categorias.php" style="cursor: pointer;">
-                            <i data-feather="chevron-left"></i><span style="font-size: 16px; vertical-align: middle; color:#888ea8;">Dashboard</span></span>
-                    </div>
-                    <h3 id="titulo">Reporte de tiempo de aceptación de pedidos</h3>
+                    <h3>Reporte de tiempo de aceptación de pedidos</h3>
                 </div>
 
-                <div class="row layout-top-spacing">
+                <!-- Filtros -->
+                <div class="row mt-3">
+                    <div class="col-md-12 layout-spacing">
+                        <div class="widget-content widget-content-area br-6">
+                            <div class="form-row align-items-end">
 
-                    <div class="col-xl-12 col-lg-12 col-sm-12">
-                        <div class="">
-                            <form name="frmSave" id="frmSave" autocomplete="off">
-                                <div class="x_content">
-                                    <div class="form-row">
-                                        <div class="col-md-12">
-                                            <div class="form-group col-md-3 col-sm-3 col-xs-12">
-                                                <label>Sucursales <span class="asterisco">*</span></label>
-                                                <select class="form-control basic" id="cmb_sucursal">
-                                                    <option value="0">Todas las sucursales</option>
-                                                    <?php
-                                                    $resp = $clsucursales->lista();
-                                                    foreach ($resp as $sucursal) {
-                                                        echo '<option value="' . $sucursal['cod_sucursal'] . '">' . $sucursal['nombre'] . '</option>';
-                                                    }
-                                                    ?>
-                                                </select>
-                                            </div>
+                                <div class="form-group col-md-3 col-sm-6">
+                                    <label>Sucursal <small class="text-muted">(aplica en Detalle)</small></label>
+                                    <select class="form-control basic" id="cmb_sucursal" <?= $enabled ?>>
+                                        <option value="0">Todas las sucursales</option>
+                                        <?php
+                                        $resp = $clsucursales->lista();
+                                        foreach ($resp as $suc) {
+                                            $sel = ($suc['cod_sucursal'] == $cod_sucursal) ? 'selected' : '';
+                                            echo '<option value="' . $suc['cod_sucursal'] . '" ' . $sel . '>' . htmlspecialchars($suc['nombre']) . '</option>';
+                                        }
+                                        ?>
+                                    </select>
+                                </div>
 
-                                            <div class="col-md-3 col-sm-3 col-xs-12 input-group" style="margin-bottom:10px;">
-                                                <label>Fecha inicio</label>
-                                                <div class="input-group mb-4">
-                                                    <div class="input-group-prepend">
-                                                        <span class="input-group-text" id="basic-addon1"><i data-feather="calendar"></i></span>
-                                                    </div>
-                                                    <input type="date" class="form-control" aria-label="notification" aria-describedby="basic-addon1" name="fecha_inicio" id="fecha_inicio">
-                                                </div>
-                                            </div>
-
-                                            <div class="col-md-3 col-sm-3 col-xs-12 input-group" style="margin-bottom:10px;">
-                                                <label>Fecha fin</label>
-                                                <div class="input-group mb-4">
-                                                    <div class="input-group-prepend">
-                                                        <span class="input-group-text" id="basic-addon1"><i data-feather="calendar"></i></span>
-                                                    </div>
-                                                    <input type="date" class="form-control" aria-label="notification" aria-describedby="basic-addon1" name="fecha_fin" id="fecha_fin">
-                                                </div>
-                                            </div>
-
-                                            <div class="col-xl-3 col-md-3 col-sm-3 col-12" style="text-align: right;">
-                                                <button class="btn btn-primary btnReporte" style="margin-top: 30px;" data-alias="<?= $alias ?>">Generar reporte</button>
-                                            </div>
+                                <div class="col-md-3 col-sm-6 input-group" style="margin-bottom:10px;">
+                                    <label>Fecha inicio</label>
+                                    <div class="input-group mb-4">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text"><i data-feather="calendar"></i></span>
                                         </div>
+                                        <input type="date" class="form-control" id="fecha_inicio">
                                     </div>
                                 </div>
-                            </form>
-                        </div>
-                        <hr>
-                    </div>
 
-                    <div>
-                        <div class="col-xl-12 col-lg-12 col-sm-12">
-                            <div class="">
-                                <div class="col-xl-12 col-md-12 col-sm-12 col-12">
-                                    <h4>Tiempos de aceptación</h4>
+                                <div class="col-md-3 col-sm-6 input-group" style="margin-bottom:10px;">
+                                    <label>Fecha fin</label>
+                                    <div class="input-group mb-4">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text"><i data-feather="calendar"></i></span>
+                                        </div>
+                                        <input type="date" class="form-control" id="fecha_fin">
+                                    </div>
                                 </div>
-                                <table id="table-tiempos" class="table style-3">
-                                    <thead>
-                                        <tr>
-                                            <th class="text-center">ID Pedido</th>
-                                            <th class="text-center">Fecha ingreso</th>
-                                            <th class="text-center">Fecha aceptación</th>
-                                            <th class="text-center">Tiempo</th>
-                                            <th class="text-center">Acciones</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="lstTiempos">
-                                    </tbody>
-                                </table>
-                                <br>
-                                <br>
+
+                                <div class="col-xl-3 col-md-3 col-sm-3 col-12" style="text-align:right;">
+                                    <button class="btn btn-primary" style="margin-top:30px;" id="btnReporte" data-alias="<?= $alias ?>">
+                                        Generar reporte
+                                    </button>
+                                </div>
+
                             </div>
                         </div>
                     </div>
+                </div>
 
-                    <div class="px-4 py-2 w-100" style="text-align: right; font-size: 22px; font-weight: bold; position: sticky; bottom: 0; background: #f1f2f3; color: gray;">
-                        Tiempo promedio de aceptación: <span id="promedioTiempo">--</span>
+                <!-- Tabs -->
+                <div id="seccionResultados" style="display:none;">
+                    <div class="row">
+                        <div class="col-md-12 layout-spacing">
+                            <div class="widget-content widget-content-area br-6">
+
+                                <ul class="nav nav-tabs mb-3" role="tablist">
+                                    <li class="nav-item">
+                                        <a class="nav-link active" id="tab-resumen-lnk" data-toggle="tab" href="#tab-resumen" role="tab">
+                                            <i data-feather="bar-chart"></i> Resumen por Sucursal
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" id="tab-detalle-lnk" data-toggle="tab" href="#tab-detalle" role="tab">
+                                            <i data-feather="list"></i> Detalle de pedidos
+                                        </a>
+                                    </li>
+                                </ul>
+
+                                <div class="tab-content">
+
+                                    <!-- TAB 1: Resumen visual -->
+                                    <div class="tab-pane fade show active" id="tab-resumen" role="tabpanel">
+                                        <div class="mb-3">
+                                            <span class="leyenda-item"><span class="leyenda-dot" style="background:#1abc9c;"></span> Excelente (≤ 5 min)</span>
+                                            <span class="leyenda-item"><span class="leyenda-dot" style="background:#f6a623;"></span> Aceptable (≤ 15 min)</span>
+                                            <span class="leyenda-item"><span class="leyenda-dot" style="background:#e55353;"></span> Lento (> 15 min)</span>
+                                        </div>
+                                        <div id="chartResumen"></div>
+                                        <div id="sinDatosResumen" class="text-center text-muted py-5" style="display:none;">
+                                            No hay datos para el período seleccionado
+                                        </div>
+                                    </div>
+
+                                    <!-- TAB 2: Tabla detalle -->
+                                    <div class="tab-pane fade" id="tab-detalle" role="tabpanel">
+                                        <div class="table-responsive">
+                                            <table id="table-tiempos" class="table style-3 table-hover">
+                                                <thead>
+                                                    <tr>
+                                                        <th class="text-center">ID Pedido</th>
+                                                        <th class="text-center">Fecha ingreso</th>
+                                                        <th class="text-center">Fecha aceptación</th>
+                                                        <th class="text-center">Sucursal</th>
+                                                        <th class="text-center">Tiempo</th>
+                                                        <th class="text-center">Acciones</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="lstTiempos"></tbody>
+                                            </table>
+                                        </div>
+
+                                        <div class="px-2 py-3 text-right font-weight-bold" style="font-size:18px; color:#555;">
+                                            Tiempo promedio: <span id="promedioTiempo" class="text-primary">--</span>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
                     </div>
-
                 </div>
 
             </div>
-            <?php footer(); ?>
+            <?php footer() ?>
         </div>
-        <!--  END CONTENT AREA  -->
     </div>
-    <!-- END MAIN CONTAINER -->
 
     <?php js_mandatory(); ?>
-    <script src="assets/js/pages/reporte_tiempo_aceptacion.js?v=1" type="text/javascript"></script>
-
-    <!-- BEGIN PAGE LEVEL CUSTOM SCRIPTS -->
-    <script src="assets/js/scrollspyNav.js"></script>
     <script src="plugins/apex/apexcharts.min.js"></script>
-    <script src="assets/js/dashboard/dash_1.js"></script>
-    <!-- END PAGE LEVEL CUSTOM SCRIPTS -->
-
+    <script src="assets/js/pages/reporte_tiempo_aceptacion.js?v=3"></script>
 </body>
-
 </html>

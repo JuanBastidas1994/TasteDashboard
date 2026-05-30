@@ -49,6 +49,7 @@ function getTiempos()
                     <td class="text-center">' . $row['cod_orden'] . '</td>
                     <td class="text-center">' . $row['fecha'] . '</td>
                     <td class="text-center">' . $row['hora_retiro'] . '</td>
+                    <td class="text-center">' . htmlspecialchars($row['nombre_sucursal']) . '</td>
                     <td class="text-center">
                         <span class="badge ' . $badge . '" style="font-size:0.9em; padding:5px 10px;">' . $tiempoFormato . '</span>
                     </td>
@@ -72,6 +73,25 @@ function getTiempos()
         'tabla'    => $tabla,
         'promedio' => formatearTiempo($promedioMinutos)
     ];
+}
+
+function getResumen()
+{
+    global $clreporte;
+
+    if (count($_POST) == 0) {
+        return ['success' => 0, 'mensaje' => 'Falta información'];
+    }
+
+    extract($_POST);
+
+    $rows = $clreporte->getResumenPorSucursal($f_inicio, $f_fin);
+
+    if (!$rows) {
+        return ['success' => 0, 'mensaje' => 'No hay datos en este período'];
+    }
+
+    return ['success' => 1, 'data' => $rows];
 }
 
 function formatearTiempo($minutos)

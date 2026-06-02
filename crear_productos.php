@@ -38,6 +38,8 @@ $txt_peso = 0;
 $txt_volumen = 0;
 $txt_sku = "";
 $tiempo_preparacion = 0;
+$tiempo_preparacion_unidad   = 'minutos';
+$tiempo_preparacion_display  = 0;
 $fecha_create = "";
 $fSinStock = "";
 $precio = "";
@@ -176,6 +178,13 @@ if (isset($_GET['id'])) {
         $txt_volumen = $producto['volumen'];
         $txt_sku = $producto['sku'];
         $tiempo_preparacion = $producto['tiempo_preparacion'];
+        if ($tiempo_preparacion >= 1440 && $tiempo_preparacion % 1440 === 0) {
+            $tiempo_preparacion_unidad  = 'dias';
+            $tiempo_preparacion_display = $tiempo_preparacion / 1440;
+        } else {
+            $tiempo_preparacion_unidad  = 'minutos';
+            $tiempo_preparacion_display = $tiempo_preparacion;
+        }
 
         $optionVarianteVisualizacion = "";
         for ($i = 0; $i < count($varianteVisualizacion); $i++) {
@@ -782,23 +791,41 @@ function recursive($array, $posicion, &$data, &$codigos)
                                         ?>
 
                                         <div class="row">
-                                            <div class="form-group col-md-4 col-sm-4 col-xs-12">
-                                                <label>Peso<span class="asterisco">*</span><span class="far fa-question-circle rounded bs-tooltip" data-placement="top" title="Peso en Kg"></span></label>
-                                                <input type="number" name="txt_peso" id="txt_peso" class="form-control" value="<?php echo $txt_peso; ?>">
+                                            <div class="form-group col-md-4 col-sm-6 col-xs-12">
+                                                <label>Peso <span class="asterisco">*</span><span class="far fa-question-circle rounded bs-tooltip" data-placement="top" title="Peso en Kg"></span></label>
+                                                <div class="input-group">
+                                                    <input type="number" name="txt_peso" id="txt_peso" class="form-control" value="<?php echo $txt_peso; ?>">
+                                                    <div class="input-group-append">
+                                                        <span class="input-group-text">Kg</span>
+                                                    </div>
+                                                </div>
                                             </div>
-                                            <div class="form-group col-md-4 col-sm-4 col-xs-12">
-                                                <label>Volumen<span class="asterisco">*</span><span class="far fa-question-circle rounded bs-tooltip" data-placement="top" title="Volumen"></span></label>
-                                                <input type="number" name="txt_volumen" id="txt_volumen" class="form-control" value="<?php echo $txt_volumen; ?>">
+                                            <div class="form-group col-md-4 col-sm-6 col-xs-12">
+                                                <label>Volumen <span class="asterisco">*</span><span class="far fa-question-circle rounded bs-tooltip" data-placement="top" title="Volumen"></span></label>
+                                                <div class="input-group">
+                                                    <input type="number" name="txt_volumen" id="txt_volumen" class="form-control" value="<?php echo $txt_volumen; ?>">
+                                                    <div class="input-group-append">
+                                                        <span class="input-group-text">m³</span>
+                                                    </div>
+                                                </div>
                                             </div>
 
-                                            <div class="form-group col-md-4 col-sm-4 col-xs-12 d-none">
-                                                <label>SKU<span class="asterisco">*</span><span class="far fa-question-circle rounded bs-tooltip" data-placement="top" title="codigo de artículo"></span></label>
+                                            <div class="form-group col-md-4 col-sm-6 col-xs-12 d-none">
+                                                <label>SKU <span class="asterisco">*</span><span class="far fa-question-circle rounded bs-tooltip" data-placement="top" title="codigo de artículo"></span></label>
                                                 <input type="text" name="txt_sku" id="txt_sku" class="form-control" value="<?php echo $txt_sku; ?>">
                                             </div>
-                                            
-                                            <div class="form-group col-md-4 col-sm-4 col-xs-12">
-                                                <label>Tiempo Preparación<span class="asterisco">*</span><span class="far fa-question-circle rounded bs-tooltip" data-placement="top" title="Tiempo de preparación del producto, debe ser multiplo de 5"></span></label>
-                                                <input type="text" name="txt_preparacion" id="txt_preparacion" class="form-control" value="<?php echo $tiempo_preparacion; ?>">
+
+                                            <div class="form-group col-md-4 col-sm-6 col-xs-12">
+                                                <label>Tiempo Preparación <span class="asterisco">*</span><span class="far fa-question-circle rounded bs-tooltip" data-placement="top" title="En minutos (múltiplo de 5) o en días"></span></label>
+                                                <div class="input-group">
+                                                    <input type="number" min="0" name="txt_preparacion" id="txt_preparacion" class="form-control" value="<?php echo $tiempo_preparacion_display; ?>">
+                                                    <div class="input-group-append">
+                                                        <select name="txt_preparacion_unidad" id="txt_preparacion_unidad" class="form-control" style="border-left:0; border-radius:0 4px 4px 0; min-width:70px;">
+                                                            <option value="minutos" <?= $tiempo_preparacion_unidad === 'minutos' ? 'selected' : '' ?>>Min</option>
+                                                            <option value="dias"    <?= $tiempo_preparacion_unidad === 'dias'    ? 'selected' : '' ?>>Días</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
 

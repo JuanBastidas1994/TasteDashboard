@@ -19,7 +19,10 @@ function crear(){
 
     extract($_POST);
     
-    if ($txt_preparacion % 5 != 0) {
+    $minutos_preparacion = intval($txt_preparacion);
+    if (isset($txt_preparacion_unidad) && $txt_preparacion_unidad === 'dias') {
+        $minutos_preparacion = $minutos_preparacion * 1440;
+    } elseif ($minutos_preparacion % 5 != 0) {
         return [ 'success' => 0, 'mensaje' => 'El tiempo de preparación debe ser múltiplo de 5' ];
     }
 
@@ -47,7 +50,7 @@ function crear(){
     $Clproductos->sku = $txt_sku;
     $Clproductos->image_min = '';
     $Clproductos->image_max = '';
-    $Clproductos->tiempo_preparacion = $txt_preparacion;
+    $Clproductos->tiempo_preparacion = $minutos_preparacion;
     $Clproductos->estado = (isset($_POST['chk_estado'])) ? 'A' : 'I';
     $Clproductos->open_detalle = (isset($_POST['chk_detalle'])) ? 0 : 1;
     $Clproductos->cobra_iva = (isset($_POST['chk_base'])) ? 1 : 0;

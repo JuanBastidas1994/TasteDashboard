@@ -673,6 +673,27 @@ class cl_empresas
 			return Conexion::ejecutar($query, null);
 		}
 
+		public function setCartAbandonmentMinutes($cod_empresa, $minutos){
+			$query = "UPDATE tb_empresas
+						SET cart_abandonment_minutes = $minutos
+						WHERE cod_empresa = $cod_empresa";
+			return Conexion::ejecutar($query, null);
+		}
+
+		public function saveCartConfig($cod_empresa, $config){
+			$query = "UPDATE tb_empresas SET
+						cart_abandonment_minutes   = " . intval($config['cart_minutes'])      . ",
+						cart_expiry_hours          = " . intval($config['cart_expiry'])        . ",
+						cart_campaigns_enabled     = " . intval($config['campaigns_enabled'])  . ",
+						cart_campaign_min_interval = " . intval($config['campaign_interval'])  . ",
+						cart_campaign_max          = " . intval($config['campaign_max'])        . ",
+						cart_recovery_email        = " . intval($config['recovery_email'])     . ",
+						cart_recovery_push         = " . intval($config['recovery_push'])      . ",
+						cart_recovery_whatsapp     = " . intval($config['recovery_whatsapp'])  . "
+					WHERE cod_empresa = $cod_empresa";
+			return Conexion::ejecutar($query, null);
+		}
+
 		public function updateFolder($cod_empresa, $folder){
 			$query = "UPDATE tb_empresas
 						SET folder = '$folder'

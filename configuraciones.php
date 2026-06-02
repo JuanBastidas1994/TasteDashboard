@@ -714,14 +714,8 @@ if ($Clempresas->getPermisoTienda($cod_empresa))
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="form-group col-md-5">
-                                            <label>Acción sobre los precios existentes <span class="asterisco">*</span></label>
-                                            <select class="form-control" id="cmb_tipo_impuesto">
-                                                <option value="mantener_precioNoTax">Mantener precio base (sin impuesto)</option>
-                                                <option value="mantener_pvp">Mantener PVP (precio de venta al público)</option>
-                                            </select>
-                                        </div>
-                                        <div class="col-md-3 d-flex align-items-end mb-3">
+                                        <input type="hidden" id="cmb_tipo_impuesto" value="mantener_pvp">
+                                        <div class="col-md-7 d-flex align-items-end mb-3">
                                             <button class="btn btn-primary w-100" id="btnActualizarImpuesto">
                                                 <i data-feather="save"></i> Actualizar impuesto
                                             </button>

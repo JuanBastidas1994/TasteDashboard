@@ -151,7 +151,7 @@ $sucursalesAll = $Clsucursales->lista();
                                                 <?php foreach ($dataCategoria['productos'] as $producto): ?>
                                                     <option value="<?= $producto['cod_producto'] ?>"
                                                             data-nombre="<?= htmlspecialchars($producto['nombre']) ?>"
-                                                        <?= ($config_ref && $config_ref['cod_producto'] == $producto['cod_producto']) ? 'selected' : '' ?>>
+                                                        <?= ($config_ref && (int)$config_ref['cod_producto'] === (int)$producto['cod_producto']) ? 'selected' : '' ?>>
                                                         <?= htmlspecialchars($producto['nombre']) ?>
                                                     </option>
                                                 <?php endforeach; ?>

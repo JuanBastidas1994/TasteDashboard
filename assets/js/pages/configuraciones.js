@@ -652,31 +652,67 @@ $("body").on("click", "#btnActualizarImpuesto", function () {
         cancelButtonText: "Cancelar"
     }).then(function (result) {
         if (!result.value) return;
-
         $.ajax({
-            beforeSend: function () {
-                OpenLoad("Actualizando impuesto, por favor espere...");
-            },
+            beforeSend: function () { OpenLoad("Actualizando impuesto..."); },
             url: "controllers/controlador_empresa.php?metodo=actualizarImpuesto",
             type: "GET",
+            data: { cod_empresa: cod_empresa, impuesto: impuesto, tipo: tipo },
+            success: function (response) {
+                messageDone(response["mensaje"], response["success"] == 1 ? "success" : "error");
+            },
+            error: function () { messageDone("Error al conectar con el servidor", "error"); },
+            complete: function () { CloseLoad(); }
+        });
+    });
+});
+
+$("body").on("click", "#btnGuardarCartConfig", function () {
+    var cart_minutes       = parseInt($("#txt_cart_minutes").val());
+    var cart_expiry        = parseInt($("#txt_cart_expiry").val());
+    var campaigns_enabled  = $("#chk_campaigns_enabled").is(":checked") ? 1 : 0;
+    var campaign_interval  = parseInt($("#txt_campaign_interval").val());
+    var campaign_max       = parseInt($("#txt_campaign_max").val());
+    var recovery_email     = $("#chk_recovery_email").is(":checked") ? 1 : 0;
+    var recovery_push      = $("#chk_recovery_push").is(":checked") ? 1 : 0;
+    var recovery_whatsapp  = $("#chk_recovery_whatsapp").is(":checked") ? 1 : 0;
+
+    if (isNaN(cart_minutes) || cart_minutes <= 0) {
+        messageDone("Ingrese un tiempo de abandono válido (mayor a 0)", "error");
+        return;
+    }
+    if (isNaN(cart_expiry) || cart_expiry <= 0) {
+        messageDone("Ingrese un tiempo de expiración válido (mayor a 0)", "error");
+        return;
+    }
+
+    swal.fire({
+        title: "¿Guardar configuración de carrito?",
+        text: "Se actualizarán los tiempos y canales de recuperación.",
+        type: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Sí, guardar",
+        cancelButtonText: "Cancelar"
+    }).then(function (result) {
+        if (!result.value) return;
+        $.ajax({
+            beforeSend: function () { OpenLoad("Guardando..."); },
+            url: "controllers/controlador_empresa.php?metodo=saveCartConfig",
+            type: "GET",
             data: {
-                cod_empresa: cod_empresa,
-                impuesto:    impuesto,
-                tipo:        tipo
+                cart_minutes:      cart_minutes,
+                cart_expiry:       cart_expiry,
+                campaigns_enabled: campaigns_enabled,
+                campaign_interval: isNaN(campaign_interval) ? 60 : campaign_interval,
+                campaign_max:      isNaN(campaign_max)      ? 3  : campaign_max,
+                recovery_email:    recovery_email,
+                recovery_push:     recovery_push,
+                recovery_whatsapp: recovery_whatsapp
             },
             success: function (response) {
-                if (response["success"] == 1) {
-                    messageDone(response["mensaje"], "success");
-                } else {
-                    messageDone(response["mensaje"], "error");
-                }
+                messageDone(response["mensaje"], response["success"] == 1 ? "success" : "error");
             },
-            error: function () {
-                messageDone("Error al conectar con el servidor", "error");
-            },
-            complete: function () {
-                CloseLoad();
-            }
+            error: function () { messageDone("Error al conectar con el servidor", "error"); },
+            complete: function () { CloseLoad(); }
         });
     });
 });

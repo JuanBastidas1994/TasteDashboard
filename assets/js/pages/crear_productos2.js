@@ -3,19 +3,21 @@ $(document).ready(function () {
     impuesto = $("#txt_impuesto").val();
     calculateNoTax();
     
-    let dias = $("#dias_disponibles").val();
-    if(dias !== ""){
-        $("#ciertosDias").prop("checked", true);
-        $(".chooseDias").show();
-        
-        $.each(dias.split(","), function(i,e){
-            $("#cmbDias option[value='" + e + "']").prop("selected", true);
-        });
-    }else{
-        console.log("TODOS LOS DIAS", dias);
-        $("#todosDias").prop("checked", true);
-        $(".chooseDias").hide();
-    }
+    flatpickr(".time-start-producto", {
+        enableTime: true,
+        noCalendar: true,
+        dateFormat: "H:i",
+        defaultHour: 7,
+        defaultMinute: 0,
+    });
+
+    flatpickr(".time-end-producto", {
+        enableTime: true,
+        noCalendar: true,
+        dateFormat: "H:i",
+        defaultHour: 23,
+        defaultMinute: 0,
+    });
     
     
     $("#chk_es_evento").on("change", function() {
@@ -1083,6 +1085,30 @@ $(document).ready(function () {
         } else {
             $(".chooseDias").hide();
         }
+    });
+
+    $(document).on("change", ".chk-day-producto", function () {
+        const row = $(this).closest(".day-item");
+        row.find("input[type='text']").prop("disabled", !this.checked);
+    });
+
+    $("#btnReplicarHorarioProducto").on("click", function () {
+        const firstActive = $(".chk-day-producto:checked").first().closest(".day-item");
+        if (!firstActive.length) {
+            notify("Primero activa al menos un día", "error", 2);
+            return;
+        }
+        const start = firstActive.find(".time-start-producto").val();
+        const end   = firstActive.find(".time-end-producto").val();
+        if (!start || !end) {
+            notify("El primer día activo debe tener horario completo", "error", 2);
+            return;
+        }
+        $(".chk-day-producto:checked").each(function () {
+            const row = $(this).closest(".day-item");
+            row.find(".time-start-producto").val(start);
+            row.find(".time-end-producto").val(end);
+        });
     });
 
     //COMPONENTES

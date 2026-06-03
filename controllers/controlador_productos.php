@@ -209,10 +209,10 @@ function crear(){
     }
     
     //DIAS
-    $cmbDias = isset($_POST['cmbDias']) ? $cmbDias : [];
     $Clproductos->deleteDays($cod_producto);
-    if($rb_dias == 1){ //INSERTAR NUEVOS DIAS
-        $Clproductos->setDays($cod_producto, $cmbDias);
+    if($rb_dias == 1){
+        $dias_producto = $_POST['dias'] ?? [];
+        $Clproductos->setDays($cod_producto, $dias_producto);
     }
     
     return $return;

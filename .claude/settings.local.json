@@ -12,7 +12,16 @@
       "Bash(grep -E \"\\\\.php$\")",
       "Bash(sed 's/ .*//')",
       "PowerShell($content = Get-Content \"c:\\\\laragon\\\\www\\\\taste\\\\plugins\\\\apex\\\\apexcharts.min.js\" -Raw; $content.Substring\\(0, 500\\))",
-      "Bash(node -e ' *)"
+      "Bash(node -e ' *)",
+      "Bash(ls -la \"c:\\\\Users\\\\super\\\\.dbclient\\\\storage\\\\1713805658516@@127.0.0.1@3306@jc_taste\\\\\" 2>/dev/null | head -20)",
+      "Read(//c/Users/super/.dbclient/storage/1713805658516@@127.0.0.1@3306@jc_taste\" 2>/dev/**)",
+      "Bash(ls \"C:\\\\Users\\\\super\\\\.dbclient\\\\storage\\\\\" 2>/dev/null | head -5)",
+      "Read(//c/Users/super/.dbclient/storage\" 2>/dev/**)",
+      "Bash(grep -E \"\\\\.\\(php|sql\\)$\")",
+      "Bash(find \"C:\\\\Users\\\\super\\\\.dbclient\" -name \"*.sql\" -type f 2>/dev/null)",
+      "Read(//c/Users/super/.dbclient/**)",
+      "Bash(grep -n '$days\\\\|$rb_dias\\\\|$recurrencia\\\\|getDays\\\\|is_recurrente' c:/laragon/www/taste/crear_productos.php)",
+      "Bash(grep -n 'rb_dias\\\\|is_recurrencia\\\\|$recurrencia\\\\|$rb_dias' c:/laragon/www/taste/crear_productos.php)"
     ]
   }
 }

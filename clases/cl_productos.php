@@ -1167,31 +1167,44 @@ class cl_productos
 		}
 		
 		public function getDays($cod_producto){
-		    $days = null;
-		    $query = "SELECT dia FROM tb_productos_dias WHERE cod_producto = $cod_producto";
+		    $query = "SELECT dia, hora_inicio, hora_fin FROM tb_productos_dias WHERE cod_producto = $cod_producto";
 		    $resp = Conexion::buscarVariosRegistro($query);
 		    if($resp){
-		        $x=0;
-		        foreach($resp as $key => $day){
-		            $days[$x] = intval($day['dia']);
-		            $x++;
+		        $days = [];
+		        foreach($resp as $row){
+		            $days[$row['dia']] = [
+		                'inicio' => $row['hora_inicio'],
+		                'fin'    => $row['hora_fin']
+		            ];
 		        }
-		        return $days;      
+		        return $days;
 		    }else{
 		        return false;
 		    }
 		}
-		
+
 		public function deleteDays($cod_producto){
 		    $query = "DELETE FROM tb_productos_dias WHERE cod_producto = $cod_producto";
 			return Conexion::ejecutar($query, null);
 		}
-		
-		public function setDays($cod_producto, $days){
-		    foreach($days as $day){
-                $query = "INSERT INTO tb_productos_dias(cod_producto, dia)
-						VALUES($cod_producto, $day)";
-			    Conexion::ejecutar($query, null);
+
+		public function setDays($cod_producto, $dias){
+		    foreach($dias as $dia => $horario){
+		        if(!isset($horario['activo'])) continue;
+		        $hora_inicio = $horario['inicio'] ?? '00:00:00';
+		        $hora_fin    = $horario['fin']    ?? '23:59:59';
+		        if(strlen($hora_inicio) === 5) $hora_inicio .= ':00';
+		        if(strlen($hora_fin) === 5)    $hora_fin    .= ':00';
+		        if($hora_fin === '00:00:00') $hora_fin = '23:59:59';
+		        elseif($hora_fin <= $hora_inicio) $hora_fin = '23:59:59';
+		        $query = "INSERT INTO tb_productos_dias(cod_producto, dia, hora_inicio, hora_fin)
+		                  VALUES(:cod, :dia, :inicio, :fin)";
+		        Conexion::ejecutar($query, [
+		            ':cod'    => $cod_producto,
+		            ':dia'    => $dia,
+		            ':inicio' => $hora_inicio,
+		            ':fin'    => $hora_fin
+		        ]);
             }
 		}
 

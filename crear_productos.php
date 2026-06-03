@@ -48,7 +48,17 @@ $peso = "";
 $precio_no_tax = "";
 $iva_valor = "";
 $costo = "";
-$days = "";
+$recurrencia_producto = [];
+$is_recurrencia_producto = 0;
+$diasSemana = [
+    'lunes'     => 'Lunes',
+    'martes'    => 'Martes',
+    'miercoles' => 'Miércoles',
+    'jueves'    => 'Jueves',
+    'viernes'   => 'Viernes',
+    'sabado'    => 'Sábado',
+    'domingo'   => 'Domingo'
+];
 $etiquetas = $Clproductos->getTodasEtiquetas();
 $venta_delivery = "checked";
 $venta_pickup = "checked";
@@ -195,8 +205,9 @@ if (isset($_GET['id'])) {
         }
 
 
-        $days = $Clproductos->getDays($cod_producto);
-        $days = ($days !== false) ? implode(",", $days) : "";
+        $days_raw = $Clproductos->getDays($cod_producto);
+        $recurrencia_producto = ($days_raw !== false) ? $days_raw : [];
+        $is_recurrencia_producto = !empty($recurrencia_producto) ? 1 : 0;
         
         if(in_array("PRODUCTO_EMPAQUE", $permisos)){
             $classEmpaquesNoShow = "";   
@@ -1605,31 +1616,64 @@ function recursive($array, $posicion, &$data, &$codigos)
                             <form id="frmDias" method="POST" action="#">
                                 <div class="row">
                                     <div class="col-md-12 col-sm-12 col-xs-12">
-                                        <input type="hidden" id="dias_disponibles" value="<?php echo $days; ?>" />
                                         <p>Escoge los días que quieras que aparezcan tus productos</p>
                                         <div>
                                             <label class="new-control new-radio radio-classic-primary">
-                                                <input type="radio" class="new-control-input rbDisponibleDias" id="todosDias" checked="checked" value="0" name="rb_dias">
+                                                <input type="radio" class="new-control-input rbDisponibleDias" id="todosDias" value="0" name="rb_dias"
+                                                    <?php if(!$is_recurrencia_producto) echo 'checked'; ?>>
                                                 <span class="new-control-indicator"></span>Todos los días
                                             </label>
                                         </div>
                                         <div>
                                             <label class="new-control new-radio radio-classic-primary">
-                                                <input type="radio" class="new-control-input rbDisponibleDias" id="ciertosDias" value="1" name="rb_dias">
+                                                <input type="radio" class="new-control-input rbDisponibleDias" id="ciertosDias" value="1" name="rb_dias"
+                                                    <?php if($is_recurrencia_producto) echo 'checked'; ?>>
                                                 <span class="new-control-indicator"></span>Sólo algunos días
                                             </label>
                                         </div>
                                     </div>
-                                    <div class="chooseDias form-group col-md-12 col-sm-12 col-xs-12" style="display:none;">
-                                        <select multiple="multiple" name="cmbDias[]" id="cmbDias" class="form-control" required="required">
-                                            <option value="1">Lunes</option>
-                                            <option value="2">Martes</option>
-                                            <option value="3">Miércoles</option>
-                                            <option value="4">Jueves</option>
-                                            <option value="5">Viernes</option>
-                                            <option value="6">Sábado</option>
-                                            <option value="7">Domingo</option>
-                                        </select>
+
+                                    <div class="chooseDias form-group col-md-12 col-sm-12 col-xs-12 mt-3" style="<?php if(!$is_recurrencia_producto) echo 'display:none;'; ?>">
+                                        <?php foreach ($diasSemana as $key => $nombre): ?>
+                                            <?php
+                                                $activo  = isset($recurrencia_producto[$key]);
+                                                $inicio  = $activo ? substr($recurrencia_producto[$key]['inicio'], 0, 5) : '';
+                                                $fin     = $activo ? substr($recurrencia_producto[$key]['fin'], 0, 5) : '';
+                                            ?>
+                                            <div class="day-item row align-items-center mb-2">
+                                                <div class="col-md-4">
+                                                    <label class="new-control new-checkbox new-checkbox-rounded checkbox-success">
+                                                        <input type="checkbox"
+                                                            class="new-control-input chk-day-producto"
+                                                            name="dias[<?= $key ?>][activo]"
+                                                            value="1"
+                                                            <?= $activo ? 'checked' : '' ?>>
+                                                        <span class="new-control-indicator"></span>
+                                                        <?= $nombre ?>
+                                                    </label>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <input type="text"
+                                                        name="dias[<?= $key ?>][inicio]"
+                                                        class="form-control time-start-producto"
+                                                        value="<?= $inicio ?>"
+                                                        <?= $activo ? '' : 'disabled' ?>>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <input type="text"
+                                                        name="dias[<?= $key ?>][fin]"
+                                                        class="form-control time-end-producto"
+                                                        value="<?= $fin ?>"
+                                                        <?= $activo ? '' : 'disabled' ?>>
+                                                </div>
+                                            </div>
+                                        <?php endforeach; ?>
+
+                                        <div class="mb-3 mt-4 text-center">
+                                            <button type="button" class="btn btn-sm btn-primary" id="btnReplicarHorarioProducto">
+                                                Replicar horario en todos los días activos
+                                            </button>
+                                        </div>
                                     </div>
 
                                 </div>

@@ -473,7 +473,7 @@ function datetimeShort($fecha)
                                                     <p class="">$<?php echo $subtotal0; ?></p>
                                                 </div>
                                                 <div class="col-sm-8 col-7">
-                                                    <p class="">SubTotal <?= $iva_porcentaje ?>: </p>
+                                                    <p class="">SubTotal <?= $iva_porcentaje ?>%: </p>
                                                 </div>
                                                 <div class="col-sm-4 col-5">
                                                     <p class="">$<?php echo $subtotal12; ?></p>

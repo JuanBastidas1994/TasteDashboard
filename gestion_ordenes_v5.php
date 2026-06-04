@@ -1078,7 +1078,7 @@ $permisos = $Clempresas->getIdPermisionByBusiness($session['cod_empresa']);
     </div>
 
     <!--  BEGIN NAVBAR  -->
-    <?php echo top() ?>
+    <?php top() ?>
     <!--  END NAVBAR  -->
 
     <!--  BEGIN NAVBAR  -->
@@ -1160,7 +1160,7 @@ $permisos = $Clempresas->getIdPermisionByBusiness($session['cod_empresa']);
         <div class="search-overlay"></div>
 
         <!--  BEGIN SIDEBAR  -->
-        <?php echo sidebar(); ?>
+        <?php sidebar(); ?>
         <!--  END SIDEBAR  -->
 
         <!--  BEGIN CONTENT AREA  -->
@@ -1402,7 +1402,7 @@ $permisos = $Clempresas->getIdPermisionByBusiness($session['cod_empresa']);
     <script src="assets/js/moment.min.js"></script>
     <!--<script src="assets/js/gestion-ordenes-v5/sounds.js" type="text/javascript"></script>-->
     <!--<script src="assets/js/gestion-ordenes-v5/toastJc.js?v=7" type="text/javascript"></script>-->
-    <script src="assets/js/gestion-ordenes-v5/index.js?v=15" type="text/javascript"></script>
+    <script src="assets/js/gestion-ordenes-v5/index.js?v=16" type="text/javascript"></script>
     <script src="assets/js/gestion-ordenes-v5/facturacion.js?v=7" type="text/javascript"></script>
     <script src="assets/js/gestion-ordenes-v5/tracking.js?v=8" type="text/javascript"></script>
     <script src="assets/js/gestion-ordenes-v5/recipientes.js?v=7" type="text/javascript"></script>

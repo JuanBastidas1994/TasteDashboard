@@ -102,7 +102,7 @@ function js_mandatory(){
 	        
 	    </script>
 	    <script src="assets/js/js.cookie.js"></script>
-	    <script src="assets/js/custom.js?v=7"></script>
+	    <script src="assets/js/custom.js?v=11"></script>
 	    <!-- END GLOBAL MANDATORY SCRIPTS -->
 
 	    <!-- BEGIN PAGE LEVEL CUSTOM SCRIPTS -->

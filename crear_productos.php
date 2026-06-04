@@ -44,6 +44,9 @@ $fecha_create = "";
 $fSinStock = "";
 $precio = "";
 $precio_anterior = "";
+$precio_especial = "";
+$precio_especial_inicio = "";
+$precio_especial_fin = "";
 $peso = "";
 $precio_no_tax = "";
 $iva_valor = "";
@@ -146,6 +149,9 @@ if (isset($_GET['id'])) {
         $etiqueta = $Clproductos->getEtiquetaProducto($cod_producto);
         $precio = $producto['precio'];
         $precio_anterior = $producto['precio_anterior'];
+        $precio_especial        = $producto['precio_especial']        ?? "";
+        $precio_especial_inicio = $producto['precio_especial_inicio'] ?? "";
+        $precio_especial_fin    = $producto['precio_especial_fin']    ?? "";
         $peso = $producto['peso'];
         $precio_no_tax = $producto['precio_no_tax'];
         $iva_valor = $producto['iva_valor'];
@@ -1458,6 +1464,86 @@ function recursive($array, $posicion, &$data, &$codigos)
                             </form>
                         </div>
 
+                        <!-- Precio especial temporal -->
+                        <?php
+                        $hoy = date('Y-m-d');
+                        $especial_activo = $precio_especial && $precio_especial_fin && $precio_especial_fin >= $hoy;
+                        $dias_especial   = "";
+                        if ($precio_especial_inicio && $precio_especial_fin) {
+                            $d1 = new DateTime($precio_especial_inicio);
+                            $d2 = new DateTime($precio_especial_fin);
+                            $dias_especial = $d1->diff($d2)->days;
+                        }
+                        ?>
+                        <div class="widget-content widget-content-area br-6" style="margin-top: 15px;">
+                            <div class="d-flex align-items-center mb-3">
+                                <h4 class="mb-0 flex-grow-1">
+                                    Precio Especial
+                                    <small class="text-muted" style="font-size:.72em; font-weight:400;"> — vigente por días</small>
+                                </h4>
+                                <?php if ($precio_especial): ?>
+                                    <?php if ($especial_activo): ?>
+                                        <span class="badge badge-success" style="font-size:.82em;">
+                                            Activo · $<?= number_format((float)$precio_especial, 2) ?> hasta <?= date('d/m/Y', strtotime($precio_especial_fin)) ?>
+                                        </span>
+                                    <?php else: ?>
+                                        <span class="badge badge-secondary" style="font-size:.82em;">
+                                            Expirado el <?= date('d/m/Y', strtotime($precio_especial_fin)) ?>
+                                        </span>
+                                    <?php endif; ?>
+                                <?php endif; ?>
+                            </div>
+
+                            <div class="form-row align-items-center mb-3">
+                                <div class="col-auto">
+                                    <label class="switch s-icons s-outline s-outline-success mb-0">
+                                        <input type="checkbox" id="chk_precio_especial" name="chk_precio_especial"
+                                               <?= $especial_activo ? 'checked' : '' ?>>
+                                        <span class="slider round"></span>
+                                    </label>
+                                </div>
+                                <div class="col-auto">
+                                    <label class="mb-0" style="font-size:14px;">Activar precio especial</label>
+                                </div>
+                            </div>
+
+                            <div id="bloquePrecioEspecial" style="<?= ($especial_activo ? '' : 'display:none') ?>">
+                                <div class="form-row">
+                                    <div class="form-group col-md-3">
+                                        <label>Precio especial ($) <span class="asterisco">*</span></label>
+                                        <input type="number" step="0.01" min="0.01"
+                                               id="txt_precio_especial" name="txt_precio_especial"
+                                               class="form-control" placeholder="0.00"
+                                               value="<?= htmlspecialchars($precio_especial) ?>">
+                                    </div>
+                                    <div class="form-group col-md-3">
+                                        <label>Fecha inicio</label>
+                                        <input type="date" id="fecha_especial_inicio" name="fecha_especial_inicio"
+                                               class="form-control"
+                                               value="<?= $precio_especial_inicio ?: $hoy ?>">
+                                    </div>
+                                    <div class="form-group col-md-2">
+                                        <label>Días vigente</label>
+                                        <input type="number" min="1" id="txt_dias_especial"
+                                               class="form-control" placeholder="Ej: 3"
+                                               value="<?= htmlspecialchars($dias_especial) ?>">
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <label>Válido hasta</label>
+                                        <p class="form-control" id="lblFechaEspecialFin" style="background:#f8f9fa;cursor:default;">
+                                            <?= $precio_especial_fin ? date('d/m/Y', strtotime($precio_especial_fin)) : '—' ?>
+                                        </p>
+                                        <input type="hidden" id="fecha_especial_fin" name="fecha_especial_fin"
+                                               value="<?= htmlspecialchars($precio_especial_fin) ?>">
+                                    </div>
+                                </div>
+                                <p class="text-muted" style="font-size:12px;">
+                                    <i data-feather="info" style="width:13px;height:13px;"></i>
+                                    El ecommerce usará este precio mientras sea la fecha de hoy dentro del rango inicio–fin.
+                                </p>
+                            </div>
+                        </div>
+
                         <!-- Precio por disponibilidad -->
                         <div class="widget-content widget-content-area br-6" style="margin-top: 15px;">
                             <div>
@@ -1796,7 +1882,41 @@ function recursive($array, $posicion, &$data, &$codigos)
     <!-- END MAIN CONTAINER -->
 
     <?php js_mandatory(); ?>
-    <script src="assets/js/pages/crear_productos2.js?v=128" type="text/javascript"></script>
+    <script src="assets/js/pages/crear_productos2.js?v=129" type="text/javascript"></script>
+    <script>
+    $(function () {
+        $('#chk_precio_especial').on('change', function () {
+            if ($(this).is(':checked')) {
+                $('#bloquePrecioEspecial').show();
+            } else {
+                $('#bloquePrecioEspecial').hide();
+                $('#txt_precio_especial').val('');
+                $('#txt_dias_especial').val('');
+                $('#fecha_especial_fin').val('');
+                $('#lblFechaEspecialFin').text('—');
+            }
+        });
+
+        function calcularFechaFin() {
+            var inicio = $('#fecha_especial_inicio').val();
+            var dias   = parseInt($('#txt_dias_especial').val()) || 0;
+            if (inicio && dias > 0) {
+                var d = new Date(inicio + 'T00:00:00');
+                d.setDate(d.getDate() + dias);
+                var y   = d.getFullYear();
+                var m   = String(d.getMonth() + 1).padStart(2, '0');
+                var day = String(d.getDate()).padStart(2, '0');
+                $('#fecha_especial_fin').val(y + '-' + m + '-' + day);
+                $('#lblFechaEspecialFin').text(day + '/' + m + '/' + y);
+            } else {
+                $('#fecha_especial_fin').val('');
+                $('#lblFechaEspecialFin').text('—');
+            }
+        }
+
+        $('#txt_dias_especial, #fecha_especial_inicio').on('input change', calcularFechaFin);
+    });
+    </script>
 
     <!-- HANDLEBARS -->
     <script src="./assets/js/libs/handlebars/handlebars.js"></script>

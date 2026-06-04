@@ -264,8 +264,15 @@ $(document).ready(function () {
         //EVENTO
         var eventoData = $("#frmEventos").serializeArray();
         for (var i = 0; i < eventoData.length; i++)
-            formData.append(eventoData[i].name, eventoData[i].value);    
-            
+            formData.append(eventoData[i].name, eventoData[i].value);
+
+        //PRECIO ESPECIAL
+        if ($('#chk_precio_especial').is(':checked')) {
+            formData.append('chk_precio_especial',  '1');
+            formData.append('txt_precio_especial',  $('#txt_precio_especial').val());
+            formData.append('fecha_especial_inicio', $('#fecha_especial_inicio').val());
+            formData.append('fecha_especial_fin',    $('#fecha_especial_fin').val());
+        }
 
         $.ajax({
             beforeSend: function () {

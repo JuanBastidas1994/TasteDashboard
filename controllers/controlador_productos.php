@@ -18,7 +18,10 @@ function crear(){
     }
 
     extract($_POST);
-    
+
+    error_log('[DEBUG precio_especial] POST keys: ' . implode(', ', array_keys($_POST)));
+    error_log('[DEBUG precio_especial] chk=' . ($_POST['chk_precio_especial'] ?? 'NOT SET') . ' precio=' . ($_POST['txt_precio_especial'] ?? 'NOT SET') . ' fin=' . ($_POST['fecha_especial_fin'] ?? 'NOT SET'));
+
     $minutos_preparacion = intval($txt_preparacion);
     if (isset($txt_preparacion_unidad) && $txt_preparacion_unidad === 'dias') {
         $minutos_preparacion = $minutos_preparacion * 1440;
@@ -57,8 +60,21 @@ function crear(){
     $Clproductos->is_combo = (isset($_POST['chk_combo'])) ? 1 : 0;
     $Clproductos->facturar_sin_stock = (isset($_POST['chk_fSinStock'])) ? 1 : 0;
     $Clproductos->venta_delivery = (isset($_POST['venta_delivery'])) ? 1 : 0;
-    $Clproductos->venta_pickup = (isset($_POST['venta_pickup'])) ? 1 : 0;
-    $Clproductos->venta_mesa = (isset($_POST['venta_mesa'])) ? 1 : 0;
+    $Clproductos->venta_pickup   = (isset($_POST['venta_pickup']))   ? 1 : 0;
+    $Clproductos->venta_mesa     = (isset($_POST['venta_mesa']))     ? 1 : 0;
+
+    $Clproductos->precio_especial        = null;
+    $Clproductos->precio_especial_inicio = null;
+    $Clproductos->precio_especial_fin    = null;
+
+    if (isset($_POST['chk_precio_especial'])) {
+        $pe = floatval($_POST['txt_precio_especial'] ?? 0);
+        if ($pe > 0) {
+            $Clproductos->precio_especial        = $pe;
+            $Clproductos->precio_especial_inicio = $_POST['fecha_especial_inicio'] ?: date('Y-m-d');
+            $Clproductos->precio_especial_fin    = $_POST['fecha_especial_fin']    ?: null;
+        }
+    }
     
     $cod_producto = 0;
 

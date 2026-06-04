@@ -5,6 +5,7 @@ class cl_productos
 		var $session;
 		var $cod_producto, $cod_producto_padre, $cod_empresa, $alias, $nombre, $desc_corta, $desc_larga, $image_min, $image_max, $fecha_create, $user_create, $estado, $codigo, $categorias, $open_detalle, $peso, $volumen, $sku,$cobra_iva,$is_combo, $facturar_sin_stock, $tiempo_preparacion;
 		var $precio, $precio_no_tax, $iva_valor, $iva_porcentaje, $precio_anterior, $costo;
+		var $precio_especial, $precio_especial_inicio, $precio_especial_fin;
 		var $nomOpcion, $precio_min, $precio_max, $isCheck, $isDatabase, $cod_producto_opcion, $nomDetalle, $precioDet, $aumentar_precio, $posicion;
 		var $cod_producto_ingrediente, $cod_ingrediente, $valor, $cod_producto_opcion_ingrediente;
 		var $venta_delivery, $venta_pickup, $venta_mesa;
@@ -166,13 +167,15 @@ class cl_productos
 				image_min, image_max, fecha_create, user_create, estado, precio,
 				precio_no_tax, iva_valor, iva_porcentaje, precio_anterior,
 				costo, open_detalle, peso, volumen, sku, is_combo, cobra_iva,
-				noStock, tiempo_preparacion, venta_delivery, venta_pickup, venta_mesa
+				noStock, tiempo_preparacion, venta_delivery, venta_pickup, venta_mesa,
+				precio_especial, precio_especial_inicio, precio_especial_fin
 			) VALUES (
 				:cod_producto_padre, :empresa, :alias, :nombre, :desc_corta, :desc_larga,
 				:image_min, :image_max, NOW(), :usuario, 'A', :precio,
 				:precio_no_tax, :iva_valor, :iva_porcentaje, :precio_anterior,
 				:costo, :open_detalle, :peso, :volumen, :sku, :is_combo, :cobra_iva,
-				:noStock, :tiempo_preparacion, :venta_delivery, :venta_pickup, :venta_mesa
+				:noStock, :tiempo_preparacion, :venta_delivery, :venta_pickup, :venta_mesa,
+				:precio_especial, :precio_especial_inicio, :precio_especial_fin
 			)";
 
 			$params = [
@@ -199,9 +202,12 @@ class cl_productos
 				':cobra_iva'          => $this->cobra_iva,
 				':noStock'            => $this->facturar_sin_stock,
 				':tiempo_preparacion' => $this->tiempo_preparacion,
-				':venta_delivery' => $this->venta_delivery ?? 1,
-				':venta_pickup'   => $this->venta_pickup ?? 1,
-				':venta_mesa'     => $this->venta_mesa ?? 1,
+				':venta_delivery'          => $this->venta_delivery ?? 1,
+				':venta_pickup'            => $this->venta_pickup ?? 1,
+				':venta_mesa'              => $this->venta_mesa ?? 1,
+				':precio_especial'         => $this->precio_especial,
+				':precio_especial_inicio'  => $this->precio_especial_inicio,
+				':precio_especial_fin'     => $this->precio_especial_fin,
 			];
 
 			if (Conexion::ejecutar($sql, $params)) {
@@ -237,6 +243,9 @@ class cl_productos
 				venta_delivery = :venta_delivery,
     			venta_pickup = :venta_pickup,
     			venta_mesa = :venta_mesa,
+				precio_especial = :precio_especial,
+				precio_especial_inicio = :precio_especial_inicio,
+				precio_especial_fin = :precio_especial_fin,
 				fecha_modificacion = NOW()
 			WHERE cod_producto = :cod_producto";
 
@@ -260,10 +269,13 @@ class cl_productos
 				':cobra_iva'          => $this->cobra_iva,
 				':noStock'            => $this->facturar_sin_stock,
 				':tiempo_preparacion' => $this->tiempo_preparacion,
-				':venta_delivery' => $this->venta_delivery,
-				':venta_pickup'   => $this->venta_pickup,
-				':venta_mesa'     => $this->venta_mesa,
-				':cod_producto'       => $this->cod_producto
+				':venta_delivery'         => $this->venta_delivery,
+				':venta_pickup'           => $this->venta_pickup,
+				':venta_mesa'             => $this->venta_mesa,
+				':precio_especial'        => $this->precio_especial,
+				':precio_especial_inicio' => $this->precio_especial_inicio,
+				':precio_especial_fin'    => $this->precio_especial_fin,
+				':cod_producto'           => $this->cod_producto
 			];
 			if (Conexion::ejecutar($sql, $data)) {
 				$this->set_categorias($this->cod_producto);

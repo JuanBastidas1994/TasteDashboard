@@ -137,14 +137,13 @@ function crear(){
             $idP = $Clproductos->cod_producto;
 
             //INSERT ETIQUETAS
+            $Clproductos->delEtiquetas($cod_producto);
             if (isset($cmbEtiqueta) && trim($cmbEtiqueta) !== '') {
                 if(!is_numeric($cmbEtiqueta)){
                     $Clproductos->createAndSetEtiqueta($cod_producto, $cmbEtiqueta);
                 }else{
                     $Clproductos->setEtiquetas($cod_producto, $cmbEtiqueta);
                 }
-            }else{
-                $Clproductos->delEtiquetas($cod_producto);
             }
             
             //EMPAQUE

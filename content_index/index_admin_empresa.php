@@ -52,14 +52,14 @@ $respSucursal = $Clsucursales->lista();
     <!-- Top 5 Productos -->
     <div class="col-xl-4 col-lg-12 col-md-12 col-sm-12 col-12">
         <div class="card p-3" style="border-radius:20px; min-height:280px;">
-            <h6 style="font-weight:700;color:#e7515a;" class="mb-3">Top 5 Productos</h6>
+            <h6 style="font-weight:700;color:black;" class="mb-3">Top 5 Productos</h6>
             <div class="table-responsive">
                 <table class="table table-sm mb-0">
                     <thead>
                         <tr style="font-size:11px;text-transform:uppercase;color:#888ea8;">
-                            <th>Producto</th>
-                            <th class="text-right">Cant.</th>
-                            <th class="text-right">Ventas</th>
+                            <th style="color:black;">Producto</th>
+                            <th style="color:black;" class="text-right">Cant.</th>
+                            <th style="color:black;" class="text-right">Ventas</th>
                         </tr>
                     </thead>
                     <tbody id="tbodyTopProductos"></tbody>
@@ -71,16 +71,16 @@ $respSucursal = $Clsucursales->lista();
     <!-- Rendimiento por Sucursal -->
     <div class="col-xl-4 col-lg-12 col-md-12 col-sm-12 col-12">
         <div class="card p-3" style="border-radius:20px; min-height:280px;">
-            <h6 style="font-weight:700;color:#e7515a;" class="mb-3">Rendimiento por Sucursal</h6>
+            <h6 style="font-weight:700;color:black;" class="mb-3">Rendimiento por Sucursal</h6>
             <div class="table-responsive">
                 <table class="table table-sm mb-0">
                     <thead>
-                        <tr style="font-size:11px;text-transform:uppercase;color:#888ea8;">
-                            <th>Sucursal</th>
-                            <th class="text-right">Ventas</th>
-                            <th class="text-right">% Vta</th>
-                            <th class="text-right">Órd.</th>
-                            <th class="text-right">T.Prom</th>
+                        <tr style="font-size:11px;text-transform:uppercase;color:black;">
+                            <th style="color:black;">Sucursal</th>
+                            <th style="color:black;" class="text-right">Ventas</th>
+                            <th style="color:black;" class="text-right">% Vta</th>
+                            <th style="color:black;" class="text-right">Órd.</th>
+                            <th style="color:black;" class="text-right">T.Prom</th>
                         </tr>
                     </thead>
                     <tbody id="tbodySucursales"></tbody>

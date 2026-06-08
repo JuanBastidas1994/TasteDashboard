@@ -12,7 +12,15 @@
       "Bash(grep -E \"\\\\.php$\")",
       "Bash(sed 's/ .*//')",
       "PowerShell($content = Get-Content \"c:\\\\laragon\\\\www\\\\taste\\\\plugins\\\\apex\\\\apexcharts.min.js\" -Raw; $content.Substring\\(0, 500\\))",
-      "Bash(node -e ' *)"
+      "Bash(node -e ' *)",
+      "Bash(\"/c/xampp/mysql/bin/mysql.exe\" -u root TasteDashboard -e \"SHOW CREATE TABLE resumen_ventas_mensual\\\\G SHOW CREATE TABLE resumen_medios_mensual\\\\G SHOW CREATE TABLE resumen_horas_mensual\\\\G SHOW CREATE TABLE resumen_productos_mensual\\\\G\")",
+      "Bash(\"/c/xampp/mysql/bin/mysql.exe\" -u root -e \"SHOW DATABASES;\")",
+      "Bash(\"/c/xampp/mysql/bin/mysql.exe\" -u root -e \"SHOW TABLES LIKE 'resumen%';\" tasteliz)",
+      "Bash(\"/c/xampp/mysql/bin/mysql.exe\" -u root -e \"SHOW TABLES LIKE 'resumen%';\" tastedev)",
+      "Bash(\"/c/xampp/mysql/bin/mysql.exe\" -u root tasteliz -e \"SHOW CREATE TABLE resumen_ventas_mensual\\\\G\")",
+      "Bash(\"/c/xampp/mysql/bin/mysql.exe\" -u root tasteliz -e \"SHOW CREATE TABLE resumen_productos_mensual\\\\G\")",
+      "Bash(\"/c/xampp/mysql/bin/mysql.exe\" -u root tasteliz -e \"SHOW CREATE TABLE resumen_horas_mensual\\\\G\")",
+      "Bash(\"/c/xampp/mysql/bin/mysql.exe\" -u root tasteliz -e \"SHOW CREATE TABLE resumen_medios_mensual\\\\G\")"
     ]
   }
 }

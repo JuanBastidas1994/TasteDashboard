@@ -761,3 +761,49 @@ $("body").on("click", ".btnGuardarNombreFP", function () {
     });
 });
 
+// ── Tab Histórico: colapso anual de información ───────────────────────────────
+function cargarEstadoColapso() {
+    $.ajax({
+        url: "controllers/controlador_colapso_historico.php?metodo=getEstadoColapso",
+        type: "POST",
+        success: function (response) {
+            if (response["success"] == 1) {
+                var d = response["data"];
+                $("#aniosMensual").text(d.mensual.length    ? d.mensual.join(", ")    : "Sin datos");
+                $("#aniosAnual").text(d.anual.length        ? d.anual.join(", ")      : "Sin datos");
+                $("#aniosPendientes").text(d.pendientes.length ? d.pendientes.join(", ") : "Ninguno");
+            }
+        },
+        error: function () { messageDone("Error al conectar con el servidor", "error"); }
+    });
+}
+
+$(document).on("shown.bs.tab", 'a[href="#tab-historico"]', function () {
+    cargarEstadoColapso();
+});
+
+$("#btnEjecutarColapso").on("click", function () {
+    swal.fire({
+        title: "¿Ejecutar colapso anual?",
+        text: "Se generará el resumen anual de los años pendientes a partir de la información detallada. Esta acción puede tardar unos segundos.",
+        type: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Sí, ejecutar",
+        cancelButtonText: "Cancelar"
+    }).then(function (result) {
+        if (!result.value) return;
+
+        $.ajax({
+            beforeSend: function () { OpenLoad("Ejecutando colapso anual..."); },
+            url: "controllers/controlador_colapso_historico.php?metodo=ejecutarColapso",
+            type: "POST",
+            success: function (response) {
+                messageDone(response["mensaje"], response["success"] == 1 ? "success" : "error");
+                if (response["success"] == 1) cargarEstadoColapso();
+            },
+            error: function () { messageDone("Error al conectar con el servidor", "error"); },
+            complete: function () { CloseLoad(); }
+        });
+    });
+});
+

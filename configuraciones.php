@@ -246,6 +246,12 @@ if ($Clempresas->getPermisoTienda($cod_empresa))
                                         Histórico
                                     </a>
                                 </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" data-toggle="tab" href="#tab-mesa" role="tab" aria-selected="false">
+                                        <i data-feather="coffee"></i>
+                                        Mesa
+                                    </a>
+                                </li>
                                 <!--
                             <li class="nav-item">
                                 <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
@@ -864,6 +870,37 @@ if ($Clempresas->getPermisoTienda($cod_empresa))
                                         <div class="col-md-12 text-right mt-2 mb-3">
                                             <button class="btn btn-primary" id="btnEjecutarColapso">
                                                 <i data-feather="archive"></i> Ejecutar colapso anual
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <br />
+                                </div>
+
+                                <div class="tab-pane fade" id="tab-mesa" role="tabpanel" aria-labelledby="pills-mesa-tab">
+
+                                    <br>
+                                    <h5>Identificación de Mesa</h5>
+                                    <hr>
+                                    <p class="text-muted">
+                                        Define si las mesas se identifican por <strong>número</strong> (Mesa N° 1, 2, 3…)
+                                        o por <strong>nombre</strong> (Mesa Terraza, Mesa VIP…).
+                                    </p>
+
+                                    <div class="row mt-3">
+                                        <div class="form-group col-md-4">
+                                            <label>Tipo de identificación de mesa <span class="asterisco">*</span></label>
+                                            <select id="sel_mesa_tipo" class="form-control">
+                                                <option value="NUMERO" <?= ($empresa['mesa_tipo'] ?? 'NUMERO') === 'NUMERO' ? 'selected' : '' ?>>Número (Mesa N° 1, 2, 3…)</option>
+                                                <option value="NOMBRE" <?= ($empresa['mesa_tipo'] ?? 'NUMERO') === 'NOMBRE' ? 'selected' : '' ?>>Nombre (Mesa Terraza, VIP…)</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-12 text-right mt-2 mb-3">
+                                            <button class="btn btn-primary" id="btnGuardarMesaTipo">
+                                                <i data-feather="save"></i> Guardar configuración
                                             </button>
                                         </div>
                                     </div>

@@ -807,3 +807,18 @@ $("#btnEjecutarColapso").on("click", function () {
     });
 });
 
+// ── Tab Mesa: tipo de identificación de mesa ───────────────────────────────
+$("#btnGuardarMesaTipo").on("click", function () {
+    var mesa_tipo = $("#sel_mesa_tipo").val();
+    OpenLoad();
+    $.ajax({
+        url: "controllers/controlador_configuraciones.php?metodo=guardarMesaTipo",
+        type: "POST",
+        data: { mesa_tipo: mesa_tipo },
+        success: function (response) {
+            messageDone(response["mensaje"], response["success"] == 1 ? "success" : "error");
+        },
+        error: function () { messageDone("Error al conectar con el servidor", "error"); },
+        complete: function () { CloseLoad(); }
+    });
+});

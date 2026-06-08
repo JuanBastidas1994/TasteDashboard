@@ -864,6 +864,18 @@ function setPermisoTipoEnvio(){
     return $return;
 }
 
+function guardarMesaTipo() {
+    global $Clempresas, $session;
+    $mesa_tipo = isset($_POST['mesa_tipo']) ? $_POST['mesa_tipo'] : '';
+    if (!in_array($mesa_tipo, ['NUMERO', 'NOMBRE'])) {
+        return ['success' => 0, 'mensaje' => 'Tipo de mesa inválido'];
+    }
+    if ($Clempresas->setMesaTipo($session['cod_empresa'], $mesa_tipo)) {
+        return ['success' => 1, 'mensaje' => 'Configuración de mesa guardada correctamente'];
+    }
+    return ['success' => 0, 'mensaje' => 'Error al guardar la configuración de mesa'];
+}
+
 function actualizarFechasCaducidad() {
     global $Clfidelizacion;
 

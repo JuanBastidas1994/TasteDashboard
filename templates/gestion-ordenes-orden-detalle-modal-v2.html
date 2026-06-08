@@ -322,8 +322,15 @@
             {{else}}
                 {{#eq is_envio "2"}}
                     <div class="mt-5">
-                        <h3>El pedido es en mesa</h5>
-                        
+                        <h3>El pedido es en mesa</h3>
+                        <div>
+                            <i data-feather="coffee"></i>
+                            {{#eq mesa_tipo "NOMBRE"}}
+                                <span class="ml-2">Nombre de mesa: <b>{{mesa_referencia}}</b></span>
+                            {{else}}
+                                <span class="ml-2">N° de mesa: <b>{{mesa_referencia}}</b></span>
+                            {{/eq}}
+                        </div>
                     </div>
                 {{else}}
                     <div class="mt-5">

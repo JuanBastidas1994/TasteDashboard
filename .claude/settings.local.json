@@ -21,7 +21,19 @@
       "Bash(find \"C:\\\\Users\\\\super\\\\.dbclient\" -name \"*.sql\" -type f 2>/dev/null)",
       "Read(//c/Users/super/.dbclient/**)",
       "Bash(grep -n '$days\\\\|$rb_dias\\\\|$recurrencia\\\\|getDays\\\\|is_recurrente' c:/laragon/www/taste/crear_productos.php)",
-      "Bash(grep -n 'rb_dias\\\\|is_recurrencia\\\\|$recurrencia\\\\|$rb_dias' c:/laragon/www/taste/crear_productos.php)"
+      "Bash(grep -n 'rb_dias\\\\|is_recurrencia\\\\|$recurrencia\\\\|$rb_dias' c:/laragon/www/taste/crear_productos.php)",
+      "Bash(grep -E \"\\\\.\\(php|ini\\)$\")",
+      "Bash(ls -la /c/laragon/www/api_gestion_ordenes | head -30)",
+      "Read(//c/laragon/www/api_gestion_ordenes/**)",
+      "Bash(grep -r \"CREATE TABLE.*push_tokens\\\\|INSERT.*push_tokens\\\\|UPDATE.*push_tokens\" /c/laragon/www --include=\"*.php\" --include=\"*.sql\" 2>/dev/null | head -20)",
+      "Read(//c/laragon/www/**)",
+      "Bash(git log *)",
+      "Bash(php -l \"c:\\\\laragon\\\\www\\\\taste\\\\clases\\\\cl_notificaciones_expo.php\")",
+      "Bash(php -l \"c:\\\\laragon\\\\www\\\\taste\\\\controllers\\\\controlador_notificaciones_expo.php\")",
+      "Bash(php -l \"c:\\\\laragon\\\\www\\\\taste\\\\promociones.php\")",
+      "Bash(php -l \"c:\\\\laragon\\\\www\\\\taste\\\\crear_notificacion_expo.php\")",
+      "Bash(php -l \"c:\\\\laragon\\\\www\\\\taste\\\\productos.php\")",
+      "Bash(php -l \"c:\\\\laragon\\\\www\\\\taste\\\\notificaciones_expo.php\")"
     ]
   }
 }

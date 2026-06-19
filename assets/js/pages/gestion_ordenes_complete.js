@@ -680,18 +680,6 @@ $(document).ready(function() {
                                 sucursal: 0
                             });
                           
-                            //ENVIAR NOTIFICACION
-                            $.ajax({
-                              url: 'controllers/controlador_notificaciones.php?metodo=notificarOrden&orden='+id,
-                              type:'GET',
-                              success: function(data){
-                                  console.log(data);
-                              },
-                              error: function(data){
-                                  console.log(data);
-                              }
-                            });
-                          
                             $(".infoAsignacion").hide();
                             $(".detailAction").html("<h3 class='alert-heading'>ORDEN "+estado+"</h3>");
                             $(".detailAction").show();
@@ -885,12 +873,6 @@ $(document).ready(function() {
                     $(".detailAction").html("<h3 class='alert-heading'>"+$this.html()+"</h3>");
                     $(".detailAction").show();
                     notify(response['mensaje'], "success", 2);
-
-                    //ENVIAR NOTIFICACION
-                    $.ajax({
-                      url: 'controllers/controlador_notificaciones.php?metodo=notificarOrden&orden='+id,
-                      type:'GET',
-                    });
                   } 
                   else
                   {

@@ -130,6 +130,11 @@ $session = getSession();
                                                                 </a>
                                                             </li>
                                                             <li>
+                                                                <a href="crear_notificacion_expo.php?tipo=promo&id='.$promocion['cod_promocion'].'" class="bs-tooltip" data-toggle="tooltip" data-placement="top" title="" data-original-title="Notificar a clientes">
+                                                                    <i data-feather="bell"></i>
+                                                                </a>
+                                                            </li>
+                                                            <li>
                                                                 <a href="crear_promociones.php?id='.$promocion['cod_promocion'].'" class="bs-tooltip" data-toggle="tooltip" data-placement="top" title="" data-original-title="Editar">
                                                                     <i data-feather="edit-2"></i>
                                                                 </a>

@@ -257,42 +257,6 @@ function notificarOrden()
         }
     }
 
-    /*NOTIFICAR AL USUARIO FINAL*/
-    $config = $ClNotificaciones->getByTipo($resp['cod_empresa'], "USUARIOS");
-    if ($config) {
-        $configId = $config['cod_empresa_notificacion'];
-        $token = $config['token'];
-        $topic = $config['topic'];
-        $topic = "usuario" . $cod_usuario;
-
-        switch ($resp['estado']) {
-            case 'ASIGNADA':
-                $titulo = "Tu pedido fue asignado a un motorizado";
-                $descripcion = "$empresa - $sucursal te ha asignado la orden a las $fecha_asignacion";
-                break;
-            case 'ENVIANDO':
-                $titulo = "Tu pedido está en camino";
-                $descripcion = "La persona encargada ha salido con tu pedido hacia la direccion que nos indicaste, pronto esta persona te llamara para proceder a realizar la entrega.";
-                break;
-            case 'ENTREGADA':
-                $titulo = "Tu pedido ha sido entregado";
-                $descripcion = "Disfruta de tu pedido!!, si tienes algún comentario, mejora sobre nuestro servicio puedes proceder a calificarnos.";
-                break;
-            case 'PREPARANDO':
-                $titulo = "Tu pedido se está preparando";
-                $descripcion = "Ya estamos preparando tu pedido, no olvides que debes venir a recogerlo a las en la sucursal $sucursal";
-                break;
-            case 'CANCELADA';
-            case 'ANULADA':
-                $titulo = "Tu orden ha sido " . strtolower($resp['estado']);
-                $descripcion = $titulo;
-                break;
-        }
-        if ($ClNotificaciones->crear($configId, $cod_usuario, "ORDEN", htmlentities($titulo), htmlentities($descripcion))) {
-            sendNotify($token, $titulo, $topic, $descripcion, 0, "NOTIFICACION");
-        }
-    }
-
     $return['success'] = 1;
     $return['mensaje'] = "Notificacion enviada";
     return $return;
@@ -453,94 +417,6 @@ function notificarClientes() {
     }
     return $return;
 }
-
-function get()
-{
-    global $Clempresas;
-    if (!isset($_GET['cod_empresa'])) {
-        $return['success'] = 0;
-        $return['mensaje'] = "Falta informacion";
-        return $return;
-    }
-
-    extract($_GET);
-
-    $array = NULL;
-    if ($Clempresas->getArray($cod_sucursal, $array)) {
-        $return['success'] = 1;
-        $return['mensaje'] = "Sucursal encontrada";
-        $return['data'] = $array;
-    } else {
-        $return['success'] = 0;
-        $return['mensaje'] = "Sucursal no existe, por favor intentelo nuevamente";
-    }
-    return $return;
-}
-
-function get_admins()
-{
-    global $ClUsuarios;
-    global $ClEmpresas;
-
-    extract($_POST);
-
-    $html = "";
-
-    $empresas = $ClEmpresas->lista();
-    for ($i = 0; $i < count($cmb_empresas); $i++) {
-        if ($cmb_empresas[$i] == "all") {
-            foreach ($empresas as $emp) {
-                $usuarios = $ClUsuarios->getAdmins($emp['cod_empresa']);
-                foreach ($usuarios as $usu) {
-                    $html .= '<option value="' . $usu['cod_usuario'] . '">' . $usu['nombre'] . ' ' . $usu['apellido'] . ' - ' . $usu['nom_empresa'] . '</option>';
-                }
-            }
-        } else {
-            $usuarios = $ClUsuarios->getAdmins($cmb_empresas[$i]);
-            foreach ($usuarios as $usu) {
-                $html .= '<option value="' . $usu['cod_usuario'] . '">' . $usu['nombre'] . ' ' . $usu['apellido'] . ' - ' . $usu['nom_empresa'] . '</option>';
-            }
-        }
-    }
-    if ($html <> "") {
-        $return['success'] = 1;
-        $return['mensaje'] = "Datos obtenidos";
-    } else {
-        $return['success'] = 0;
-        $return['mensaje'] = "Datos no obtenidos " . count($cmb_empresas);
-    }
-    $return['html'] = $html;
-    return $return;
-}
-/*
-function sendNotify($token, $titulo, $topic, $mensaje, $codigo, $tipo)
-{
-    if($topic == "")
-        $topic = "general";
-    
-    $ch = curl_init("https://fcm.googleapis.com/fcm/send");
-    $data = array('title' =>$titulo , 'body' => $mensaje, 'message' => $mensaje, 'sound' => 'default', 'valor' => $codigo, 'tipo' => $tipo);
-    $arrayToSend = array('to' => "/topics/".$topic, 'notification' => $data, 'data' => $data, 'priority'=>'high');
-    $json = json_encode($arrayToSend);
-  
-    $headers = array();
-    $headers[] = 'Content-Type: application/json';
-    $headers[] = 'Authorization: key= '.$token; // key here
-    
-    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");                                                                     
-    curl_setopt($ch, CURLOPT_POSTFIELDS, $json);
-    curl_setopt($ch, CURLOPT_HTTPHEADER,$headers);      
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);   
-
-    //Send the request
-    $response = curl_exec($ch);
-
-    //Close request
-    curl_close($ch);
-    return $response;
-}*/
-
-
 
 function sendNotify($token, $titulo, $topic, $mensaje, $codigo, $tipo)
 {

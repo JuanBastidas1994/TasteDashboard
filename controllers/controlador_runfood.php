@@ -113,16 +113,33 @@ function getAllFormasPago(){
 function setProduct(){
     global $Clrunfood;
     global $cod_empresa;
-    
+
     $input = json_decode(file_get_contents('php://input'), true);
     extract($input);
-    
-    if($Clrunfood->setProduct($office_id, $product_id, $contifico_id, $contifico_name)){
+
+    $sku = isset($sku) ? $sku : null;
+    if($Clrunfood->setProduct($office_id, $product_id, $contifico_id, $contifico_name, $sku)){
         $return['success'] = 1;
         $return['mensaje'] = "Producto ligado correctamente";
     }else{
         $return['success'] = 0;
         $return['mensaje'] = "Error al ligar el producto";
+    }
+    return $return;
+}
+
+function desasignarProducto(){
+    global $Clrunfood;
+
+    $input = json_decode(file_get_contents('php://input'), true);
+    extract($input);
+
+    if($Clrunfood->desligarProducto($product_id, $office_id)){
+        $return['success'] = 1;
+        $return['mensaje'] = "Asignación eliminada correctamente";
+    }else{
+        $return['success'] = 0;
+        $return['mensaje'] = "Error al eliminar la asignación";
     }
     return $return;
 }
@@ -184,16 +201,34 @@ function setFormaPago(){
 function setOpcion(){
     global $Clrunfood;
     global $cod_empresa;
-    
+
     $input = json_decode(file_get_contents('php://input'), true);
     extract($input);
-    
-    if($Clrunfood->setOpcion($office_id, $product_id, $contifico_id, $contifico_name)){
+
+    $es_principal = isset($es_principal) ? $es_principal : 0;
+    $sku = isset($sku) ? $sku : null;
+    if($Clrunfood->setOpcion($office_id, $product_id, $contifico_id, $contifico_name, $es_principal, $sku)){
         $return['success'] = 1;
         $return['mensaje'] = "Producto ligado correctamente";
     }else{
         $return['success'] = 0;
         $return['mensaje'] = "Error al ligar el producto";
+    }
+    return $return;
+}
+
+function setApiKey(){
+    global $Clrunfood;
+
+    $input = json_decode(file_get_contents('php://input'), true);
+    extract($input);
+
+    if($Clrunfood->setApiKey($office_id, $api_key)){
+        $return['success'] = 1;
+        $return['mensaje'] = "API Key guardada correctamente";
+    }else{
+        $return['success'] = 0;
+        $return['mensaje'] = "Error al guardar la API Key";
     }
     return $return;
 }
@@ -256,6 +291,25 @@ function setDomicilioAdicionales(){
     return $return;
 }
 
+function verificarProductos(){
+    global $Clrunfood;
+
+    $input = json_decode(file_get_contents('php://input'), true);
+    extract($input);
+
+    $isConfig = $Clrunfood->getSucursal($office_id);
+    if(!$isConfig){
+        return [ 'success' => 0, 'mensaje' => 'Sucursal no configurada'];
+    }
+
+    $resultado = $Clrunfood->verificarProductos($office_id);
+    return [
+        'success' => 1,
+        'mensaje' => $resultado['matched'] . ' producto(s) ligado(s) automáticamente',
+        'data' => $resultado
+    ];
+}
+
 function lstProducts(){
      global $Clrunfood;
 
@@ -269,9 +323,9 @@ function lstProducts(){
         return [ 'success' => 0, 'mensaje' => 'Sucursal no configurada'];
     }
 
-     $productos = $Clrunfood->LstProductos($id);
+     $productos = $Clrunfood->LstProductos();
      if(!$productos){
-        return [ 'success' => 0, 'mensaje' => 'Ha ocurrido un problema al llamar los productos de Runfood', 'error'=>$productos];
+        return [ 'success' => 0, 'mensaje' => 'Ha ocurrido un problema al llamar los productos de Runfood', 'error'=>$Clrunfood->msgError];
      }
      return [ 
         'success' => 1, 
@@ -293,7 +347,7 @@ function lstFormasPago(){
         return [ 'success' => 0, 'mensaje' => 'Sucursal no configurada'];
     }
 
-     $formaspago = $Clrunfood->lstFormasPago($id);
+     $formaspago = $Clrunfood->lstFormasPago();
      if(!$formaspago){
         return [ 'success' => 0, 'mensaje' => 'Ha ocurrido un problema al llamar las formas de pago de Runfood'];
      }

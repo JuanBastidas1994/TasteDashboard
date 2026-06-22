@@ -34,6 +34,9 @@ function loadMisProductos(){
         .then(response => {
             if(response.success == 1){
                 console.log("Mis Productos",response);
+                if($.fn.DataTable.isDataTable("#table-my-products")){
+                    $("#table-my-products").DataTable().destroy();
+                }
                 var template = Handlebars.compile($("#my-product-template").html());
                 $("#body-my-products").html(template(response.productos));
                 $("#table-my-products").DataTable({
@@ -47,6 +50,30 @@ function loadMisProductos(){
             messageDone(error,'error');
         });
 }
+
+$("body").on("click", "#btnVerificarProductos", function(){
+    let $btn = $(this);
+    $btn.prop('disabled', true);
+    fetch(`controllers/controlador_runfood.php?metodo=verificarProductos`,{
+            method: 'POST',
+            body: JSON.stringify({ office_id: OfficeId })
+        })
+        .then(res => res.json())
+        .then(response => {
+            $btn.prop('disabled', false);
+            if(response.success == 1){
+                console.log("Verificar productos",response);
+                notify(response.mensaje,'success',3);
+                loadMisProductos();
+            }else{
+                messageDone(response.mensaje,'error');
+            }
+        })
+        .catch(error=>{
+            $btn.prop('disabled', false);
+            messageDone(error,'error');
+        });
+});
 
 //Ingredientes
 function loadIngredientes(){
@@ -126,7 +153,7 @@ function loadProductosRunfood(){
         .then(response => {
             if(response.success == 1){
                 console.log("Productos Runfood",response);
-                let productos = response.productos;
+                let productos = response.productos.data || response.productos;
                 var template = Handlebars.compile($("#product-contifico-template").html());
                 $("#table-products").html(template(productos));
                 $("#table-contifico").DataTable({
@@ -175,7 +202,7 @@ function loadFormasPagoRunfood(){
         .then(response => {
             if(response.success == 1){
                 console.log("Formas de Pago Runfood",response);
-                let formaspago = response.formaspago;
+                let formaspago = response.formaspago.data || response.formaspago;
                 var template = Handlebars.compile($("#formaspago-contifico-template").html());
                 $("#body-formaspago-contifico").html(template(formaspago));
                 $("#table-formaspago-contifico").DataTable({
@@ -208,14 +235,40 @@ $("body").on("click", ".btnAsignarProducto", function(){
    $trContificoConfirm = $(this).parents("tr").find(".info-contifico");
 });
 
+$("body").on("click", ".btnDesasignarProducto", function(){
+    let data = $(this).data();
+    messageConfirm("¿Estás seguro de eliminar la asignación?", "", "question")
+        .then(function(result){
+            if(result){
+                fetch(`controllers/controlador_runfood.php?metodo=desasignarProducto`,{
+                        method: 'POST',
+                        body: JSON.stringify({ office_id: OfficeId, product_id: data.id })
+                    })
+                    .then(res => res.json())
+                    .then(response => {
+                        if(response.success == 1){
+                            notify(response.mensaje,'success',2);
+                            loadMisProductos();
+                        }else{
+                            messageDone(response.mensaje,'error');
+                        }
+                    })
+                    .catch(error=>{
+                        messageDone(error,'error');
+                    });
+            }
+        });
+});
+
 $("body").on("click", ".btnSetProducto", function(){
     let data = $(this).data();
     let info = {
         "office_id": OfficeId,
         "product_id": productSelected,
         "contifico_id": data.id,
-        "contifico_name": data.name
-    }   
+        "contifico_name": data.name,
+        "sku": data.sku
+    }
     console.log(info);
    fetch(`controllers/controlador_runfood.php?metodo=setProduct`,{
             method: 'POST',
@@ -225,10 +278,11 @@ $("body").on("click", ".btnSetProducto", function(){
         .then(response => {
             if(response.success == 1){
                 console.log("Mis Productos",response);
-                
+
                 $trContificoConfirm.html(`${data.name}
                                                     <dl>
                                                       <dd>${data.id}</dd>
+                                                      <dd>SKU: ${data.sku}</dd>
                                                     </dl>`);
                 notify(response.mensaje,'success',2);
                 $("#modalProductosContifico").modal('hide');
@@ -623,28 +677,65 @@ $("body").on("click", ".btnAsignarOpciones", function(){
 
 $("body").on("click", ".btnSetOpciones", function(){
     let data = $(this).data();
-    let info = {
-        "office_id": OfficeId,
-        "product_id": productSelected,
-        "contifico_id": data.id,
-        "contifico_name": data.name
-    }   
-    console.log(info);
-   fetch(`controllers/controlador_runfood.php?metodo=setOpcion`,{
+
+    Swal.fire({
+        title: '¿Cómo se factura esta opción?',
+        text: data.name,
+        icon: 'question',
+        showDenyButton: true,
+        showCancelButton: true,
+        confirmButtonText: 'Es Principal (reemplaza al producto)',
+        denyButtonText: 'Es Adicional (se suma aparte)',
+        cancelButtonText: 'Cancelar'
+    }).then(function(result){
+        if(!result.isConfirmed && !result.isDenied) return;
+
+        let info = {
+            "office_id": OfficeId,
+            "product_id": productSelected,
+            "contifico_id": data.id,
+            "contifico_name": data.name,
+            "sku": data.sku,
+            "es_principal": result.isConfirmed ? 1 : 0
+        }
+        console.log(info);
+        fetch(`controllers/controlador_runfood.php?metodo=setOpcion`,{
+                method: 'POST',
+                body: JSON.stringify(info)
+            })
+            .then(res => res.json())
+            .then(response => {
+                if(response.success == 1){
+                    console.log("Mis Productos",response);
+
+                    $trContificoConfirm.html(`${data.name}
+                                                        <dl>
+                                                          <dd>${data.id}</dd>
+                                                          <dd>SKU: ${data.sku}</dd>
+                                                        </dl>`);
+                    notify(response.mensaje,'success',2);
+                    $("#modalProductosContifico").modal('hide');
+                }else{
+                    messageDone(response.mensaje,'error');
+                }
+            })
+            .catch(error=>{
+                messageDone(error,'error');
+            });
+    });
+});
+
+/*----------------API Key-----------------------*/
+$("body").on("click", "#btnGuardarApiKey", function(){
+    let apiKey = $("#inputApiKey").val();
+    fetch(`controllers/controlador_runfood.php?metodo=setApiKey`,{
             method: 'POST',
-            body: JSON.stringify(info)
+            body: JSON.stringify({ office_id: OfficeId, api_key: apiKey })
         })
         .then(res => res.json())
         .then(response => {
             if(response.success == 1){
-                console.log("Mis Productos",response);
-                
-                $trContificoConfirm.html(`${data.name}
-                                                    <dl>
-                                                      <dd>${data.id}</dd>
-                                                    </dl>`);
                 notify(response.mensaje,'success',2);
-                $("#modalProductosContifico").modal('hide');
             }else{
                 messageDone(response.mensaje,'error');
             }

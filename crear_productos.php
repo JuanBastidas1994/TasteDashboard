@@ -801,27 +801,31 @@ function recursive($array, $posicion, &$data, &$codigos)
                                             $display = "initial";
                                         ?>
 
-                                        <div class="row">
-                                            <div class="form-group col-md-4 col-sm-6 col-xs-12">
+                                        
+                                    </div>
+
+                                    <div class="form-row">
+                                        <div class="">
+                                            <div class="form-group col-md-2 col-sm-6 col-xs-12">
                                                 <label>Peso <span class="asterisco">*</span><span class="far fa-question-circle rounded bs-tooltip" data-placement="top" title="Peso en Kg"></span></label>
                                                 <div class="input-group">
-                                                    <input type="number" name="txt_peso" id="txt_peso" class="form-control" value="<?php echo $txt_peso; ?>">
-                                                    <div class="input-group-append">
-                                                        <span class="input-group-text">Kg</span>
+                                                    <input type="number" name="txt_peso" id="txt_peso" class="form-control" value="<?php echo $txt_peso; ?>" style="padding-left: 10px; padding-right: 1px;">
+                                                    <div class="input-group-append" >
+                                                        <span class="input-group-text" style="padding: 5px;">Kg</span>
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="form-group col-md-4 col-sm-6 col-xs-12">
+                                            <div class="form-group col-md-2 col-sm-6 col-xs-12">
                                                 <label>Volumen <span class="asterisco">*</span><span class="far fa-question-circle rounded bs-tooltip" data-placement="top" title="Volumen"></span></label>
                                                 <div class="input-group">
-                                                    <input type="number" name="txt_volumen" id="txt_volumen" class="form-control" value="<?php echo $txt_volumen; ?>">
-                                                    <div class="input-group-append">
-                                                        <span class="input-group-text">m³</span>
+                                                    <input type="number" name="txt_volumen" id="txt_volumen" class="form-control" value="<?php echo $txt_volumen; ?>" style="padding-left: 10px; padding-right: 1px;">
+                                                    <div class="input-group-append" >
+                                                        <span class="input-group-text" style="padding: 5px;">m³</span>
                                                     </div>
                                                 </div>
                                             </div>
 
-                                            <div class="form-group col-md-4 col-sm-6 col-xs-12 d-none">
+                                            <div class="form-group col-md-4 col-sm-6 col-xs-12">
                                                 <label>SKU <span class="asterisco">*</span><span class="far fa-question-circle rounded bs-tooltip" data-placement="top" title="codigo de artículo"></span></label>
                                                 <input type="text" name="txt_sku" id="txt_sku" class="form-control" value="<?php echo $txt_sku; ?>">
                                             </div>

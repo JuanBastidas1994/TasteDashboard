@@ -148,6 +148,14 @@ $permisos = $Clempresas->getIdPermisionByBusiness($cod_empresa);
                                                     <div class="mr-4">
                                                         {{facturacion.id_runfood}}
                                                         {{facturacion.nombre_runfood}}
+                                                        {{#if facturacion.sku}}
+                                                            <span class="badge badge-info ml-2">SKU: {{facturacion.sku}}</span>
+                                                        {{/if}}
+                                                        {{#eq facturacion.es_principal "1"}}
+                                                            <span class="badge badge-success ml-2">Principal (reemplaza al producto)</span>
+                                                        {{else}}
+                                                            <span class="badge badge-secondary ml-2">Adicional</span>
+                                                        {{/eq}}
                                                     </div>
                                                 </div>
                                             </div>
@@ -188,36 +196,36 @@ $permisos = $Clempresas->getIdPermisionByBusiness($cod_empresa);
                             <script id="product-contifico-template" type="text/x-handlebars-template">
                             {{#each this}}
                                 <tr>
-                                    <td>{{codigo}}</td>
+                                    <td>{{sku}}</td>
                                     <td>
-                                        {{descripcion}}
+                                        {{name}}
                                         <dl>
-                                          <dd>{{id}}</dd>
+                                          <dd>{{#if active}}Activo{{else}}Inactivo{{/if}}{{#if tax_applicable}} - Grava IVA{{/if}}</dd>
                                         </dl>
                                     </td>
-                                    <td class="text-right">${{pvp1}}</td>
-                                    <td class="text-right">{{existencia}}</td>
+                                    <td class="text-right">${{price}}</td>
+                                    <td class="text-right">{{#if active}}Sí{{else}}No{{/if}}</td>
                                     <td class="text-center">
-                                        <button class="btn btn-secondary btnSetProducto" data-id="{{id}}" data-name="{{descripcion}}">
+                                        <button class="btn btn-secondary btnSetProducto" data-id="{{sku}}" data-name="{{name}}" data-sku="{{sku}}">
                                             Escoger
                                         </button>
-                                        <button class="btn btn-warning btnSetIngrediente" data-id="{{id}}" data-name="{{descripcion}}">
+                                        <button class="btn btn-warning btnSetIngrediente" data-id="{{sku}}" data-name="{{name}}">
                                             Escoger
                                         </button>
-                                        <button class="btn btn-danger btnImportar" data-id="{{id}}" data-name="{{descripcion}}" data-precio="{{pvp1}}">
+                                        <button class="btn btn-danger btnImportar" data-id="{{sku}}" data-name="{{name}}" data-precio="{{price}}">
                                             Importar
                                         </button>
-                                        <button class="btn btn-danger btnSaveRecipiente" data-id="{{id}}" data-name="{{descripcion}}" data-precio="{{pvp1}}">
+                                        <button class="btn btn-danger btnSaveRecipiente" data-id="{{sku}}" data-name="{{name}}" data-precio="{{price}}">
                                             Importar
                                         </button>
-                                        <button class="btn btn-info btnSetRecipiente" data-id="{{id}}" data-name="{{descripcion}}" data-precio="{{pvp1}}">
+                                        <button class="btn btn-info btnSetRecipiente" data-id="{{sku}}" data-name="{{name}}" data-precio="{{price}}">
                                             Escoger
                                         </button>
-                                        <button class="btn btn-dark btnSetDomiciliouAdicionales" data-id="{{id}}" data-name="{{descripcion}}" data-precio="{{pvp1}}">
+                                        <button class="btn btn-dark btnSetDomiciliouAdicionales" data-id="{{sku}}" data-name="{{name}}" data-precio="{{price}}">
                                             Seleccionar
                                         </button>
 
-                                        <button class="btn btn-dark btnSetOpciones" data-id="{{id}}" data-name="{{descripcion}}" data-precio="{{pvp1}}">
+                                        <button class="btn btn-dark btnSetOpciones" data-id="{{sku}}" data-name="{{name}}" data-precio="{{price}}" data-sku="{{sku}}">
                                             Seleccionar
                                         </button>
                                     </td>
@@ -231,7 +239,7 @@ $permisos = $Clempresas->getIdPermisionByBusiness($cod_empresa);
                                             <th>SKU</th>
                                             <th>Nombre</th>
                                             <th>PVP</th>
-                                            <th>Stock</th>
+                                            <th>Activo</th>
                                             <th class="text-center">Acciones</th>
                                         </tr>
                                     </thead>
@@ -270,10 +278,10 @@ $permisos = $Clempresas->getIdPermisionByBusiness($cod_empresa);
                                 <tr>
                                     <td>{{id}}</td>
                                     <td>
-                                        {{descripcion}}
+                                        {{name}}
                                     </td>
                                     <td class="text-center">
-                                        <button class="btn btn-success btnSetFormaPago" data-id="{{id}}" data-name="{{descripcion}}">
+                                        <button class="btn btn-success btnSetFormaPago" data-id="{{id}}" data-name="{{name}}">
                                             Seleccionar
                                         </button>
                                     </td>
@@ -319,7 +327,12 @@ $permisos = $Clempresas->getIdPermisionByBusiness($cod_empresa);
                     <h4 id="titulo"><?php echo $rucName; ?></h4>
                      <input type="hidden"  id="api" value="<?= $api; ?>"/>
                 </div>
-                
+                <div class="col-md-4 text-right">
+                    <button type="button" class="btn btn-outline-primary" id="btnVerificarProductos">
+                        <i data-feather="refresh-cw"></i> <span class="btn-text-inner ms-3">Verificar</span>
+                    </button>
+                </div>
+
 
                 <div class="row layout-top-spacing" style="display: block;">
 
@@ -377,17 +390,23 @@ $permisos = $Clempresas->getIdPermisionByBusiness($cod_empresa);
                                         {{#each this}}
                                             <tr>
                                                 <td><img src="{{image_min}}" style="width: 50px;"/></td>
-                                                <td>{{nombre}}</td>
+                                                <td><a href="crear_productos.php?id={{alias}}" target="_blank">{{nombre}}</a></td>
                                                 <td class="text-right info-contifico">
+                                                    {{#if id}}
                                                     {{name_in_contifico}}
                                                     <dl>
                                                       <dd>{{id}}</dd>
+                                                      {{#if sku}}<dd>SKU: {{sku}}</dd>{{/if}}
+                                                      <dd><a href="javascript:void(0);" class="btnDesasignarProducto" data-id="{{cod_producto}}">Desasignar</a></dd>
                                                     </dl>
+                                                    {{/if}}
                                                 </td>
                                                 <td class="text-center">
+                                                    {{#if tiene_opciones}}
                                                     <button class="btn btn-primary btnVerOpciones" data-id="{{cod_producto}}">
                                                         Opciones
                                                     </button>
+                                                    {{/if}}
                                                     <button class="btn btn-secondary btnAsignarProducto" data-id="{{cod_producto}}">
                                                         Asignar
                                                     </button>
@@ -596,11 +615,33 @@ $permisos = $Clempresas->getIdPermisionByBusiness($cod_empresa);
                                                         <i data-feather="upload-cloud"></i> <span class="btn-text-inner ms-3">Crear</span>
                                                     </a>-->
                                                 </div>
-                                            </div> 
+                                            </div>
                                         </div>
-                                        
-                                        
-                                        
+
+                                        <!-- Credenciales API -->
+                                        <div class="col-4">
+                                           <div class="card style-4 ">
+                                               <div class="card-body pt-3">
+                                                    <div class="media mt-0 mb-3">
+                                                        <div class="media-body">
+                                                            <h4 class="media-heading mb-0">Credenciales API</h4>
+                                                            <p class="media-text">Configuración</p>
+                                                        </div>
+                                                    </div>
+                                                    <p class="card-text mt-4 mb-0">
+                                                        API Key (header <b>X-Api-Key</b>) entregada por Runfood para esta sucursal.
+                                                    </p>
+                                                    <input type="text" id="inputApiKey" class="form-control mt-2" placeholder="API Key de Runfood" value="<?= htmlspecialchars($ruc['api_key'] ?? '', ENT_QUOTES); ?>"/>
+                                                </div>
+                                                <div class="card-footer pt-0 border-0 text-center">
+                                                    <button type="button" class="btn btn-secondary w-40" id="btnGuardarApiKey">
+                                                        <i data-feather="save"></i> <span class="btn-text-inner ms-3">Guardar</span>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+
+
                                     </div>
                             </div>
                             

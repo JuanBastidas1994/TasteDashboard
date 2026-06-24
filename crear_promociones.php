@@ -667,7 +667,7 @@ $tiposEntrega = [
     <!-- END MAIN CONTAINER -->
 
     <?php js_mandatory(); ?>
-    <script src="assets/js/pages/crear_promociones.js?v=112" type="text/javascript"></script>
+    <script src="assets/js/pages/crear_promociones.js?v=113" type="text/javascript"></script>
 
     <!-- HANDLEBARS -->
     <script src="./assets/js/libs/handlebars/handlebars.js"></script>

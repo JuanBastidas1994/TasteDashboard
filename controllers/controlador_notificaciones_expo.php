@@ -41,8 +41,8 @@ function enviarProductoNuevo()
     extract($_POST);
 
     $data = [];
-    if (isset($cod_producto)) {
-        $data['cod_producto'] = $cod_producto;
+    if (isset($alias)) {
+        $data['alias'] = $alias;
     }
 
     return $ClNotificacionesExpo->enviar('producto_nuevo', $titulo, $descripcion, $data);

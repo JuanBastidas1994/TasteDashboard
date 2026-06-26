@@ -11,7 +11,7 @@ $session = getSession();
 
 $tiposValidos = [
     'promo'          => ['titulo' => 'Promoción',       'volver' => 'promociones.php', 'campoId' => 'cod_promocion'],
-    'producto_nuevo' => ['titulo' => 'Producto nuevo',  'volver' => 'productos.php',   'campoId' => 'cod_producto'],
+    'producto_nuevo' => ['titulo' => 'Producto nuevo',  'volver' => 'productos.php',   'campoId' => 'alias'],
     'evento'         => ['titulo' => 'Evento',          'volver' => 'index.php',       'campoId' => null],
 ];
 
@@ -21,25 +21,25 @@ if (!isset($tiposValidos[$tipo])) {
     exit;
 }
 
-$id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+$id = isset($_GET['id']) ? $_GET['id'] : '';
 $campoId = $tiposValidos[$tipo]['campoId'];
 $volver = $tiposValidos[$tipo]['volver'];
 
 $tituloSugerido = '';
 $descripcionSugerida = '';
 
-if ($id > 0) {
+if ($id !== '') {
     if ($tipo === 'promo') {
         $Clpromociones = new cl_promociones_nueva(NULL);
-        $promocion = $Clpromociones->obtener($id);
+        $promocion = $Clpromociones->obtener((int)$id);
         if ($promocion) {
             $tituloSugerido = $promocion['descripcion'];
             $descripcionSugerida = "Aprovecha nuestra promoción: " . $promocion['descripcion'];
         }
     } elseif ($tipo === 'producto_nuevo') {
         $Clproductos = new cl_productos(NULL);
-        $producto = $Clproductos->get($id);
-        if ($producto) {
+        $producto = [];
+        if ($Clproductos->getArrayByAlias($id, $producto)) {
             $tituloSugerido = "¡Nuevo producto disponible!";
             $descripcionSugerida = "Ya puedes pedir " . $producto['nombre'];
         }
@@ -90,8 +90,8 @@ if ($id > 0) {
                             <p style="color:#888ea8;">Se enviará a todos los clientes de tu empresa con notificaciones push activas.</p>
                             <form name="frmSave" id="frmSave" autocomplete="off">
                                 <input type="hidden" id="txt_tipo" value="<?php echo $tipo; ?>">
-                                <?php if ($campoId && $id > 0) { ?>
-                                    <input type="hidden" name="<?php echo $campoId; ?>" value="<?php echo $id; ?>">
+                                <?php if ($campoId && $id !== '') { ?>
+                                    <input type="hidden" name="<?php echo $campoId; ?>" value="<?php echo htmlspecialchars($id); ?>">
                                 <?php } ?>
                                 <div class="row">
                                     <div class="form-group col-md-12 col-sm-12 col-xs-12">

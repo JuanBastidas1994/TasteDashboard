@@ -105,7 +105,7 @@ if(in_array("PRODUCTO_INGREDIENTES", $permisos))
                                                     <td class="text-center"><span class="shadow-none badge badge-'.$badge.'">'.getEstado($productos['estado']).'</span></td>
                                                     <td class="text-center">
                                                         <ul class="table-controls">
-                                                            <li><a href="crear_notificacion_expo.php?tipo=producto_nuevo&id='.$productos['cod_producto'].'" class="bs-tooltip" data-toggle="tooltip" data-placement="top" title="" data-original-title="Notificar a clientes"><i data-feather="bell"></i></a></li>
+                                                            <li><a href="crear_notificacion_expo.php?tipo=producto_nuevo&id='.$productos['alias'].'" class="bs-tooltip" data-toggle="tooltip" data-placement="top" title="" data-original-title="Notificar a clientes"><i data-feather="bell"></i></a></li>
                                                             <li><a href="crear_productos.php?id='.$productos['alias'].'" class="bs-tooltip" data-toggle="tooltip" data-placement="top" title="" data-original-title="Edit"><i data-feather="edit-2"></i></a></li>
                                                             <li><a href="javascript:void(0);" data-value="'.$productos['cod_producto'].'" class="bs-tooltip btnEliminar" data-toggle="tooltip" data-placement="top" title="" data-original-title="Delete"><i data-feather="trash"></i></a></li>
                                                             '.$btnIngrediente.'

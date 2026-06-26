@@ -33,7 +33,12 @@
       "Bash(php -l \"c:\\\\laragon\\\\www\\\\taste\\\\promociones.php\")",
       "Bash(php -l \"c:\\\\laragon\\\\www\\\\taste\\\\crear_notificacion_expo.php\")",
       "Bash(php -l \"c:\\\\laragon\\\\www\\\\taste\\\\productos.php\")",
-      "Bash(php -l \"c:\\\\laragon\\\\www\\\\taste\\\\notificaciones_expo.php\")"
+      "Bash(php -l \"c:\\\\laragon\\\\www\\\\taste\\\\notificaciones_expo.php\")",
+      "Bash(grep -n \"CREATE TABLE \\\\`tb_banner\\\\`\" -A 25 \"c:\\\\Users\\\\super\\\\.dbclient\\\\storage\\\\1713805658516@@127.0.0.1@3306@jc_taste\\\\jc_taste.sql\")",
+      "Bash(php -l banners.php)",
+      "Bash(php -l banners_app.php)",
+      "Bash(php -l clases/cl_banners.php)",
+      "Bash(php -l controllers/controlador_banner.php)"
     ]
   }
 }

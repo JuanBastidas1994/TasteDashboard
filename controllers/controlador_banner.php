@@ -17,8 +17,10 @@ function crear(){
     }
 
     extract($_POST);
-    
-    if (strlen($txt_text_boton) > 16) {
+
+    $tipo = isset($tipo) ? $tipo : 'WEB';
+
+    if ($tipo == 'WEB' && strlen($txt_text_boton) > 16) {
         return [
             'success' => 0,
             'message' => 'El texto del botón no puede superar 16 caracteres'
@@ -26,13 +28,14 @@ function crear(){
     }
 
     $nameImg = 'banner_'.datetime_format().'.jpg';
-    $ClBanner->titulo = $txt_titulo;
-    $ClBanner->subtitulo = $txt_subtitulo;
-    $ClBanner->descuento = $txt_descuento;
+    $ClBanner->titulo = isset($txt_titulo) ? $txt_titulo : '';
+    $ClBanner->subtitulo = isset($txt_subtitulo) ? $txt_subtitulo : '';
+    $ClBanner->descuento = isset($txt_descuento) ? $txt_descuento : '';
     $ClBanner->image_min = $nameImg;
-    $ClBanner->text_boton = $txt_text_boton;
-    $ClBanner->url_boton = $txt_url;
-    $ClBanner->ubicacion = $txt_ubicacion;
+    $ClBanner->text_boton = isset($txt_text_boton) ? $txt_text_boton : '';
+    $ClBanner->url_boton = isset($txt_url) ? $txt_url : '';
+    $ClBanner->ubicacion = isset($txt_ubicacion) ? $txt_ubicacion : 'bottom_center';
+    $ClBanner->tipo = $tipo;
     $ClBanner->estado = $estado;
 
     if(!isset($_POST['cod_banner'])){

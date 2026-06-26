@@ -3,24 +3,24 @@
 class cl_banners
 {
 		var $con, $session;
-		var $cod_empresa, $cod_banner, $titulo, $subtitulo, $descuento, $image_min, $text_boton, $url_boton, $ubicacion, $estado;
-		
+		var $cod_empresa, $cod_banner, $titulo, $subtitulo, $descuento, $image_min, $text_boton, $url_boton, $ubicacion, $tipo, $estado;
+
 		public function __construct()
 		{
 			$this->session = getSession();
 			$this->cod_empresa = $this->session['cod_empresa'];
 		}
-		
 
-		public function lista(){
-			$query = "SELECT * FROM tb_banner WHERE estado IN ('A','I') AND cod_empresa =$this->cod_empresa ORDER BY posicion";
+
+		public function lista($tipo = 'WEB'){
+			$query = "SELECT * FROM tb_banner WHERE estado IN ('A','I') AND cod_empresa =$this->cod_empresa AND tipo = '$tipo' ORDER BY posicion";
             $resp = Conexion::buscarVariosRegistro($query);
             return $resp;
 		}
 
 		public function crear(&$id){
 			$query = "INSERT INTO tb_banner(cod_empresa, titulo, subtitulo, descuento, image_min, text_boton, url_boton, ubicacion, tipo, posicion, estado) ";
-        	$query.= "VALUES($this->cod_empresa, '$this->titulo', '$this->subtitulo', '$this->descuento', '$this->image_min', '$this->text_boton', '$this->url_boton', '$this->ubicacion', 'WEB', 999, '$this->estado')";
+        	$query.= "VALUES($this->cod_empresa, '$this->titulo', '$this->subtitulo', '$this->descuento', '$this->image_min', '$this->text_boton', '$this->url_boton', '$this->ubicacion', '$this->tipo', 999, '$this->estado')";
         	if(Conexion::ejecutar($query,NULL)){
         		$id = Conexion::lastId();
         		return true;

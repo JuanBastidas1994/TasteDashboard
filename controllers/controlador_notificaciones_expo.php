@@ -63,6 +63,22 @@ function enviarEvento()
     return $ClNotificacionesExpo->enviar('evento', $titulo, $descripcion);
 }
 
+function notificarCliente()
+{
+    global $ClNotificacionesExpo;
+
+    $POST = file_get_contents("php://input");
+    extract(json_decode($POST, true));
+
+    if (!isset($cod_usuario) || !isset($titulo) || !isset($descripcion)) {
+        $return['success'] = 0;
+        $return['mensaje'] = "Falta informacion";
+        return $return;
+    }
+
+    return $ClNotificacionesExpo->enviar('cliente', $titulo, $descripcion, [], [$cod_usuario]);
+}
+
 function historial()
 {
     global $ClNotificacionesExpo;

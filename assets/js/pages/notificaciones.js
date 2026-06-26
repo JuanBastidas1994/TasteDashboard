@@ -48,7 +48,6 @@ $(document).ready(function () {
 function notificarACliente(id) {
     let titulo = $("#clientModal .txtNotificaionTitulo").val().trim();
     let descripcion = $("#clientModal .textRecordatorio").val().trim();
-    let tipo = $("#clientModal .cmbTipoNotificacion").val().trim();
 
     if(titulo == "") {
         messageDone("Ingrese título de la notificación", 'error');
@@ -59,21 +58,15 @@ function notificarACliente(id) {
         messageDone("Aségurese de llenar la descripción de la notificación", 'error');
         return;
     }
-    
-    if(tipo == "") {
-        messageDone("Aségurese de llenar la descripción de la notificación", 'error');
-        return;
-    }
 
     let info = {
        cod_usuario: id,
        titulo,
-       descripcion,
-       tipo
+       descripcion
     }
 
     OpenLoad("Enviando...")
-    fetch(`controllers/controlador_notificaciones.php?metodo=notificarClientes`,{
+    fetch(`controllers/controlador_notificaciones_expo.php?metodo=notificarCliente`,{
         method: 'POST',
         body: JSON.stringify(info)
     })

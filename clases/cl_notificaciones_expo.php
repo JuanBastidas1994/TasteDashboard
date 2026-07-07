@@ -55,9 +55,9 @@ class cl_notificaciones_expo
     {
         $query = "SELECT t.token
                     FROM tb_push_tokens t
-                    INNER JOIN tb_clientes c ON c.cod_usuario = t.cod_usuario
-                    WHERE c.cod_empresa = :cod_empresa
-                    AND c.estado = 'A'";
+                    INNER JOIN tb_usuarios u ON u.cod_usuario = t.cod_usuario
+                    WHERE u.cod_empresa = :cod_empresa
+                    AND u.estado = 'A'";
         $registros = Conexion::buscarVariosRegistro($query, [':cod_empresa' => $cod_empresa]);
         if (!$registros) return [];
         return array_column($registros, 'token');

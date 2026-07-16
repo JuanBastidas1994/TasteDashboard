@@ -23,9 +23,9 @@
                             </div>
                             <div class="ml-auto">
                                 <a href="tel:{{motorizado.telefono}}"
-                                    data-toggle="tooltip" 
-                                    data-placement="top" 
-                                    title="Llamar"><i data-feather="phone"></i> 
+                                    data-toggle="tooltip"
+                                    data-placement="top"
+                                    title="Llamar"><i data-feather="phone"></i>
                                     {{motorizado.telefono}}</a>
                             </div>
                         </div>
@@ -36,16 +36,32 @@
             {{/diferent}}
         </div>
         <div>
-            <div id="mapaTracker" class="gllpMap mt-3" 
+            <div id="mapaTracker" class="gllpMap mt-3"
                 style="margin-left: 0; width: 100%; height: 500px;" >Google Maps</div>
             </div>
         </div>
-    {{else}} <!-- PICKUP -->
+    {{else}}
+        {{#eq is_envio "2"}}
+        <!-- MESA -->
+        <div class="mt-3">
+            <h3>El pedido es en mesa</h3>
+            <div class="d-flex align-items-center">
+                <i data-feather="coffee"></i>
+                {{#eq mesa_tipo "NOMBRE"}}
+                    <span class="ml-2">Nombre de mesa: <b>{{mesa_referencia}}</b></span>
+                {{else}}
+                    <span class="ml-2">N° de mesa: <b>{{mesa_referencia}}</b></span>
+                {{/eq}}
+            </div>
+        </div>
+        {{else}}
+        <!-- PICKUP -->
         <div>
             <h3 class="mt-3">Hora de retiro</h3>
             <div class="mb-2"><i data-feather="calendar"></i><span class="ml-2">{{ retiro.fecha }}</span></div>
             <div><i data-feather="clock"></i><span class="ml-2">{{ retiro.hora }}</span></div>
         </div>
+        {{/eq}}
     {{/eq}}
 
 

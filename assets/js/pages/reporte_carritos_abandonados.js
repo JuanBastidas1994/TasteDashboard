@@ -82,15 +82,15 @@ function renderMetrics(m, recovery) {
 }
 
 var estadoBadge = {
-    ACTIVO:     '<span class="badge badge-success">ACTIVO</span>',
-    ABANDONADO: '<span class="badge badge-danger">ABANDONADO</span>',
-    CONVERTIDO: '<span class="badge badge-primary">CONVERTIDO</span>',
-    EXPIRADO:   '<span class="badge badge-secondary">EXPIRADO</span>'
+    ACTIVO:     '<span style="background:#1abc9c;color:#fff;padding:3px 8px;border-radius:4px;font-size:.82em;">ACTIVO</span>',
+    ABANDONADO: '<span style="background:#e55353;color:#fff;padding:3px 8px;border-radius:4px;font-size:.82em;">ABANDONADO</span>',
+    CONVERTIDO: '<span style="background:#2980b9;color:#fff;padding:3px 8px;border-radius:4px;font-size:.82em;">CONVERTIDO</span>',
+    EXPIRADO:   '<span style="background:#888;color:#fff;padding:3px 8px;border-radius:4px;font-size:.82em;">EXPIRADO</span>'
 };
 
 var origenBadge = {
-    WEB: '<span class="badge badge-info">WEB</span>',
-    APP: '<span class="badge badge-warning">APP</span>'
+    WEB: '<span style="background:#17a2b8;color:#fff;padding:3px 8px;border-radius:4px;font-size:.82em;">WEB</span>',
+    APP: '<span style="background:#f6a623;color:#fff;padding:3px 8px;border-radius:4px;font-size:.82em;">APP</span>'
 };
 
 function renderTabla(rows) {
@@ -103,7 +103,6 @@ function renderTabla(rows) {
     var tbody = "";
     (rows || []).forEach(function (r) {
         tbody += "<tr>"
-            + "<td>" + (r.cart_token || "—") + "</td>"
             + "<td>" + (r.nombre_usuario || (r.cod_usuario ? r.cod_usuario : '<em class="text-muted">Anón.</em>')) + "</td>"
             + "<td>" + (r.email     || "—") + "</td>"
             + "<td>" + (r.telefono  || "—") + "</td>"
@@ -111,12 +110,11 @@ function renderTabla(rows) {
             + "<td>" + (estadoBadge[r.estado]  || r.estado  || "—") + "</td>"
             + "<td class='text-right'>" + fmt$(r.total_estimado) + "</td>"
             + "<td class='text-center'>" + (r.cantidad_productos || 0) + "</td>"
-            + "<td>" + fmtDate(r.updated_at) + "</td>"
             + "<td>" + fmtDate(r.abandoned_at) + "</td>"
-            + "<td>" + fmtDate(r.recovered_at) + "</td>"
             + "<td>" + fmtDate(r.converted_at) + "</td>"
+            + "<td>" + fmtDate(r.recovered_at) + "</td>"
+            + "<td>" + fmtDate(r.updated_at) + "</td>"
             + "<td>" + (r.recovery_source || "—") + "</td>"
-            + "<td>" + (r.cod_preorden || "—") + "</td>"
             + "<td>" + (r.cod_orden    || "—") + "</td>"
             + "</tr>";
     });
@@ -133,7 +131,7 @@ function renderTabla(rows) {
             ]
         },
         scrollX: true,
-        order: [[8, "desc"]],
+        order: [[7, "desc"]],
         pageLength: 25,
         oLanguage: {
             oPaginate: {

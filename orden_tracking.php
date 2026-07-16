@@ -174,7 +174,12 @@ if(isset($_GET['id'])){
                             <img src="assets/img/pickupcar.png" style="max-width: 300px;" />
                             <h3>El cliente debe retirar su pedido</h3>
                             <p>en el local <span class="local_retiro"></span> el d&iacute;a <span class="fecha_retiro"></span></p>
-                        </div> 
+                        </div>
+                        <div class="infoMesa" style="display:none; text-align: center;">
+                            <i data-feather="coffee" style="width:64px;height:64px;margin-bottom:12px;"></i>
+                            <h3>El pedido es en mesa</h3>
+                            <p class="mesa-label" style="font-size:18px;"></p>
+                        </div>
                     </div>
 
                     
@@ -268,6 +273,13 @@ function tracking(){
                     $(".badge-pick").html('Envío a domicilio');
                     $(".tipo-orden").html('Delivery');
                     $(".infoDelivery").show();
+                }
+                else if(data.is_envio == 2){
+                    $(".badge-pick").html('En Mesa');
+                    $(".tipo-orden").html('En Mesa');
+                    var mesaLabel = (data.mesa_tipo === 'NOMBRE') ? 'Nombre de mesa' : 'N° de mesa';
+                    $(".mesa-label").html(mesaLabel + ': <b>' + (data.mesa_referencia || '—') + '</b>');
+                    $(".infoMesa").show();
                 }
                 else{
                     $(".badge-pick").html('Recoje tu pedido');

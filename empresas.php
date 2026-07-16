@@ -10,6 +10,14 @@ $Clempresa = new cl_empresas(NULL);
 $session = getSession();
 $files = url_sistema.'assets/empresas/';
 $progressColors = array('primary', 'danger', 'info', 'success', 'warning', 'dark');
+
+$anio_actual = intval(date('Y'));
+$mes_actual  = intval(date('n'));
+$nombres_meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+$meses_disponibles = [];
+for ($m = 1; $m < $mes_actual; $m++) {
+    $meses_disponibles[] = ['num' => $m, 'nombre' => $nombres_meses[$m - 1]];
+}
 ?>
 
 <!DOCTYPE html>
@@ -201,6 +209,52 @@ $progressColors = array('primary', 'danger', 'info', 'success', 'warning', 'dark
         </div>
     </div>
     
+    <!-- Modal Colapso Mensual Masivo -->
+    <div class="modal fade" id="modalColapsoMensual" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Colapso Mensual <?= $anio_actual ?></h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <?php if (empty($meses_disponibles)): ?>
+                        <p class="text-muted">No hay meses finalizados en <?= $anio_actual ?> todavía.</p>
+                    <?php else: ?>
+                        <p class="text-muted mb-1">Selecciona los meses a colapsar para las empresas marcadas. Solo se muestran meses ya finalizados.</p>
+                        <div class="mb-3">
+                            <a href="javascript:void(0);" id="btnMarcarTodosMeses" class="text-primary mr-3" style="font-size:13px;">Marcar todos</a>
+                            <a href="javascript:void(0);" id="btnDesmarcarTodosMeses" class="text-secondary" style="font-size:13px;">Desmarcar todos</a>
+                        </div>
+                        <div class="row">
+                            <?php foreach ($meses_disponibles as $mes): ?>
+                            <div class="col-md-3 col-sm-4 col-6 mb-3">
+                                <label class="d-flex align-items-center" style="cursor:pointer; gap:8px;">
+                                    <input type="checkbox" class="chk_mes" value="<?= $mes['num'] ?>" checked style="width:20px;height:20px;">
+                                    <span><?= $mes['nombre'] ?></span>
+                                </label>
+                            </div>
+                            <?php endforeach; ?>
+                        </div>
+                        <hr>
+                        <p class="text-muted mb-1" style="font-size:13px;">Empresas seleccionadas: <strong id="lblEmpresasSeleccionadas">0</strong></p>
+                    <?php endif; ?>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                    <?php if (!empty($meses_disponibles)): ?>
+                    <button class="btn btn-primary" id="btnEjecutarColapsoMensual">
+                        <i data-feather="archive"></i> Ejecutar colapso
+                    </button>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Fin Modal Colapso Mensual -->
+
     <!--  BEGIN NAVBAR  -->
     <?php echo top() ?>
     <!--  END NAVBAR  -->
@@ -228,10 +282,13 @@ $progressColors = array('primary', 'danger', 'info', 'success', 'warning', 'dark
                     <div class="col-xl-12 col-lg-12 col-sm-12  layout-spacing">
                         <div class="widget-content widget-content-area br-6">
                             <div class="col-xl-12 col-md-12 col-sm-12 col-12">
-                                <div class="col-xl-8 col-md-8 col-sm-8 col-8">
+                                <div class="col-xl-6 col-md-6 col-sm-6 col-6">
                                     <h4>Empresas</h4>
                                 </div>
-                                <div class="col-xl-4 col-md-4 col-sm-4 col-4 text-right">
+                                <div class="col-xl-6 col-md-6 col-sm-6 col-6 text-right">
+                                    <button class="btn btn-outline-secondary mr-2" id="btnAbrirColapsoMensual" <?= empty($meses_disponibles) ? 'disabled title="No hay meses finalizados"' : '' ?>>
+                                        <i data-feather="archive"></i> Colapso Mensual
+                                    </button>
                                     <a href="crear_empresa.php" class="btn btn-primary">Nueva Empresa</a>
                                 </div>
                                 <div class="col-xl-12 col-md-12 col-sm-12 col-12">
@@ -242,6 +299,9 @@ $progressColors = array('primary', 'danger', 'info', 'success', 'warning', 'dark
                                 <table id="style-3" class="table style-3  table-hover" style="margin-top: 0px !important;">
                                         <thead>
                                             <tr>
+                                                <th class="text-center" style="width:40px;">
+                                                    <input type="checkbox" id="chkTodas" title="Marcar/desmarcar todas" style="width:18px;height:18px;">
+                                                </th>
                                                 <th class="checkbox-column text-center">Id</th>
                                                 <th class="text-center">&nbsp;</th>
                                                 <th>Nombre</th>
@@ -263,9 +323,14 @@ $progressColors = array('primary', 'danger', 'info', 'success', 'warning', 'dark
                                                 $imagen = $files.$empresa['alias'].'/'.$empresa['logo'];
                                                 $badge= ($empresa['estado'] == 'A') ? 'primary' : 'danger';
                                                 $production = ($empresa['ambiente'] == 'production') ? '<i data-feather="check-circle"></i>' : '';
-                                                
-                                                
+                                                $chk_checked = ($empresa['ambiente'] == 'production') ? 'checked' : '';
+
                                                 echo '<tr>
+                                                    <td class="text-center">
+                                                        <input type="checkbox" class="chk_colapso" '.$chk_checked.'
+                                                            data-id="'.$empresa['cod_empresa'].'"
+                                                            style="width:18px;height:18px;">
+                                                    </td>
                                                     <td class="checkbox-column text-center"> '.$empresa['cod_empresa'].' </td>
                                                     <td class="text-center">
                                                         <span><img src="'.$imagen.'" class="profile-img" alt="Imagen"></span>
@@ -332,5 +397,63 @@ $progressColors = array('primary', 'danger', 'info', 'success', 'warning', 'dark
         } );
     </script>
     <!-- END PAGE LEVEL CUSTOM SCRIPTS -->
+    <script>
+        // Checkbox "seleccionar todas"
+        $("#chkTodas").on("change", function () {
+            var checked = $(this).is(":checked");
+            $(".chk_colapso").prop("checked", checked);
+        });
+
+        // Abrir modal y actualizar contador de empresas seleccionadas
+        $("#btnAbrirColapsoMensual").on("click", function () {
+            var count = $(".chk_colapso:checked").length;
+            if (count === 0) {
+                messageDone("Selecciona al menos una empresa", "error");
+                return;
+            }
+            $("#lblEmpresasSeleccionadas").text(count);
+            $("#modalColapsoMensual").modal("show");
+        });
+
+        // Marcar/desmarcar todos los meses
+        $("#btnMarcarTodosMeses").on("click", function () { $(".chk_mes").prop("checked", true); });
+        $("#btnDesmarcarTodosMeses").on("click", function () { $(".chk_mes").prop("checked", false); });
+
+        // Ejecutar colapso masivo
+        $("#btnEjecutarColapsoMensual").on("click", function () {
+            var cod_empresas = [];
+            $(".chk_colapso:checked").each(function () {
+                cod_empresas.push($(this).data("id"));
+            });
+            var meses = [];
+            $(".chk_mes:checked").each(function () {
+                meses.push($(this).val());
+            });
+
+            if (cod_empresas.length === 0) { messageDone("Selecciona al menos una empresa", "error"); return; }
+            if (meses.length === 0)        { messageDone("Selecciona al menos un mes", "error"); return; }
+
+            Swal.fire({
+                title: "¿Ejecutar colapso mensual?",
+                text: cod_empresas.length + " empresa(s) × " + meses.length + " mes(es). Esta acción puede tardar varios segundos.",
+                icon: "warning", showCancelButton: true,
+                confirmButtonText: "Sí, ejecutar", cancelButtonText: "Cancelar"
+            }).then(function (result) {
+                if (!result.value) return;
+                $("#modalColapsoMensual").modal("hide");
+                OpenLoad("Ejecutando colapso mensual...");
+                $.ajax({
+                    url: "controllers/controlador_colapso_historico.php?metodo=ejecutarColapsoMensualMasivo",
+                    type: "POST",
+                    data: { cod_empresas: cod_empresas, meses: meses },
+                    success: function (response) {
+                        messageDone(response["mensaje"], response["success"] == 1 ? "success" : "error");
+                    },
+                    error: function () { messageDone("Error al conectar con el servidor", "error"); },
+                    complete: function () { CloseLoad(); }
+                });
+            });
+        });
+    </script>
 </body>
 </html>

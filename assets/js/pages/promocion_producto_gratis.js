@@ -1,5 +1,11 @@
 $(function () {
 
+    // Si hay un producto previamente seleccionado, mostrar fila nombre y actualizar overlay
+    if ($('#cmb_producto').val()) {
+        $('#rowNombreProducto').show();
+        updateOverlay();
+    }
+
     // ── Dropify ────────────────────────────────────────────────────────────────
     var drPG = $('#inputImgPG').dropify({
         messages: {

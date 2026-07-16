@@ -24,10 +24,15 @@
                                         {{#eq is_envio "1"}}
                                             <i data-feather="map-pin"></i>
                                             <span class="mail-title"></span> {{direccion}}
-                                        {{else}}   
+                                        {{else}}
                                             {{#eq is_envio "2"}}
                                                 <i data-feather="coffee"></i>
-                                                <span class="mail-title"></span> En Mesa
+                                                <span class="mail-title"></span>
+                                                {{#eq mesa_tipo "NOMBRE"}}
+                                                    En Mesa: {{mesa_referencia}}
+                                                {{else}}
+                                                    En Mesa N° {{mesa_referencia}}
+                                                {{/eq}}
                                             {{else}}
                                                 <i data-feather="package"></i>
                                                 <span class="mail-title"></span> {{retiro.fecha}} {{retiro.hora}} 
@@ -74,7 +79,11 @@
                                 {{#eq is_envio "2"}}
                                     <div class="tagsOrderList bg-warning">
                                         <i data-feather="coffee"></i>
-                                        <span>En Mesa</span>
+                                        {{#eq mesa_tipo "NOMBRE"}}
+                                            <span>En Mesa: {{mesa_referencia}}</span>
+                                        {{else}}
+                                            <span>Mesa N° {{mesa_referencia}}</span>
+                                        {{/eq}}
                                     </div>
                                 {{else}}
                                     <div class="tagsOrderList bg-info">

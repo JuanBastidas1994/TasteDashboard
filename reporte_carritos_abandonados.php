@@ -178,7 +178,6 @@ $cod_sucursal = $cod_rol == 3 ? $session["cod_sucursal"] : 0;
                                     <table id="tblCarritos" class="table style-3 table-hover">
                                         <thead>
                                             <tr>
-                                                <th>Cart Token</th>
                                                 <th>Usuario</th>
                                                 <th>Email</th>
                                                 <th>Teléfono</th>
@@ -186,12 +185,11 @@ $cod_sucursal = $cod_rol == 3 ? $session["cod_sucursal"] : 0;
                                                 <th>Estado</th>
                                                 <th class="text-right">Total Est.</th>
                                                 <th class="text-center">Productos</th>
-                                                <th>Actualizado</th>
                                                 <th>Abandonado</th>
-                                                <th>Recuperado</th>
                                                 <th>Convertido</th>
+                                                <th>Recuperado</th>
+                                                <th>Actualizado</th>
                                                 <th>Recovery</th>
-                                                <th>Preorden</th>
                                                 <th>Orden</th>
                                             </tr>
                                         </thead>

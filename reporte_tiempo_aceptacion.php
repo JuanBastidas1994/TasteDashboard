@@ -101,7 +101,7 @@ $cod_sucursal = $cod_rol == 3 ? $session["cod_sucursal"] : 0;
                                 <ul class="nav nav-tabs mb-3" role="tablist">
                                     <li class="nav-item">
                                         <a class="nav-link active" id="tab-resumen-lnk" data-toggle="tab" href="#tab-resumen" role="tab">
-                                            <i data-feather="bar-chart"></i> Resumen por Sucursal
+                                            <i data-feather="bar-chart"></i> Resumen
                                         </a>
                                     </li>
                                     <li class="nav-item">

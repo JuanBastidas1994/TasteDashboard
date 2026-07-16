@@ -553,10 +553,10 @@ function cancelarAsignacionOrden(order_id){
 
 //Cancelación orden
 function preCancelarOrden(order_id){
-    SwalInput("¿Estás seguro de Cancelar la orden?", "Si el pago fue con tarjeta se intentará revertir el pago", "Escriba aquí el motivo de la cancelación")
-        .then(function(result) {
-            if (result) {
-                cancelarOrden(order_id, result);
+    SwalCancelMotivo()
+        .then(function(motivo) {
+            if (motivo) {
+                cancelarOrden(order_id, motivo);
             }
         });
 }

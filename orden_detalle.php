@@ -473,7 +473,7 @@ function datetimeShort($fecha)
                                                     <p class="">$<?php echo $subtotal0; ?></p>
                                                 </div>
                                                 <div class="col-sm-8 col-7">
-                                                    <p class="">SubTotal <?= $iva_porcentaje ?>: </p>
+                                                    <p class="">SubTotal <?= $iva_porcentaje ?>%: </p>
                                                 </div>
                                                 <div class="col-sm-4 col-5">
                                                     <p class="">$<?php echo $subtotal12; ?></p>
@@ -767,6 +767,15 @@ function datetimeShort($fecha)
                                 <div>
                                     <h4>El Pedido fue en MESA</h4>
                                 </div>
+                                <?php if (!empty($orden['mesa_referencia'])) { ?>
+                                <div class="row">
+                                    <a class="col-12" href="javascript:void:0;" style="padding:8px; color:#7e7b80;">
+                                        <span><b><i data-feather="coffee"></i> </b></span>
+                                        <?php echo ($empresa && $empresa['mesa_tipo'] == 'NOMBRE') ? 'Nombre de mesa: ' : 'N° de mesa: '; ?>
+                                        <b><?php echo htmlspecialchars($orden['mesa_referencia']); ?></b>
+                                    </a>
+                                </div>
+                                <?php } ?>
                             </div>
                         <?php } ?>
                         <!--Tracking-->

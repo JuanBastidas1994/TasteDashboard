@@ -1077,6 +1077,12 @@ class cl_empresas
             return Conexion::buscarVariosRegistro($query);
 		}
 
+		public function setMesaTipo($cod_empresa, $mesa_tipo) {
+			$mesa_tipo = ($mesa_tipo === 'NOMBRE') ? 'NOMBRE' : 'NUMERO';
+			$query = "UPDATE tb_empresas SET mesa_tipo = '$mesa_tipo' WHERE cod_empresa = $cod_empresa";
+			return Conexion::ejecutar($query, null);
+		}
+
 		public function eliminar($cod_empresa){
 			try{
 				Conexion::beginTransaction();

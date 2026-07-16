@@ -375,6 +375,14 @@
             <span>{{latino.hora}}</span>
             <i data-feather="home"></i>
             <span>{{sucursal.nombre}}</span>
+            {{#eq is_envio "2"}}
+                <i data-feather="coffee"></i>
+                {{#eq mesa_tipo "NOMBRE"}}
+                    <span>Mesa: {{mesa_referencia}}</span>
+                {{else}}
+                    <span>Mesa N° {{mesa_referencia}}</span>
+                {{/eq}}
+            {{/eq}}
         </div>
         <div class="mt-1">
             {{#eq is_programado "1"}}

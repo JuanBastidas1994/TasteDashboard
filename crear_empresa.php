@@ -497,7 +497,10 @@ if(file_exists($folder_demo)){
                                 <li class="nav-item">
                                     <a class="nav-link" id="mensaje-pagos-tab" data-toggle="tab" href="#tab-mensaje-pagos" role="tab" aria-controls="Falta pagos" aria-selected="false"><i data-feather="dollar-sign"></i> Falta pagos</a>
                                 </li>
-                                
+                                <li class="nav-item">
+                                    <a class="nav-link" id="historico-emp-tab" data-toggle="tab" href="#tab-historico-emp" role="tab" aria-controls="historico" aria-selected="false"><i data-feather="archive"></i> Histórico</a>
+                                </li>
+
                             </ul>
                             
                             <div class="tab-content" id="simpletabContent">
@@ -1620,6 +1623,50 @@ if(file_exists($folder_demo)){
                                         </div>
                                     </div>
                                 </div>
+
+                                <!-- CONTENIDO HISTÓRICO -->
+                                <div class="tab-pane fade" id="tab-historico-emp" role="tabpanel" aria-labelledby="historico-emp-tab">
+                                    <br>
+                                    <h5>Colapso de información anual</h5>
+                                    <hr>
+                                    <p class="text-muted">
+                                        El sistema mantiene el detalle <strong>mensual</strong> de los últimos 3 años.
+                                        La información de años anteriores se resume de forma <strong>anual</strong>
+                                        para optimizar el rendimiento de los reportes.
+                                    </p>
+                                    <div class="row mt-3">
+                                        <div class="col-md-4">
+                                            <div class="widget-content-area br-6 p-3" style="background:#f1f2f3;">
+                                                <div class="text-muted" style="font-size:12px;">DETALLE MENSUAL</div>
+                                                <div id="aniosMensual" style="font-size:18px; font-weight:600;">—</div>
+                                                <div class="text-muted mt-2" style="font-size:11px;">AÑO VIGENTE</div>
+                                                <div id="mesesVigente" style="font-size:13px; font-weight:600;">—</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="widget-content-area br-6 p-3" style="background:#f1f2f3;">
+                                                <div class="text-muted" style="font-size:12px;">RESUMEN ANUAL</div>
+                                                <div id="aniosAnual" style="font-size:18px; font-weight:600;">—</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="widget-content-area br-6 p-3" style="background:#fff6e6;">
+                                                <div class="text-muted" style="font-size:12px;">PENDIENTES DE COLAPSAR</div>
+                                                <div id="aniosPendientes" style="font-size:18px; font-weight:600; color:#e2a03f;">—</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row mt-4">
+                                        <div class="col-md-12 text-right mt-2 mb-3">
+                                            <button class="btn btn-primary" id="btnEjecutarColapso">
+                                                <i data-feather="archive"></i> Ejecutar colapso anual
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <br />
+                                </div>
+                                <!-- FIN CONTENIDO HISTÓRICO -->
+
                             </div>
                         </div>    
                     </div>
@@ -1652,6 +1699,56 @@ if(file_exists($folder_demo)){
         $("#txt_descripcion").emojioneArea({
             container: "#containerEmoji",
             hideSource: false,
+        });
+
+        // Tab Histórico: colapso anual
+        var _codEmpresaHistorico = <?= intval($cod_empresa) ?>;
+        var _MESES = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+
+        function cargarEstadoColapso() {
+            $.ajax({
+                url: "controllers/controlador_colapso_historico.php?metodo=getEstadoColapso",
+                type: "POST",
+                data: { cod_empresa: _codEmpresaHistorico },
+                success: function (response) {
+                    if (response["success"] == 1) {
+                        var d = response["data"];
+                        $("#aniosMensual").text(d.mensual.length       ? d.mensual.join(", ")    : "Sin datos");
+                        $("#aniosAnual").text(d.anual.length           ? d.anual.join(", ")      : "Sin datos");
+                        $("#aniosPendientes").text(d.pendientes.length ? d.pendientes.join(", ") : "Ninguno");
+
+                        var mesesTexto = (d.meses_vigente && d.meses_vigente.length)
+                            ? d.meses_vigente.map(function (m) { return _MESES[parseInt(m) - 1]; }).join(", ")
+                            : "Sin datos";
+                        $("#mesesVigente").text("(" + d.anio_vigente + ") " + mesesTexto);
+                    }
+                },
+                error: function () { messageDone("Error al conectar con el servidor", "error"); }
+            });
+        }
+        $(document).on("shown.bs.tab", 'a[href="#tab-historico-emp"]', function () {
+            cargarEstadoColapso();
+        });
+        $("#btnEjecutarColapso").on("click", function () {
+            Swal.fire({
+                title: "¿Ejecutar colapso anual?",
+                text: "Se resumirán los datos mensuales de años anteriores. Esta acción no se puede deshacer.",
+                icon: "warning", showCancelButton: true,
+                confirmButtonText: "Sí, ejecutar", cancelButtonText: "Cancelar"
+            }).then(function (result) {
+                if (!result.value) return;
+                $.ajax({
+                    beforeSend: function () { OpenLoad("Ejecutando colapso anual..."); },
+                    url: "controllers/controlador_colapso_historico.php?metodo=ejecutarColapso",
+                    type: "POST",
+                    data: { cod_empresa: _codEmpresaHistorico },
+                    success: function (response) {
+                        messageDone(response["mensaje"], response["success"] == 1 ? "success" : "error");
+                        if (response["success"] == 1) cargarEstadoColapso();
+                    },
+                    complete: function () { CloseLoad(); }
+                });
+            });
         });
     </script>
 </body>

@@ -76,6 +76,9 @@ if ($cumple) {
 $ck_permisoTienda = "";
 if ($Clempresas->getPermisoTienda($cod_empresa))
     $ck_permisoTienda = "checked";
+
+$permisosEmpresa = $Clempresas->getIdPermisionByBusiness($cod_empresa);
+$tieneOfficInsite = in_array('OFFICE_INSITE', $permisosEmpresa);
 ?>
 
 <!DOCTYPE html>
@@ -240,18 +243,14 @@ if ($Clempresas->getPermisoTienda($cod_empresa))
                                         Carrito
                                     </a>
                                 </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" data-toggle="tab" href="#tab-historico" role="tab" aria-selected="false">
-                                        <i data-feather="archive"></i>
-                                        Histórico
-                                    </a>
-                                </li>
+                                <?php if ($tieneOfficInsite) { ?>
                                 <li class="nav-item">
                                     <a class="nav-link" data-toggle="tab" href="#tab-mesa" role="tab" aria-selected="false">
                                         <i data-feather="coffee"></i>
                                         Mesa
                                     </a>
                                 </li>
+                                <?php } ?>
                                 <!--
                             <li class="nav-item">
                                 <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
@@ -834,49 +833,7 @@ if ($Clempresas->getPermisoTienda($cod_empresa))
                                     <br />
                                 </div>
 
-                                <div class="tab-pane fade" id="tab-historico" role="tabpanel" aria-labelledby="pills-historico-tab">
-
-                                    <br>
-                                    <h5>Colapso de información anual</h5>
-                                    <hr>
-                                    <p class="text-muted">
-                                        El sistema mantiene el detalle <strong>mensual</strong> de los últimos 3 años.
-                                        La información de años anteriores se resume de forma <strong>anual</strong>
-                                        para optimizar el rendimiento de los reportes.
-                                    </p>
-
-                                    <div class="row mt-3">
-                                        <div class="col-md-4">
-                                            <div class="widget-content-area br-6 p-3" style="background:#f1f2f3;">
-                                                <div class="text-muted" style="font-size:12px;">DETALLE MENSUAL</div>
-                                                <div id="aniosMensual" style="font-size:18px; font-weight:600;">—</div>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <div class="widget-content-area br-6 p-3" style="background:#f1f2f3;">
-                                                <div class="text-muted" style="font-size:12px;">RESUMEN ANUAL</div>
-                                                <div id="aniosAnual" style="font-size:18px; font-weight:600;">—</div>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <div class="widget-content-area br-6 p-3" style="background:#fff6e6;">
-                                                <div class="text-muted" style="font-size:12px;">PENDIENTES DE COLAPSAR</div>
-                                                <div id="aniosPendientes" style="font-size:18px; font-weight:600; color:#e2a03f;">—</div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="row mt-4">
-                                        <div class="col-md-12 text-right mt-2 mb-3">
-                                            <button class="btn btn-primary" id="btnEjecutarColapso">
-                                                <i data-feather="archive"></i> Ejecutar colapso anual
-                                            </button>
-                                        </div>
-                                    </div>
-
-                                    <br />
-                                </div>
-
+                                <?php if ($tieneOfficInsite) { ?>
                                 <div class="tab-pane fade" id="tab-mesa" role="tabpanel" aria-labelledby="pills-mesa-tab">
 
                                     <br>
@@ -907,6 +864,7 @@ if ($Clempresas->getPermisoTienda($cod_empresa))
 
                                     <br />
                                 </div>
+                                <?php } ?>
 
                             </div>
                         </div>

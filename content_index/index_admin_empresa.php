@@ -38,131 +38,59 @@ $respSucursal = $Clsucursales->lista();
 
 
 <div class="col-12">
+    <div id="dashboardLoader" class="text-center py-5">
+        <div class="spinner-grow text-primary" role="status" style="width:3rem;height:3rem;">
+            <span class="sr-only">Cargando...</span>
+        </div>
+        <p class="text-muted mt-3 mb-0" style="font-size:15px;">Cargando métricas...</p>
+    </div>
     <div id="widgetsInfo"></div>
 </div>
-<div class="col-12 mt-4">
-    
-    <div class="col-xl-6 col-lg-12 col-md-12 col-sm-12 col-12 ">
-        <div class="widget widget-table-two" style="border-radius: 20px;">
-    
-            <div class="widget-heading">
-                <h5 class="" data-translate="home-titulo3">&Oacute;rdenes Recientes</h5>
-            </div>
-    
-            <div class="widget-content">
-                <div class="table-responsive">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>
-                                    <div class="th-content">Cliente</div>
-                                </th>
-                                <th>
-                                    <div class="th-content">Sucursal</div>
-                                </th>
-                                <th>
-                                    <div class="th-content">Fecha</div>
-                                </th>
-                                <th>
-                                    <div class="th-content th-heading">Total</div>
-                                </th>
-                                <th>
-                                    <div class="th-content text-center">Estado</div>
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php
-                            $resp = $Clordenes->listaLimit(5);
-                            foreach ($resp as $orden) {
-                                $badge = 'primary';
-                                if ($orden['estado'] == 'ANULADA')
-                                    $badge = 'danger';
-                                else if ($orden['estado'] == "ENTREGADA")
-                                    $badge = 'success';
-                                else if ($orden['estado'] == "ASIGNADA")
-                                    $badge = 'warning';
-    
-                                echo '<tr>
-                                    <td><div class="td-content customer-name">' . $orden['nombre'] . '</div></td>
-                                    <td><div class="td-content product-brand">' . $orden['sucursal'] . '</div></td>
-                                    <td><div class="td-content product-brand">' . fechaLatinoShort($orden['fecha']) . '</div></td>
-                                    <td><div class="td-content pricing"><span class="">$' . number_format($orden['total'], 2) . '</span></div></td>
-                                    <td><div class="td-content"><span class="badge badge-' . $badge . '">' . getEstado($orden['estado']) . '</span></div></td>
-                                </tr>';
-                            }
-                            ?>
-                        </tbody>
-                    </table>
-                </div>
-                <div class="text-center">
-                    <hr>
-                    <a href="/ordenes.php" class="text-primary">
-                        <span style="font-size:16px;">Ver todas las órdenes </span>
-                        <i data-feather="chevron-right"></i>
-                    </a>
-                </div>
+
+<div class="col-12 mt-4" id="bottomTablesRow" style="display:none;">
+
+    <!-- Top 5 Productos -->
+    <div class="col-xl-4 col-lg-12 col-md-12 col-sm-12 col-12">
+        <div class="card p-3" style="border-radius:20px; min-height:280px;">
+            <h6 style="font-weight:700;color:black;" class="mb-3">Top 5 Productos</h6>
+            <div class="table-responsive">
+                <table class="table table-sm mb-0">
+                    <thead>
+                        <tr style="font-size:11px;text-transform:uppercase;color:#888ea8;">
+                            <th style="color:black;">Producto</th>
+                            <th style="color:black;" class="text-right">Cant.</th>
+                            <th style="color:black;" class="text-right">Ventas</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbodyTopProductos"></tbody>
+                </table>
             </div>
         </div>
     </div>
-    
-    <div class="col-xl-6 col-lg-12 col-md-12 col-sm-12 col-12">
-        <div class="widget widget-table-three"  style="border-radius: 20px;">
-    
-            <div class="widget-heading">
-                <h5 class="" data-translate="home-titulo4">Producto m&aacute;s vendido</h5>
-            </div>
-    
-            <div class="widget-content">
-                <div class="table-responsive">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>
-                                    <div class="th-content">Producto</div>
-                                </th>
-                                <th>
-                                    <div class="th-content th-heading">Cantidad</div>
-                                </th>
-                                <th>
-                                    <div class="th-content th-heading">Ventas</div>
-                                </th>
-                                <th>
-                                    <div class="th-content th-heading">Precio Unidad</div>
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php
-                            $resp = $Clordenes->lista_productos_ingresos();
-                            foreach ($resp as $productos) {
-                                $imagen = $files . $productos['image_min'];
-                                $code = $productos['sku'];
-                                echo '
-                                <tr>
-                                    <td>
-                                        <div class="td-content product-name"><img src="' . $imagen . '" alt="product">
-                                            ' . $productos['nombre'] . '
-                                        </div>
-                                    </td>
-                                    <td><div class="td-content text-right"><span class="quantity">' . $productos['producto_cantidad'] . '</span></div></td>
-                                    <td><div class="td-content"><span class="pricing">$' . number_format($productos['dinero'], 2) . '</span></div></td>
-                                    <td><div class="td-content"><span class="discount-pricing">$' . number_format($productos['precio'], 2) . '</span></div></td>
-                                </tr>
-                                ';
-                            }
-                            ?>
-                        </tbody>
-                    </table>
-                </div>
-                <div class="text-center">
-                    <hr>
-                    <a href="/reporte_ventas.php" class="text-primary">
-                        <span style="font-size:16px;">Ver Reporte de ventas </span>
-                        <i data-feather="chevron-right"></i>
-                    </a>
-                </div>
+
+    <!-- Rendimiento por Sucursal -->
+    <div class="col-xl-4 col-lg-12 col-md-12 col-sm-12 col-12">
+        <div class="card p-3" style="border-radius:20px; min-height:280px;">
+            <h6 style="font-weight:700;color:black;" class="mb-3">Rendimiento por Sucursal</h6>
+            <div class="table-responsive">
+                <table class="table table-sm mb-0">
+                    <thead>
+                        <tr style="font-size:11px;text-transform:uppercase;color:black;">
+                            <th style="color:black;">Sucursal</th>
+                            <th style="color:black;" class="text-right">Ventas</th>
+                            <th style="color:black;" class="text-right">% Vta</th>
+                            <th style="color:black;" class="text-right">Órd.</th>
+                            <th style="color:black;" class="text-right">T.Prom</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbodySucursales"></tbody>
+                </table>
             </div>
         </div>
+    </div>
+
+    <!-- Producto más vendido -->
+    <div class="col-xl-4 col-lg-12 col-md-12 col-sm-12 col-12">
+        
     </div>
 </div>

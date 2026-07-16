@@ -153,14 +153,13 @@ function crear(){
             $idP = $Clproductos->cod_producto;
 
             //INSERT ETIQUETAS
+            $Clproductos->delEtiquetas($cod_producto);
             if (isset($cmbEtiqueta) && trim($cmbEtiqueta) !== '') {
                 if(!is_numeric($cmbEtiqueta)){
                     $Clproductos->createAndSetEtiqueta($cod_producto, $cmbEtiqueta);
                 }else{
                     $Clproductos->setEtiquetas($cod_producto, $cmbEtiqueta);
                 }
-            }else{
-                $Clproductos->delEtiquetas($cod_producto);
             }
             
             //EMPAQUE
@@ -225,10 +224,10 @@ function crear(){
     }
     
     //DIAS
-    $cmbDias = isset($_POST['cmbDias']) ? $cmbDias : [];
     $Clproductos->deleteDays($cod_producto);
-    if($rb_dias == 1){ //INSERTAR NUEVOS DIAS
-        $Clproductos->setDays($cod_producto, $cmbDias);
+    if($rb_dias == 1){
+        $dias_producto = $_POST['dias'] ?? [];
+        $Clproductos->setDays($cod_producto, $dias_producto);
     }
     
     return $return;

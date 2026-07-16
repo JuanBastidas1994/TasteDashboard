@@ -305,6 +305,7 @@ function crearProducto($nombre, $descripcion, $precio_no_tax, $precio_final, $iv
 
     $id = null;
     if ($Clproductos->crear($id)) {
+        sincronizarProductoSucursales($id, intval($session['cod_empresa']));
         $fila['importado'] = true;
         $fila['motivo']    = 'CREADO (ID: '.$id.')';
         $fila['id']        = $id;
@@ -368,7 +369,34 @@ function actualizarProducto($cod_producto, $nombre, $descripcion, $precio_no_tax
         }
     }
 
+    sincronizarProductoSucursales($cod_producto, $cod_empresa);
     $fila['importado'] = true;
     $fila['motivo']    = 'ACTUALIZADO CORRECTAMENTE';
     return $fila;
+}
+
+function sincronizarProductoSucursales($cod_producto, $cod_empresa) {
+    static $cache = [];
+    if (!isset($cache[$cod_empresa])) {
+        $cache[$cod_empresa] = Conexion::buscarVariosRegistro(
+            "SELECT cod_sucursal FROM tb_sucursales WHERE estado IN ('A','I') AND cod_empresa = ?",
+            [$cod_empresa]
+        ) ?: [];
+    }
+    $sucursales = $cache[$cod_empresa];
+    if (!$sucursales) return;
+
+    foreach ($sucursales as $suc) {
+        $existe = Conexion::getSingleValue(
+            "SELECT cod_producto_sucursal FROM tb_productos_sucursal WHERE cod_producto = ? AND cod_sucursal = ? LIMIT 1",
+            [$cod_producto, $suc['cod_sucursal']]
+        );
+        if (!$existe) {
+            Conexion::ejecutar(
+                "INSERT INTO tb_productos_sucursal (cod_producto, cod_sucursal, replacePrice, precio, precio_anterior, precio_no_tax, iva_valor, agotado_inicio, agotado_fin, estado)
+                 VALUES (?, ?, 0, NULL, NULL, NULL, NULL, NULL, NULL, 'A')",
+                [$cod_producto, $suc['cod_sucursal']]
+            );
+        }
+    }
 }

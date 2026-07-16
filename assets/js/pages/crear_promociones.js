@@ -4,31 +4,35 @@ $(function() {
     flatpickr("#hora_ini", {
         enableTime: true,
         dateFormat: "Y-m-d H:i",
-        defaultHour: 7, 
+        defaultHour: 7,
         defaultMinute: 0,
+        disableMobile: true,
     });
 
     flatpickr("#hora_fin", {
         enableTime: true,
         dateFormat: "Y-m-d H:i",
-        defaultHour: 23, 
+        defaultHour: 23,
         defaultMinute: 0,
+        disableMobile: true,
     });
 
     flatpickr(".time-start", {
         enableTime: true,
-        noCalendar: true, 
+        noCalendar: true,
         dateFormat: "H:i",
-        defaultHour: 7, 
+        defaultHour: 7,
         defaultMinute: 0,
+        disableMobile: true,
     });
 
     flatpickr(".time-end", {
         enableTime: true,
-        noCalendar: true, 
+        noCalendar: true,
         dateFormat: "H:i",
-        defaultHour: 23, 
+        defaultHour: 23,
         defaultMinute: 0,
+        disableMobile: true,
     });
 
     $("#btnGuardar").on("click", function (event) {

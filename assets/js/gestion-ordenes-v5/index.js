@@ -1108,7 +1108,7 @@ function generarLinkMotorizado(order_id, phoneNumber){
         	      }
         	    }).then(function(result) {
         	      if (result.value) {
-        	          
+
         	        $(".linkCopied").click();
         	        return false;
         	      }
@@ -1122,6 +1122,33 @@ function generarLinkMotorizado(order_id, phoneNumber){
             console.log(error);
             messageDone('Ocurrió un error','error');
         });
+}
+
+function notificarPedidoListo(cod_usuario){
+    let info = {
+        cod_usuario,
+        titulo: "Tu pedido está listo 🎉",
+        descripcion: "Ya está listo para que lo retires. ¡Te esperamos con muchas ganas!"
+    }
+
+    OpenLoad("Enviando notificación...");
+    fetch(`controllers/controlador_notificaciones_expo.php?metodo=notificarCliente`,{
+        method: 'POST',
+        body: JSON.stringify(info)
+    })
+    .then(res => res.json())
+    .then(response => {
+        CloseLoad();
+        if(response.success == 1)
+            messageDone(response.mensaje, 'success');
+        else
+            messageDone(response.mensaje, 'error');
+    })
+    .catch(error=>{
+        CloseLoad();
+        console.log(error);
+        messageDone("Ocurrió un error al enviar la notificación", 'error');
+    });
 }
 
 

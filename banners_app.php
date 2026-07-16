@@ -45,7 +45,7 @@ $files = url_sistema . 'assets/empresas/' . $session['alias'] . '/';
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">CREAR BANNER (1920x700 px)</h5>
+                    <h5 class="modal-title" id="exampleModalLabel">CREAR BANNER APP (720x300 px)</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x">
                             <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -56,7 +56,7 @@ $files = url_sistema . 'assets/empresas/' . $session['alias'] . '/';
                 <div class="modal-body">
                     <input type="hidden" placeholder="" name="id" id="id" class="form-control" required="required" autocomplete="off" value="0" />
                     <form id="frmSave" name="frmSave" class="form-horizontal form-label-left">
-                        <input type="hidden" name="tipo" id="txt_tipo" value="WEB" />
+                        <input type="hidden" name="tipo" id="txt_tipo" value="APP" />
                         <div class="x_content">
                             <div class="form-group">
                                 <div class="col-md-12 col-sm-12 col-xs-12">
@@ -65,52 +65,6 @@ $files = url_sistema . 'assets/empresas/' . $session['alias'] . '/';
                                         <p class="mt-2"><i class="flaticon-cloud-upload mr-1"></i> Subir Imagen</p>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="form-group">
-                                
-                                <div class="col-md-9 col-sm-9 col-xs-12 d-none" style="margin-bottom:10px;">
-                                    <label>T&iacute;tulo <span class="asterisco">*</span></label>
-                                    <input type="text" placeholder="Escribe el titulo" name="txt_titulo" id="txt_titulo" class="form-control" autocomplete="off" />
-                                </div>
-                            </div>
-
-                            <div class="form-group">
-                                <div class="col-md-9 col-sm-9 col-xs-12 d-none" style="margin-bottom:10px;">
-                                    <label>Subt&iacute;tulo <span class="asterisco">*</span></label>
-                                    <input type="text" placeholder="Escribe el subtitulo" name="txt_subtitulo" id="txt_subtitulo" class="form-control" autocomplete="off" />
-                                </div>
-                                <div class="col-md-4 col-sm-4 col-xs-12 d-none" style="margin-bottom:10px;">
-                                    <label>Texto Grande (60Pts) <span class="asterisco">*</span></label>
-                                    <input type="text" placeholder="Ej. 15% Descuento" name="txt_descuento" id="txt_descuento" class="form-control" autocomplete="off" />
-                                </div>
-                            </div>
-
-                            <div class="form-group">
-                                <div class="col-md-3 col-sm-3 col-xs-12" style="margin-bottom:10px;">
-                                    <label>Texto del Bot&oacute;n <span class="asterisco">*</span></label>
-                                    <input type="text" placeholder="Boton" name="txt_text_boton" id="txt_text_boton" class="form-control" autocomplete="off" />
-                                </div>
-
-                                <div class="col-md-5 col-sm-5 col-xs-12" style="margin-bottom:10px;">
-                                    <label>URL del Bot&oacute;n <span class="asterisco">*</span></label>
-                                    <input type="text" placeholder="http://" name="txt_url" id="txt_url" class="form-control" autocomplete="off" />
-                                </div>
-
-                                <div class="col-md-4 col-sm-4 col-xs-12" style="margin-bottom:10px;">
-                                    <label>Ubicación del Botón <span class="asterisco">*</span></label>
-                                    <select name="txt_ubicacion" id="txt_ubicacion" class="form-control">
-                                        <option value="top_left">Superior izquierda</option>
-                                        <option value="top_center">Superior centro</option>
-                                        <option value="top_right">Superior derecha</option>
-                                        <option value="center_left">Centro izquierda</option>
-                                        <option value="center">Centro</option>
-                                        <option value="center_right">Centro derecha</option>
-                                        <option value="bottom_left">Inferior izquierda</option>
-                                        <option value="bottom_center" selected>Inferior centro</option>
-                                        <option value="bottom_right">Inferior derecha</option>
-                                    </select>
-                                </div>
-
                             </div>
 
                             <div class="form-group">
@@ -165,10 +119,10 @@ $files = url_sistema . 'assets/empresas/' . $session['alias'] . '/';
                         <div class="widget-content widget-content-area br-6">
                             <div class="col-xl-12 col-md-12 col-sm-12 col-12">
                                 <div class="col-xl-8 col-md-8 col-sm-8 col-8">
-                                    <h4>Banners</h4>
+                                    <h4>Banners App</h4>
                                 </div>
                                 <div class="col-xl-4 col-md-4 col-sm-4 col-4 text-right">
-                                    <button class="btn btn-primary" data-toggle="modal" id="btnOpenModal">Nuevo Banner</button>
+                                    <button class="btn btn-primary" data-toggle="modal" id="btnOpenModal">Nuevo Banner App</button>
                                 </div>
                                 <div class="col-xl-12 col-md-12 col-sm-12 col-12">
                                     <hr />
@@ -187,7 +141,7 @@ $files = url_sistema . 'assets/empresas/' . $session['alias'] . '/';
                                     </thead>
                                     <tbody id="lstBanners" class="connectedSortable">
                                         <?php
-                                        $resp = $clBanner->lista('WEB');
+                                        $resp = $clBanner->lista('APP');
                                         foreach ($resp as $banner) {
                                             $imagen = $files . $banner['image_min'];
                                             $badge = 'primary';

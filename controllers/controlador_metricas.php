@@ -281,21 +281,87 @@ function getIndicators($officeId, $dateStart, $dateEnd, $period)
     }
 
     // ================================
+    // 9️⃣ TOP 5 PRODUCTOS
+    // ================================
+    $sqlTopProds = "
+        SELECT
+            p.nombre,
+            SUM(od.cantidad)             AS cantidad,
+            SUM(od.precio * od.cantidad) AS total_ventas
+        FROM tb_orden_cabecera o
+        INNER JOIN tb_orden_detalle od ON o.cod_orden    = od.cod_orden
+        INNER JOIN tb_productos     p  ON p.cod_producto = od.cod_producto
+        WHERE $baseWhere
+        GROUP BY od.cod_producto, p.nombre
+        ORDER BY total_ventas DESC
+        LIMIT 5
+    ";
+    $topProdsRaw  = Conexion::buscarVariosRegistro($sqlTopProds, $params);
+    $topProductos = [];
+    foreach ($topProdsRaw as $row) {
+        $topProductos[] = [
+            'nombre'       => html_entity_decode($row['nombre'], ENT_QUOTES, 'UTF-8'),
+            'cantidad'     => (int)$row['cantidad'],
+            'total_ventas' => round((float)$row['total_ventas'], 2),
+        ];
+    }
+
+    // ================================
+    // 🔟 RENDIMIENTO POR SUCURSAL
+    // ================================
+    $paramsNoSuc = [
+        ':cod_empresa' => $empresa,
+        ':start'       => $dateStart,
+        ':end'         => $dateEnd,
+    ];
+    $sqlSucursales = "
+        SELECT
+            s.nombre           AS sucursal,
+            SUM(o.total)       AS ventas,
+            COUNT(o.cod_orden) AS ordenes,
+            AVG(o.total)       AS ticket_promedio
+        FROM tb_orden_cabecera o
+        INNER JOIN tb_sucursales s ON s.cod_sucursal = o.cod_sucursal
+        WHERE o.cod_empresa = :cod_empresa
+          AND o.estado      = 'ENTREGADA'
+          AND o.fecha       BETWEEN :start AND :end
+        GROUP BY o.cod_sucursal, s.nombre
+        ORDER BY ventas DESC
+        LIMIT 5
+    ";
+    $sucursalesRaw   = Conexion::buscarVariosRegistro($sqlSucursales, $paramsNoSuc);
+    $totalVentasSuc  = array_sum(array_column($sucursalesRaw, 'ventas'));
+    $rendimientoSucursal = [];
+    foreach ($sucursalesRaw as $row) {
+        $rendimientoSucursal[] = [
+            'sucursal'        => html_entity_decode($row['sucursal'], ENT_QUOTES, 'UTF-8'),
+            'ventas'          => round((float)$row['ventas'], 2),
+            'porcentaje'      => $totalVentasSuc > 0
+                                    ? round(($row['ventas'] / $totalVentasSuc) * 100)
+                                    : 0,
+            'ordenes'         => (int)$row['ordenes'],
+            'ticket_promedio' => round((float)$row['ticket_promedio'], 2),
+        ];
+    }
+
+    // ================================
     // RETURN FINAL
     // ================================
 
     return [
-        "total" => (int)($totals['total'] ?? 0),
-        "totalAmount" => (float)($totals['total_amount'] ?? 0),
-        "ticketPromedio" => round((float)($totals['ticket_promedio'] ?? 0), 2),
-        "topHours" => $topHours,
-        "topDays" => $topDays,
-        "topDaysSales" => $topDaysSales,
-        "topPlatforms" => $topPlatforms,
-        "deliveryTotals" => $topDelivery,
-        "trend" => $trend,
+        "total"                => (int)($totals['total'] ?? 0),
+        "totalAmount"          => (float)($totals['total_amount'] ?? 0),
+        "ticketPromedio"       => round((float)($totals['ticket_promedio'] ?? 0), 2),
+        "topHours"             => $topHours,
+        "topDays"              => $topDays,
+        "topDaysSales"         => $topDaysSales,
+        "topPlatforms"         => $topPlatforms,
+        "deliveryTotals"       => $topDelivery,
+        "trend"                => $trend,
         'clientes_recurrentes' => $clientes_recurrentes,
-        'ordenesPorEstado' => $ordenesPorEstado
+        'ordenesPorEstado'     => $ordenesPorEstado,
+        'topProductos'         => $topProductos,
+        'rendimientoSucursal'  => $rendimientoSucursal,
     ];
 }
 

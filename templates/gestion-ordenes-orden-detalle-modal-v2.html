@@ -334,16 +334,20 @@
                     </div>
                 {{else}}
                     <div class="mt-5">
-                        <h5>Descripción de retiro</h5>
+                        <h5>Descripción de retiro as</h5>
                         <div>
                             <div class="mb-2"><i data-feather="calendar"></i><span class="ml-2">{{ retiro.fecha }}</span></div>
                             <div><i data-feather="clock"></i><span class="ml-2">{{ retiro.hora }}</span></div>
                         </div>
                     </div>
                 {{/eq}}
-                
-            {{/eq}}  
-            
+
+            {{/eq}}
+
+            <div class="mt-3">
+                <button class="btn btn-secondary" onclick="notificarPedidoListo({{usuario.id}})">Notificar pedido listo</button>
+            </div>
+
             {{#if motivo_cancelacion}}
             <div class="mt-3">
                 <h5>Motivo cancelación</h5>
@@ -597,14 +601,6 @@
         </div>
         <div id="client-tab-notificar" class="client-tab-details" style="display: none;">
             <h2>Notificar al cliente</h2>
-            <div class="mt-2">
-                <label>Tipo <span class="asterisco">*</span></label>
-                <select class="form-control cmbTipoNotificacion" name="cmbTipoNotificacion" id="cmbTipoNotificacion">
-                    <option value="general">General</option>
-                    <option value="cumple">Cumpleaños</option>
-                    <option value="recordatorio">Recordatorio</option>                                            
-                </select>
-            </div>
             <div class="mt-2">
                 <label>Título <span class="asterisco">*</span></label>
                 <input type="text" class="form-control txtNotificaionTitulo" placeholder="Título de la notificación">
@@ -1013,6 +1009,7 @@
                 <p><b>{{tipo}}</b> | {{paginas}} Pág,  Size: {{size}}mm</p>
             </div>
             <div class="col-3 text-right">
+                <button class="btn btn-warning btnTestPrinter" data-name="{{nombre}}" data-id="{{id}}"> <i data-feather="printer"></i> </button>
                 <button class="btn btn-danger btnDeletePrinter" data-name="{{nombre}}" data-id="{{id}}"> <i data-feather="trash"></i> </button>
             </div>
         </div>

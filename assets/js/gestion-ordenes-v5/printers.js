@@ -172,6 +172,49 @@ function printOrder(order_id){
         });
 }
 
+$("body").on("click", ".btnTestPrinter", function(){
+    let btn = $(this).data();
+    printer = JSON.parse(localStorage.getItem('printer'));
+
+    let impresora = printer.impresoras.find(function(imp){
+        return imp.id == btn.id;
+    });
+
+    if(!impresora){
+        notify("No se encontró la configuración de la impresora", "error", 5);
+        return;
+    }
+
+    let printerInfo = [{
+        id: impresora.id,
+        nombre: impresora.nombre,
+        paginas: impresora.paginas,
+        tipo: impresora.tipo,
+        size: impresora.size,
+        detalle: [
+            {texto: "IMPRESION TEST", tipo: "CENTER"},
+            {texto: "impresion de prueba", tipo: "LEFT"},
+            {texto: `Impresora: ${impresora.nombre}`, tipo: "LEFT"},
+            {texto: `Tipo: ${impresora.tipo}`, tipo: "LEFT"}
+        ]
+    }];
+
+    //Enviar información al servicio de impresión
+    fetch(`${printer.url}/print/v2`,{
+            method: 'POST',
+            body: JSON.stringify(printerInfo)
+        })
+        .then(res => res.json())
+        .then(response => {
+            notify("Impresión correcta", "success", 2);
+            // console.log(response);
+        })
+        .catch(error=>{
+            notify("Error: Verifica el servicio de impresion", "error", 10);
+            console.log(error);
+        });
+});
+
 $("body").on("click", ".btnDeletePrinter", function(){
     let printerId = $(this).data("id");
     if(printerId == "") {

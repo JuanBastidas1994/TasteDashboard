@@ -1996,6 +1996,47 @@ $(document).ready(function() {
         });
     });
 
+    $("#chk_giftcard").on("change", function(){
+        var id = parseInt($("#id").val());
+        if(id == 0){
+            messageDone("Primero debes crear la empresa para activar el permiso", "error");
+            return;
+        }
+
+        let checkb = $(this);
+        let estado = 0;
+        if(checkb.is(":checked"))
+            estado = 1;
+
+        var parametros = {
+            "cod_empresa": id,
+            "estado": estado
+        }
+        $.ajax({
+           url:'controllers/controlador_empresa.php?metodo=setPermisoGiftcard',
+           data: parametros,
+           type: "GET",
+           beforeSend: function(){
+                OpenLoad("Actualizando estado, por favor espere...");
+            },
+           success: function(response){
+                console.log(response);
+                if(response['success']==1){
+                    messageDone(response['mensaje'], "success");
+                    }
+                    else{
+                    messageDone(response['mensaje'], "error");
+                }
+           },
+           error: function(data){
+                console.log(data);
+           },
+           complete: function(){
+                CloseLoad();
+           },
+        });
+    });
+
     $("#chk_produccion").on("change", function(){
         let checkb = $(this);
 

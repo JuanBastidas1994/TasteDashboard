@@ -178,6 +178,27 @@ class cl_empresas
 			return Conexion::ejecutar($query,NULL);
 		}
 
+		public function setPermisoGiftcard($estado, $cod_empresa){
+			$query = "UPDATE tb_empresas
+			SET giftcard = $estado WHERE cod_empresa = $cod_empresa";
+			return Conexion::ejecutar($query,NULL);
+		}
+
+		public function setCustomAppUrls($cod_empresa, $urlAndroid, $urlIos){
+			$urlAndroid = addslashes($urlAndroid);
+			$urlIos = addslashes($urlIos);
+			$query = "UPDATE tb_empresas
+			SET url_android = '$urlAndroid', url_ios = '$urlIos' WHERE cod_empresa = $cod_empresa";
+			return Conexion::ejecutar($query,NULL);
+		}
+
+		public function setTabsOrder($cod_empresa, $tabsOrder){
+			$value = ($tabsOrder === "") ? "NULL" : "'".addslashes($tabsOrder)."'";
+			$query = "UPDATE tb_empresas
+			SET tabs_order = $value WHERE cod_empresa = $cod_empresa";
+			return Conexion::ejecutar($query,NULL);
+		}
+
 		public function set_costo_envio($cod_empresa, $tarifa_base, $km_base, $tarifa_adicional){
 			$usuario = $this->session['cod_usuario'];
 			$query = "UPDATE tb_empresa_costo_envio SET base_dinero='$tarifa_base', base_km='$km_base', adicional_km='$tarifa_adicional' WHERE cod_empresa = $cod_empresa";

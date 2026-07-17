@@ -946,7 +946,7 @@ function setGravaIva(){
 
 function setPermisoFidelizacion(){
     global $Clempresas;
-    
+
     $cod_empresa = $_GET['cod_empresa'];
     $permiso = $_GET['estado'];
 
@@ -957,7 +957,84 @@ function setPermisoFidelizacion(){
     else{
         $return['success'] = 0;
         $return['mensaje'] = "Error al editar permiso";
-    }    
+    }
+    return $return;
+}
+
+function setPermisoGiftcard(){
+    global $Clempresas;
+
+    $cod_empresa = $_GET['cod_empresa'];
+    $permiso = $_GET['estado'];
+
+    if($Clempresas->setPermisoGiftcard($permiso, $cod_empresa)){
+        $return['success'] = 1;
+        $return['mensaje'] = "Permiso editado correctamente";
+    }
+    else{
+        $return['success'] = 0;
+        $return['mensaje'] = "Error al editar permiso";
+    }
+    return $return;
+}
+
+function updateCustomAppUrls(){
+    global $Clempresas;
+
+    $cod_empresa = intval($_POST['cod_empresa']);
+    $urlAndroid = isset($_POST['url_android']) ? trim($_POST['url_android']) : '';
+    $urlIos = isset($_POST['url_ios']) ? trim($_POST['url_ios']) : '';
+
+    if($cod_empresa <= 0){
+        $return['success'] = 0;
+        $return['mensaje'] = "Empresa inv\xC3\xA1lida";
+        return $return;
+    }
+
+    if($Clempresas->setCustomAppUrls($cod_empresa, $urlAndroid, $urlIos)){
+        $return['success'] = 1;
+        $return['mensaje'] = "Informaci\xC3\xB3n actualizada correctamente";
+    }
+    else{
+        $return['success'] = 0;
+        $return['mensaje'] = "Error al actualizar la informaci\xC3\xB3n";
+    }
+    return $return;
+}
+
+function updateTabsOrder(){
+    global $Clempresas;
+
+    $cod_empresa = intval($_POST['cod_empresa']);
+    $tabsOrder = isset($_POST['tabs_order']) ? trim($_POST['tabs_order']) : '';
+
+    $tabsValidos = ['menu', 'orders', 'wallet', 'giftcards', 'profile'];
+    if($tabsOrder !== ''){
+        $items = array_filter(array_map('trim', explode(',', $tabsOrder)));
+        foreach($items as $item){
+            if(!in_array($item, $tabsValidos)){
+                $return['success'] = 0;
+                $return['mensaje'] = "Item de men\xC3\xBA inv\xC3\xA1lido: $item";
+                return $return;
+            }
+        }
+        $tabsOrder = implode(',', $items);
+    }
+
+    if($cod_empresa <= 0){
+        $return['success'] = 0;
+        $return['mensaje'] = "Empresa inv\xC3\xA1lida";
+        return $return;
+    }
+
+    if($Clempresas->setTabsOrder($cod_empresa, $tabsOrder)){
+        $return['success'] = 1;
+        $return['mensaje'] = "Orden actualizado correctamente";
+    }
+    else{
+        $return['success'] = 0;
+        $return['mensaje'] = "Error al actualizar el orden";
+    }
     return $return;
 }
 

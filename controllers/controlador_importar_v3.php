@@ -253,7 +253,7 @@ function encontrarOCrearCategoria($nombre_categoria, $session) {
 
     $Clcat->cod_categoria_padre = 0;
     $Clcat->alias               = $alias;
-    $Clcat->nombre              = htmlentities($nombre_categoria);
+    $Clcat->nombre              = $nombre_categoria;
     $Clcat->desc_corta          = '';
     $Clcat->desc_larga          = '';
     $Clcat->image_min           = '';

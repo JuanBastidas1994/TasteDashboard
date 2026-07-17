@@ -2,16 +2,24 @@ $(document).ready(function(){
 
     feather.replace();
 
+    /*INFORMACION - TIPO DE MENU (GRID / LISTA)*/
+    $(".menu-type-option").on("click", function(){
+        $(".menu-type-option").removeClass("active");
+        $(this).addClass("active");
+        $("#hd_menu_type").val($(this).data("value"));
+    });
+
     /*INFORMACION - URLs ANDROID / IOS*/
     $("#btnGuardarInfoApp").on("click", function(){
         var cod_empresa = parseInt($("#id").val());
         var parametros = {
             "cod_empresa": cod_empresa,
             "url_android": $("#txt_url_android").val(),
-            "url_ios": $("#txt_url_ios").val()
+            "url_ios": $("#txt_url_ios").val(),
+            "menu_type": $("#hd_menu_type").val()
         }
         $.ajax({
-            url: 'controllers/controlador_empresa.php?metodo=updateCustomAppUrls',
+            url: 'controllers/controlador_empresa.php?metodo=updateCustomAppInfo',
             data: parametros,
             type: "POST",
             beforeSend: function(){

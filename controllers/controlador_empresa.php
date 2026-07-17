@@ -978,12 +978,13 @@ function setPermisoGiftcard(){
     return $return;
 }
 
-function updateCustomAppUrls(){
+function updateCustomAppInfo(){
     global $Clempresas;
 
     $cod_empresa = intval($_POST['cod_empresa']);
     $urlAndroid = isset($_POST['url_android']) ? trim($_POST['url_android']) : '';
     $urlIos = isset($_POST['url_ios']) ? trim($_POST['url_ios']) : '';
+    $menuType = isset($_POST['menu_type']) ? trim($_POST['menu_type']) : 'list';
 
     if($cod_empresa <= 0){
         $return['success'] = 0;
@@ -991,7 +992,7 @@ function updateCustomAppUrls(){
         return $return;
     }
 
-    if($Clempresas->setCustomAppUrls($cod_empresa, $urlAndroid, $urlIos)){
+    if($Clempresas->setCustomAppInfo($cod_empresa, $urlAndroid, $urlIos, $menuType)){
         $return['success'] = 1;
         $return['mensaje'] = "Informaci\xC3\xB3n actualizada correctamente";
     }

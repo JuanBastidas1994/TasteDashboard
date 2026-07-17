@@ -27,6 +27,7 @@ $nombre = $empresa['nombre'];
 $folder = $empresa['folder'];
 $urlAndroid = $empresa['url_android'];
 $urlIos = $empresa['url_ios'];
+$menuType = ($empresa['menu_type'] == 'grid') ? 'grid' : 'list';
 
 $filesActuales = url_sistema.'assets/empresas/'.$empresa['alias'].'/';
 $filesActualesUp = url_upload.'assets/empresas/'.$empresa['alias'].'/';
@@ -92,6 +93,27 @@ foreach($availableOrder as $key){
         }
         #frmLogos img{
             background-color: #c3c3c3;
+        }
+        .menu-type-toggle{
+            display: inline-flex;
+            background-color: #f1f2f3;
+            border-radius: 30px;
+            padding: 4px;
+        }
+        .menu-type-toggle .menu-type-option{
+            border: none;
+            background-color: transparent;
+            padding: 8px 26px;
+            border-radius: 30px;
+            font-weight: 600;
+            color: #888ea8;
+            cursor: pointer;
+            transition: all .15s ease-in-out;
+        }
+        .menu-type-toggle .menu-type-option.active{
+            background-color: #1b55e2;
+            color: #fff;
+            box-shadow: 0px 5px 15px 0px rgb(27 85 226 / 30%);
         }
     </style>
 </head>
@@ -162,6 +184,16 @@ foreach($availableOrder as $key){
                                                     <div class="form-group col-md-12 col-sm-12 col-xs-12" style="margin-bottom:10px;">
                                                         <label>URL iOS (App Store)</label>
                                                         <input type="text" placeholder="Ej: https://apps.apple.com/app/..." name="txt_url_ios" id="txt_url_ios" class="form-control" autocomplete="off" value="<?= $urlIos?>">
+                                                    </div>
+                                                </div>
+                                                <div class="form-row">
+                                                    <div class="form-group col-md-12 col-sm-12 col-xs-12" style="margin-bottom:10px;">
+                                                        <label>Tipo de men&uacute;</label><br>
+                                                        <div class="menu-type-toggle" id="menuTypeToggle">
+                                                            <button type="button" class="menu-type-option <?= $menuType == 'grid' ? 'active' : ''?>" data-value="grid">Grid</button>
+                                                            <button type="button" class="menu-type-option <?= $menuType == 'list' ? 'active' : ''?>" data-value="list">Lista</button>
+                                                        </div>
+                                                        <input type="hidden" name="hd_menu_type" id="hd_menu_type" value="<?= $menuType?>">
                                                     </div>
                                                 </div>
                                                 <div class="form-row">
@@ -291,7 +323,7 @@ foreach($availableOrder as $key){
 
     <?php js_mandatory(); ?>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
-    <script src="assets/js/pages/custom_apps.js?v=1" type="text/javascript"></script>
+    <script src="assets/js/pages/custom_apps.js?v=2" type="text/javascript"></script>
 
     <!-- BEGIN PAGE LEVEL CUSTOM SCRIPTS -->
     <script src="assets/js/scrollspyNav.js"></script>

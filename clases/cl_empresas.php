@@ -184,11 +184,12 @@ class cl_empresas
 			return Conexion::ejecutar($query,NULL);
 		}
 
-		public function setCustomAppUrls($cod_empresa, $urlAndroid, $urlIos){
+		public function setCustomAppInfo($cod_empresa, $urlAndroid, $urlIos, $menuType){
 			$urlAndroid = addslashes($urlAndroid);
 			$urlIos = addslashes($urlIos);
+			$menuType = ($menuType == 'grid') ? 'grid' : 'list';
 			$query = "UPDATE tb_empresas
-			SET url_android = '$urlAndroid', url_ios = '$urlIos' WHERE cod_empresa = $cod_empresa";
+			SET url_android = '$urlAndroid', url_ios = '$urlIos', menu_type = '$menuType' WHERE cod_empresa = $cod_empresa";
 			return Conexion::ejecutar($query,NULL);
 		}
 

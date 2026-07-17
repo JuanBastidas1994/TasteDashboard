@@ -1,6 +1,24 @@
 {
   "permissions": {
     "allow": [
+      "Bash(mysql -h localhost -u root jc_taste -e \"SHOW COLUMNS FROM tb_empresas;\")",
+      "Bash(mysql --version)",
+      "Bash(/c/laragon/bin/mysql/mysql-8.0.30-winx64/bin/mysql.exe -h 127.0.0.1 -u root jc_taste -e \"SHOW COLUMNS FROM tb_empresas;\")",
+      "Bash(/c/laragon/bin/mysql/mysql-8.0.30-winx64/bin/mysql.exe -h 127.0.0.1 -u root jc_taste -e \"SHOW FULL COLUMNS FROM tb_empresas WHERE Field='fidelizacion';\")",
+      "Bash(/c/laragon/bin/mysql/mysql-8.0.30-winx64/bin/mysql.exe -h 127.0.0.1 -u root jc_taste -e \"ALTER TABLE tb_empresas ADD COLUMN giftcard INT NOT NULL DEFAULT 0 COMMENT 'Indica si la empresa tiene habilitado el uso de giftcards' AFTER fidelizacion;\")",
+      "Bash(/c/laragon/bin/mysql/mysql-8.0.30-winx64/bin/mysql.exe -h 127.0.0.1 -u root jc_taste -e \"SHOW FULL COLUMNS FROM tb_empresas WHERE Field IN \\('giftcard','fidelizacion','tabs_order','url_android','url_ios'\\);\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" \"http://localhost:8080/custom_apps.php?id=hamburguesas-dm\")",
+      "Bash(curl -s -D - -o /dev/null \"http://localhost:8080/custom_apps.php?id=hamburguesas-dm\")",
+      "Bash(php _test_custom_apps.php)",
+      "Read(//c/Users/super/AppData/Local/Temp/claude/c--laragon-www-taste/721db62e-3e2a-44ec-aa3f-0d8af5468266/scratchpad/**)",
+      "Bash(grep -n \"txt_url_android\\\\|txt_url_ios\\\\|lstTabsDisponibles\\\\|lstTabsSeleccionados\\\\|tab-order-item\\\\|frmLogos\\\\|Configuraci\" /c/Users/super/AppData/Local/Temp/claude/c--laragon-www-taste/721db62e-3e2a-44ec-aa3f-0d8af5468266/scratchpad/out_custom_apps.html)",
+      "Bash(php _test_crear_empresa.php)",
+      "Bash(curl -s \"http://localhost:8080/controllers/controlador_empresa.php?metodo=setPermisoGiftcard&cod_empresa=70&estado=1\")",
+      "Bash(curl -s -X POST \"http://localhost:8080/controllers/controlador_empresa.php?metodo=updateCustomAppUrls\" -d \"cod_empresa=70&url_android=https://play.google.com/test&url_ios=https://apps.apple.com/test\")",
+      "Bash(curl -s -X POST \"http://localhost:8080/controllers/controlador_empresa.php?metodo=updateTabsOrder\" -d \"cod_empresa=70&tabs_order=giftcards,menu,wallet,orders,profile\")",
+      "Bash(curl -s -X POST \"http://localhost:8080/controllers/controlador_empresa.php?metodo=updateTabsOrder\" -d \"cod_empresa=70&tabs_order=giftcards,bogus\")",
+      "Bash(/c/laragon/bin/mysql/mysql-8.0.30-winx64/bin/mysql.exe -h 127.0.0.1 -u root jc_taste -e \"SELECT cod_empresa, giftcard, url_android, url_ios, tabs_order FROM tb_empresas WHERE cod_empresa=70;\")",
+      "Bash(/c/laragon/bin/mysql/mysql-8.0.30-winx64/bin/mysql.exe -h 127.0.0.1 -u root jc_taste -e \"UPDATE tb_empresas SET giftcard=0, url_android='https://play.google.com/store', url_ios='https://www.apple.com/la/app-store/', tabs_order=NULL WHERE cod_empresa=70;\")"
     ]
   }
 }

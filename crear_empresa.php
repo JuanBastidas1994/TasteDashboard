@@ -36,6 +36,7 @@ $api = "";
 $chkProgramar = "";
 $chkGravaIva = "checked";
 $chkFidelizacion = "";
+$chkGiftcard = "";
 $chkProduccion = "";
 $ckStartOnMenu = "";
 
@@ -85,6 +86,7 @@ if(isset($_GET['id'])){
     $chkProgramar = ($empresa['programar_pedido'] == 1) ? 'checked' : '';
     $chkGravaIva = ($empresa['envio_grava_iva'] == 1) ? 'checked' : '';
     $chkFidelizacion = ($empresa['fidelizacion'] == 1) ? 'checked' : '';
+    $chkGiftcard = ($empresa['giftcard'] == 1) ? 'checked' : '';
     $chkProduccion = ($empresa['ambiente'] == 'production') ? 'checked' : '';
     $ckStartOnMenu = ($empresa['iniciar_en_menu'] == 1) ? 'checked' : '';
     
@@ -442,6 +444,7 @@ if(file_exists($folder_demo)){
                                 <a class="dropdown-item" href="empresas_buttonPayment.php?id=<?= $alias ?>" target="_blank"><i data-feather="credit-card"></i> Botón de Pagos</a>
                                 <a class="dropdown-item" href="empresas_courier.php?id=<?= $alias ?>" target="_blank"><i data-feather="truck"></i> Courier</a>
                                 <a class="dropdown-item" href="empresas_flotas.php?id=<?= $alias ?>" target="_blank"><i data-feather="truck"></i> Flotas</a>
+                                <a class="dropdown-item" href="custom_apps.php?id=<?= $alias ?>" target="_blank"><i data-feather="smartphone"></i> Aplicaciones m&oacute;viles</a>
                                 <a class="dropdown-item" href="simulador-ordenes.php?alias=<?php echo $alias?>" target="_blank"><i data-feather="navigation"></i> Simulador Ordenes</a>
                                 <a class="dropdown-item btnGenerarDemo" href="#"><i data-feather="airplay"></i> Generar demo</a>
                             </div>
@@ -472,6 +475,9 @@ if(file_exists($folder_demo)){
                                 </li>
                                 <li class="nav-item">
                                     <a class="nav-link" id="fidelizacion-tab" data-toggle="tab" href="#fidelizacion" role="tab" aria-controls="fidelizacion" aria-selected="false"><i data-feather="gift"></i> Fidelizaci&oacute;n</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="giftcard-tab" data-toggle="tab" href="#giftcard" role="tab" aria-controls="giftcard" aria-selected="false"><i data-feather="credit-card"></i> Giftcard</a>
                                 </li>
                                 <li class="nav-item">
                                     <a class="nav-link" id="notificacion-tab" data-toggle="tab" href="#notificacion" role="tab" aria-controls="notificaciones" aria-selected="false"><i data-feather="bell"></i> Notificaciones</a>
@@ -1141,7 +1147,20 @@ if(file_exists($folder_demo)){
                                     </div>
                                 </div>
                                 <!--FIN FIDELIZACION-->
-                                
+
+                                <!--CONTENIDO GIFTCARD-->
+                                <div class="tab-pane fade" id="giftcard" role="tabpanel" aria-labelledby="giftcard-tab" style="height: 250px;">
+                                    <div class="col-md-12">
+                                        <h4>Giftcard</h4>
+                                        <p>Habilita el uso de Giftcards para esta empresa.</p>
+                                        <label class="switch s-icons s-outline  s-outline-success  mb-4 mr-2">
+                                            <input type="checkbox" name="chk_giftcard" id="chk_giftcard" <?php echo $chkGiftcard; ?> />
+                                            <span class="slider round"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <!--FIN GIFTCARD-->
+
                                 <!--CONTENIDO NOTIFICACION-->
                                 <div class="tab-pane fade" id="notificacion" role="tabpanel" aria-labelledby="notificacion-tab" style="height: 300px;">
                                     <div class="col-md-12"><h4>Notificaciones</h4></div>
@@ -1684,7 +1703,7 @@ if(file_exists($folder_demo)){
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script> 
     <script src="assets/js/clipboard/clipboard.min.js"></script>
     <script src="assets/js/jscolor.js"></script>
-    <script src="assets/js/pages/crear_empresas.js?v=4" type="text/javascript"></script>
+    <script src="assets/js/pages/crear_empresas.js?v=5" type="text/javascript"></script>
     
     <!-- BEGIN PAGE LEVEL CUSTOM SCRIPTS -->
     <script src="assets/js/scrollspyNav.js"></script>

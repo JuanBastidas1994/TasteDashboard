@@ -381,15 +381,6 @@ function top()
 	            </ul>
 
 	            <ul class="navbar-item flex-row ml-md-auto">
-	                <li class="nav-item dropdown language-dropdown">
-                        <a href="javascript:void(0);" class="nav-link dropdown-toggle" id="language-dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <img id="img-lang" src="assets/img/id.png" class="flag-width" alt="flag">
-                        </a>
-                        <div class="dropdown-menu position-absolute" aria-labelledby="language-dropdown">
-                            <a data-value="es" class="dropdown-item d-flex set-lang" href="javascript:void(0);"><img id="img-lang-es" src="assets/img/es.png" class="flag-width" alt="flag"> <span class="align-self-center">&nbsp;Espa&ntilde;ol</span></a>
-                            <a data-value="en" class="dropdown-item d-flex set-lang" href="javascript:void(0);"><img id="img-lang-en" src="assets/img/en.png" class="flag-width" alt="flag"> <span class="align-self-center">&nbsp;English</span></a>
-                        </div>
-                    </li>
 	                <li class="nav-item dropdown user-profile-dropdown">
 	                    <a href="javascript:void(0);" class="nav-link dropdown-toggle user" id="userProfileDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
 	                        <img src="'.$perfil.'" alt="avatar">

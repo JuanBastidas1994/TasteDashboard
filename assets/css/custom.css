@@ -46,3 +46,172 @@
 .btn-transparent{
     background-color: transparent !important;
 }
+
+/* ================================================================
+   TASTE PALETTE  —  #FD6550 · #FFDAD4 · #E4E3EA · #E9E9E9 · #202020
+   ================================================================ */
+
+/* --- Navbar: blanco en lugar de #0e1726 dark ------------------- */
+.navbar {
+    background: #ffffff !important;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.07) !important;
+}
+.header-container {
+    border-bottom: 1px solid #E9E9E9 !important;
+}
+/* Iconos y texto del navbar que eran blancos → oscuros */
+.navbar .navbar-item .nav-item .nav-link svg,
+.navbar .navbar-item .nav-item a svg,
+.navbar .sidebarCollapse svg,
+.navbar .hamburger svg {
+    color: #202020 !important;
+    fill: rgba(32,32,32,0.07) !important;
+}
+.navbar .navbar-item .nav-item .nav-link {
+    color: #202020 !important;
+}
+.navbar .theme-brand li .brand-name {
+    color: #202020 !important;
+}
+/* Badge notificación */
+.navbar .navbar-item .nav-item .nav-link .badge {
+    background: #FD6550 !important;
+}
+/* Título en dropdowns del navbar */
+.navbar .navbar-item .nav-item.dropdown .dropdown-menu .media-body h4,
+.navbar .navbar-item .nav-item.dropdown .dropdown-menu .media-body .user-name {
+    color: #FD6550 !important;
+}
+
+/* --- Sidebar: item activo con fondo sólido #FD6550 ------------- */
+#sidebar ul.menu-categories li.menu > .dropdown-toggle[data-active="true"] {
+    background-color: #FD6550 !important;
+    color: #ffffff !important;
+    border-radius: 6px !important;
+    box-shadow: 0 4px 15px rgba(253,101,80,0.30) !important;
+}
+#sidebar ul.menu-categories li.menu > .dropdown-toggle[data-active="true"] svg {
+    color: #ffffff !important;
+    fill: rgba(255,255,255,0.18) !important;
+}
+/* Submenú items activos */
+#sidebar ul.menu-categories ul.submenu > li.active a {
+    color: #FD6550 !important;
+}
+#sidebar ul.menu-categories li.menu ul.submenu > li.active a:before {
+    background-color: #FD6550 !important;
+}
+#sidebar ul.menu-categories ul.submenu > li a:hover {
+    color: #FD6550 !important;
+}
+#sidebar ul.menu-categories ul.submenu > li a:hover:before {
+    background-color: #FD6550 !important;
+}
+#sidebar ul.menu-categories li.menu > .dropdown-toggle[aria-expanded="true"]:not([data-active="true"]) svg {
+    color: #FD6550 !important;
+    fill: rgba(253,101,80,0.18) !important;
+}
+
+/* --- btn-primary ----------------------------------------------- */
+.btn-primary,
+.btn-primary:not(:disabled):not(.disabled).active,
+.btn-primary:not(:disabled):not(.disabled):active,
+.show > .btn-primary.dropdown-toggle,
+.open > .dropdown-toggle.btn-primary {
+    background-color: #FD6550 !important;
+    border-color: #FD6550 !important;
+    color: #fff !important;
+    box-shadow: none !important;
+}
+.btn-primary:hover,
+.btn-primary:focus {
+    background-color: #e5523d !important;
+    border-color: #e5523d !important;
+    color: #fff !important;
+    box-shadow: none !important;
+}
+.btn-primary.active.focus, .btn-primary.active:focus, .btn-primary.active:hover,
+.btn-primary.focus:active, .btn-primary:active:focus, .btn-primary:active:hover {
+    background-color: #c94030 !important;
+    border-color: #c94030 !important;
+    color: #fff !important;
+}
+.btn-primary.disabled, .btn-primary.btn[disabled], .btn-primary:disabled {
+    background-color: #FD6550 !important;
+    border-color: #FD6550 !important;
+}
+.btn-group.open .btn-primary.dropdown-toggle {
+    background-color: #FFDAD4 !important;
+    border-color: #FFDAD4 !important;
+}
+
+/* --- Input focus ----------------------------------------------- */
+.form-control:focus {
+    border-color: #FD6550 !important;
+    box-shadow: 0 0 0 2px rgba(253,101,80,0.15) !important;
+}
+.input-group:hover .input-group-prepend .input-group-text svg,
+.input-group:hover .input-group-append .input-group-text svg {
+    color: #FD6550 !important;
+    fill: rgba(253,101,80,0.18) !important;
+}
+
+/* --- Badge primario (ENTRANTE, ENVIANDO): color oscuro del palette --- */
+.badge-primary {
+    background-color: #202020 !important;
+    border-color: #202020 !important;
+    color: #fff !important;
+}
+
+/* --- Otros utilitarios de color -------------------------------- */
+.bg-primary     { background-color: #FD6550 !important; }
+.text-primary   { color: #FD6550 !important; }
+.border-primary { border-color: #FD6550 !important; }
+
+/* --- Tabla: headers y hover ------------------------------------ */
+.table > thead > tr > th {
+    color: #202020 !important;
+}
+table.dataTable thead th,
+table.dataTable thead td {
+    color: #202020 !important;
+}
+/* Ícono de sort de DataTables */
+table.dataTable thead .sorting:before,
+table.dataTable thead .sorting:after,
+table.dataTable thead .sorting_asc:before,
+table.dataTable thead .sorting_asc:after,
+table.dataTable thead .sorting_desc:before,
+table.dataTable thead .sorting_desc:after {
+    color: #888ea8 !important;
+    opacity: 0.6;
+}
+/* Hover de filas */
+.table-hover:not(.table-dark) tbody tr:hover,
+table.dataTable tbody tr:hover {
+    background-color: #FFF5F4 !important;
+}
+
+/* --- DataTables buttons --------------------------------------- */
+div.dt-buttons .dt-button,
+div.dt-buttons .dt-button.btn,
+div.dt-buttons .dt-button.btn-primary,
+.dt-button.btn-primary {
+    background: #FD6550 !important;
+    background-color: #FD6550 !important;
+    border-color: #FD6550 !important;
+    color: #fff !important;
+    box-shadow: none !important;
+}
+div.dt-buttons .dt-button:hover,
+div.dt-buttons .dt-button.btn:hover,
+div.dt-buttons .dt-button.btn-primary:hover {
+    background: #e5523d !important;
+    background-color: #e5523d !important;
+    border-color: #e5523d !important;
+    color: #fff !important;
+}
+
+/* --- Selección de texto --------------------------------------- */
+::-moz-selection { color: #FD6550 !important; background: transparent; }
+::selection      { color: #FD6550 !important; background: transparent; }

@@ -63,21 +63,13 @@ $clsucursales = new cl_sucursales(NULL);
 
                     <div class="col-xl-12 col-lg-12 col-sm-12  layout-spacing ">
                         <div class="widget-content widget-content-area br-6">
-                            <div class="col-xl-12 col-md-12 col-sm-12 col-12">
-                                <div class="col-xl-8 col-md-8 col-sm-8 col-8">
-                                    <h4>&Oacute;rdenes</h4>
-                                </div>
-                                <div class="col-xl-4 col-md-4 col-sm-4 col-4 text-right" style="display:none;">
-                                    <button class="btn btn-primary" data-toggle="modal" data-target="#crearCliente">Nueva orden</button>
-                                </div>
-                                <div class="col-xl-12 col-md-12 col-sm-12 col-12">
-                                    <hr />
-                                </div>
+                            <div class="col-xl-12 col-md-12 col-sm-12 col-12 mb-3">
+                                <h4>Órdenes</h4>
                             </div>
 
-                            <div class="row">
-                                <div class="col-md-2 col-12 mb-md-0 mb-4<?php if ($session['cod_rol'] == 3) echo "d-none"; ?> ">
-                                    <label>Sucursal <i data-feather="map-pin"></i></label>
+                            <div class="row align-items-end mb-3">
+                                <div class="col-md-2 col-12 mb-md-0 mb-3<?php if ($session['cod_rol'] == 3) echo " d-none"; ?>">
+                                    <label class="mb-1">Sucursal <i data-feather="map-pin" style="width:14px;height:14px;"></i></label>
                                     <select id="cmbSucursal" class="form-control basic">
                                         <option value="">Todas</option>
                                         <?php
@@ -85,12 +77,11 @@ $clsucursales = new cl_sucursales(NULL);
                                         foreach ($resp as $sucursales) {
                                             echo '<option value="' . $sucursales['cod_sucursal'] . '">' . $sucursales['nombre'] . '</option>';
                                         }
-
                                         ?>
                                     </select>
                                 </div>
-                                <div class="col-md-2 col-12 mb-md-0 mb-4">
-                                    <label>Tipo <i data-feather="truck"></i></label>
+                                <div class="col-md-2 col-12 mb-md-0 mb-3">
+                                    <label class="mb-1">Tipo <i data-feather="truck" style="width:14px;height:14px;"></i></label>
                                     <select id="cmbType" class="form-control">
                                         <option value="">Todas</option>
                                         <option value="1">Delivery</option>
@@ -102,8 +93,8 @@ $clsucursales = new cl_sucursales(NULL);
                                         ?>
                                     </select>
                                 </div>
-                                <div class="col-md-2 col-12 mb-md-0 mb-4">
-                                    <label>Pago <i data-feather="credit-card"></i></label>
+                                <div class="col-md-2 col-12 mb-md-0 mb-3">
+                                    <label class="mb-1">Pago <i data-feather="credit-card" style="width:14px;height:14px;"></i></label>
                                     <select id="cmbPayment" class="form-control">
                                         <option value="">Todas</option>
                                         <option value="E">Efectivo</option>
@@ -111,15 +102,15 @@ $clsucursales = new cl_sucursales(NULL);
                                         <option value="TB">Transferencia</option>
                                     </select>
                                 </div>
-                                <div class="col-md-2 col-12 mb-md-0 mb-4">
-                                    <label>Entrega <i data-feather="clock"></i></label>
+                                <div class="col-md-2 col-12 mb-md-0 mb-3">
+                                    <label class="mb-1">Entrega <i data-feather="clock" style="width:14px;height:14px;"></i></label>
                                     <select id="cmbTiempo" class="form-control">
                                         <option value="">Todas</option>
                                         <option value="programadas">Programadas por entregar</option>
                                     </select>
                                 </div>
-                                <div class="col-md-3 col-12 mb-md-0 mb-4">
-                                    <label>Buscar <i data-feather="search"></i></label>
+                                <div class="col-md-4 col-12 mb-md-0 mb-3">
+                                    <label class="mb-1">Buscar <i data-feather="search" style="width:14px;height:14px;"></i></label>
                                     <input type="text" id="customSearch" class="form-control" placeholder="Buscar orden...">
                                 </div>
                             </div>
@@ -178,17 +169,16 @@ $clsucursales = new cl_sucursales(NULL);
                 serverSide: true,
                 dom: 'Bfrtip',
                 buttons: {
-                    buttons: [{
-                            extend: 'excel',
-                            className: 'btn'
-                        },
+                    buttons: [
                         {
-                            extend: 'pdf',
-                            className: 'btn'
+                            extend: 'excel',
+                            text: '<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:5px;vertical-align:middle;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg> Excel',
+                            className: 'btn btn-primary'
                         },
                         {
                             extend: 'print',
-                            className: 'btn'
+                            text: '<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:5px;vertical-align:middle;"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg> Print',
+                            className: 'btn btn-primary'
                         }
                     ]
                 },

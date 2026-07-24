@@ -18,8 +18,12 @@
                                         $<span class="mail-title"></span>{{decimal total}} &nbsp;&nbsp;
                                         {{#eq pago "E"}}
                                             <i data-feather="dollar-sign"></i>
-                                        {{else}}   
-                                            <i data-feather="credit-card"></i>
+                                        {{else}}
+                                            {{#eq pago "TB"}}
+                                                <i data-feather="repeat"></i>
+                                            {{else}}
+                                                <i data-feather="credit-card"></i>
+                                            {{/eq}}
                                         {{/eq}}
                                         {{#eq is_envio "1"}}
                                             <i data-feather="map-pin"></i>

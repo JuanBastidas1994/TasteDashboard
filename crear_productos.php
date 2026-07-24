@@ -1194,9 +1194,14 @@ $tipoRecorte = $empresa['tipo_recorte'];
                                     </div>
                                     <div class="form-group col-md-3">
                                         <label>Fecha inicio</label>
-                                        <input type="date" id="fecha_especial_inicio" name="fecha_especial_inicio"
-                                               class="form-control"
-                                               value="<?= $precio_especial_inicio ?: $hoy ?>">
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text"><i data-feather="calendar"></i></span>
+                                            </div>
+                                            <input type="text" id="fecha_especial_inicio" name="fecha_especial_inicio"
+                                                   class="form-control"
+                                                   value="<?= $precio_especial_inicio ?: $hoy ?>">
+                                        </div>
                                     </div>
                                     <div class="form-group col-md-2">
                                         <label>Días vigente</label>
@@ -1623,7 +1628,13 @@ $tipoRecorte = $empresa['tipo_recorte'];
             }
         }
 
-        $('#txt_dias_especial, #fecha_especial_inicio').on('input change', calcularFechaFin);
+        flatpickr('#fecha_especial_inicio', {
+            enableTime: false,
+            dateFormat: 'Y-m-d',
+            onChange: calcularFechaFin
+        });
+
+        $('#txt_dias_especial').on('input change', calcularFechaFin);
     });
     </script>
 

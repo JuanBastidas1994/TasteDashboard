@@ -1,0 +1,386 @@
+<?php
+require_once "funciones.php";
+require_once "clases/cl_empresas.php";
+
+if (!isLogin()) {
+    header("location:login.php");
+    exit;
+}
+
+$Clempresas = new cl_empresas(NULL);
+$session = getSession();
+$empresa = $Clempresas->get($session['cod_empresa']);
+$apikey = $empresa ? $empresa['api_key'] : '';
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="utf-8">
+    <?php css_mandatory(); ?>
+    <style type="text/css">
+
+    .flota-board {
+        display: flex;
+        gap: 16px;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        padding-bottom: 12px;
+        align-items: flex-start;
+    }
+
+    .flota-column {
+        background: #f4f4f4;
+        border-radius: 10px;
+        flex: 0 0 85vw;
+        max-width: 340px;
+        scroll-snap-align: start;
+        display: flex;
+        flex-direction: column;
+        max-height: 78vh;
+    }
+
+    @media (min-width: 900px) {
+        .flota-column { flex: 1 1 0; max-width: none; }
+    }
+
+    .flota-column-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 14px 16px 10px;
+    }
+
+    .flota-column-header h5 { margin: 0; font-weight: 600; }
+
+    .flota-column-body {
+        overflow-y: auto;
+        padding: 0 12px 12px;
+        flex: 1;
+        min-height: 80px;
+    }
+
+    .flota-column-empty {
+        color: #999;
+        font-size: 13px;
+        text-align: center;
+        padding: 20px 0;
+    }
+
+    .flota-card {
+        background: white;
+        border-radius: 10px;
+        padding: 12px 14px;
+        margin-bottom: 10px;
+        cursor: pointer;
+        box-shadow: 0 1px 3px rgba(0,0,0,.08);
+        transition: transform .15s, box-shadow .15s;
+    }
+
+    .flota-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 14px rgba(0,0,0,.12);
+    }
+
+    .flota-card .flota-card-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 4px;
+    }
+
+    .flota-card .flota-card-empresa {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 600;
+        font-size: 13px;
+        margin-bottom: 6px;
+    }
+
+    .flota-card .flota-card-empresa img {
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+
+    .flota-card .flota-card-cliente { font-size: 12px; color: #666; }
+
+    .item-moto-cercana { cursor: pointer; }
+    .item-moto-cercana .info-primary { white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
+    .item-moto-cercana .info-secondary { font-size: 11px; }
+
+    .flota-timeline { padding: 8px 4px; }
+    .flota-timeline-step { display: flex; gap: 14px; }
+    .flota-timeline-step .flota-timeline-line-wrap { display: flex; flex-direction: column; align-items: center; width: 20px; }
+    .flota-timeline-dot { width: 16px; height: 16px; border-radius: 50%; background: #e0e0e0; flex-shrink: 0; }
+    .flota-timeline-step.complete .flota-timeline-dot { background: #6777ef; }
+    .flota-timeline-step.current .flota-timeline-dot { background: #6777ef; box-shadow: 0 0 0 4px rgba(103,119,239,.2); }
+    .flota-timeline-line { width: 2px; flex: 1; background: #e0e0e0; min-height: 28px; }
+    .flota-timeline-step.complete .flota-timeline-line { background: #6777ef; }
+    .flota-timeline-content { padding-bottom: 24px; }
+    .flota-timeline-title { font-weight: 600; }
+    .flota-timeline-step:not(.complete) .flota-timeline-title { color: #999; font-weight: 400; }
+    .flota-timeline-fecha { font-size: 12px; color: #999; }
+
+    </style>
+</head>
+<body>
+
+    <!-- MODAL DETALLE DE PEDIDO -->
+    <div class="modal fade bs-example-modal-lg" id="pedidoDetailModal" tabindex="99" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-xl" role="document">
+            <div class="modal-content">
+                <div class="modal-header align-items-center">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="padding:0px; margin:0px;">
+                        <i data-feather="x"></i>
+                    </button>
+                    <h5 class="modal-title text-center" id="pedidoDetailTitle" style="width: 100%;">Pedido</h5>
+                </div>
+
+                <div class="modal-body" style="padding: 0px 15px;">
+                    <ul class="nav nav-tabs mt-2" id="pedidoTabsNav">
+                        <li class="nav-item"><a class="nav-link active" data-toggle="tab" href="#tab-info">Información</a></li>
+                        <li class="nav-item" id="navAsignacionItem"><a class="nav-link" data-toggle="tab" href="#tab-asignacion">Asignación</a></li>
+                        <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#tab-historial">Historial</a></li>
+                    </ul>
+
+                    <div class="tab-content pt-3">
+                        <!-- INFORMACION -->
+                        <div class="tab-pane fade show active" id="tab-info">
+                            <div id="pedido-info"></div>
+                            <script id="pedido-info-template" type="text/x-handlebars-template">
+                                <div class="row">
+                                    <div class="col-md-6 col-12">
+                                        <h5>Lugar de Retiro</h5>
+                                        <div class="d-flex align-items-center mb-2">
+                                            {{#if empresa_logo}}<img src="{{empresa_logo}}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;margin-right:8px;">{{/if}}
+                                            <strong>{{empresa_nombre}}</strong>
+                                        </div>
+                                        <div>Sucursal: {{sucursal_nombre}}</div>
+                                        <div>Dirección: {{sucursal_direccion}}</div>
+                                        <div><a href="tel:{{sucursal_telefono}}">Teléfono: {{sucursal_telefono}}</a></div>
+                                        <div class="mt-1">
+                                            <a href="https://www.google.com/maps?q={{sucursal_lat}},{{sucursal_lon}}" target="_blank"><i data-feather="map-pin"></i> Ver en mapa</a>
+                                        </div>
+
+                                        <h5 class="mt-4">Cliente</h5>
+                                        <div>{{cliente_nombre}} {{cliente_apellido}}</div>
+                                        <div><a href="tel:{{telefono}}">Teléfono: {{telefono}}</a></div>
+                                        {{#if referencia}}<div>Referencia: {{referencia}}</div>{{/if}}
+                                        <div class="mt-1">
+                                            <a href="https://www.google.com/maps?q={{cliente_lat}},{{cliente_lon}}" target="_blank"><i data-feather="map-pin"></i> Ver en mapa</a>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-12">
+                                        <h5>Forma de Pago</h5>
+                                        <div>{{pago_label}} — ${{pago.monto}}</div>
+
+                                        <h5 class="mt-4">Ítems</h5>
+                                        <table style="width: 100%;">
+                                            <tbody>
+                                                {{#each items}}
+                                                <tr>
+                                                    <td>{{cantidad}}x {{nombre}}</td>
+                                                    <td class="text-right">${{precio_final}}</td>
+                                                </tr>
+                                                {{/each}}
+                                            </tbody>
+                                        </table>
+
+                                        <h5 class="mt-4">Motorizado</h5>
+                                        {{#if cod_motorizado}}
+                                            <div class="d-flex align-items-center">
+                                                {{#if motorizado_imagen}}
+                                                    <img src="{{motorizado_imagen}}" class="rounded-circle" style="width:40px;height:40px;object-fit:cover;margin-right:10px;">
+                                                {{else}}
+                                                    <div class="rounded-circle d-flex align-items-center justify-content-center" style="width:40px;height:40px;background:#e5e7eb;margin-right:10px;"><i data-feather="user"></i></div>
+                                                {{/if}}
+                                                <div>
+                                                    <div>{{motorizado_nombre}} {{motorizado_apellido}}</div>
+                                                    <div><a href="tel:{{motorizado_telefono}}">{{motorizado_telefono}}</a> · Placa {{motorizado_placa}}</div>
+                                                </div>
+                                            </div>
+                                            {{#unless entregada}}
+                                                <div class="mt-2">
+                                                    <button class="btn btn-warning" id="btnQuitarAsignacion">Quitar asignación</button>
+                                                </div>
+                                            {{/unless}}
+                                        {{else}}
+                                            <div>Sin motorizado asignado todavía — ver pestaña <b>Asignación</b>.</div>
+                                        {{/if}}
+                                    </div>
+                                </div>
+                            </script>
+                        </div>
+
+                        <!-- ASIGNACION: solo tiene sentido si el pedido aún no tiene motorizado -->
+                        <div class="tab-pane fade" id="tab-asignacion">
+                            <div id="mapaPedido" style="width:100%; height:380px;"></div>
+                            <div class="mt-3">
+                                <h5>Motorizados de tu flota</h5>
+                                <div class="row" id="lista-motorizados-cercanos"></div>
+                                <script id="motorizados-template" type="text/x-handlebars-template">
+                                    {{#each this}}
+                                    <div class="col-12 col-md-4 mb-3 item-moto-cercana" onclick="asignarDesdeMapa({{id}})">
+                                        <div class="d-flex align-items-center">
+                                            {{#if imagen}}
+                                                <img src="{{imagen}}" class="rounded-circle" style="width:50px;height:50px;object-fit:cover;">
+                                            {{else}}
+                                                <div class="rounded-circle d-flex align-items-center justify-content-center" style="width:50px;height:50px;background:#e5e7eb;"><i data-feather="user"></i></div>
+                                            {{/if}}
+                                            <div class="ml-3">
+                                                <div class="info-primary">{{nombres}}</div>
+                                                <div class="info-secondary"><a href="tel:{{telefono}}"><i data-feather="phone"></i> {{telefono}}</a></div>
+                                                <div class="info-secondary mt-1"><span class="outline-badge-{{badgeEstado estado_trabajo}}">{{labelEstado estado_trabajo}}</span></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {{/each}}
+                                </script>
+                            </div>
+                        </div>
+
+                        <!-- HISTORIAL -->
+                        <div class="tab-pane fade" id="tab-historial">
+                            <div id="pedido-historial"></div>
+                            <script id="pedido-historial-template" type="text/x-handlebars-template">
+                                <div class="flota-timeline">
+                                    {{#each this}}
+                                    <div class="flota-timeline-step {{#if complete}}complete{{/if}} {{#if current}}current{{/if}}">
+                                        <div class="flota-timeline-line-wrap">
+                                            <div class="flota-timeline-dot"></div>
+                                            {{#unless @last}}<div class="flota-timeline-line"></div>{{/unless}}
+                                        </div>
+                                        <div class="flota-timeline-content">
+                                            <div class="flota-timeline-title">{{titulo}}</div>
+                                            <div class="flota-timeline-fecha">{{fecha}}</div>
+                                        </div>
+                                    </div>
+                                    {{/each}}
+                                </div>
+                            </script>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-primary" data-dismiss="modal">Omitir</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--  BEGIN NAVBAR  -->
+    <?php echo top() ?>
+    <?php echo navbar(); ?>
+    <!--  END NAVBAR  -->
+
+    <div class="main-container" id="container">
+        <div class="overlay"></div>
+        <div class="search-overlay"></div>
+
+        <?php echo sidebar(); ?>
+
+        <div id="content" class="main-content">
+            <div class="layout-px-spacing">
+
+                <div class="row layout-top-spacing">
+                    <input id="apikey_flota" type="hidden" value="<?= htmlspecialchars($apikey) ?>">
+                    <div class="col-xl-12 col-lg-12 col-sm-12 layout-spacing">
+                        <div class="widget-content widget-content-area br-6">
+                            <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px;">
+                                <div style="flex: 1; min-width: 220px;">
+                                    <label for="selectComercio">Filtrar por comercio:</label>
+                                    <select id="selectComercio" style="width:100%">
+                                        <option value=""></option>
+                                        <?php
+                                        $comercios = $Clempresas->getComercios();
+                                        foreach ($comercios as $c) {
+                                            $img = url_sistema . 'assets/empresas/' . $c['alias'] . '/' . $c['logo'];
+                                            echo "<option value='{$c['cod_empresa']}' data-image_path='{$img}'>{$c['nombre']}</option>";
+                                        }
+                                        ?>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flota-board">
+                            <div class="flota-column">
+                                <div class="flota-column-header">
+                                    <h5>Nuevo / Pendiente</h5>
+                                    <span class="badge badge-primary" id="count-pendiente">0</span>
+                                </div>
+                                <div class="flota-column-body" id="col-pendiente"></div>
+                            </div>
+                            <div class="flota-column">
+                                <div class="flota-column-header">
+                                    <h5>En curso</h5>
+                                    <span class="badge badge-warning" id="count-en_curso">0</span>
+                                </div>
+                                <div class="flota-column-body" id="col-en_curso"></div>
+                            </div>
+                            <div class="flota-column">
+                                <div class="flota-column-header">
+                                    <h5>Enviando</h5>
+                                    <span class="badge badge-info" id="count-enviando">0</span>
+                                </div>
+                                <div class="flota-column-body" id="col-enviando"></div>
+                            </div>
+                            <div class="flota-column">
+                                <div class="flota-column-header">
+                                    <h5>Entregada (hoy)</h5>
+                                    <span class="badge badge-success" id="count-entregada">0</span>
+                                </div>
+                                <div class="flota-column-body" id="col-entregada"></div>
+                            </div>
+                        </div>
+
+                        <script id="flota-card-template" type="text/x-handlebars-template">
+                            {{#each items}}
+                            <div class="flota-card" data-cod_orden="{{cod_orden}}" onclick="openPedido({{cod_orden}})">
+                                <div class="flota-card-top">
+                                    <strong>#{{cod_orden}}</strong>
+                                    <span class="outline-badge-{{../colorColumna}}">{{sub_estado}}</span>
+                                </div>
+                                <div class="flota-card-empresa">
+                                    {{#if empresa_logo}}<img src="{{empresa_logo}}">{{/if}}
+                                    {{empresa_nombre}} — {{sucursal_nombre}}
+                                </div>
+                                <div class="flota-card-cliente">{{cliente_nombre}} · ${{total}}</div>
+                                {{#if motorizado_nombre}}
+                                    <div class="flota-card-cliente mt-1 d-flex align-items-center" style="gap:6px;">
+                                        {{#if motorizado_imagen}}
+                                            <img src="{{motorizado_imagen}}" class="rounded-circle" style="width:18px;height:18px;object-fit:cover;">
+                                        {{else}}
+                                            <i data-feather="user" style="width:14px;height:14px;"></i>
+                                        {{/if}}
+                                        {{motorizado_nombre}} {{motorizado_apellido}}
+                                    </div>
+                                {{/if}}
+                            </div>
+                            {{else}}
+                            <div class="flota-column-empty">Sin pedidos</div>
+                            {{/each}}
+                        </script>
+                    </div>
+                </div>
+            </div>
+            <?php footer(); ?>
+        </div>
+    </div>
+
+    <?php js_mandatory(); ?>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.7.7/handlebars.min.js"></script>
+    <script src="//maps.googleapis.com/maps/api/js?key=AIzaSyAWo6DXlAmrqEiKiaEe9UyOGl3NJ208lI8"></script>
+    <script src="assets/js/pages/flota_gestion_pro.js?v=1" type="text/javascript"></script>
+
+    <script>
+        $(function () {
+            $('#selectComercio').select2({ placeholder: 'Seleccione un comercio', allowClear: true });
+            $('#selectComercio').on('change', cargarPedidos);
+        });
+    </script>
+
+</body>
+</html>

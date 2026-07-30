@@ -10,6 +10,7 @@ let intervalPedidosId = 0;
 let intervalMotosId = 0;
 
 const COLUMNAS = [
+    { key: 'incidencia', color: 'danger' },
     { key: 'pendiente', color: 'primary' },
     { key: 'en_curso', color: 'warning' },
     { key: 'enviando', color: 'info' },
@@ -24,8 +25,19 @@ const ICONO_MOTO = {
     en_carrera: 'https://maps.google.com/mapfiles/ms/icons/orange-dot.png',
 };
 
+// Mismos 4 motivos que usa la app del motorizado para reportar y que el admin vuelve a elegir
+// al resolver — ver cl_ordenes::MOTIVOS_INCIDENCIA (api_flotas).
+const MOTIVO_INCIDENCIA_LABEL = {
+    NO_CONTESTA: 'El cliente no contesta',
+    DIRECCION_INCORRECTA: 'La dirección es incorrecta',
+    CLIENTE_RECHAZO: 'El cliente no quiso recibir el pedido',
+    NO_QUISO_PAGAR: 'El cliente no quiso pagar',
+};
+
 Handlebars.registerHelper('badgeEstado', estado => ESTADO_TRABAJO_COLOR[estado] || 'secondary');
 Handlebars.registerHelper('labelEstado', estado => ESTADO_TRABAJO_LABEL[estado] || estado);
+Handlebars.registerHelper('motivoLabel', motivo => MOTIVO_INCIDENCIA_LABEL[motivo] || motivo);
+Handlebars.registerHelper('fechaFormateada', raw => formatFecha(raw));
 
 // El backend guarda fechas como "YYYY-MM-DD HH:MM:SS"; el espacio en vez de "T" hace que
 // Date() falle en algunos navegadores, por eso el replace.
@@ -97,6 +109,7 @@ function openPedido(cod_orden) {
             const orden = response.data;
             orden.pago_label = orden.pago ? (FORMA_PAGO[orden.pago.forma_pago] || orden.pago.forma_pago) : '';
             orden.entregada = orden.estado === 'ENTREGADA';
+            orden.esEfectivo = !!(orden.pago && orden.pago.forma_pago === 'E');
             pedidoActualData = orden;
 
             renderInfoTab(orden);
@@ -248,6 +261,36 @@ $("body").on('click', '#btnQuitarAsignacion', function () {
             }
         })
         .catch(error => console.error('Error al quitar asignación:', error));
+});
+
+$("body").on('click', '#btnMostrarCancelar', function () {
+    $('#panelCancelarPedido').slideToggle(150);
+});
+
+$("body").on('click', '#btnConfirmarCancelar', function () {
+    const motivo = $('input[name="motivoCancelar"]:checked').val();
+    if (!motivo) {
+        alert('Elige un motivo antes de confirmar.');
+        return;
+    }
+    const comentario = $('#comentarioCancelar').val() || '';
+    if (!confirm('¿Confirmas que este pedido NO se pudo entregar? Esta acción no se puede deshacer.')) return;
+
+    fetch(`${ApiUrl}/flotas/cancelar-pedido`, {
+        method: 'POST',
+        headers: { 'Api-Key': ApiKey },
+        body: JSON.stringify({ cod_orden: pedidoActualId, motivo, comentario }),
+    })
+        .then(res => res.json())
+        .then(response => {
+            if (response.success == 1) {
+                cargarPedidos();
+                $('#pedidoDetailModal').modal('hide');
+            } else {
+                alert(response.mensaje || 'No se pudo cancelar el pedido');
+            }
+        })
+        .catch(error => console.error('Error al cancelar pedido:', error));
 });
 
 $('#pedidoDetailModal').on('hidden.bs.modal', function () {

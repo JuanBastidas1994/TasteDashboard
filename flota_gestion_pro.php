@@ -19,6 +19,13 @@ $apikey = $empresa ? $empresa['api_key'] : '';
     <?php css_mandatory(); ?>
     <style type="text/css">
 
+    .badgeCustom{
+        padding: 3px 5px;
+        border-radius: 25px;
+        font-size: 11px;
+        font-weight: bold;
+    }
+
     .flota-board {
         display: flex;
         gap: 16px;
@@ -188,6 +195,30 @@ $apikey = $empresa ? $empresa['api_key'] : '';
                                             </tbody>
                                         </table>
 
+                                        {{#if incidencia_pendiente}}
+                                        <div class="mt-4" style="background:#FEF3C7; border-radius:8px; padding:12px;">
+                                            <h5 style="color:#B45309; margin-top:0;"><i data-feather="alert-triangle" style="width:16px;height:16px;"></i> Problema reportado</h5>
+                                            <div><b>Motivo:</b> {{motivoLabel incidencia_pendiente.motivo}}</div>
+                                            {{#if incidencia_pendiente.comentario}}<div><b>Comentario del motorizado:</b> {{incidencia_pendiente.comentario}}</div>{{/if}}
+                                            <div class="text-muted" style="font-size:12px;">Reportado: {{fechaFormateada incidencia_pendiente.fecha_reporte}}</div>
+
+                                            <div class="mt-2">
+                                                <button class="btn btn-danger btn-sm" id="btnMostrarCancelar" type="button">Cancelar pedido (no entregado)</button>
+                                            </div>
+
+                                            <div id="panelCancelarPedido" style="display:none; margin-top:12px; border-top:1px solid #FDE68A; padding-top:12px;">
+                                                <div class="form-group">
+                                                    <label class="d-block"><input type="radio" name="motivoCancelar" value="NO_CONTESTA"> El cliente no contesta</label>
+                                                    <label class="d-block"><input type="radio" name="motivoCancelar" value="DIRECCION_INCORRECTA"> La dirección es incorrecta</label>
+                                                    <label class="d-block"><input type="radio" name="motivoCancelar" value="CLIENTE_RECHAZO"> El cliente no quiso recibir el pedido</label>
+                                                    {{#if esEfectivo}}<label class="d-block"><input type="radio" name="motivoCancelar" value="NO_QUISO_PAGAR"> El cliente no quiso pagar</label>{{/if}}
+                                                </div>
+                                                <textarea id="comentarioCancelar" class="form-control" rows="2" placeholder="Comentario (opcional)"></textarea>
+                                                <button class="btn btn-danger btn-sm mt-2" id="btnConfirmarCancelar" type="button">Confirmar cancelación</button>
+                                            </div>
+                                        </div>
+                                        {{/if}}
+
                                         <h5 class="mt-4">Motorizado</h5>
                                         {{#if cod_motorizado}}
                                             <div class="d-flex align-items-center">
@@ -232,7 +263,7 @@ $apikey = $empresa ? $empresa['api_key'] : '';
                                             <div class="ml-3">
                                                 <div class="info-primary">{{nombres}}</div>
                                                 <div class="info-secondary"><a href="tel:{{telefono}}"><i data-feather="phone"></i> {{telefono}}</a></div>
-                                                <div class="info-secondary mt-1"><span class="outline-badge-{{badgeEstado estado_trabajo}}">{{labelEstado estado_trabajo}}</span></div>
+                                                <div class="info-secondary mt-1"><span class="badgeCustom outline-badge-{{badgeEstado estado_trabajo}}">{{labelEstado estado_trabajo}}</span></div>
                                             </div>
                                         </div>
                                     </div>
@@ -288,13 +319,13 @@ $apikey = $empresa ? $empresa['api_key'] : '';
                     <input id="apikey_flota" type="hidden" value="<?= htmlspecialchars($apikey) ?>">
                     <div class="col-xl-12 col-lg-12 col-sm-12 layout-spacing">
                         <div class="widget-content widget-content-area br-6">
-                            <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px;">
+                            <div style="display: flex;  flex-wrap: wrap; margin-bottom: 0px;">
                                 <div style="flex: 1; min-width: 220px;">
                                     <label for="selectComercio">Filtrar por comercio:</label>
                                     <select id="selectComercio" style="width:100%">
                                         <option value=""></option>
                                         <?php
-                                        $comercios = $Clempresas->getComercios();
+                                        $comercios = $Clempresas->getComercios($session['cod_empresa']);
                                         foreach ($comercios as $c) {
                                             $img = url_sistema . 'assets/empresas/' . $c['alias'] . '/' . $c['logo'];
                                             echo "<option value='{$c['cod_empresa']}' data-image_path='{$img}'>{$c['nombre']}</option>";
@@ -306,6 +337,13 @@ $apikey = $empresa ? $empresa['api_key'] : '';
                         </div>
 
                         <div class="flota-board">
+                            <div class="flota-column" style="background:#FEF2F2;">
+                                <div class="flota-column-header">
+                                    <h5>⚠ Con problema</h5>
+                                    <span class="badge badge-danger" id="count-incidencia">0</span>
+                                </div>
+                                <div class="flota-column-body" id="col-incidencia"></div>
+                            </div>
                             <div class="flota-column">
                                 <div class="flota-column-header">
                                     <h5>Nuevo / Pendiente</h5>
@@ -341,7 +379,7 @@ $apikey = $empresa ? $empresa['api_key'] : '';
                             <div class="flota-card" data-cod_orden="{{cod_orden}}" onclick="openPedido({{cod_orden}})">
                                 <div class="flota-card-top">
                                     <strong>#{{cod_orden}}</strong>
-                                    <span class="outline-badge-{{../colorColumna}}">{{sub_estado}}</span>
+                                    <span class="badgeCustom outline-badge-{{../colorColumna}}">{{sub_estado}}</span>
                                 </div>
                                 <div class="flota-card-empresa">
                                     {{#if empresa_logo}}<img src="{{empresa_logo}}">{{/if}}

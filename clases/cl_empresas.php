@@ -1077,17 +1077,18 @@ class cl_empresas
 		}
 		
 		/*-------------FLOTA-------------*/
-		public function getComercios(){
-		    $query = "SELECT 
+		public function getComercios($cod_flota){
+		    $query = "SELECT
                 e.cod_empresa, e.nombre, e.logo, e.alias
-                FROM 
+                FROM
                   tb_sucursal_flota sf
-                  INNER JOIN tb_sucursales s ON s.cod_sucursal = sf.cod_sucursal  
+                  INNER JOIN tb_sucursales s ON s.cod_sucursal = sf.cod_sucursal
                   INNER JOIN tb_empresas e ON e.cod_empresa = s.cod_empresa AND e.estado IN ('A')
-                GROUP BY e.nombre
-                ORDER BY 
+                WHERE sf.cod_flota = :cod_flota
+                GROUP BY e.cod_empresa
+                ORDER BY
                   e.nombre ASC";
-		    return Conexion::buscarVariosRegistro($query);
+		    return Conexion::buscarVariosRegistro($query, [':cod_flota' => $cod_flota]);
 		}
 		
 		public function getFlotas(){

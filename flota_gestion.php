@@ -210,7 +210,7 @@ $Clempresas = new cl_empresas(NULL);
                                 <select id="selectComercio" multiple="multiple" style="width:100%">
                                   <option></option>
                                   <?php
-                                  $empresas = $Clempresas->getComercios();
+                                  $empresas = $Clempresas->getComercios($session['cod_empresa']);
                                   foreach ($empresas as $empresa) {
                                       $img = $files . $empresa['logo'];
                                       $nombre = $empresa['nombre'];

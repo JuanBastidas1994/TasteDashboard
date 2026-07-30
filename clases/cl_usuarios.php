@@ -66,6 +66,13 @@ class cl_usuarios
         	$query.= "VALUES($this->cod_empresa, '$this->cod_rol', '$this->nombre', '$this->apellido', '$this->telefono', '$this->imagen', '$this->correo', '$this->usuario', MD5('$this->password'), '$this->placa', '$this->estado')";
         	if(Conexion::ejecutar($query,NULL)){
         		$id = Conexion::lastId();
+
+        		// Afilia también en tb_motorizado_empresa (modelo nuevo de api_flotas) para que
+        		// getEmpresasAfiliadas() no devuelva vacío en la app del motorizado recién creado.
+        		$queryAfiliacion = "INSERT INTO tb_motorizado_empresa(cod_usuario, cod_empresa, estado, fecha_afiliacion) ";
+        		$queryAfiliacion.= "VALUES($id, $this->cod_empresa, 'A', NOW())";
+        		Conexion::ejecutar($queryAfiliacion, NULL);
+
         		return true;
         	}else{
         		return false;

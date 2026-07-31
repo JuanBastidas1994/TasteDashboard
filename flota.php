@@ -20,6 +20,7 @@ if(!$empresa)
     header("location:login.php");
 
 $isBusinessCourier = ($empresa['cod_tipo_empresa'] == 4) ? true : false;
+$apikey = $empresa['api_key'] ?? '';
 ?>
 
 <!DOCTYPE html>
@@ -143,6 +144,55 @@ $isBusinessCourier = ($empresa['cod_tipo_empresa'] == 4) ? true : false;
         </div>
     </div>
 
+    <!-- Modal: código generado (invitación o reactivación) -->
+    <div class="modal fade" id="codigoModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="codigoModalTitle">Código generado</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p id="codigoModalDesc" class="text-muted"></p>
+                    <div class="text-center mb-3">
+                        <span id="codigoModalValor" style="font-size:28px; font-weight:bold; letter-spacing:3px; background:#f4f4f4; padding:8px 16px; border-radius:8px; display:inline-block;"></span>
+                    </div>
+                    <p class="text-muted" style="font-size:12px;">Válido hasta: <span id="codigoModalExpira"></span></p>
+                    <label>Mensaje listo para compartir por WhatsApp</label>
+                    <textarea id="codigoModalMensaje" class="form-control" rows="4" readonly></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn" data-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-primary" id="btnCopiarMensaje">Copiar mensaje</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: notificar a un motorizado (push) -->
+    <div class="modal fade" id="notificarModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Notificar a <span id="notificarModalNombre"></span></h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <label>Mensaje</label>
+                    <textarea id="notificarModalMensaje" class="form-control" rows="3" maxlength="200" placeholder="Ej: Por favor confirma tu ubicación"></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn" data-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="btnEnviarNotificacion">Enviar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!--  BEGIN NAVBAR  -->
     <?php echo top() ?>
     <!--  END NAVBAR  -->
@@ -178,6 +228,8 @@ $isBusinessCourier = ($empresa['cod_tipo_empresa'] == 4) ? true : false;
                                     </h4>
                                 </div>
                                 <div class="col-xl-4 col-md-4 col-sm-4 col-4 text-right">
+                                    <input type="hidden" id="apikey_flota" value="<?= htmlspecialchars($apikey) ?>">
+                                    <button class="btn btn-outline-primary" id="btnInvitar" type="button">Invitar a un motorizado</button>
                                     <button class="btn btn-primary" id="btnOpenModal">Nuevo Motorizado</button>
                                 </div>
                                 <div class="col-xl-12 col-md-12 col-sm-12 col-12">
@@ -209,6 +261,11 @@ $isBusinessCourier = ($empresa['cod_tipo_empresa'] == 4) ? true : false;
                                             $badge='primary';
                                             if($cliente['estado'] == 'I')
                                                 $badge='danger';
+                                            // badge-info no está estilado en este tema (se ve "Activo"/"Inactivo" pero
+                                            // "Invitado" salía invisible) — estilo inline para no depender de eso.
+                                            $badgeInvitado = !empty($cliente['es_invitado'])
+                                                ? ' <span class="shadow-none badge" style="background:#FEF3C7;color:#92400E;border:1px solid #FDE68A;">Invitado</span>'
+                                                : '';
                                             echo '<tr id="' . $cliente['cod_usuario'] . '">
                                                 <td><img src="'.$cliente['imagen_url'].'" class="profile-img" alt="Imagen"></td>
                                                 <td>'.$cliente['nombre'].' '.$cliente['apellido'].'</td>
@@ -216,16 +273,18 @@ $isBusinessCourier = ($empresa['cod_tipo_empresa'] == 4) ? true : false;
                                                 if (!$isBusinessCourier) {
                                                     echo '<td>'.$sucursal.'</td>';
                                                 }
-                                                
+
                                                 echo '
                                                 <td>'.$cliente['telefono'].'</td>
                                                 <td>'.$cliente['placa'].'</td>
-                                                <td class="text-center"><span class="shadow-none badge badge-'.$badge.'">'.getEstado($cliente['estado']).'</span></td>
+                                                <td class="text-center"><span class="shadow-none badge badge-'.$badge.'">'.getEstado($cliente['estado']).'</span>'.$badgeInvitado.'</td>
                                                 <td class="text-center">
                                                     <ul class="table-controls">
                                                         <li><a href="javascript:void(0);" data-value="'.$cliente['cod_usuario'].'" class="bs-tooltip btnEditarFlota" data-toggle="tooltip" data-placement="top" title="" data-original-title="Edit"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-edit-2 p-1 br-6 mb-1"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg></a></li>
                                                         <li><a href="javascript:void(0);" data-value="'.$cliente['cod_usuario'].'" class="bs-tooltip btnEliminar" data-toggle="tooltip" data-placement="top" title="" data-original-title="Delete"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-trash p-1 br-6 mb-1"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></a></li>
-                                                        <li><a href="usuario_detalle.php?id='.$cliente['cod_usuario'].'"  class="bs-tooltip btnDetalle" data-toggle="tooltip" data-placement="top" title="" data-original-title="Notificar">
+                                                        <li><a href="javascript:void(0);" data-value="'.$cliente['cod_usuario'].'" class="bs-tooltip btnReactivar" data-toggle="tooltip" data-placement="top" title="" data-original-title="Generar codigo de reactivacion"><i data-feather="key" class="p-1 br-6 mb-1"></i></a></li>
+                                                        <li><a href="javascript:void(0);" data-value="'.$cliente['cod_usuario'].'" data-nombre="'.htmlspecialchars($cliente['nombre'].' '.$cliente['apellido']).'" class="bs-tooltip btnNotificar" data-toggle="tooltip" data-placement="top" title="" data-original-title="Notificar"><i data-feather="bell" class="p-1 br-6 mb-1"></i></a></li>
+                                                        <li><a href="usuario_detalle.php?id='.$cliente['cod_usuario'].'"  class="bs-tooltip btnDetalle" data-toggle="tooltip" data-placement="top" title="" data-original-title="Ver detalle">
                                                         <i data-feather="eye"></i>
                                                         </a></li>
                                                     </ul>
@@ -250,6 +309,7 @@ $isBusinessCourier = ($empresa['cod_tipo_empresa'] == 4) ? true : false;
                                         <td>{{placa}}</td>
                                         <td class="text-center">
                                             {{{estadoBadge estado}}}
+                                            {{#if es_invitado}}<span class="shadow-none badge" style="background:#FEF3C7;color:#92400E;border:1px solid #FDE68A;">Invitado</span>{{/if}}
                                         </td>
                                         <td class="text-center">
                                             <ul class="table-controls">
@@ -261,6 +321,16 @@ $isBusinessCourier = ($empresa['cod_tipo_empresa'] == 4) ? true : false;
                                                 <li>
                                                     <a href="javascript:void(0);" data-value="{{cod_usuario}}" class="btnEliminar">
                                                         <i data-feather="trash"></i>
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a href="javascript:void(0);" data-value="{{cod_usuario}}" class="btnReactivar">
+                                                        <i data-feather="key"></i>
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a href="javascript:void(0);" data-value="{{cod_usuario}}" data-nombre="{{nombre}} {{apellido}}" class="btnNotificar">
+                                                        <i data-feather="bell"></i>
                                                     </a>
                                                 </li>
                                                 <li>
@@ -288,6 +358,7 @@ $isBusinessCourier = ($empresa['cod_tipo_empresa'] == 4) ? true : false;
     <?php js_mandatory(); ?>
     <script src="./assets/js/libs/handlebars/handlebars.js"></script>
     <script src="assets/js/pages/usuarios.js?v=5" type="text/javascript"></script>
+    <script src="assets/js/pages/flota_codigos.js?v=1" type="text/javascript"></script>
     <script>
         const isBusinessCourier = <?= $isBusinessCourier ? 'true' : 'false' ?>;
         let tablaUsuarios;

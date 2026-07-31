@@ -535,17 +535,25 @@ class cl_usuarios
 	    }
 
 
+		/**
+		 * Un motorizado puede pertenecer a esta empresa de dos formas: el modelo viejo
+		 * (u.cod_empresa fijo, motorizado creado a mano desde este panel) o el nuevo multi-flota
+		 * (tb_motorizado_empresa, invitado/reactivado por código desde la app — ver api_flotas).
+		 * DISTINCT + el OR cubre ambos sin duplicar filas.
+		 */
 		public function listaDeMotorizados(){
 		    $cod_empresa = $this->cod_empresa;
-			$query = "SELECT u.*, s.nombre as sucursal
+			$query = "SELECT DISTINCT u.*, s.nombre as sucursal, COALESCE(me.es_invitado, 0) AS es_invitado
                     FROM tb_usuarios u
-                    LEFT JOIN tb_sucursales s ON s.cod_sucursal = u.cod_sucursal 
-                    WHERE u.cod_rol = 17 AND u.cod_empresa = $cod_empresa AND u.estado = 'A'";
+                    LEFT JOIN tb_sucursales s ON s.cod_sucursal = u.cod_sucursal
+                    LEFT JOIN tb_motorizado_empresa me ON me.cod_usuario = u.cod_usuario AND me.cod_empresa = $cod_empresa AND me.estado = 'A'
+                    WHERE u.cod_rol = 17 AND u.estado = 'A'
+                    AND (u.cod_empresa = $cod_empresa OR me.cod_motorizado_empresa IS NOT NULL)";
 			$resp = Conexion::buscarVariosRegistro($query);
 			foreach($resp as $key => $item){
 				$resp[$key]['imagen_url'] = $this->buildImageUrl($item);
 			}
-            return $resp;	
+            return $resp;
 		}
 
 		public function getIntentosPagos($fechaInicio, $fechaFin) {

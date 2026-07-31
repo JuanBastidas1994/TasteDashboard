@@ -8,6 +8,7 @@ let mapaPedido = null;
 let markersMotos = [];
 let intervalPedidosId = 0;
 let intervalMotosId = 0;
+let motorizadosActuales = [];
 
 const COLUMNAS = [
     { key: 'incidencia', color: 'danger' },
@@ -34,10 +35,16 @@ const MOTIVO_INCIDENCIA_LABEL = {
     NO_QUISO_PAGAR: 'El cliente no quiso pagar',
 };
 
+const RESUELTO_POR_LABEL = { MOTORIZADO: 'el motorizado', FLOTA: 'un administrador de flota', SUCURSAL: 'un administrador de sucursal' };
+
 Handlebars.registerHelper('badgeEstado', estado => ESTADO_TRABAJO_COLOR[estado] || 'secondary');
 Handlebars.registerHelper('labelEstado', estado => ESTADO_TRABAJO_LABEL[estado] || estado);
 Handlebars.registerHelper('motivoLabel', motivo => MOTIVO_INCIDENCIA_LABEL[motivo] || motivo);
 Handlebars.registerHelper('fechaFormateada', raw => formatFecha(raw));
+Handlebars.registerHelper('resueltoPorLabel', quien => RESUELTO_POR_LABEL[quien] || quien);
+Handlebars.registerHelper('if_eq', function (a, b, options) {
+    return a === b ? options.fn(this) : options.inverse(this);
+});
 
 // El backend guarda fechas como "YYYY-MM-DD HH:MM:SS"; el espacio en vez de "T" hace que
 // Date() falle en algunos navegadores, por eso el replace.
@@ -136,6 +143,9 @@ function renderHistorialTab(orden) {
     const pasos = construirHistorial(orden);
     const template = Handlebars.compile($("#pedido-historial-template").html());
     $("#pedido-historial").html(template(pasos));
+
+    const templateIncidencias = Handlebars.compile($("#pedido-historial-incidencias-template").html());
+    $("#pedido-historial-incidencias").html(templateIncidencias(orden.incidencias || []));
 }
 
 // La pestaña "Asignación" solo tiene sentido si el pedido todavía no tiene motorizado — una vez
@@ -188,10 +198,26 @@ function cargarMotorizados() {
         .then(res => res.json())
         .then(response => {
             if (response.success != 1) return;
-            renderListaMotorizados(response.data);
-            dibujarMotosEnMapa(response.data);
+            motorizadosActuales = ordenarMotorizados(response.data);
+            renderListaMotorizadosFiltrada();
+            dibujarMotosEnMapa(motorizadosActuales);
         })
         .catch(error => console.error('Error al cargar motorizados:', error));
+}
+
+// No disponibles al final — los disponibles y en carrera son los que interesan asignar primero.
+function ordenarMotorizados(motorizados) {
+    const disponibles = motorizados.filter(m => m.estado_trabajo !== 'no_disponible');
+    const noDisponibles = motorizados.filter(m => m.estado_trabajo === 'no_disponible');
+    return disponibles.concat(noDisponibles);
+}
+
+function renderListaMotorizadosFiltrada() {
+    const filtro = ($('#filtroMotorizado').val() || '').toLowerCase().trim();
+    const lista = filtro
+        ? motorizadosActuales.filter(m => (m.nombres || '').toLowerCase().includes(filtro))
+        : motorizadosActuales;
+    renderListaMotorizados(lista);
 }
 
 function renderListaMotorizados(motorizados) {
@@ -199,6 +225,8 @@ function renderListaMotorizados(motorizados) {
     $("#lista-motorizados-cercanos").html(template(motorizados));
     feather.replace();
 }
+
+$("body").on('input', '#filtroMotorizado', renderListaMotorizadosFiltrada);
 
 function dibujarMotosEnMapa(motorizados) {
     markersMotos.forEach(m => m.setMap(null));
@@ -223,7 +251,27 @@ function dibujarMotosEnMapa(motorizados) {
         });
 }
 
-function asignarDesdeMapa(cod_motorizado) {
+// Centra el mapa en el marker del motorizado y lo resalta con un rebote breve.
+function centrarMotoEnMapa(cod_motorizado, evt) {
+    if (evt) evt.stopPropagation();
+    if (!mapaPedido) return;
+
+    const marker = markersMotos.find(m => m.info_moto && m.info_moto.id === cod_motorizado);
+    if (!marker) return;
+
+    mapaPedido.panTo(marker.getPosition());
+    mapaPedido.setZoom(Math.max(mapaPedido.getZoom(), 15));
+    marker.setAnimation(google.maps.Animation.BOUNCE);
+    setTimeout(() => marker.setAnimation(null), 1400);
+}
+
+function verDetalleMoto(cod_motorizado, evt) {
+    if (evt) evt.stopPropagation();
+    // TODO: detalle del motorizado — pendiente de implementar.
+}
+
+function asignarDesdeMapa(cod_motorizado, evt) {
+    if (evt) evt.stopPropagation();
     if (!confirm('¿Asignar este pedido a este motorizado?')) return;
 
     fetch(`${ApiUrl}/flotas/asignar`, {
@@ -263,6 +311,27 @@ $("body").on('click', '#btnQuitarAsignacion', function () {
         .catch(error => console.error('Error al quitar asignación:', error));
 });
 
+$("body").on('click', '#btnResolverIncidencia', function () {
+    const comentario = prompt('¿Cómo se resolvió? (opcional, deja en blanco para omitir)') || '';
+    if (!confirm('¿Confirmas que el problema se resolvió y el pedido continúa?')) return;
+
+    fetch(`${ApiUrl}/flotas/resolver-incidencia`, {
+        method: 'POST',
+        headers: { 'Api-Key': ApiKey },
+        body: JSON.stringify({ cod_orden: pedidoActualId, comentario }),
+    })
+        .then(res => res.json())
+        .then(response => {
+            if (response.success == 1) {
+                cargarPedidos();
+                openPedido(pedidoActualId);
+            } else {
+                alert(response.mensaje || 'No se pudo resolver el problema');
+            }
+        })
+        .catch(error => console.error('Error al resolver incidencia:', error));
+});
+
 $("body").on('click', '#btnMostrarCancelar', function () {
     $('#panelCancelarPedido').slideToggle(150);
 });
@@ -298,4 +367,7 @@ $('#pedidoDetailModal').on('hidden.bs.modal', function () {
     pedidoActualId = null;
     pedidoActualData = null;
     mapaPedido = null;
+    markersMotos = [];
+    motorizadosActuales = [];
+    $('#filtroMotorizado').val('');
 });

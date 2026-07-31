@@ -113,9 +113,46 @@ $apikey = $empresa ? $empresa['api_key'] : '';
 
     .flota-card .flota-card-cliente { font-size: 12px; color: #666; }
 
-    .item-moto-cercana { cursor: pointer; }
-    .item-moto-cercana .info-primary { white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
-    .item-moto-cercana .info-secondary { font-size: 11px; }
+    .flota-modal-dialog {
+        max-width: 1300px;
+        width: 95%;
+    }
+
+    @media (min-width: 1600px) {
+        .flota-modal-dialog { max-width: 1500px; }
+    }
+
+    .flota-moto-card {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        background: white;
+        border: 1px solid #eee;
+        border-radius: 10px;
+        padding: 10px 12px;
+        margin-bottom: 8px;
+    }
+
+    .flota-moto-card-main { display: flex; align-items: center; gap: 10px; min-width: 0; }
+    .flota-moto-card-info { min-width: 0; }
+    .flota-moto-card-info .info-primary { white-space: nowrap; text-overflow: ellipsis; overflow: hidden; font-weight: 600; }
+    .flota-moto-card-info .info-secondary { font-size: 11px; color: #777; }
+    .flota-moto-card-actions { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
+
+    .btn-icon-sutil {
+        border: none;
+        background: transparent;
+        color: #888;
+        padding: 4px;
+        border-radius: 6px;
+        line-height: 0;
+        cursor: pointer;
+    }
+
+    .btn-icon-sutil:hover { background: #f0f0f0; color: #444; }
+    .btn-icon-sutil:disabled { opacity: .35; cursor: not-allowed; }
+    .btn-icon-sutil svg { width: 16px; height: 16px; }
 
     .flota-timeline { padding: 8px 4px; }
     .flota-timeline-step { display: flex; gap: 14px; }
@@ -136,7 +173,7 @@ $apikey = $empresa ? $empresa['api_key'] : '';
 
     <!-- MODAL DETALLE DE PEDIDO -->
     <div class="modal fade bs-example-modal-lg" id="pedidoDetailModal" tabindex="99" role="dialog" aria-hidden="true">
-        <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-dialog modal-xl flota-modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header align-items-center">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="padding:0px; margin:0px;">
@@ -203,6 +240,7 @@ $apikey = $empresa ? $empresa['api_key'] : '';
                                             <div class="text-muted" style="font-size:12px;">Reportado: {{fechaFormateada incidencia_pendiente.fecha_reporte}}</div>
 
                                             <div class="mt-2">
+                                                <button class="btn btn-success btn-sm" id="btnResolverIncidencia" type="button">Ya se resolvió, continúa</button>
                                                 <button class="btn btn-danger btn-sm" id="btnMostrarCancelar" type="button">Cancelar pedido (no entregado)</button>
                                             </div>
 
@@ -247,28 +285,40 @@ $apikey = $empresa ? $empresa['api_key'] : '';
 
                         <!-- ASIGNACION: solo tiene sentido si el pedido aún no tiene motorizado -->
                         <div class="tab-pane fade" id="tab-asignacion">
-                            <div id="mapaPedido" style="width:100%; height:380px;"></div>
-                            <div class="mt-3">
-                                <h5>Motorizados de tu flota</h5>
-                                <div class="row" id="lista-motorizados-cercanos"></div>
-                                <script id="motorizados-template" type="text/x-handlebars-template">
-                                    {{#each this}}
-                                    <div class="col-12 col-md-4 mb-3 item-moto-cercana" onclick="asignarDesdeMapa({{id}})">
-                                        <div class="d-flex align-items-center">
-                                            {{#if imagen}}
-                                                <img src="{{imagen}}" class="rounded-circle" style="width:50px;height:50px;object-fit:cover;">
-                                            {{else}}
-                                                <div class="rounded-circle d-flex align-items-center justify-content-center" style="width:50px;height:50px;background:#e5e7eb;"><i data-feather="user"></i></div>
-                                            {{/if}}
-                                            <div class="ml-3">
-                                                <div class="info-primary">{{nombres}}</div>
-                                                <div class="info-secondary"><a href="tel:{{telefono}}"><i data-feather="phone"></i> {{telefono}}</a></div>
-                                                <div class="info-secondary mt-1"><span class="badgeCustom outline-badge-{{badgeEstado estado_trabajo}}">{{labelEstado estado_trabajo}}</span></div>
+                            <div class="row">
+                                <div class="col-lg-9 col-12">
+                                    <div id="mapaPedido" style="width:100%; height:60vh; min-height:420px; border-radius:8px;"></div>
+                                </div>
+                                <div class="col-lg-3 col-12 mt-3 mt-lg-0">
+                                    <h5>Motorizados de tu flota</h5>
+                                    <input type="text" id="filtroMotorizado" class="form-control form-control-sm mb-2" placeholder="Buscar motorizado...">
+                                    <div id="lista-motorizados-cercanos" style="max-height:calc(60vh - 20px); min-height:200px; overflow-y:auto;"></div>
+                                    <script id="motorizados-template" type="text/x-handlebars-template">
+                                        {{#each this}}
+                                        <div class="flota-moto-card">
+                                            <div class="flota-moto-card-main">
+                                                {{#if imagen}}
+                                                    <img src="{{imagen}}" class="rounded-circle" style="width:44px;height:44px;object-fit:cover;">
+                                                {{else}}
+                                                    <div class="rounded-circle d-flex align-items-center justify-content-center" style="width:44px;height:44px;background:#e5e7eb;"><i data-feather="user"></i></div>
+                                                {{/if}}
+                                                <div class="flota-moto-card-info">
+                                                    <div class="info-primary">{{nombres}}</div>
+                                                    <div class="info-secondary"><a href="tel:{{telefono}}"><i data-feather="phone"></i> {{telefono}}</a></div>
+                                                    <div class="info-secondary mt-1"><span class="badgeCustom outline-badge-{{badgeEstado estado_trabajo}}">{{labelEstado estado_trabajo}}</span></div>
+                                                </div>
+                                            </div>
+                                            <div class="flota-moto-card-actions">
+                                                <button type="button" class="btn-icon-sutil" title="{{#if_eq estado_trabajo "no_disponible"}}Sin ubicación en el mapa{{else}}Ver en el mapa{{/if_eq}}" {{#if_eq estado_trabajo "no_disponible"}}disabled{{/if_eq}} onclick="centrarMotoEnMapa({{id}}, event)"><i data-feather="map-pin"></i></button>
+                                                <button type="button" class="btn-icon-sutil" title="Ver detalles (próximamente)" onclick="verDetalleMoto({{id}}, event)"><i data-feather="eye"></i></button>
+                                                <button type="button" class="btn btn-sm btn-outline-primary" onclick="asignarDesdeMapa({{id}}, event)">Asignar</button>
                                             </div>
                                         </div>
-                                    </div>
-                                    {{/each}}
-                                </script>
+                                        {{else}}
+                                        <div class="flota-column-empty">Sin motorizados</div>
+                                        {{/each}}
+                                    </script>
+                                </div>
                             </div>
                         </div>
 
@@ -290,6 +340,34 @@ $apikey = $empresa ? $empresa['api_key'] : '';
                                     </div>
                                     {{/each}}
                                 </div>
+                            </script>
+
+                            <div id="pedido-historial-incidencias" class="mt-3"></div>
+                            <script id="pedido-historial-incidencias-template" type="text/x-handlebars-template">
+                                {{#if this.length}}
+                                <h5>Problemas reportados</h5>
+                                {{#each this}}
+                                <div class="mb-3 pb-2" style="border-bottom:1px solid #eee;">
+                                    <div class="d-flex justify-content-between">
+                                        <strong>{{motivoLabel motivo}}</strong>
+                                        <span class="text-muted" style="font-size:12px;">{{fechaFormateada fecha_reporte}}</span>
+                                    </div>
+                                    <div style="font-size:13px;">Reportado por: {{motorizado_nombre}} {{motorizado_apellido}}</div>
+                                    {{#if comentario}}<div style="font-size:13px;">"{{comentario}}"</div>{{/if}}
+                                    {{#if_eq estado "PENDIENTE"}}
+                                        <span class="badgeCustom outline-badge-warning">Pendiente de revisión</span>
+                                    {{else}}
+                                        <div style="font-size:13px; margin-top:4px;">
+                                            <span class="badgeCustom outline-badge-{{#if_eq estado "CONFIRMADA"}}danger{{else}}success{{/if_eq}}">
+                                                {{#if_eq estado "CONFIRMADA"}}Pedido cancelado{{else}}Resuelto, continuó{{/if_eq}}
+                                            </span>
+                                            por {{resueltoPorLabel resuelto_por}} · {{fechaFormateada fecha_resolucion}}
+                                            {{#if comentario_resolucion}}— "{{comentario_resolucion}}"{{/if}}
+                                        </div>
+                                    {{/if_eq}}
+                                </div>
+                                {{/each}}
+                                {{/if}}
                             </script>
                         </div>
                     </div>

@@ -36,7 +36,7 @@ if (isset($_GET['id'])) {
         $estado = $orden['estado'];
         $textoEstado = getEstado($estado);
         
-        $numVersion = explode("v", $orden['api_version'])[1];
+        $numVersion = $orden['api_version'];
 
         $badge = 'primary';
         if ($orden['estado'] == 'I')

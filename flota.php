@@ -264,7 +264,7 @@ $apikey = $empresa['api_key'] ?? '';
                                             // badge-info no está estilado en este tema (se ve "Activo"/"Inactivo" pero
                                             // "Invitado" salía invisible) — estilo inline para no depender de eso.
                                             $badgeInvitado = !empty($cliente['es_invitado'])
-                                                ? ' <span class="shadow-none badge" style="background:#FEF3C7;color:#92400E;border:1px solid #FDE68A;">Invitado</span>'
+                                                ? ' <a href="javascript:void(0);" class="btnQuitarInvitado bs-tooltip" data-value="'.$cliente['cod_usuario'].'" data-toggle="tooltip" title="Click para quitar la marca de invitado"><span class="shadow-none badge" style="background:#FEF3C7;color:#92400E;border:1px solid #FDE68A;cursor:pointer;">Invitado</span></a>'
                                                 : '';
                                             echo '<tr id="' . $cliente['cod_usuario'] . '">
                                                 <td><img src="'.$cliente['imagen_url'].'" class="profile-img" alt="Imagen"></td>
@@ -309,7 +309,7 @@ $apikey = $empresa['api_key'] ?? '';
                                         <td>{{placa}}</td>
                                         <td class="text-center">
                                             {{{estadoBadge estado}}}
-                                            {{#if es_invitado}}<span class="shadow-none badge" style="background:#FEF3C7;color:#92400E;border:1px solid #FDE68A;">Invitado</span>{{/if}}
+                                            {{#if es_invitado}}<a href="javascript:void(0);" class="btnQuitarInvitado" data-value="{{cod_usuario}}" title="Click para quitar la marca de invitado"><span class="shadow-none badge" style="background:#FEF3C7;color:#92400E;border:1px solid #FDE68A;cursor:pointer;">Invitado</span></a>{{/if}}
                                         </td>
                                         <td class="text-center">
                                             <ul class="table-controls">

@@ -22,8 +22,9 @@ const FORMA_PAGO = { E: 'Efectivo', T: 'Tarjeta', TB: 'Transferencia' };
 const ESTADO_TRABAJO_LABEL = { disponible: 'Disponible', en_carrera: 'En carrera', no_disponible: 'No disponible' };
 const ESTADO_TRABAJO_COLOR = { disponible: 'success', en_carrera: 'warning', no_disponible: 'danger' };
 const ICONO_MOTO = {
-    disponible: 'https://maps.google.com/mapfiles/ms/icons/green-dot.png',
-    en_carrera: 'https://maps.google.com/mapfiles/ms/icons/orange-dot.png',
+    disponible: 'assets/img/moto_disponible.png',
+    en_carrera: 'assets/img/moto_encarrera.png',
+    no_disponible: 'assets/img/moto_ocupada.png',
 };
 
 // Mismos 4 motivos que usa la app del motorizado para reportar y que el admin vuelve a elegir
@@ -235,12 +236,14 @@ function dibujarMotosEnMapa(motorizados) {
     if (!mapaPedido) return;
 
     motorizados
-        .filter(moto => moto.estado_trabajo !== 'no_disponible')
+        .filter(moto => !isNaN(parseFloat(moto.latitud)) && !isNaN(parseFloat(moto.longitud)))
         .forEach(moto => {
             const marker = new google.maps.Marker({
                 map: mapaPedido,
-                icon: ICONO_MOTO[moto.estado_trabajo],
-                label: moto.nombres,
+                icon: {
+                    url: ICONO_MOTO[moto.estado_trabajo] || ICONO_MOTO.no_disponible,
+                    scaledSize: new google.maps.Size(40, 40),
+                },
                 position: { lat: parseFloat(moto.latitud), lng: parseFloat(moto.longitud) },
                 info_moto: moto,
             });

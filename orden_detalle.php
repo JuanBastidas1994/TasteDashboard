@@ -336,7 +336,7 @@ function datetimeShort($fecha)
                         
                         
                         <span id="" style="cursor: pointer;margin-right: 15px;">
-                            <i class="feather-16" data-feather="git-branch"></i><span style="font-size: 16px; vertical-align: middle;color:#888ea8;"> V. <?php echo $numVersion; ?></span>
+                            <i class="feather-16" data-feather="git-branch"></i><span style="font-size: 16px; vertical-align: middle;color:#888ea8;"> <?php echo $numVersion; ?></span>
                         </span>
 
                         <?php if ($is_programado == 1) { ?>

@@ -150,7 +150,7 @@ $(document).ready(function () {
     })
     //PRECIO
 
-    $(".chkPrecio").on("change", function () {
+    $("body").on("change", ".chkPrecio", function () {
         var padre = $(this).parents(".itemProductos");
         if ($(this).is(':checked')) {
             padre.find(".sucPrecio").val(1);
@@ -169,8 +169,23 @@ $(document).ready(function () {
             messageDone("Debe guardar la sucursal primero", 'error');
             return false;
         }
-        var formData = new FormData($("#frmProductos")[0]);
+
+        var formData = new FormData();
         formData.append('cod_sucursal', cod_sucursal);
+
+        // Recorre TODAS las filas del DataTable (todas las paginas, con o sin filtro activo)
+        // para que la disponibilidad se guarde completa sin importar la pagina/filtro visible.
+        var dataTable = $.fn.DataTable.isDataTable('#style-3') ? $('#style-3').DataTable() : null;
+        var filas = dataTable ? dataTable.rows({ search: 'none' }).nodes().toArray() : $('#frmProductos .itemProductos').toArray();
+
+        filas.forEach(function (row) {
+            var tr = $(row);
+            formData.append('txt_producto[]', tr.find('.txt_producto').val());
+            formData.append('select[]', tr.find('.sucSelect').val());
+            formData.append('precioR[]', tr.find('.sucPrecio').val());
+            formData.append('txt_precio_sucursal[]', tr.find('.txt_precio_sucursal').val());
+            formData.append('txt_precio_anterior_sucursal[]', tr.find('.txt_precio_anterior_sucursal').val());
+        });
 
         $.ajax({
             beforeSend: function () {

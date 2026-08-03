@@ -908,7 +908,7 @@ $listaProductos = $Clproductos->listaProductBySucursal($cod_sucursal);
     <!-- Mapas -->
     <script src="//maps.googleapis.com/maps/api/js?key=AIzaSyAWo6DXlAmrqEiKiaEe9UyOGl3NJ208lI8&libraries=places"></script>
     <script src="plugins/maps-latlon/jquery-gmaps-latlon-picker.js"></script>
-    <script src="assets/js/pages/sucursales.js?v=3" type="text/javascript"></script>
+    <script src="assets/js/pages/sucursales.js?v=4" type="text/javascript"></script>
     <script src="assets/js/pages/tarifas.js?v=3" type="text/javascript"></script>
     <script src="plugins/croppie/croppie.js"></script>
     <script>
@@ -967,6 +967,18 @@ $listaProductos = $Clproductos->listaProductBySucursal($cod_sucursal);
             "lengthMenu": [7, 10, 20, 50],
             "pageLength": 10
         });
+
+        // Recordar el tab activo por sucursal para que se conserve al recargar la pagina
+        var tabStorageKey = 'crear_sucursal_tab_' + (parseInt($("#cod_sucursal").val()) || 0);
+
+        $('#lineTab a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+            localStorage.setItem(tabStorageKey, $(e.target).attr('href'));
+        });
+
+        var savedTab = localStorage.getItem(tabStorageKey);
+        if (savedTab && $('#lineTab a[href="' + savedTab + '"]').length) {
+            $('#lineTab a[href="' + savedTab + '"]').tab('show');
+        }
     </script>
     <!-- END PAGE LEVEL CUSTOM SCRIPTS -->
 

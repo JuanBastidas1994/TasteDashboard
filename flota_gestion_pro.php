@@ -305,7 +305,10 @@ $apikey = $empresa ? $empresa['api_key'] : '';
                                                 <div class="flota-moto-card-info">
                                                     <div class="info-primary">{{nombres}}</div>
                                                     <div class="info-secondary"><a href="tel:{{telefono}}"><i data-feather="phone"></i> {{telefono}}</a></div>
-                                                    <div class="info-secondary mt-1"><span class="badgeCustom outline-badge-{{badgeEstado estado_trabajo}}">{{labelEstado estado_trabajo}}</span></div>
+                                                    <div class="info-secondary mt-1">
+                                                        <span class="badgeCustom outline-badge-{{badgeEstado estado_trabajo}}">{{labelEstado estado_trabajo}}</span>
+                                                        {{#if es_invitado}}<span class="badgeCustom" style="background:#FEF3C7;color:#92400E;border:1px solid #FDE68A;">Invitado</span>{{/if}}
+                                                    </div>
                                                 </div>
                                             </div>
                                             <div class="flota-moto-card-actions">

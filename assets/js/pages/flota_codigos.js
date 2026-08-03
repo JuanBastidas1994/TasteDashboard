@@ -69,6 +69,37 @@ $('#btnCopiarMensaje').on('click', function () {
     if (typeof notify === 'function') notify('Mensaje copiado', 'success', 2);
 });
 
+$('body').on('click', '.btnQuitarInvitado', function (event) {
+    event.preventDefault();
+    const $link = $(this);
+    const id = parseInt($link.attr('data-value'));
+    if (!id) return;
+
+    messageConfirm('¿Quitar la marca de invitado?', 'Este motorizado dejará de mostrarse como invitado.', 'warning')
+    .then(function (ok) {
+        if (!ok) return;
+
+        fetch(`${API_FLOTAS}/flotas/quitar-invitado`, {
+            method: 'POST',
+            headers: { 'Api-Key': ApiKeyFlota, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ cod_usuario: id }),
+        })
+            .then(res => res.json())
+            .then(response => {
+                if (response.success != 1) {
+                    if (typeof notify === 'function') notify(response.mensaje || 'No se pudo actualizar', 'error', 3);
+                    return;
+                }
+                $link.remove();
+                if (typeof notify === 'function') notify('Ya no es invitado', 'success', 2);
+            })
+            .catch(error => {
+                console.error('Error al quitar invitado:', error);
+                if (typeof notify === 'function') notify('Error al actualizar', 'error', 3);
+            });
+    });
+});
+
 let notificarCodUsuarioActual = null;
 
 $('body').on('click', '.btnNotificar', function (event) {

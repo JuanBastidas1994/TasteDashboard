@@ -8,6 +8,7 @@ const GOVersion = 2;
 
 let sucursal_id = 0;
 let casherId = 0;
+let codRol = 0;
 
 let firstTime = true;
 
@@ -15,16 +16,25 @@ $(function() {
     sucursal_id = $("#cod_sucursal").val();
     ApiKey = $("#apikey_empresa").val();
     casherId = $("#casher_id").val();
+    codRol = parseInt($("#cod_rol").val());
     // console.log("sucursal_id", sucursal_id);
 
     if(sucursal_id == 0){
+        //Es administrador de empresa: debe escoger sucursal
         $("#btnAcceptSelectionModal").hide();
-        $("#sectionOffices").show();
+        $("#assignedOfficeLabel").addClass("d-none");
     }else{
-        //Abrir un modal indicando opciones activas, ejemplo: Impresión, sonido, recursividad, etc!
+        //Ya tiene sucursal asignada (cajero / admin sucursal): no puede escoger otra
         $("#btnAcceptSelectionModal").show();
-        $("#sectionOffices").hide();
-        $("#sectionSettings").removeClass("mt-5");
+        $(".client-detail-options[data-target='office-tab-sucursal']").hide();
+        $(".client-detail-options[data-target='office-tab-config']").trigger("click");
+
+        let nombreSucursal = $("#sucursal_asignada_nombre").val();
+        if(nombreSucursal){
+            $("#assignedOfficeName").text(nombreSucursal);
+            $("#assignedOfficeLabel").removeClass("d-none");
+            feather.replace();
+        }
     }
     verifyVersion();
     //openOfficesSelections();
@@ -79,6 +89,9 @@ $(function() {
     loadPrintersServices();
     //CONSULTAR SI ESTÁN CONFIGURADOS LOS RECORDATORIOS
     getReminderSettings();
+
+    //REVISAR CADA CIERTO TIEMPO SI EL SERVICIO DE IMPRESIÓN YA SE ACTIVÓ, SIN NECESIDAD DE RECARGAR
+    setInterval(loadPrintersServices, 8000);
 });
 
 $(window).resize(function(event) {
@@ -200,6 +213,11 @@ function initConfigGestionOrdenes(){
 
             //CONFIGURACION RECORDATORIOS
             localStorage.setItem('recordatorio', JSON.stringify(data.casher.recordatorio));
+
+            //ICONO DE IMPRESIÓN EN EL HEADER
+            if(data.permisos && data.permisos.includes('DESKTOP_IMPRESION')){
+                $("#navIconImpresion").removeClass("d-none");
+            }
 
             setUserToFirebase("Online");
 
@@ -729,8 +747,11 @@ function abrirConfiguracion(){
         "permisos": config.permisos
     }));
     feather.replace();
+}
 
-    loadPrintersServices();
+function abrirImpresionDirecta(){
+    $("#officesSelectionModal").modal();
+    $(".client-detail-options[data-target='office-tab-printer']").trigger("click");
 }
 
 $(document).on('hidden.bs.modal', '.modal', function () {
@@ -752,6 +773,15 @@ $(".offices-items").on("click", function(){
     $("#officesSelectionModal").modal('hide');
     initConfigGestionOrdenes();
     testSoundInit();
+});
+
+$("body").on("click", "#btnVerImpresion", function(){
+    $(".client-detail-options[data-target='office-tab-printer']").trigger("click");
+});
+
+$("body").on("click", "#officesSelectionModal .client-detail-options", function(){
+    let nombreTab = $(this).clone().children().remove().end().text().trim();
+    $("#officeModalTitle").text(nombreTab);
 });
 
 
@@ -912,10 +942,12 @@ function updateIcons(element, icon, textColor){
 function getReminderSettings(){
     let recordatorios = localStorage.getItem("recordatorio");
     updateIcons($("#iconReminderStatus"), "x-circle", "text-danger");
+    $("#reminderStatusText").text("Desactivado");
     if(recordatorios != null){
         recordatorios = JSON.parse(recordatorios);
         if(recordatorios.permiso == 1){
             updateIcons($("#iconReminderStatus"), "check-circle", "text-success");
+            $("#reminderStatusText").text("Activado");
         }
     }
 }

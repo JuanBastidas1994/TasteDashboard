@@ -24,6 +24,14 @@ $cod_rol = $session['cod_rol'];
 $sucursal_id = ($cod_rol <= 2) ? 0 : $session['cod_sucursal'];
 $Clsucursales = new cl_sucursales(NULL);
 
+$sucursalAsignadaNombre = "";
+if ($cod_rol > 2 && $sucursal_id) {
+    $ClsucursalAsignada = new cl_sucursales(NULL);
+    if ($ClsucursalAsignada->get($sucursal_id)) {
+        $sucursalAsignadaNombre = $ClsucursalAsignada->nombre;
+    }
+}
+
 $permisos = $Clempresas->getIdPermisionByBusiness($session['cod_empresa']);
 ?>
 <!DOCTYPE html>
@@ -99,6 +107,11 @@ $permisos = $Clempresas->getIdPermisionByBusiness($session['cod_empresa']);
 
         .client-detail-options:hover {
             background-color: #f2f6fb;
+        }
+
+        .client-detail-options.office-tab-item {
+            font-size: 14px;
+            padding: 8px;
         }
 
         .clientInfo svg {
@@ -393,53 +406,156 @@ $permisos = $Clempresas->getIdPermisionByBusiness($session['cod_empresa']);
 
     <!--MODAL SUCURSALES -->
     <div class="modal fade bs-example-modal-lg" id="officesSelectionModal" tabindex="99" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" data-backdrop="static">
-        <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-dialog modal-xl" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title"></h5>
+                    <h5 class="modal-title" id="officeModalTitle">Sucursal</h5>
                     <button id="btnCloseSelectionModal" type="button" class="close" data-dismiss="modal" aria-label="Close">
                         X
                     </button>
                 </div>
                 <div class="modal-body">
-                    <div class="x_content" id="sectionOffices">
-                        <div class="row">
-                            <?php
-                            $sucursales = $Clsucursales->listaActivas();
-                            foreach ($sucursales as $sucursal) {
-                                echo '
-                                    <div class="col-md-4 col-12 mb-3">
-                                        <div class="p-2 offices-items" data-id="' . $sucursal['cod_sucursal'] . '" style="border: 1px solid blue;
-                                        border-radius: 15px;">
-                                            <div class="text-center">
-                                                <img src="assets/img/restaurant.png" alt="" style="width:100px;">
+                    <input type="hidden" id="cod_rol" value="<?= $cod_rol ?>">
+                    <input type="hidden" id="sucursal_asignada_nombre" value="<?= htmlspecialchars($sucursalAsignadaNombre) ?>">
+
+                    <div class="text-center mb-3 d-none" id="assignedOfficeLabel">
+                        <span class="badge badge-light p-2" style="font-size:14px;">
+                            <i data-feather="map-pin" class="feather-16 align-middle"></i>
+                            <span id="assignedOfficeName"></span>
+                        </span>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-3 col-12" style="padding: 0px;">
+                            <div class="mt-3 p-3">
+                                <div>
+                                    <div class="client-detail-options office-tab-item active" data-target="office-tab-sucursal" id="tabOptionSucursal">
+                                        <i data-feather="home" class="feather-16"></i> Sucursal
+                                    </div>
+                                    <div class="client-detail-options office-tab-item" data-target="office-tab-config">
+                                        <i data-feather="settings" class="feather-16"></i> Configuración
+                                    </div>
+                                    <div class="client-detail-options office-tab-item" data-target="office-tab-printer">
+                                        <i data-feather="printer" class="feather-16"></i> Impresión
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-9 col-12" style="background-color: #f8f8fb; padding: 15px; overflow-y: auto; max-height: 60vh;">
+                            <div id="office-tab-sucursal" class="client-tab-details">
+                                <div class="x_content" id="sectionOffices">
+                                    <div class="row">
+                                        <?php
+                                        $sucursales = $Clsucursales->listaActivas();
+                                        foreach ($sucursales as $sucursal) {
+                                            echo '
+                                                <div class="col-md-3 col-sm-6 col-6 mb-3">
+                                                    <div class="p-2 offices-items" data-id="' . $sucursal['cod_sucursal'] . '" style="border: 1px solid blue;
+                                                    border-radius: 15px;">
+                                                        <div class="text-center">
+                                                            <img src="assets/img/restaurant.png" alt="" style="width:50px;">
+                                                        </div>
+                                                        <div class="text-center mt-2" style="font-size:16px; color:black; line-height:16px;">
+                                                            ' . $sucursal['nombre'] . '
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                ';
+                                        }
+                                        ?>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="office-tab-config" class="client-tab-details" style="display: none;">
+                                <div class="p-3">
+                                    <div class="d-flex align-items-center p-3 mb-3" style="background-color: #fff; border-radius: 10px; border: 1px solid #e5e5e5;">
+                                        <i id="iconReminderStatus" class="text-danger mr-3" data-feather="x-circle" style="width:28px; height:28px;"></i>
+                                        <div>
+                                            <div style="font-weight: 600;">Recordatorios</div>
+                                            <div class="text-muted" style="font-size: 12px;" id="reminderStatusText">Verificando...</div>
+                                        </div>
+                                    </div>
+                                    <div style="background-color: #fff; border-radius: 10px; border: 1px solid #e5e5e5;">
+                                        <div class="d-flex align-items-center p-3">
+                                            <i id="iconPrinterStatus" class="text-danger mr-3" data-feather="x-circle" style="width:28px; height:28px;"></i>
+                                            <div class="flex-grow-1">
+                                                <div style="font-weight: 600;">Servicio de impresión</div>
+                                                <div class="text-muted" style="font-size: 12px;" id="printerStatusText">Verificando...</div>
                                             </div>
-                                            <div class="text-center mt-2">
-                                                <h4>' . $sucursal['nombre'] . '</h4>
+                                            <button type="button" class="btn btn-sm btn-outline-primary" id="btnVerImpresion">Instalar</button>
+                                        </div>
+                                        <div id="printerHintInactive" class="d-flex align-items-center px-3 pb-3">
+                                            <img src="software/printercaptures/icon.png" alt="Ícono del servicio de impresión" style="width:40px; border-radius:6px;" class="mr-3">
+                                            <p class="text-muted mb-0" style="font-size: 12px;">Si ya lo instalaste, así se ve su ícono en tu Escritorio. Ábrelo y espera unos segundos.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="office-tab-printer" class="client-tab-details" style="display: none;">
+                                <div class="p-3">
+                                    <div id="printerTabActive" class="d-none">
+                                        <div class="d-flex align-items-center text-success mb-3">
+                                            <i data-feather="check-circle" class="mr-2"></i>
+                                            <span style="font-size: 16px;">El servicio de impresión está activo</span>
+                                        </div>
+                                        <div id="officePrintersSection" class="d-none">
+                                            <h4 class="mb-3">Impresoras</h4>
+                                            <div id="officePrintersList"></div>
+                                        </div>
+
+                                        <div class="mt-4">
+                                            <h5 class="mb-2">Agregar o probar una impresora</h5>
+                                            <div id="printer-form"></div>
+                                        </div>
+
+                                        <div class="mt-4">
+                                            <a href="javascript:void(0)" data-toggle="collapse" data-target="#printerUrlAvanzado" style="font-size: 12px;">Configuración avanzada</a>
+                                            <div id="printerUrlAvanzado" class="collapse mt-2">
+                                                <label for="txtPrintUrl" style="font-size: 12px;">URL del servicio local</label>
+                                                <div class="d-flex align-items-end">
+                                                    <input id="txtPrintUrl" type="text" class="form-control" value="">
+                                                    <button class="btn btn-primary ml-2" onclick="updateUrl()">Actualizar</button>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                    ';
-                            }
-                            ?>
-                        </div>
-                    </div>
-                    <div class="x_content mt-5" id="sectionSettings">
-                        <div class="row">
-                            <div class="col-12">
-                                <h5>Configuraciones</h5>
-                            </div>
-                            <div class="col-12">
-                                <ul class="list-unstyled">
-                                    <li>
-                                        <i id="iconPrinterStatus" class="text-danger feather-18" data-feather="x-circle"></i>
-                                        Servicio de impresión
-                                    </li>
-                                    <li>
-                                        <i id="iconReminderStatus" class="text-danger feather-18" data-feather="x-circle"></i>
-                                        Recordatorios
-                                    </li>
-                                </ul>
+                                    <div id="printerTabInactive">
+                                        <div class="d-flex align-items-center text-danger mb-3">
+                                            <i data-feather="x-circle" class="mr-2"></i>
+                                            <span style="font-size: 16px;">El servicio de impresión no está activo</span>
+                                        </div>
+                                        <p class="mb-2">¿No tienes el sistema de impresión?</p>
+                                        <a href="software/ServicioImpresion-Setup.exe" download class="btn btn-primary" id="btnDescargarImpresion">
+                                            <i data-feather="download"></i> Descargar
+                                        </a>
+                                        <div class="mt-4">
+                                            <h5>Cómo instalarlo</h5>
+                                            <div class="row">
+                                                <div class="col-12 col-sm-6 mb-3">
+                                                    <img src="software/printercaptures/step2.png" class="img-fluid rounded border" alt="Paso 1">
+                                                    <p class="mt-1" style="font-size: 12px;"><b>1.</b> Elige la carpeta de instalación (puedes dejar la que aparece) y presiona "Siguiente".</p>
+                                                </div>
+                                                <div class="col-12 col-sm-6 mb-3">
+                                                    <img src="software/printercaptures/step3.png" class="img-fluid rounded border" alt="Paso 2">
+                                                    <p class="mt-1" style="font-size: 12px;"><b>2.</b> Deja marcadas ambas casillas (acceso directo e inicio automático) y presiona "Siguiente".</p>
+                                                </div>
+                                                <div class="col-12 col-sm-6 mb-3">
+                                                    <img src="software/printercaptures/step4.png" class="img-fluid rounded border" alt="Paso 3">
+                                                    <p class="mt-1" style="font-size: 12px;"><b>3.</b> Presiona "Instalar".</p>
+                                                </div>
+                                                <div class="col-12 col-sm-6 mb-3">
+                                                    <img src="software/printercaptures/step5.png" class="img-fluid rounded border" alt="Paso 4">
+                                                    <p class="mt-1" style="font-size: 12px;"><b>4.</b> Espera mientras se instala, toma unos segundos.</p>
+                                                </div>
+                                                <div class="col-12 col-sm-6 mb-3">
+                                                    <img src="software/printercaptures/step1.png" class="img-fluid rounded border" alt="Paso 5">
+                                                    <p class="mt-1" style="font-size: 12px;"><b>5.</b> Presiona "Finalizar" — el programa se abrirá solo.</p>
+                                                </div>
+                                            </div>
+                                            <p style="font-size: 12px;" class="text-muted">Si Windows pregunta por permisos de red, elige "Redes privadas" y acepta.</p>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -1144,6 +1260,9 @@ $permisos = $Clempresas->getIdPermisionByBusiness($session['cod_empresa']);
                 <li class="bs-tooltip" data-placement="bottom" title="Notificaciones" onclick="abrirHistorial()">
                     <i data-feather="bell"></i>
                 </li>
+                <li class="bs-tooltip d-none" id="navIconImpresion" data-placement="bottom" title="Impresión" onclick="abrirImpresionDirecta()">
+                    <i data-feather="printer"></i>
+                </li>
                 <li class="bs-tooltip" data-placement="bottom" title="Configuraciones" onclick="abrirConfiguracion()">
                     <i data-feather="settings"></i>
                 </li>
@@ -1402,14 +1521,14 @@ $permisos = $Clempresas->getIdPermisionByBusiness($session['cod_empresa']);
     <script src="assets/js/moment.min.js"></script>
     <!--<script src="assets/js/gestion-ordenes-v5/sounds.js" type="text/javascript"></script>-->
     <!--<script src="assets/js/gestion-ordenes-v5/toastJc.js?v=7" type="text/javascript"></script>-->
-    <script src="assets/js/gestion-ordenes-v5/index.js?v=16" type="text/javascript"></script>
+    <script src="assets/js/gestion-ordenes-v5/index.js?v=17" type="text/javascript"></script>
     <script src="assets/js/gestion-ordenes-v5/facturacion.js?v=7" type="text/javascript"></script>
     <script src="assets/js/gestion-ordenes-v5/tracking.js?v=8" type="text/javascript"></script>
     <script src="assets/js/gestion-ordenes-v5/recipientes.js?v=7" type="text/javascript"></script>
     <script src="assets/js/gestion-ordenes-v5/mis-motorizados.js" type="text/javascript"></script>
     <script src="assets/js/gestion-ordenes-v5/client.js" type="text/javascript"></script>
     <script src="assets/js/gestion-ordenes-v5/office.js" type="text/javascript"></script>
-    <script src="assets/js/gestion-ordenes-v5/printers.js?v=7" type="text/javascript"></script>
+    <script src="assets/js/gestion-ordenes-v5/printers.js?v=11" type="text/javascript"></script>
     <script src="assets/js/gestion-ordenes-v5/firebase.js?v=7" type="text/javascript"></script>
     <script src="assets/js/gestion-ordenes-v5/cierre-diario.js?v=7" type="text/javascript"></script>
     <script src="assets/js/gestion-ordenes-v5/ordenes-programadas.js" type="text/javascript"></script>

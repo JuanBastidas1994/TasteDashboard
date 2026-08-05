@@ -20,9 +20,9 @@ Handlebars.registerHelper('colorStatus', function(status) {
         return "warning";
     else if(status == "ENVIANDO")
         return "secondary";
-    else if(status == "ENTREGADA" || status == "CREADA" || status == "A")
+    else if(status == "ENTREGADA" || status == "CREADA" || status == "A" || status == "ENVIADA" || status == "EMITIDA_SRI")
         return "success";
-    else if(status == "ANULADA" || status == "I" || status == "D")
+    else if(status == "ANULADA" || status == "I" || status == "D" || status == "NO_ENVIADA")
         return "danger";
     else if(status == "PUNTO_RECOGIDA" || status == "VIGENTE")
         return "info";

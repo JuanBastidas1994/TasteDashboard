@@ -4,6 +4,7 @@ require_once "../funciones.php";
 //Clases
 require_once "../clases/cl_contifico.php";
 require_once "../clases/cl_empresas.php";
+require_once "../clases/cl_sucursales.php";
 
 $session = getSession();
 $ClContifico = new cl_contifico($session["cod_empresa"]);
@@ -59,6 +60,54 @@ function getOrdenesNoFActuradas() {
 
     $return['success'] = 0;
     $return['mensaje'] = "No hay órdenes sin facturar";
+    return $return;
+}
+
+function getSucursales() {
+    global $session;
+
+    $ClSucursales = new cl_sucursales();
+    $sucursales = $ClSucursales->lista();
+    if($sucursales) {
+        $return['success'] = 1;
+        $return['mensaje'] = "Lista de sucursales";
+        $return['data'] = $sucursales;
+        return $return;
+    }
+
+    $return['success'] = 0;
+    $return['mensaje'] = "No hay sucursales";
+    return $return;
+}
+
+function getFacturasUnificadas() {
+    global $ClContifico;
+    global $session;
+    extract($_GET);
+
+    $sucursal = isset($sucursal) ? $sucursal : '';
+    $cliente = isset($cliente) ? $cliente : '';
+    $documento = isset($documento) ? $documento : '';
+    $estado = isset($estado) ? $estado : '';
+
+    $documentos = $ClContifico->getFacturasUnificadas(
+        $session["cod_empresa"],
+        $fecha_inicio." 00:00:00",
+        $fecha_fin." 23:59:59",
+        $sucursal,
+        $cliente,
+        $documento,
+        $estado
+    );
+    if($documentos) {
+        $return['success'] = 1;
+        $return['mensaje'] = "Lista de facturas";
+        $return['data'] = $documentos;
+        return $return;
+    }
+
+    $return['success'] = 0;
+    $return['mensaje'] = "No hay resultados para los filtros seleccionados";
     return $return;
 }
 ?>

@@ -167,6 +167,14 @@ $apikey = $empresa ? $empresa['api_key'] : '';
     .flota-timeline-step:not(.complete) .flota-timeline-title { color: #999; font-weight: 400; }
     .flota-timeline-fecha { font-size: 12px; color: #999; }
 
+    .flota-marker-label {
+        background: #fff;
+        padding: 1px 5px;
+        border-radius: 8px;
+        box-shadow: 0 1px 3px rgba(0,0,0,.3);
+        white-space: nowrap;
+    }
+
     </style>
 </head>
 <body>
@@ -276,7 +284,12 @@ $apikey = $empresa ? $empresa['api_key'] : '';
                                                 </div>
                                             {{/unless}}
                                         {{else}}
-                                            <div>Sin motorizado asignado todavía — ver pestaña <b>Asignación</b>.</div>
+                                            <div>Sin motorizado asignado todavía.</div>
+                                            {{#unless entregada}}
+                                                <div class="mt-2">
+                                                    <button class="btn btn-primary" type="button" onclick="irATabAsignacion()">Asignar</button>
+                                                </div>
+                                            {{/unless}}
                                         {{/if}}
                                     </div>
                                 </div>
@@ -309,11 +322,12 @@ $apikey = $empresa ? $empresa['api_key'] : '';
                                                         <span class="badgeCustom outline-badge-{{badgeEstado estado_trabajo}}">{{labelEstado estado_trabajo}}</span>
                                                         {{#if es_invitado}}<span class="badgeCustom" style="background:#FEF3C7;color:#92400E;border:1px solid #FDE68A;">Invitado</span>{{/if}}
                                                     </div>
+                                                    <div class="info-secondary mt-1"><i data-feather="clock"></i> {{fechaRelativa fecha_ubicacion}}</div>
                                                 </div>
                                             </div>
                                             <div class="flota-moto-card-actions">
                                                 <button type="button" class="btn-icon-sutil" title="{{#if_eq estado_trabajo "no_disponible"}}Sin ubicación en el mapa{{else}}Ver en el mapa{{/if_eq}}" {{#if_eq estado_trabajo "no_disponible"}}disabled{{/if_eq}} onclick="centrarMotoEnMapa({{id}}, event)"><i data-feather="map-pin"></i></button>
-                                                <button type="button" class="btn-icon-sutil" title="Ver detalles (próximamente)" onclick="verDetalleMoto({{id}}, event)"><i data-feather="eye"></i></button>
+                                                <button type="button" class="btn-icon-sutil" title="Ver detalles" onclick="verDetalleMoto({{id}}, event)"><i data-feather="eye"></i></button>
                                                 <button type="button" class="btn btn-sm btn-outline-primary" onclick="asignarDesdeMapa({{id}}, event)">Asignar</button>
                                             </div>
                                         </div>
@@ -382,6 +396,118 @@ $apikey = $empresa ? $empresa['api_key'] : '';
         </div>
     </div>
 
+    <!-- MODAL UBICACIÓN DE MIS MOTORIZADOS: mismo mapa que la pestaña Asignación, pero de solo
+         lectura y sin pedido de por medio — para ver dónde está cada quien en cualquier momento. -->
+    <div class="modal fade" id="modalUbicacionMotorizados" tabindex="99" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-xl flota-modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header align-items-center">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="padding:0px; margin:0px;">
+                        <i data-feather="x"></i>
+                    </button>
+                    <h5 class="modal-title text-center" style="width: 100%;">Ubicación de mis motorizados</h5>
+                </div>
+
+                <div class="modal-body" style="padding: 15px;">
+                    <div class="row">
+                        <div class="col-lg-9 col-12">
+                            <div id="mapaUbicacionMotorizados" style="width:100%; height:65vh; min-height:420px; border-radius:8px;"></div>
+                        </div>
+                        <div class="col-lg-3 col-12 mt-3 mt-lg-0">
+                            <h5>Motorizados de tu flota</h5>
+                            <input type="text" id="filtroMotorizadoUbicacion" class="form-control form-control-sm mb-2" placeholder="Buscar motorizado...">
+                            <div id="lista-motorizados-ubicacion" style="max-height:calc(65vh - 20px); min-height:200px; overflow-y:auto;"></div>
+                            <script id="motorizados-ubicacion-template" type="text/x-handlebars-template">
+                                {{#each this}}
+                                <div class="flota-moto-card">
+                                    <div class="flota-moto-card-main">
+                                        {{#if imagen}}
+                                            <img src="{{imagen}}" class="rounded-circle" style="width:44px;height:44px;object-fit:cover;">
+                                        {{else}}
+                                            <div class="rounded-circle d-flex align-items-center justify-content-center" style="width:44px;height:44px;background:#e5e7eb;"><i data-feather="user"></i></div>
+                                        {{/if}}
+                                        <div class="flota-moto-card-info">
+                                            <div class="info-primary">{{nombres}}</div>
+                                            <div class="info-secondary"><a href="tel:{{telefono}}"><i data-feather="phone"></i> {{telefono}}</a></div>
+                                            <div class="info-secondary mt-1">
+                                                <span class="badgeCustom outline-badge-{{badgeEstado estado_trabajo}}">{{labelEstado estado_trabajo}}</span>
+                                                {{#if es_invitado}}<span class="badgeCustom" style="background:#FEF3C7;color:#92400E;border:1px solid #FDE68A;">Invitado</span>{{/if}}
+                                            </div>
+                                            <div class="info-secondary mt-1"><i data-feather="clock"></i> {{fechaRelativa fecha_ubicacion}}</div>
+                                        </div>
+                                    </div>
+                                    <div class="flota-moto-card-actions">
+                                        <button type="button" class="btn-icon-sutil" title="{{#if_eq estado_trabajo "no_disponible"}}Sin ubicación en el mapa{{else}}Ver en el mapa{{/if_eq}}" {{#if_eq estado_trabajo "no_disponible"}}disabled{{/if_eq}} onclick="centrarMotoEnMapaUbicacion({{id}}, event)"><i data-feather="map-pin"></i></button>
+                                        <button type="button" class="btn-icon-sutil" title="Ver detalles" onclick="verDetalleMoto({{id}}, event)"><i data-feather="eye"></i></button>
+                                    </div>
+                                </div>
+                                {{else}}
+                                <div class="flota-column-empty">Sin motorizados</div>
+                                {{/each}}
+                            </script>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-primary" data-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DETALLE DE MOTORIZADO: dónde está y qué pedido lleva ahora — no es la pantalla de
+         estadísticas/histórico (eso queda para una pantalla aparte). Se abre desde el botón del ojo,
+         tanto en la pestaña Asignación como en el modal de Ubicación de arriba. -->
+    <div class="modal fade" id="modalDetalleMoto" tabindex="99" role="dialog" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header align-items-center">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="padding:0px; margin:0px;">
+                        <i data-feather="x"></i>
+                    </button>
+                    <h5 class="modal-title text-center" id="detalleMotoTitle" style="width: 100%;">Motorizado</h5>
+                </div>
+
+                <div class="modal-body">
+                    <div id="detalleMotoContenido"></div>
+                    <script id="detalle-moto-template" type="text/x-handlebars-template">
+                        <div class="d-flex align-items-center mb-3">
+                            {{#if imagen}}
+                                <img src="{{imagen}}" class="rounded-circle" style="width:56px;height:56px;object-fit:cover;margin-right:12px;">
+                            {{else}}
+                                <div class="rounded-circle d-flex align-items-center justify-content-center" style="width:56px;height:56px;background:#e5e7eb;margin-right:12px;"><i data-feather="user"></i></div>
+                            {{/if}}
+                            <div>
+                                <div style="font-weight:600;">{{nombres}}</div>
+                                <div><a href="tel:{{telefono}}">{{telefono}}</a> · Placa {{placa}}</div>
+                                <span class="badgeCustom outline-badge-{{badgeEstado estado_trabajo}}">{{labelEstado estado_trabajo}}</span>
+                            </div>
+                        </div>
+
+                        <div id="mapaDetalleMoto" style="width:100%; height:220px; border-radius:8px; margin-bottom:12px; background:#f4f4f4;"></div>
+                        <div class="mb-3" style="font-size:13px; color:#777;"><i data-feather="clock"></i> Última ubicación: {{fechaRelativa fecha_ubicacion}}</div>
+
+                        <h5>Pedido(s) activo(s)</h5>
+                        {{#if pedidos_actuales.length}}
+                            {{#each pedidos_actuales}}
+                            <div class="flota-card" onclick="cerrarDetalleYAbrirPedido({{cod_orden}})">
+                                <div class="flota-card-top">
+                                    <strong>#{{cod_orden}}</strong>
+                                    <span class="badgeCustom outline-badge-info">{{sub_estado}}</span>
+                                </div>
+                                <div class="flota-card-empresa">{{empresa_nombre}} — {{sucursal_nombre}}</div>
+                                <div class="flota-card-cliente">{{cliente_nombre}} · ${{total}}</div>
+                            </div>
+                            {{/each}}
+                        {{else}}
+                            <div class="flota-column-empty">Sin pedido activo</div>
+                        {{/if}}
+                    </script>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!--  BEGIN NAVBAR  -->
     <?php echo top() ?>
     <?php echo navbar(); ?>
@@ -400,7 +526,7 @@ $apikey = $empresa ? $empresa['api_key'] : '';
                     <input id="apikey_flota" type="hidden" value="<?= htmlspecialchars($apikey) ?>">
                     <div class="col-xl-12 col-lg-12 col-sm-12 layout-spacing">
                         <div class="widget-content widget-content-area br-6">
-                            <div style="display: flex;  flex-wrap: wrap; margin-bottom: 0px;">
+                            <div style="display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 0px; align-items: flex-end;">
                                 <div style="flex: 1; min-width: 220px;">
                                     <label for="selectComercio">Filtrar por comercio:</label>
                                     <select id="selectComercio" style="width:100%">
@@ -413,6 +539,17 @@ $apikey = $empresa ? $empresa['api_key'] : '';
                                         }
                                         ?>
                                     </select>
+                                </div>
+                                <div style="flex: 1; min-width: 220px;">
+                                    <label for="selectMotorizado">Filtrar por motorizado:</label>
+                                    <select id="selectMotorizado" style="width:100%">
+                                        <option value=""></option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <button type="button" class="btn btn-outline-primary" id="btnUbicacionMotorizados">
+                                        <i data-feather="map-pin"></i> Ubicación de mis motorizados
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -498,6 +635,9 @@ $apikey = $empresa ? $empresa['api_key'] : '';
         $(function () {
             $('#selectComercio').select2({ placeholder: 'Seleccione un comercio', allowClear: true });
             $('#selectComercio').on('change', cargarPedidos);
+
+            $('#selectMotorizado').select2({ placeholder: 'Seleccione un motorizado', allowClear: true });
+            $('#selectMotorizado').on('change', cargarPedidos);
         });
     </script>
 

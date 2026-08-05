@@ -13,12 +13,107 @@ if (JSON.parse(localStorage.getItem('printer')) === null) {
     loadPrintersSave();
 }); */
 
+function getEstacionId(){
+    printer = JSON.parse(localStorage.getItem('printer'));
+    if(!printer.estacion_id){
+        printer.estacion_id = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : ('est-' + Date.now() + '-' + Math.random().toString(16).slice(2));
+        localStorage.setItem('printer', JSON.stringify(printer));
+    }
+    return printer.estacion_id;
+}
+
+function syncImpresorasFromApi(){
+    if(!sucursal_id || sucursal_id == 0) return;
+
+    let estacionId = getEstacionId();
+    fetch(`${ApiUrl}/impresoras/${sucursal_id}/${estacionId}`, {
+        headers: {'Api-Key': ApiKey}
+    })
+        .then(res => res.json())
+        .then(response => {
+            if(response.success == 1 && response.data.length > 0){
+                aplicarImpresorasDesdeApi(response.data);
+            }else if(codRol > 2){
+                //No hay nada guardado en la BD todavía para esta estación: migrar lo que haya en localStorage (una sola vez)
+                //Solo para sesiones reales de cajero (sucursal fija) - un admin probando no debe escribir nada
+                let printerLocal = JSON.parse(localStorage.getItem('printer'));
+                if(printerLocal.impresoras && printerLocal.impresoras.length > 0){
+                    migrarImpresorasLocales(printerLocal.impresoras, estacionId);
+                }
+            }
+        })
+        .catch(error => console.log(error));
+}
+
+function aplicarImpresorasDesdeApi(data){
+    printer = JSON.parse(localStorage.getItem('printer'));
+    //Solo las ya asignadas (CAJA/COCINA) le sirven al cajero para imprimir; las "sin asignar" son solo para el panel admin
+    printer.impresoras = data
+        .filter(function(item){ return item.tipo == 'CAJA' || item.tipo == 'COCINA'; })
+        .map(function(item){
+            return {id: item.cod_impresora, nombre: item.nombre, paginas: item.paginas, tipo: item.tipo, size: item.size};
+        });
+    localStorage.setItem('printer', JSON.stringify(printer));
+    loadPrintersSave();
+}
+
+function migrarImpresorasLocales(impresorasLocales, estacionId){
+    let pendientes = impresorasLocales.length;
+    let migradas = [];
+    impresorasLocales.forEach(function(item){
+        fetch(`${ApiUrl}/impresoras`, {
+            method: 'POST',
+            headers: {'Api-Key': ApiKey},
+            body: JSON.stringify({
+                cod_sucursal: sucursal_id,
+                estacion_id: estacionId,
+                nombre: item.nombre,
+                tipo: item.tipo,
+                size: item.size,
+                paginas: item.paginas
+            })
+        })
+        .then(res => res.json())
+        .then(response => {
+            if(response.success == 1){
+                migradas.push({id: response.cod_impresora, nombre: item.nombre, tipo: item.tipo, size: item.size, paginas: item.paginas});
+            }
+        })
+        .catch(()=>{})
+        .finally(()=>{
+            pendientes--;
+            if(pendientes === 0 && migradas.length > 0){
+                printer = JSON.parse(localStorage.getItem('printer'));
+                printer.impresoras = migradas;
+                localStorage.setItem('printer', JSON.stringify(printer));
+                loadPrintersSave();
+            }
+        });
+    });
+}
+
+function reportarImpresorasDetectadas(nombres){
+    if(codRol <= 2 || !sucursal_id || sucursal_id == 0 || nombres.length === 0) return;
+
+    fetch(`${ApiUrl}/impresoras/reportar`, {
+            method: 'POST',
+            headers: {'Api-Key': ApiKey},
+            body: JSON.stringify({
+                cod_sucursal: sucursal_id,
+                estacion_id: getEstacionId(),
+                nombres: nombres
+            })
+        })
+        .catch(error => console.log(error));
+}
+
 function loadPrintersServices(){
     printer = JSON.parse(localStorage.getItem('printer'));
     // console.log(`${printer.url}/print/lista`);
 
     //Lista de impresoras
     loadPrintersSave();
+    syncImpresorasFromApi();
 
     //Verificar si el servicio esta activo
     fetch(`${printer.url}/print/lista`)
@@ -31,23 +126,54 @@ function loadPrintersServices(){
                 $("#printer-form").html("");
                 $("#printer-form").append(template(impresoras));
                 updateIcons($("#iconPrinterStatus"), "check-circle", "text-success");
+                setPrinterServiceStatus(true);
+                reportarImpresorasDetectadas(impresoras.map(function(p){ return p.nombre; }));
             }else{
                 console.log("No hay impresoras");
                 updateIcons($("#iconPrinterStatus"), "x-circle", "text-danger");
+                setPrinterServiceStatus(false);
             }
         })
         .catch(error=>{
             console.log(error);
-            $("#printer-form").append('<div class="text-center"><h1>Servicio de impresión apagado</h1></div>');
+            $("#printer-form").html('<div class="text-center"><h1>Servicio de impresión apagado</h1></div>');
             $("#iconPrinterStatus").removeClass();
             updateIcons($("#iconPrinterStatus"), "x-circle", "text-danger");
+            setPrinterServiceStatus(false);
         });
+}
+
+function setPrinterServiceStatus(activo){
+    if(activo){
+        $("#printerStatusText").text("Activo");
+        $("#printerTabActive").removeClass("d-none");
+        $("#printerTabInactive").addClass("d-none");
+        $("#printerHintInactive").addClass("d-none");
+        $("#btnVerImpresion").text("Ver impresoras");
+    }else{
+        $("#printerStatusText").text("Apagado — abre el programa si ya lo tienes instalado");
+        $("#printerTabActive").addClass("d-none");
+        $("#printerTabInactive").removeClass("d-none");
+        $("#printerHintInactive").removeClass("d-none");
+        $("#btnVerImpresion").text("Instalar");
+    }
 }
 
 function loadPrintersSave(){
     printer = JSON.parse(localStorage.getItem('printer'));
     var templateListaImpresoras = Handlebars.compile($("#printers-lista-template").html());
-    $("#printers-lista").html(templateListaImpresoras(printer));
+    if($("#officePrintersList").length){
+        if(printer.impresoras && printer.impresoras.length > 0){
+            $("#officePrintersList").html(templateListaImpresoras(printer));
+            $("#officePrintersSection").removeClass("d-none");
+        }else{
+            $("#officePrintersList").html("");
+            $("#officePrintersSection").addClass("d-none");
+        }
+    }
+    if($("#txtPrintUrl").length){
+        $("#txtPrintUrl").val(printer.url);
+    }
     feather.replace();
 }
 
@@ -75,43 +201,99 @@ function updateUrl(){
     
 }
 
-function addPrinter(){
-    if($("#cmbLstImpresoras").val().trim().length === ""){
-        messageDone('Debes ingresar la comunicación con la impresora','error');
+function addPrinter(nombre, tipo){
+    if(codRol <= 2){
+        messageDone('Debes estar en una sesión de cajero (sucursal fija) para asignar impresoras, no en el modo de vista previa de administrador', 'error');
         return;
     }
-
-    let d = new Date;
-    let item = {
-        id: d.getTime(),
-        nombre: $("#cmbLstImpresoras").val(),
-        paginas: $(".printPaginas").val(),
-        tipo: $(".printTipo").val(),
-        size: $(".printPapel").val(),
-    }
-
-    /*
-    printer = JSON.parse(localStorage.getItem('printer'));
-    var find = printer.impresoras.some(function (prin) {
-	    return prin.tipo === item.tipo;
-	});
-
-    if(!find){
-        printer.impresoras.push(item);
-        localStorage.setItem('printer', JSON.stringify(printer));
-    }else{
-        for (var i = 0; i < printer.impresoras.length; i++) {
-            if (printer.impresoras[i].tipo === item.tipo) {
-                printer.impresoras[i] = item;
+    let estacionId = getEstacionId();
+    OpenLoad("Guardando impresora...");
+    fetch(`${ApiUrl}/impresoras`, {
+            method: 'POST',
+            headers: {'Api-Key': ApiKey},
+            body: JSON.stringify({
+                cod_sucursal: sucursal_id,
+                estacion_id: estacionId,
+                nombre: nombre,
+                tipo: tipo,
+                size: "80",
+                paginas: 1
+            })
+        })
+        .then(res => res.json())
+        .then(response => {
+            CloseLoad();
+            if(response.success == 1){
+                printer = JSON.parse(localStorage.getItem('printer'));
+                printer.impresoras.push({id: response.cod_impresora, nombre: nombre, paginas: 1, tipo: tipo, size: "80"});
                 localStorage.setItem('printer', JSON.stringify(printer));
+                notify("Impresora guardada", 'success', 2);
+                loadPrintersSave();
+            }else{
+                messageDone(response.mensaje, 'error');
             }
+        })
+        .catch(error=>{
+            CloseLoad();
+            console.log(error);
+            messageDone('No se pudo guardar la impresora', 'error');
+        });
+}
+
+function testAndAssignPrinter(nombre){
+    let printerInfo = [{
+        id: 'test',
+        nombre: nombre,
+        paginas: 1,
+        tipo: "CAJA",
+        size: "80",
+        detalle: [
+            {texto: "IMPRESION TEST", tipo: "CENTER"},
+            {texto: "impresion de prueba", tipo: "LEFT"},
+            {texto: `Impresora: ${nombre}`, tipo: "LEFT"}
+        ]
+    }];
+
+    fetch(`${printer.url}/print/v2`, {
+            method: 'POST',
+            body: JSON.stringify(printerInfo)
+        })
+        .then(res => res.json())
+        .then(()=>{
+            Swal.fire({
+                title: '¿Imprimió correctamente?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Sí',
+                cancelButtonText: 'No',
+                padding: '2em'
+            }).then(function(result){
+                if(result.value){
+                    askPrinterType(nombre);
+                }
+            });
+        })
+        .catch(error=>{
+            notify("Error: Verifica el servicio de impresion", "error", 10);
+            console.log(error);
+        });
+}
+
+function askPrinterType(nombre){
+    Swal.fire({
+        title: '¿Para qué es esta impresora?',
+        input: 'select',
+        inputOptions: {CAJA: 'CAJA', COCINA: 'COCINA'},
+        inputPlaceholder: 'Selecciona una opción',
+        showCancelButton: true,
+        confirmButtonText: 'Guardar',
+        cancelButtonText: 'Cancelar',
+        padding: '2em'
+    }).then(function(result){
+        if(result.value){
+            addPrinter(nombre, result.value);
         }
-    }*/
-    printer.impresoras.push(item);
-    localStorage.setItem('printer', JSON.stringify(printer));
-    
-    notify("Impresora actualizada",'success',2);
-    loadPrintersSave();
+    });
 }
 
 
@@ -236,46 +418,34 @@ $("body").on("click", ".btnDeletePrinter", function(){
 });
 
 function deletePrinter(id) {
-    let printers = localStorage.getItem("printer");
-    if(printers != null) {
-        printers = JSON.parse(printers);
-        if(printers != null) {
-            printers.impresoras = $.grep(printers.impresoras, function(p) {
-                if(p.id != undefined)
-                    return p.id != id;
-                else
-                    return p.nombre != id;
-            });
-            localStorage.setItem('printer', JSON.stringify(printers));
-            loadPrintersSave();
-        }
+    if(codRol <= 2){
+        messageDone('Debes estar en una sesión de cajero (sucursal fija) para eliminar impresoras, no en el modo de vista previa de administrador', 'error');
+        return;
     }
+    fetch(`${ApiUrl}/impresoras/eliminar`, {
+            method: 'POST',
+            headers: {'Api-Key': ApiKey},
+            body: JSON.stringify({cod_impresora: id})
+        })
+        .then(res => res.json())
+        .then(response => {
+            if(response.success == 1){
+                let printers = JSON.parse(localStorage.getItem("printer"));
+                printers.impresoras = $.grep(printers.impresoras, function(p) {
+                    if(p.id != undefined)
+                        return p.id != id;
+                    else
+                        return p.nombre != id;
+                });
+                localStorage.setItem('printer', JSON.stringify(printers));
+                loadPrintersSave();
+            }else{
+                messageDone(response.mensaje, 'error');
+            }
+        })
+        .catch(error=>{
+            console.log(error);
+            messageDone('No se pudo eliminar la impresora', 'error');
+        });
 }
 
-$("body").on("click", ".btnResetPrinters", function(){
-    Swal.fire({
-       title: 'Se eliminarán todas las impresoras configuradas',
-       text: '¿Continuar?',
-       icon: 'warning',
-       showCancelButton: true,
-       confirmButtonText: 'Aceptar',
-       cancelButtonText: 'Cancelar',
-       padding: '2em'
-    }).then(function(result){
-       if (result.value) {
-            resetPrinters();
-       }
-    }); 
-});
-
-function resetPrinters() {
-    let printers = localStorage.getItem("printer");
-    if(printers != null) {
-        printers = JSON.parse(printers);
-        if(printers != null) {
-            printers.impresoras = [];
-            localStorage.setItem('printer', JSON.stringify(printers));
-            loadPrintersSave();
-        }
-    }
-}

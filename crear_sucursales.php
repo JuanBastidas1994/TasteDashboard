@@ -272,6 +272,13 @@ $listaProductos = $Clproductos->listaProductBySucursal($cod_sucursal);
                                             <span>Formas de Pago</span>
                                         </a>
                                     </li>
+
+                                    <li class="nav-item">
+                                        <a class="nav-link" data-toggle="tab" href="#tab-impresoras" role="tab" aria-controls="pills-impresoras" aria-selected="false">
+                                            <i data-feather="printer"></i>
+                                            <span>Impresoras</span>
+                                        </a>
+                                    </li>
                                 </ul>
                                 <div class="tab-content" id="pills-tabContent">
 
@@ -823,6 +830,38 @@ $listaProductos = $Clproductos->listaProductBySucursal($cod_sucursal);
                                                     </tr>
                                                 </thead>
                                                 <tbody id="tbodyFormasPagoSuc">
+                                                    <tr><td colspan="5" class="text-center">Cargando...</td></tr>
+                                                </tbody>
+                                            </table>
+                                            <?php endif; ?>
+                                        </div>
+                                    </div>
+
+                                    <!-- Tab Impresoras -->
+                                    <div class="tab-pane fade" id="tab-impresoras" role="tabpanel">
+                                        <div class="mt-3">
+                                            <?php if ($cod_sucursal == 0): ?>
+                                            <div class="alert alert-info">
+                                                Guarda la sucursal primero para ver sus impresoras.
+                                            </div>
+                                            <?php else: ?>
+                                            <h4>Impresoras</h4>
+                                            <p class="text-muted" style="font-size: 13px;">
+                                                Estas son todas las impresoras que el equipo del cajero detecta, las haya probado o no.
+                                                Las marcadas en amarillo están "sin asignar" — puedes asignarles CAJA/COCINA directamente
+                                                aquí, sin necesidad de conectarte a su computador.
+                                            </p>
+                                            <table class="table style-3 table-hover">
+                                                <thead>
+                                                    <tr>
+                                                        <th class="text-center">Estación</th>
+                                                        <th class="text-center">Impresora</th>
+                                                        <th class="text-center">Tipo</th>
+                                                        <th class="text-center">Visto</th>
+                                                        <th class="text-center">Acciones</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="tbodyImpresorasSuc">
                                                     <tr><td colspan="5" class="text-center">Cargando...</td></tr>
                                                 </tbody>
                                             </table>

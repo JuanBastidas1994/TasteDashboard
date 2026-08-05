@@ -813,11 +813,6 @@
                 <div class="client-detail-options" data-target="config-tab-reminder">
                     <i data-feather="clock"></i> Recordatorio
                 </div>
-                {{#in_array permisos "DESKTOP_IMPRESION"}}
-                <div class="client-detail-options" data-target="config-tab-printers">
-                    <i data-feather="printer"></i> Impresión
-                </div>
-                {{/in_array}}
                 <div class="client-detail-options" data-target="config-tab-apps">
                     <i data-feather="smartphone"></i> Apps Delivery
                 </div>
@@ -953,34 +948,6 @@
                 </div>
             </div>
         </div>
-        <div id="config-tab-printers" class="client-tab-details" style="display: none;">
-            <h2>Impresoras</h2>
-            <div class="p-3">
-                <div class="mb-3">
-                    <p>¿No tienes el sistema de impresión?<br> 
-                        Descárgalo <a href="print-system-v1.zip" download="">aquí</a>
-                    </p>
-                    <hr>
-                </div>
-                <div class="row justify-content-end">
-                    <button class="my-3 btn btn-danger btnResetPrinters">Restablecer impresoras</button>
-                </div>
-                <div class="d-flex align-items-end">
-                    <div class="w-100">
-                        <label for="txtPrintUrl">URL</label>
-                        <input id="txtPrintUrl" type="text" class="form-control" value="{{printer.url}}"/>
-                    </div>
-                    <button class="btn btn-primary ml-2" onclick="updateUrl()">Actualizar</button>
-                </div>
-
-                <div id="printer-form" class="mt-3"></div>
-
-                <div class="mt-3">
-                    <h4 class="mb-3">Impresoras configuradas</h4>
-                    <div id="printers-lista"></div>
-                </div>
-            </div>
-        </div>
         <div id="config-tab-apps" class="client-tab-details" style="display: none;">
             <h2>Apps Delivery</h2>
             <hr>
@@ -1023,45 +990,13 @@
 </script>
 
 <script id="printers-form-template" type="text/x-handlebars-template">
-    <div>
-        <label for="">Lista de impresoras</label>
-        <select name="" id="cmbLstImpresoras" class="form-control">
-            {{#each this}}
-                <option value="{{nombre}}">{{nombre}}</option>
-            {{/each}}
-        </select>
-    </div>
-    <div class="row">
-        <div class="col-4">
-            <label for="">Ancho Papel</label>
-            <select name="" id="" class="form-control printPapel">
-                <option value="80">80mm</option>
-                <option value="58">58mm</option>
-            </select>
+    <label class="mb-2">Impresoras detectadas</label>
+    {{#each this}}
+        <div class="d-flex align-items-center justify-content-between mb-2 p-2" style="border: 1px solid #e5e5e5; border-radius: 8px;">
+            <span style="font-size: 14px;">{{nombre}}</span>
+            <button type="button" class="btn btn-sm btn-outline-primary" onclick="testAndAssignPrinter('{{nombre}}')">Probar impresión</button>
         </div>
-        <div class="col-4">
-            <label for="">Tipo</label>
-            <select name="" id="" class="form-control printTipo">
-                <option value="CAJA">CAJA</option>
-                <option value="COCINA">COCINA</option>
-            </select>
-        </div>
-        <div class="col-md-4 col-sm-4 col-xs-6">
-            <label for="">Num Copias</label>
-            <select class="form-control printPaginas">
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-                <option value="4">4</option>
-                <option value="5">5</option>
-            </select>
-        </div>
-        <div class="col-md-12 col-sm-12 col-12" style="display: none;">
-            <label for="">Comunicación con la impresora (Puedes poner IP)</label>
-            <input type="text" class="form-control printImpresora" placeholder="" value=""/>
-        </div>
-        <div class="col-md-12 col-sm-12 col-12 text-right mt-3">
-            <button class="btn btn-primary" onclick="addPrinter()">Actualizar</button>
-        </div>
-    </div>
+    {{else}}
+        <p class="text-muted" style="font-size: 13px;">No se detectaron impresoras en este equipo.</p>
+    {{/each}}
 </script>

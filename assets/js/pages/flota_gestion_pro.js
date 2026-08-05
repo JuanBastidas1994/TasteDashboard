@@ -4,11 +4,23 @@ let ApiKey = "";
 
 let pedidoActualId = null;
 let pedidoActualData = null;
+let ultimosPedidosData = null;
 let mapaPedido = null;
 let markersMotos = [];
 let intervalPedidosId = 0;
 let intervalMotosId = 0;
 let motorizadosActuales = [];
+
+// Modal "Ubicación de mis motorizados" — mapa de solo lectura, independiente de cualquier pedido.
+let mapaUbicacion = null;
+let markersUbicacion = [];
+let intervalUbicacionId = 0;
+let motorizadosUbicacionActuales = [];
+let ubicacionMapaAjustado = false;
+
+// Modal de detalle de un motorizado (verDetalleMoto) — abrible tanto desde la pestaña Asignación
+// como desde el modal de Ubicación, así que guarda su propio motorizado activo.
+let motorizadoDetalleActualId = null;
 
 const COLUMNAS = [
     { key: 'incidencia', color: 'danger' },
@@ -42,6 +54,7 @@ Handlebars.registerHelper('badgeEstado', estado => ESTADO_TRABAJO_COLOR[estado] 
 Handlebars.registerHelper('labelEstado', estado => ESTADO_TRABAJO_LABEL[estado] || estado);
 Handlebars.registerHelper('motivoLabel', motivo => MOTIVO_INCIDENCIA_LABEL[motivo] || motivo);
 Handlebars.registerHelper('fechaFormateada', raw => formatFecha(raw));
+Handlebars.registerHelper('fechaRelativa', raw => formatFechaRelativa(raw));
 Handlebars.registerHelper('resueltoPorLabel', quien => RESUELTO_POR_LABEL[quien] || quien);
 Handlebars.registerHelper('if_eq', function (a, b, options) {
     return a === b ? options.fn(this) : options.inverse(this);
@@ -54,6 +67,34 @@ function formatFecha(raw) {
     const d = new Date(raw.replace(' ', 'T'));
     if (isNaN(d.getTime())) return raw;
     return d.toLocaleString('es-EC', { day: '2-digit', month: 'short', hour: 'numeric', minute: '2-digit' });
+}
+
+// "Hace 5 minutos" / "Hace 2 horas" para la última ubicación reportada por el motorizado — así el
+// admin detecta de un vistazo si un motorizado se quedó sin datos/GPS en vez de que esté quieto.
+function formatFechaRelativa(raw) {
+    if (!raw) return 'Sin ubicación reportada';
+    const d = new Date(raw.replace(' ', 'T'));
+    if (isNaN(d.getTime())) return raw;
+
+    const segundos = Math.round((Date.now() - d.getTime()) / 1000);
+    if (segundos < 60) return 'Hace instantes';
+    const minutos = Math.round(segundos / 60);
+    if (minutos < 60) return `Hace ${minutos} min`;
+    const horas = Math.round(minutos / 60);
+    if (horas < 24) return `Hace ${horas} h`;
+    const dias = Math.round(horas / 24);
+    return `Hace ${dias} d`;
+}
+
+// Iniciales para el label del pin en el mapa (máx. 2 letras) — "Pepito Perez" -> "PP".
+function iniciales(nombreCompleto) {
+    if (!nombreCompleto) return '';
+    return nombreCompleto
+        .trim()
+        .split(/\s+/)
+        .slice(0, 2)
+        .map(palabra => palabra.charAt(0).toUpperCase())
+        .join('');
 }
 
 function construirHistorial(orden) {
@@ -78,17 +119,44 @@ $(function () {
     ApiKey = $("#apikey_flota").val();
     cargarPedidos();
     intervalPedidosId = setInterval(cargarPedidos, 15000);
+    cargarOpcionesMotorizado();
 });
 
-function cargarPedidos() {
-    const comercio = $('#selectComercio').val() || '';
-    fetch(`${ApiUrl}/flotas/pedidos${comercio ? '?comercio=' + comercio : ''}`, {
+// Llena el <select> de "Filtrar por motorizado" — se pide una sola vez al cargar la página, no
+// necesita refrescarse junto con la posición/estado de los motorizados.
+function cargarOpcionesMotorizado() {
+    fetch(`${ApiUrl}/flotas/motorizados`, {
         method: 'GET',
         headers: { 'Api-Key': ApiKey },
     })
         .then(res => res.json())
         .then(response => {
             if (response.success != 1) return;
+            const $select = $('#selectMotorizado');
+            ordenarMotorizados(response.data).forEach(m => {
+                $select.append(new Option(m.nombres, m.id));
+            });
+            $select.trigger('change'); // refresca la lista visible de Select2 con las opciones recién agregadas
+        })
+        .catch(error => console.error('Error al cargar motorizados para el filtro:', error));
+}
+
+function cargarPedidos() {
+    const comercio = $('#selectComercio').val() || '';
+    const motorizado = $('#selectMotorizado').val() || '';
+    const params = new URLSearchParams();
+    if (comercio) params.set('comercio', comercio);
+    if (motorizado) params.set('motorizado', motorizado);
+    const qs = params.toString();
+
+    fetch(`${ApiUrl}/flotas/pedidos${qs ? '?' + qs : ''}`, {
+        method: 'GET',
+        headers: { 'Api-Key': ApiKey },
+    })
+        .then(res => res.json())
+        .then(response => {
+            if (response.success != 1) return;
+            ultimosPedidosData = response.data;
             const template = Handlebars.compile($("#flota-card-template").html());
             COLUMNAS.forEach(({ key, color }) => {
                 const items = response.data[key] || [];
@@ -98,6 +166,21 @@ function cargarPedidos() {
             feather.replace();
         })
         .catch(error => console.error('Error al cargar pedidos:', error));
+}
+
+// Pedido(s) activo(s) que un motorizado tiene AHORA MISMO, según el último fetch de cargarPedidos()
+// — usado por el modal de detalle del motorizado (verDetalleMoto). Puede ser más de uno si tiene
+// varios pedidos simultáneos.
+function buscarPedidosActivosDeMotorizado(cod_motorizado) {
+    if (!ultimosPedidosData) return [];
+    const id = Number(cod_motorizado);
+    const encontrados = [];
+    ['incidencia', 'en_curso', 'enviando'].forEach(col => {
+        (ultimosPedidosData[col] || []).forEach(p => {
+            if (Number(p.cod_motorizado) === id) encontrados.push(p);
+        });
+    });
+    return encontrados;
 }
 
 function openPedido(cod_orden) {
@@ -229,48 +312,208 @@ function renderListaMotorizados(motorizados) {
 
 $("body").on('input', '#filtroMotorizado', renderListaMotorizadosFiltrada);
 
-function dibujarMotosEnMapa(motorizados) {
-    markersMotos.forEach(m => m.setMap(null));
-    markersMotos = [];
+// ---- Modal "Ubicación de mis motorizados" — mismo patrón que la pestaña Asignación, pero sin
+// pedido de por medio y sin poder asignar: es solo para ver dónde está cada quien ahora mismo. ----
 
-    if (!mapaPedido) return;
+$('#btnUbicacionMotorizados').on('click', function () {
+    $('#modalUbicacionMotorizados').modal();
+});
 
-    motorizados
+// El mapa necesita el contenedor con tamaño real, igual que el de asignación — se inicializa
+// recién cuando el modal terminó de mostrarse.
+$('#modalUbicacionMotorizados').on('shown.bs.modal', function () {
+    initMapaUbicacion();
+});
+
+$('#modalUbicacionMotorizados').on('hidden.bs.modal', function () {
+    clearInterval(intervalUbicacionId);
+    mapaUbicacion = null;
+    markersUbicacion = [];
+    motorizadosUbicacionActuales = [];
+    ubicacionMapaAjustado = false;
+    $('#filtroMotorizadoUbicacion').val('');
+});
+
+function initMapaUbicacion() {
+    const el = document.getElementById('mapaUbicacionMotorizados');
+    if (!el) return;
+
+    // Centro por defecto (Guayaquil) mientras cargan los motorizados — luego se ajusta a sus
+    // posiciones reales con fitBounds() la primera vez que hay datos.
+    mapaUbicacion = new google.maps.Map(el, { zoom: 12, center: { lat: -2.170998, lng: -79.922359 } });
+
+    cargarMotorizadosUbicacion();
+    clearInterval(intervalUbicacionId);
+    intervalUbicacionId = setInterval(cargarMotorizadosUbicacion, 8000);
+}
+
+function cargarMotorizadosUbicacion() {
+    fetch(`${ApiUrl}/flotas/motorizados`, {
+        method: 'GET',
+        headers: { 'Api-Key': ApiKey },
+    })
+        .then(res => res.json())
+        .then(response => {
+            if (response.success != 1) return;
+            motorizadosUbicacionActuales = ordenarMotorizados(response.data);
+            renderListaMotorizadosFiltradaUbicacion();
+            markersUbicacion = dibujarMotosEnMapaGenerico(mapaUbicacion, markersUbicacion, motorizadosUbicacionActuales, false);
+
+            // Solo la primera vez: encuadra el mapa para que se vean todos los pines. Si se repite
+            // en cada refresco de 8s, le arruina al admin el zoom/paneo que haya hecho a mano.
+            if (!ubicacionMapaAjustado && markersUbicacion.length) {
+                const bounds = new google.maps.LatLngBounds();
+                markersUbicacion.forEach(m => bounds.extend(m.getPosition()));
+                mapaUbicacion.fitBounds(bounds);
+                ubicacionMapaAjustado = true;
+            }
+        })
+        .catch(error => console.error('Error al cargar motorizados:', error));
+}
+
+function renderListaMotorizadosFiltradaUbicacion() {
+    const filtro = ($('#filtroMotorizadoUbicacion').val() || '').toLowerCase().trim();
+    const lista = filtro
+        ? motorizadosUbicacionActuales.filter(m => (m.nombres || '').toLowerCase().includes(filtro))
+        : motorizadosUbicacionActuales;
+    const template = Handlebars.compile($("#motorizados-ubicacion-template").html());
+    $("#lista-motorizados-ubicacion").html(template(lista));
+    feather.replace();
+}
+
+$("body").on('input', '#filtroMotorizadoUbicacion', renderListaMotorizadosFiltradaUbicacion);
+
+// Dibuja los pines de motorizados en CUALQUIER mapa (el del pedido con click-para-asignar, o el
+// de solo-lectura de "Ubicación de mis motorizados" con click-para-ver-detalle). Devuelve el
+// array de markers nuevo — el caller debe reasignarlo (markersX = dibujarMotosEnMapaGenerico(...)).
+function dibujarMotosEnMapaGenerico(mapa, markersActuales, motorizados, permitirAsignar) {
+    markersActuales.forEach(m => m.setMap(null));
+    if (!mapa) return [];
+
+    return motorizados
         .filter(moto => !isNaN(parseFloat(moto.latitud)) && !isNaN(parseFloat(moto.longitud)))
-        .forEach(moto => {
+        .map(moto => {
             const marker = new google.maps.Marker({
-                map: mapaPedido,
+                map: mapa,
                 icon: {
                     url: ICONO_MOTO[moto.estado_trabajo] || ICONO_MOTO.no_disponible,
                     scaledSize: new google.maps.Size(40, 40),
+                    labelOrigin: new google.maps.Point(20, 48),
+                },
+                label: {
+                    text: iniciales(moto.nombres),
+                    color: '#1f2937',
+                    fontSize: '11px',
+                    fontWeight: 'bold',
+                    className: 'flota-marker-label',
                 },
                 position: { lat: parseFloat(moto.latitud), lng: parseFloat(moto.longitud) },
                 info_moto: moto,
             });
             marker.addListener('click', function () {
-                asignarDesdeMapa(this.info_moto.id);
+                if (permitirAsignar) {
+                    asignarDesdeMapa(this.info_moto.id);
+                } else {
+                    verDetalleMoto(this.info_moto.id);
+                }
             });
-            markersMotos.push(marker);
+            return marker;
         });
 }
 
-// Centra el mapa en el marker del motorizado y lo resalta con un rebote breve.
-function centrarMotoEnMapa(cod_motorizado, evt) {
-    if (evt) evt.stopPropagation();
-    if (!mapaPedido) return;
+function dibujarMotosEnMapa(motorizados) {
+    markersMotos = dibujarMotosEnMapaGenerico(mapaPedido, markersMotos, motorizados, true);
+}
 
-    const marker = markersMotos.find(m => m.info_moto && m.info_moto.id === cod_motorizado);
+// Centra un mapa en el marker de un motorizado y lo resalta con un rebote breve.
+function centrarMotoEnMapaGenerico(mapa, markers, cod_motorizado) {
+    if (!mapa) return;
+    const id = Number(cod_motorizado);
+    const marker = markers.find(m => m.info_moto && Number(m.info_moto.id) === id);
     if (!marker) return;
 
-    mapaPedido.panTo(marker.getPosition());
-    mapaPedido.setZoom(Math.max(mapaPedido.getZoom(), 15));
+    mapa.panTo(marker.getPosition());
+    mapa.setZoom(Math.max(mapa.getZoom(), 15));
     marker.setAnimation(google.maps.Animation.BOUNCE);
     setTimeout(() => marker.setAnimation(null), 1400);
 }
 
+function centrarMotoEnMapa(cod_motorizado, evt) {
+    if (evt) evt.stopPropagation();
+    centrarMotoEnMapaGenerico(mapaPedido, markersMotos, cod_motorizado);
+}
+
+function centrarMotoEnMapaUbicacion(cod_motorizado, evt) {
+    if (evt) evt.stopPropagation();
+    centrarMotoEnMapaGenerico(mapaUbicacion, markersUbicacion, cod_motorizado);
+}
+
+// Busca el motorizado (con su posición/estado actuales) en la lista que esté cargada en ese
+// momento — puede venir de la pestaña Asignación o del modal de Ubicación, según desde dónde se
+// haya abierto el detalle.
+function buscarMotoPorId(cod_motorizado) {
+    const id = Number(cod_motorizado);
+    return motorizadosActuales.find(m => Number(m.id) === id)
+        || motorizadosUbicacionActuales.find(m => Number(m.id) === id);
+}
+
 function verDetalleMoto(cod_motorizado, evt) {
     if (evt) evt.stopPropagation();
-    // TODO: detalle del motorizado — pendiente de implementar.
+    const moto = buscarMotoPorId(cod_motorizado);
+    if (!moto) return;
+
+    motorizadoDetalleActualId = cod_motorizado;
+    const datos = Object.assign({}, moto, { pedidos_actuales: buscarPedidosActivosDeMotorizado(cod_motorizado) });
+    const template = Handlebars.compile($("#detalle-moto-template").html());
+    $("#detalleMotoTitle").html(moto.nombres);
+    $("#detalleMotoContenido").html(template(datos));
+    feather.replace();
+
+    $('#modalDetalleMoto').modal();
+}
+
+// El mini-mapa se inicializa recién cuando el modal terminó de mostrarse — mismo motivo que el
+// mapa de asignación: el contenedor necesita tamaño real, y un modal en transición no lo tiene.
+$('#modalDetalleMoto').on('shown.bs.modal', function () {
+    const moto = buscarMotoPorId(motorizadoDetalleActualId);
+    if (moto) initMapaDetalleMoto(moto);
+});
+
+$('#modalDetalleMoto').on('hidden.bs.modal', function () {
+    motorizadoDetalleActualId = null;
+});
+
+function initMapaDetalleMoto(moto) {
+    const el = document.getElementById('mapaDetalleMoto');
+    if (!el) return;
+
+    const lat = parseFloat(moto.latitud);
+    const lng = parseFloat(moto.longitud);
+    if (isNaN(lat) || isNaN(lng)) {
+        el.innerHTML = '<div class="text-muted text-center pt-5">Sin ubicación disponible</div>';
+        return;
+    }
+
+    const mapa = new google.maps.Map(el, { zoom: 15, center: { lat, lng } });
+    new google.maps.Marker({
+        map: mapa,
+        position: { lat, lng },
+        icon: {
+            url: ICONO_MOTO[moto.estado_trabajo] || ICONO_MOTO.no_disponible,
+            scaledSize: new google.maps.Size(40, 40),
+        },
+    });
+}
+
+// Cierra el modal de detalle y abre el pedido — usado desde la tarjeta de "pedido activo" dentro
+// del detalle del motorizado (típicamente al abrirse desde el modal de Ubicación).
+function cerrarDetalleYAbrirPedido(cod_orden) {
+    $('#modalDetalleMoto').modal('hide');
+    openPedido(cod_orden);
+}
+
+function irATabAsignacion() {
+    $('#pedidoTabsNav a[href="#tab-asignacion"]').tab('show');
 }
 
 function asignarDesdeMapa(cod_motorizado, evt) {

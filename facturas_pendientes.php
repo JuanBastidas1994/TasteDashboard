@@ -1,0 +1,220 @@
+<?php
+require_once "funciones.php";
+require_once "clases/cl_empresas.php";
+$session = getSession();
+
+$ClEmpresas = new cl_empresas();
+$empresa = $ClEmpresas->get($session["cod_empresa"]);
+if($empresa) {
+    $apikey = $empresa["api_key"];
+}
+
+if(!isLogin()){
+    header("location:login.php");
+}
+
+$files = url_sistema.'assets/empresas/'.$session['alias'].'/';
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="gb18030">
+    <?php css_mandatory(); ?>
+</head>
+<body>
+    <!--  BEGIN NAVBAR  -->
+    <?php echo top() ?>
+    <!--  END NAVBAR  -->
+
+    <!--  BEGIN NAVBAR  -->
+    <?php echo navbar(); ?>
+    <!--  END NAVBAR  -->
+
+    <!--  BEGIN MAIN CONTAINER  -->
+    <div class="main-container" id="container">
+
+        <div class="overlay"></div>
+        <div class="search-overlay"></div>
+
+        <!--  BEGIN SIDEBAR  -->
+        <?php echo sidebar(); ?>
+        <!--  END SIDEBAR  -->
+
+        <!--  BEGIN CONTENT AREA  -->
+        <div id="content" class="main-content">
+            <div class="layout-px-spacing">
+
+                <div class="row layout-top-spacing">
+
+                    <div class="col-xl-12 col-lg-12 col-sm-12  layout-spacing">
+                        <div class="widget-content widget-content-area br-6">
+                            <div class="col-xl-12 col-md-12 col-sm-12 col-12">
+                                <div class="col-xl-8 col-md-8 col-sm-8 col-8">
+                                    <h4>Listado de Facturas</h4>
+                                    <input type="hidden" id="apiEmpresa" value="<?=$apikey?>">
+                                </div>
+                                <div class="col-xl-12 col-md-12 col-sm-12 col-12">
+                                    <hr/>
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <div class="row">
+                                    <div class="col-lg-2 col-12">
+                                        <label>Sucursal</label>
+                                        <select id="cmbSucursal" class="form-control">
+                                            <option value="">Todas</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-lg-2 col-12">
+                                        <label>Fecha inicio</label>
+                                        <input type="date" id="fecha_inicio" class="form-control picker">
+                                    </div>
+                                    <div class="col-lg-2 col-12">
+                                        <label>Fecha fin</label>
+                                        <input type="date" id="fecha_fin" class="form-control picker">
+                                    </div>
+                                    <div class="col-lg-2 col-12">
+                                        <label>Cliente</label>
+                                        <input type="text" id="txtCliente" class="form-control" placeholder="Nombre del cliente">
+                                    </div>
+                                    <div class="col-lg-2 col-12">
+                                        <label>Documento</label>
+                                        <select id="cmbDocumento" class="form-control">
+                                            <option value="">Todos</option>
+                                            <option value="FAC">Factura</option>
+                                            <option value="DNA">Nota de crédito</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-lg-1 col-12">
+                                        <label>Estado</label>
+                                        <select id="cmbEstado" class="form-control">
+                                            <option value="">Todos</option>
+                                            <option value="ENVIADA">Enviadas</option>
+                                            <option value="NO_ENVIADA">No enviadas</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-lg-1 col-12 align-items-end d-flex">
+                                        <button class="btn btn-primary" onclick="getFacturasUnificadas();">Filtrar</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="table-responsive mb-4 mt-4">
+                                <table id="style-3" class="table style-3  table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>Orden</th>
+                                                <th>Sucursal</th>
+                                                <th>Cliente</th>
+                                                <th>Documento</th>
+                                                <th>Fecha</th>
+                                                <th class="text-center">Estado</th>
+                                                <th class="text-center">Acciones</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <!-- LISTA DE FACTURAS -->
+                                        </tbody>
+                                    </table>
+                            </div>
+
+                            <div class="col-12 layout-spacing">
+                                <button class="btn btn-danger" onclick="reenviarPendientes();">
+                                    <i data-feather="send"></i>
+                                    Reenviar pendientes del rango
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+            <?php footer(); ?>
+        </div>
+        <!--  END CONTENT AREA  -->
+    </div>
+    <!-- END MAIN CONTAINER -->
+
+    <div class="modal fade" id="errorFacturaModal" tabindex="-1" role="dialog" aria-labelledby="errorFacturaModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="errorFacturaModalLabel">Motivo del error</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p id="errorFacturaTexto"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <?php js_mandatory(); ?>
+
+    <!-- HANDLEBARS -->
+    <script src="./assets/js/libs/handlebars/handlebars.js"></script>
+    <script src="./assets/js/libs/handlebars/helpers.js"></script>
+
+    <script src="./assets/js/pages/facturas_pendientes.js"></script>
+
+    <!-- TEMPLATES -->
+    <script id="sucursales-template" type="text/x-handlebars-template">
+        {{#each this}}
+            <option value="{{cod_sucursal}}">{{nombre}}</option>
+        {{/each}}
+    </script>
+    <script id="facturas-unificadas-template" type="text/x-handlebars-template">
+        {{#each this}}
+            <tr>
+                <td>{{cod_orden}}</td>
+                <td>{{sucursal}}</td>
+                <td>{{cliente}}</td>
+                <td>{{#if num_factura}}{{num_factura}}{{else}}-{{/if}}</td>
+                <td>{{fecha}}</td>
+                <td class="text-center">
+                    <span class="badge badge-{{colorStatus estado_envio}}">
+                        {{estado_envio}}
+                    </span>
+                    {{#if estado_factura}}
+                    <span class="badge badge-{{colorStatus estado_factura}}">
+                        {{estado_factura}}
+                    </span>
+                    {{/if}}
+                </td>
+                <td class="text-center">
+                    <ul class="table-controls">
+                        <li>
+                            <a href="./orden_detalle.php?id={{cod_orden}}" target="_blank">
+                                <i data-feather="eye"></i>
+                            </a>
+                            {{#eq estado_envio "NO_ENVIADA"}}
+                            <a href="javascript:void(0);" class="bs-tooltip btnReenviar" data-id="{{cod_orden}}" data-toggle="tooltip" data-placement="top" data-original-title="Reenviar factura">
+                                <i data-feather="refresh-cw"></i>
+                            </a>
+                            {{/eq}}
+                            {{#if ultimo_error}}
+                            <a href="javascript:void(0);" class="bs-tooltip btnVerError text-danger" data-id="{{cod_orden}}" data-toggle="tooltip" data-placement="top" data-original-title="Ver motivo del error">
+                                <i data-feather="alert-triangle"></i>
+                            </a>
+                            {{/if}}
+                            {{#if puede_anular}}
+                            <a href="javascript:void(0);" class="bs-tooltip btnAnular" data-id="{{cod_orden}}" data-toggle="tooltip" data-placement="top" data-original-title="Anular factura">
+                                <i data-feather="x-circle"></i>
+                            </a>
+                            {{/if}}
+                        </li>
+                    </ul>
+                </td>
+            </tr>
+        {{/each}}
+    </script>
+</body>
+</html>

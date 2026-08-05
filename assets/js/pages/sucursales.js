@@ -497,7 +497,96 @@ $(document).ready(function () {
     }
 
     cargarFormasPagoSucursal();
+    cargarImpresorasSucursal();
 
+});
+
+function cargarImpresorasSucursal() {
+    let codSucursal = $("#cod_sucursal").val();
+    if (!codSucursal || codSucursal == 0) return;
+    $.ajax({
+        url: 'controllers/controlador_impresoras.php?metodo=listarImpresorasSucursal',
+        type: 'GET',
+        data: { cod_sucursal: codSucursal },
+        headers: { Accept: 'application/json' },
+        success: function(response) {
+            if (response.success == 1 && response.datos.length > 0) {
+                let html = '';
+                response.datos.forEach(function(imp) {
+                    let sinAsignar = !imp.tipo;
+                    html += `<tr class="${sinAsignar ? 'table-warning' : ''}">
+                        <td class="text-center" style="font-size: 11px;">${imp.estacion_id}</td>
+                        <td class="text-center">${imp.nombre}</td>
+                        <td class="text-center">
+                            <select class="form-control form-control-sm cmbTipoImpresora" data-cod="${imp.cod_impresora}">
+                                <option value="" ${sinAsignar ? 'selected' : ''}>Sin asignar</option>
+                                <option value="CAJA" ${imp.tipo == 'CAJA' ? 'selected' : ''}>CAJA</option>
+                                <option value="COCINA" ${imp.tipo == 'COCINA' ? 'selected' : ''}>COCINA</option>
+                            </select>
+                        </td>
+                        <td class="text-center" style="font-size: 11px;">${imp.fecha_visto || imp.fecha_creacion || '-'}</td>
+                        <td class="text-center">
+                            <button type="button" class="btn btn-sm btn-danger btnEliminarImpresora" data-cod="${imp.cod_impresora}">
+                                <i data-feather="trash"></i>
+                            </button>
+                        </td>
+                    </tr>`;
+                });
+                $("#tbodyImpresorasSuc").html(html);
+                feather.replace();
+            } else {
+                $("#tbodyImpresorasSuc").html('<tr><td colspan="5" class="text-center">Esta sucursal aún no tiene impresoras detectadas.</td></tr>');
+            }
+        }
+    });
+}
+
+$("body").on("change", ".cmbTipoImpresora", function () {
+    let cod_impresora = $(this).data("cod");
+    let tipo = $(this).val();
+    $.ajax({
+        url: 'controllers/controlador_impresoras.php?metodo=guardarTipoImpresora',
+        type: 'GET',
+        data: { cod_impresora: cod_impresora, tipo: tipo },
+        headers: { Accept: 'application/json' },
+        success: function(response) {
+            if (response.success == 1) {
+                notify('Impresora actualizada', 'success', 2);
+            } else {
+                messageDone(response.mensaje, 'error');
+            }
+        }
+    });
+});
+
+$("body").on("click", ".btnEliminarImpresora", function () {
+    let cod_impresora = $(this).data("cod");
+    Swal.fire({
+        title: 'Eliminar impresora',
+        text: '¿Continuar?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Aceptar',
+        cancelButtonText: 'Cancelar',
+        padding: '2em'
+    }).then(function (result) {
+        if (result.value) {
+            $.ajax({
+                url: 'controllers/controlador_impresoras.php?metodo=eliminarImpresoraAdmin',
+                type: 'GET',
+                data: { cod_impresora: cod_impresora },
+                headers: { Accept: 'application/json' },
+                success: function(response) {
+                    if (response.success == 1) {
+                        notify('Impresora eliminada', 'success', 2);
+                        cargarImpresorasSucursal();
+                    } else {
+                        messageDone(response.mensaje, 'error');
+                    }
+                }
+            });
+        }
+    });
 });
 
 $("body").on("click", ".btnGuardarProgramar", function () {

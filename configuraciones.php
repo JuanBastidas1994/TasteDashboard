@@ -219,7 +219,7 @@ $tieneOfficInsite = in_array('OFFICE_INSITE', $permisosEmpresa);
                                     </a>
                                 </li>
 
-                                <li class="nav-item">
+                                <li class="nav-item d-none">
                                     <a class="nav-link" data-toggle="tab" href="#tab-courier" role="tab" aria-controls="pills-pago" aria-selected="false">
                                         <i data-feather="truck"></i>
                                         <span data-translate="conf-tab5">Courier</span>
@@ -268,7 +268,7 @@ $tieneOfficInsite = in_array('OFFICE_INSITE', $permisosEmpresa);
 
                                     <br>
                                     <div class="row">
-                                        <div class="form-group col-md-6 col-sm-6 col-xs-12">
+                                        <div class="form-group col-md-12 col-sm-12 col-xs-12">
                                             <h3 class="" data-translate="conf-tab1-titulo2">Redes Sociales</h3>
                                             <?php
                                             $query = "SELECT * FROM tb_red_social WHERE estado = 'A'";
@@ -681,7 +681,7 @@ $tieneOfficInsite = in_array('OFFICE_INSITE', $permisosEmpresa);
                                 <div class="tab-pane fade" id="tab-permisos" role="tabpanel" aria-labelledby="pills-info-tab">
 
                                     <br>
-                                    <div class="row">
+                                    <div class="row d-none">
                                         <div class="form-group col-md-6 col-sm-6 col-xs-12">
                                             <h5 class="">Permiso Admin sucursal Encender/Apagar Tienda</h5>
                                             <hr />

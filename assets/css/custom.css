@@ -331,3 +331,98 @@ table.dataTable tbody tr:hover td.sorting_1 { color: #FD6550 !important; }
 /* --- Selección de texto --------------------------------------- */
 ::-moz-selection { color: #FD6550 !important; background: transparent; }
 ::selection      { color: #FD6550 !important; background: transparent; }
+
+/* ================================================================
+   RESPONSIVE  (≤ 767 px)
+   ================================================================ */
+
+/* --- Descripción corta en tabla productos: máx 2 líneas -------- */
+.desc-corta-cell {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    line-clamp: 2;
+    overflow: hidden;
+    max-width: 220px;
+}
+
+@media (max-width: 767px) {
+
+    /* --- crear_sucursales: Día + Activar en la misma fila ------ */
+    .itemDisponibilidad {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        align-items: center !important;
+        margin-bottom: 6px !important;
+    }
+    /* Día → 50 % izquierda, primero */
+    .itemDisponibilidad > div:nth-child(1) {
+        order: 1;
+        flex: 0 0 50% !important;
+        max-width: 50% !important;
+        margin-bottom: 0 !important;
+    }
+    /* Activar → 50 % derecha, segundo */
+    .itemDisponibilidad > div:nth-child(4) {
+        order: 2;
+        flex: 0 0 50% !important;
+        max-width: 50% !important;
+        text-align: right !important;
+        margin-bottom: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: flex-end !important;
+    }
+    /* Hora ini → tercero */
+    .itemDisponibilidad > div:nth-child(2) {
+        order: 3;
+        flex: 0 0 50% !important;
+        max-width: 50% !important;
+    }
+    /* Hora fin → cuarto */
+    .itemDisponibilidad > div:nth-child(3) {
+        order: 4;
+        flex: 0 0 50% !important;
+        max-width: 50% !important;
+    }
+    .itemDisponibilidad h6 {
+        display: inline-block !important;
+        margin: 0 6px 0 0 !important;
+        font-size: 13px !important;
+        white-space: nowrap;
+    }
+    .itemDisponibilidad .switch { margin-bottom: 0 !important; }
+
+    /* --- DataTables: buttons, search y paginación sticky
+         al hacer scroll horizontal de la tabla ------------------- */
+    .dataTables_wrapper .dt-buttons,
+    .dataTables_wrapper .dataTables_filter,
+    .dataTables_wrapper .dataTables_info,
+    .dataTables_wrapper .dataTables_paginate {
+        position: sticky !important;
+        left: 0 !important;
+        z-index: 4 !important;
+    }
+    /* La fila de info + paginación en fondo blanco para que no
+       se solape con el contenido de la tabla al hacer scroll */
+    .dataTables_wrapper .dataTables_info,
+    .dataTables_wrapper .dataTables_paginate {
+        background: #fff;
+    }
+
+    /* --- DataTables: columna Acciones sticky a la izquierda
+         para que siempre sea visible (aparece "al principio"
+         al hacer scroll horizontal) ----------------------------- */
+    .table-responsive table.dataTable thead th:last-child,
+    .table-responsive table.dataTable tbody td:last-child {
+        position: sticky !important;
+        left: 0 !important;
+        z-index: 2 !important;
+        background: #fff !important;
+        box-shadow: 2px 0 6px rgba(0,0,0,0.07) !important;
+    }
+    .table-hover .table-responsive table.dataTable tbody tr:hover td:last-child {
+        background: #FFF5F4 !important;
+    }
+}
+/* ================================================================ */

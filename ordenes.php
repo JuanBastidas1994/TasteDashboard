@@ -115,7 +115,7 @@ $clsucursales = new cl_sucursales(NULL);
                                 </div>
                             </div>
 
-                            <div class="table-responsive mb-4">
+                            <div class="mb-4">
                                 <input type="hidden" id="apikey_empresa" value="<?= $apikey ?>">
                                 <table id="table-ordenes" class="table style-3  table-hover" data-order='[[ 0, "desc"]]' style="margin-top: 10px !important;">
                                     <thead>
@@ -167,6 +167,7 @@ $clsucursales = new cl_sucursales(NULL);
             table = $('#table-ordenes').DataTable({
                 processing: true,
                 serverSide: true,
+                scrollX: true,
                 dom: 'Bfrtip',
                 buttons: {
                     buttons: [

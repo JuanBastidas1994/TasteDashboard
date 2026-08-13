@@ -227,6 +227,50 @@ function datetimeShort($fecha)
             font-size: 15px;
             font-weight: bold;
         }
+
+        /* ---- Responsive móvil ---------------------------------- */
+        @media (max-width: 767px) {
+
+            /* Metadatos de la orden: flex-wrap limpio */
+            .btnAcciones {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 6px 12px;
+                margin-bottom: 12px;
+            }
+            .btnAcciones span {
+                margin-right: 0 !important;
+                font-size: 14px !important;
+            }
+
+            /* Título más compacto */
+            h3#titulo { font-size: 1.25rem; }
+
+            /* Reordenar columnas: datos cliente arriba en mobile */
+            .row.layout-top-spacing { display: flex; flex-direction: column; }
+            .col-xl-7 { order: 2; }
+            .col-xl-5 { order: 1; }
+
+            /* Quitar padding lateral extra en mobile */
+            .col-xl-7, .col-xl-5 {
+                padding-left: 8px !important;
+                padding-right: 8px !important;
+            }
+
+            /* Tabla detalle: columnas DESC y Precio menos anchas */
+            .table-detalle-orden th:nth-child(3),
+            .table-detalle-orden td:nth-child(3),
+            .table-detalle-orden th:nth-child(4),
+            .table-detalle-orden td:nth-child(4) {
+                display: none;
+            }
+
+            /* Timeline: texto más compacto */
+            .item-timeline .t-time { font-size: 11px; }
+
+            /* Widget cards con menos padding vertical */
+            .widget-content-area { padding: 14px 14px !important; }
+        }
     </style>
 </head>
 
@@ -288,11 +332,11 @@ function datetimeShort($fecha)
     </div>
     
     <!--  BEGIN NAVBAR  -->
-    <?php echo top() ?>
+    <?php top() ?>
     <!--  END NAVBAR  -->
 
     <!--  BEGIN NAVBAR  -->
-    <?php echo navbar(false); ?>
+    <?php navbar(false); ?>
     <!--  END NAVBAR  -->
 
     <!--  BEGIN MAIN CONTAINER  -->
@@ -302,7 +346,7 @@ function datetimeShort($fecha)
         <div class="search-overlay"></div>
 
         <!--  BEGIN SIDEBAR  -->
-        <?php echo sidebar(); ?>
+        <?php sidebar(); ?>
         <!--  END SIDEBAR  -->
 
         <!--  BEGIN CONTENT AREA  -->
@@ -372,7 +416,8 @@ function datetimeShort($fecha)
                             <form name="frmSave" id="frmSave" autocomplete="off">
                                 <div class="x_content">
 
-                                    <table class="table">
+                                    <div class="table-responsive">
+                                    <table class="table table-detalle-orden">
                                         <thead>
                                             <tr>
                                                 <th>Producto</th>
@@ -456,6 +501,7 @@ function datetimeShort($fecha)
                                             </tr>
                                         </tbody>
                                     </table>
+                                    </div><!-- /table-responsive -->
 
                                     <div class="">
                                         <div class="inv--total-amounts text-sm-right">
@@ -521,7 +567,7 @@ function datetimeShort($fecha)
                             <div>
                                 <h4>Formas de Pago</h4>
                             </div>
-                            <div class="row">
+                            <div class="table-responsive">
                                 <table class="table">
                                     <thead>
                                         <tr>
@@ -532,7 +578,7 @@ function datetimeShort($fecha)
                                     <tbody>
                                         <?php
                                         foreach ($orden['pagos'] as $pagos) {
-                                            
+
                                             echo '<tr>
                                                 <td>' . $pagos['descripcion'] . ' ' . $pagos['observacion'] . ' <i data-feather="eye" onclick="getDetailPayPaymentez('.$id.')"></i> </td>
                                                 <td>$' . number_format($pagos['monto'], 2) . '</td>
@@ -541,7 +587,6 @@ function datetimeShort($fecha)
                                         ?>
                                     </tbody>
                                 </table>
-
                             </div>
                         </div>
 

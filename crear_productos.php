@@ -1152,76 +1152,84 @@ $tipoRecorte = $empresa['tipo_recorte'];
                         }
                         ?>
                         <div class="widget-content widget-content-area br-6" style="margin-top: 15px;">
+
+                            <!-- Header -->
                             <div class="d-flex align-items-center mb-3">
-                                <h4 class="mb-0 flex-grow-1">
+                                <span style="display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:8px;background:#EDE9FE;color:#7c3aed;margin-right:10px;flex-shrink:0;">
+                                    <i data-feather="tag" style="width:16px;height:16px;"></i>
+                                </span>
+                                <h5 class="mb-0" style="font-size:16px;font-weight:700;color:#202020;">
                                     Precio Especial
-                                    <small class="text-muted" style="font-size:.72em; font-weight:400;"> — vigente por días</small>
-                                </h4>
+                                    <span style="font-size:13px;font-weight:400;color:#7c3aed;"> — vigente por días</span>
+                                </h5>
                                 <?php if ($precio_especial): ?>
-                                    <?php if ($especial_activo): ?>
-                                        <span class="badge badge-success" style="font-size:.82em;">
-                                            Activo · $<?= number_format((float)$precio_especial, 2) ?> hasta <?= date('d/m/Y', strtotime($precio_especial_fin)) ?>
-                                        </span>
-                                    <?php else: ?>
-                                        <span class="badge badge-secondary" style="font-size:.82em;">
-                                            Expirado el <?= date('d/m/Y', strtotime($precio_especial_fin)) ?>
-                                        </span>
-                                    <?php endif; ?>
+                                    <span class="ml-auto badge <?= $especial_activo ? 'badge-success' : 'badge-secondary' ?>" style="font-size:.78em;">
+                                        <?= $especial_activo
+                                            ? 'Activo · $'.number_format((float)$precio_especial, 2).' hasta '.date('d/m/Y', strtotime($precio_especial_fin))
+                                            : 'Expirado el '.date('d/m/Y', strtotime($precio_especial_fin)) ?>
+                                    </span>
                                 <?php endif; ?>
                             </div>
 
-                            <div class="form-row align-items-center mb-3">
-                                <div class="col-auto">
-                                    <label class="switch s-icons s-outline s-outline-success mb-0">
-                                        <input type="checkbox" id="chk_precio_especial" name="chk_precio_especial"
-                                               <?= $especial_activo ? 'checked' : '' ?>>
-                                        <span class="slider round"></span>
-                                    </label>
-                                </div>
-                                <div class="col-auto">
-                                    <label class="mb-0" style="font-size:14px;">Activar precio especial</label>
-                                </div>
+                            <!-- Toggle -->
+                            <div class="d-flex align-items-center mb-3" style="gap:10px;">
+                                <label class="switch s-icons s-outline s-outline-success mb-0">
+                                    <input type="checkbox" id="chk_precio_especial" name="chk_precio_especial"
+                                           <?= $especial_activo ? 'checked' : '' ?>>
+                                    <span class="slider round"></span>
+                                </label>
+                                <label class="mb-0" style="font-size:14px;color:#3b3f5c;">Activar precio especial</label>
                             </div>
 
-                            <div id="bloquePrecioEspecial" style="<?= ($especial_activo ? '' : 'display:none') ?>">
+                            <!-- Campos -->
+                            <div id="bloquePrecioEspecial" style="<?= $especial_activo ? '' : 'display:none' ?>">
                                 <div class="form-row">
-                                    <div class="form-group col-md-3">
-                                        <label>Precio especial ($) <span class="asterisco">*</span></label>
+                                    <div class="form-group col-md-6">
+                                        <label style="font-size:13px;color:#3b3f5c;">Precio especial ($) <span class="asterisco">*</span></label>
                                         <input type="number" step="0.01" min="0.01"
                                                id="txt_precio_especial" name="txt_precio_especial"
                                                class="form-control" placeholder="0.00"
                                                value="<?= htmlspecialchars($precio_especial) ?>">
                                     </div>
-                                    <div class="form-group col-md-3">
-                                        <label>Fecha inicio</label>
+                                    <div class="form-group col-md-6">
+                                        <label style="font-size:13px;color:#3b3f5c;">Fecha inicio</label>
                                         <div class="input-group">
-                                            <div class="input-group-prepend">
-                                                <span class="input-group-text"><i data-feather="calendar"></i></span>
-                                            </div>
                                             <input type="text" id="fecha_especial_inicio" name="fecha_especial_inicio"
                                                    class="form-control"
                                                    value="<?= $precio_especial_inicio ?: $hoy ?>">
+                                            <div class="input-group-append">
+                                                <span class="input-group-text" style="background:#fff;">
+                                                    <i data-feather="calendar" style="width:14px;height:14px;color:#888ea8;"></i>
+                                                </span>
+                                            </div>
                                         </div>
                                     </div>
-                                    <div class="form-group col-md-2">
-                                        <label>Días vigente</label>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-md-6">
+                                        <label style="font-size:13px;color:#3b3f5c;">Días vigente</label>
                                         <input type="number" min="1" id="txt_dias_especial"
-                                               class="form-control" placeholder="Ej: 3"
+                                               class="form-control" placeholder="Ej: 7"
                                                value="<?= htmlspecialchars($dias_especial) ?>">
                                     </div>
-                                    <div class="form-group col-md-4">
-                                        <label>Válido hasta</label>
-                                        <p class="form-control" id="lblFechaEspecialFin" style="background:#f8f9fa;cursor:default;">
+                                    <div class="form-group col-md-6">
+                                        <label style="font-size:13px;color:#3b3f5c;">Válido hasta</label>
+                                        <p class="form-control mb-0" id="lblFechaEspecialFin"
+                                           style="background:#f8f9fa;cursor:default;color:#3b3f5c;">
                                             <?= $precio_especial_fin ? date('d/m/Y', strtotime($precio_especial_fin)) : '—' ?>
                                         </p>
                                         <input type="hidden" id="fecha_especial_fin" name="fecha_especial_fin"
                                                value="<?= htmlspecialchars($precio_especial_fin) ?>">
                                     </div>
                                 </div>
-                                <p class="text-muted" style="font-size:12px;">
-                                    <i data-feather="info" style="width:13px;height:13px;"></i>
-                                    El ecommerce usará este precio mientras sea la fecha de hoy dentro del rango inicio–fin.
-                                </p>
+
+                                <!-- Info box -->
+                                <div style="background:#EEF2FF;border-radius:8px;padding:11px 14px;display:flex;align-items:flex-start;gap:8px;margin-top:4px;">
+                                    <i data-feather="info" style="width:15px;height:15px;color:#6366f1;flex-shrink:0;margin-top:2px;"></i>
+                                    <span style="font-size:13px;color:#4b5563;line-height:1.4;">
+                                        El ecommerce usará este precio mientras sea la fecha de hoy dentro del rango inicio–fin.
+                                    </span>
+                                </div>
                             </div>
                         </div>
 

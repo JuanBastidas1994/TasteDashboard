@@ -112,6 +112,23 @@
     fill: rgba(253,101,80,0.18) !important;
 }
 
+/* --- btn-outline-primary --------------------------------------- */
+.btn-outline-primary {
+    color: #FD6550 !important;
+    border-color: #FD6550 !important;
+    background-color: transparent !important;
+}
+.btn-outline-primary:hover,
+.btn-outline-primary:focus,
+.btn-outline-primary:active,
+.btn-outline-primary.active,
+.btn-outline-primary:not(:disabled):not(.disabled).active,
+.show > .btn-outline-primary.dropdown-toggle {
+    background-color: #FD6550 !important;
+    border-color: #FD6550 !important;
+    color: #fff !important;
+}
+
 /* --- btn-primary ----------------------------------------------- */
 .btn-primary,
 .btn-primary:not(:disabled):not(.disabled).active,
@@ -143,6 +160,36 @@
 .btn-group.open .btn-primary.dropdown-toggle {
     background-color: #FFDAD4 !important;
     border-color: #FFDAD4 !important;
+}
+
+/* --- Select2 -------------------------------------------------- */
+.select2-container--default .select2-selection--single,
+.select2-container--default .select2-selection--multiple {
+    border-color: #dee2e6 !important;
+}
+.select2-container--default.select2-container--open .select2-selection--single,
+.select2-container--default.select2-container--open .select2-selection--multiple,
+.select2-container--default.select2-container--focus .select2-selection--single,
+.select2-container--default.select2-container--focus .select2-selection--multiple {
+    border-color: #FD6550 !important;
+    box-shadow: 0 0 0 2px rgba(253,101,80,0.15) !important;
+    outline: none !important;
+}
+.select2-dropdown {
+    border-color: #FD6550 !important;
+}
+.select2-container--default .select2-results__option--highlighted[aria-selected],
+.select2-container--default .select2-results__option--highlighted[data-selected] {
+    background-color: #FD6550 !important;
+    color: #fff !important;
+}
+.select2-container--default .select2-results__option[aria-selected=true] {
+    background-color: #FFDAD4 !important;
+    color: #202020 !important;
+}
+.select2-container--default .select2-search--dropdown .select2-search__field:focus {
+    border-color: #FD6550 !important;
+    outline: none !important;
 }
 
 /* --- Input focus ----------------------------------------------- */
@@ -210,6 +257,75 @@ div.dt-buttons .dt-button.btn-primary:hover {
     background-color: #e5523d !important;
     border-color: #e5523d !important;
     color: #fff !important;
+}
+
+/* --- DataTable hover: N. column en naranja, resto en oscuro --- */
+table.dataTable tbody tr:hover td { color: #202020 !important; }
+table.dataTable tbody tr:hover td:first-child,
+table.dataTable tbody tr:hover td.sorting_1 { color: #FD6550 !important; }
+
+/* --- Paginación (Bootstrap + DataTables) ---------------------- */
+/* Página activa */
+.page-item.active .page-link,
+.dataTables_wrapper .dataTables_paginate .paginate_button.current,
+.dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+    background: #FD6550 !important;
+    background-color: #FD6550 !important;
+    color: #fff !important;
+    border-color: #FD6550 !important;
+}
+/* Hover en páginas inactivas */
+.page-link:hover,
+.dataTables_wrapper .dataTables_paginate .paginate_button:not(.current):not(.disabled):hover {
+    background: transparent !important;
+    background-color: transparent !important;
+    color: #FD6550 !important;
+    border-color: #FD6550 !important;
+}
+/* Texto páginas inactivas */
+.page-link,
+.dataTables_wrapper .dataTables_paginate .paginate_button:not(.current):not(.disabled) {
+    color: #202020 !important;
+}
+/* Scrollbar nativo */
+::-webkit-scrollbar-thumb { background-color: rgba(253,101,80,0.30) !important; border-radius: 4px !important; }
+::-webkit-scrollbar-track  { background-color: #E9E9E9 !important; }
+/* Perfect-scrollbar (JS) que usa el tema */
+.ps__thumb-x,
+.ps__thumb-y { background-color: rgba(253,101,80,0.30) !important; }
+.ps__rail-x:hover > .ps__thumb-x,
+.ps__rail-y:hover > .ps__thumb-y { background-color: rgba(253,101,80,0.55) !important; }
+/* Info text "Showing X to Y of Z entries" */
+.dataTables_wrapper .dataTables_info { color: #202020 !important; }
+/* Línea / borde azul del DataTable scroll */
+.dataTables_scrollBody { border-bottom-color: #E9E9E9 !important; }
+/* Focus ring en links de paginación */
+.page-link:focus { box-shadow: 0 0 0 2px rgba(253,101,80,0.25) !important; color: #FD6550 !important; }
+
+/* --- Order status badges -------------------------------------- */
+/* ENTRANTE: outline coral (like ASIGNADA but with #FD6550) */
+.badge-status-entrante {
+    background-color: transparent !important;
+    border: 1px solid #FD6550 !important;
+    color: #FD6550 !important;
+}
+/* ENTREGADA: solid #FD6550 fill */
+.badge-status-entregada {
+    background-color: #FD6550 !important;
+    border-color: #FD6550 !important;
+    color: #ffffff !important;
+}
+/* ACEPTADA: #E4E3EA background, dark text */
+.badge-status-aceptada {
+    background-color: #E4E3EA !important;
+    border-color: #E4E3EA !important;
+    color: #202020 !important;
+}
+/* ENVIANDO: slightly darker than #E9E9E9 */
+.badge-status-enviando {
+    background-color: #C9C9D3 !important;
+    border-color: #C9C9D3 !important;
+    color: #202020 !important;
 }
 
 /* --- Selección de texto --------------------------------------- */

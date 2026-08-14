@@ -419,8 +419,9 @@ function add_opcion(){
             $txt_nomItemDet=$txt_codItemDet;
         }
         for($i=0; $i<count($txt_nomItemDet); $i++){
-           $aumentarPrecio = $chk_is[$i];
-            $Clproductos->crear_opcion_detalle($id, $txt_nomItemDet[$i], $txt_descItemDet[$i], $aumentarPrecio, $txt_precio[$i], $i);
+            $aumentarPrecio = $chk_is[$i];
+            $cobraIva = isset($chk_grava_iva[$i]) ? intval($chk_grava_iva[$i]) : 1;
+            $Clproductos->crear_opcion_detalle($id, $txt_nomItemDet[$i], $txt_descItemDet[$i], $aumentarPrecio, $txt_precio[$i], $i, $cobraIva);
         }
         
         
@@ -465,7 +466,7 @@ function importar(){
         }
 
         for($i=0; $i<count($item); $i++){
-            $Clproductos->crear_opcion_detalle($id, $item[$i], '', $aumentar_precio[$i], $precio[$i], $posicion[$i]);
+            $Clproductos->crear_opcion_detalle($id, $item[$i], '', $aumentar_precio[$i], $precio[$i], $posicion[$i], 1);
         }
         
         
@@ -500,31 +501,31 @@ function select_opcion(){
                 $isCheck = 1;
                 $readonly = "";
             }
-            
+            $cobraIvaVal  = isset($r['grava_iva']) ? intval($r['grava_iva']) : 1;
+            $chkIvaCheck  = $cobraIvaVal == 1 ? 'checked' : '';
+
             $html .= '<tr class="trItem" data-id="'.$r['cod_producto_opciones_detalle'].'" data-empresa="'.$cod_empresa.'">
                     <td style="width: 60%;">
                         <input class="form-control txt_id_det" name="cod_detalle[]" value="'.$r['cod_producto_opciones_detalle'].'" type="hidden">
-                        
                         <input class="form-control txtnomDet mb-1 fw-bold border-0 p-1" name="txt_nomItemDet[]" value="'.$r['item'].'" placeholder="Nombre del item">
-                        
-                        
-                        <textarea  name="txt_descItemDet[]"
+                        <textarea name="txt_descItemDet[]"
                             class="form-control form-control-sm text-muted border-0 p-1"
                             placeholder="Descripción (ej: Fría, sin cebolla)"
                         >'.($r['detalle'] ?? '').'</textarea>
-                        
                         <input type="hidden" class="form-control" name="txt_codItemDet[]" value="'.$r['itemPrincipal'].'">
                     </td>
-                    
                     <td style="width: 25%;">
                         <div class="d-flex align-items-center justify-content-end">
                             <input class="form-control chk_is" name="chk_is[]" value="'.$isCheck.'" type="hidden">
-                            
                             <input class="precioCheck mr-1" type="checkbox" name="precioCheck[]" '.$check.' />
-                            
-                            <input type="number" class="form-control txt_precio" name="txt_precio[]" 
-                                placeholder="0.00" value="'.$r['precio'].'" 
+                            <input type="number" class="form-control txt_precio" name="txt_precio[]"
+                                placeholder="0.00" value="'.$r['precio'].'"
                                 style="text-align: right;" '.$readonly.'>
+                        </div>
+                        <div class="d-flex align-items-center justify-content-end mt-1" style="gap:5px;">
+                            <small style="font-size:11px;color:#888ea8;">Grava IVA</small>
+                            <input type="hidden" class="hdn_grava_iva" name="chk_grava_iva[]" value="'.$cobraIvaVal.'">
+                            <input type="checkbox" class="chkIva" '.$chkIvaCheck.'>
                         </div>
                     </td>
                     
@@ -580,13 +581,13 @@ function edit_opcion(){
             $txt_nomItemDet = $txt_codItemDet;
         }
         for($i=0; $i< count($txt_nomItemDet); $i++){
-                $aumentarPrecio = $chk_is[$i];
-                
+            $aumentarPrecio = $chk_is[$i];
+            $cobraIva = isset($chk_grava_iva[$i]) ? intval($chk_grava_iva[$i]) : 1;
             if($Clproductos->select_opcion_detalle($cod_detalle[$i])){
-                $Clproductos->editar_opcion_detalle($cod_detalle[$i], $txt_nomItemDet[$i], $txt_descItemDet[$i], $aumentarPrecio, $txt_precio[$i], $i);
+                $Clproductos->editar_opcion_detalle($cod_detalle[$i], $txt_nomItemDet[$i], $txt_descItemDet[$i], $aumentarPrecio, $txt_precio[$i], $i, $cobraIva);
             }
             else{
-                $Clproductos->crear_opcion_detalle($cod_producto_opcion, $txt_nomItemDet[$i], $txt_descItemDet[$i], $aumentarPrecio, $txt_precio[$i], $i);
+                $Clproductos->crear_opcion_detalle($cod_producto_opcion, $txt_nomItemDet[$i], $txt_descItemDet[$i], $aumentarPrecio, $txt_precio[$i], $i, $cobraIva);
             }
         }
         

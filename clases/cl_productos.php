@@ -570,7 +570,7 @@ class cl_productos
 		}
 
         public function select_opciones($id){
-            $query = "SELECT po.*, pod.cod_producto_opciones_detalle,if(po.isDatabase=0,pod.item,(select p.nombre from tb_productos p where p.cod_producto = pod.item))as item,pod.item as itemPrincipal, pod.aumentar_precio, pod.precio, pod.posicion, pod.detalle
+            $query = "SELECT po.*, pod.cod_producto_opciones_detalle,if(po.isDatabase=0,pod.item,(select p.nombre from tb_productos p where p.cod_producto = pod.item))as item,pod.item as itemPrincipal, pod.aumentar_precio, pod.precio, pod.posicion, pod.detalle, IFNULL(pod.grava_iva,1) as grava_iva
                         FROM tb_productos_opciones po, tb_productos_opciones_detalle pod
                         WHERE po.cod_producto_opcion = pod.cod_producto_opcion
                         AND po.cod_producto_opcion = $id
@@ -602,9 +602,10 @@ class cl_productos
         	//return $query;
         }
         
-        public function crear_opcion_detalle($id, $txt_nomItemDet, $txt_descItemDet, $aumentarPrecio, $txt_precio, $posicion){
-            $query = "INSERT INTO tb_productos_opciones_detalle(cod_producto_opcion, item, detalle, aumentar_precio, precio, posicion) 
-					VALUES($id, '$txt_nomItemDet', '$txt_descItemDet', $aumentarPrecio, '$txt_precio', $posicion)";
+        public function crear_opcion_detalle($id, $txt_nomItemDet, $txt_descItemDet, $aumentarPrecio, $txt_precio, $posicion, $grava_iva = 1){
+            $grava_iva = ($grava_iva == 1) ? 1 : 0;
+            $query = "INSERT INTO tb_productos_opciones_detalle(cod_producto_opcion, item, detalle, aumentar_precio, precio, posicion, grava_iva)
+					VALUES($id, '$txt_nomItemDet', '$txt_descItemDet', $aumentarPrecio, '$txt_precio', $posicion, $grava_iva)";
             if(Conexion::ejecutar($query,NULL)){
         		return true;
         	}else{
@@ -621,13 +622,15 @@ class cl_productos
 			    return false;
         }
         
-        public function editar_opcion_detalle($id, $txt_nomItemDet, $txt_descItemDet, $aumentarPrecio, $txt_precio, $posicion){
-            $query = "UPDATE tb_productos_opciones_detalle SET 
+        public function editar_opcion_detalle($id, $txt_nomItemDet, $txt_descItemDet, $aumentarPrecio, $txt_precio, $posicion, $grava_iva = 1){
+            $grava_iva = ($grava_iva == 1) ? 1 : 0;
+            $query = "UPDATE tb_productos_opciones_detalle SET
 					item = '$txt_nomItemDet',
-					detalle = '$txt_descItemDet', 
-					aumentar_precio = $aumentarPrecio, 
-					precio = $txt_precio, 
-					posicion = $posicion 
+					detalle = '$txt_descItemDet',
+					aumentar_precio = $aumentarPrecio,
+					precio = $txt_precio,
+					posicion = $posicion,
+					grava_iva = $grava_iva
 				WHERE cod_producto_opciones_detalle = $id";
             if(Conexion::ejecutar($query,NULL)){
         		return true;

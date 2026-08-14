@@ -450,7 +450,7 @@ $tipoRecorte = $empresa['tipo_recorte'];
                                         <thead>
                                             <tr>
                                                 <th>Item</th>
-                                                <th style="text-align: right;">Precio ($)</th>
+                                                <th style="text-align: right;">Precio ($) / IVA</th>
                                                 <th>&nbsp;</th>
                                             </tr>
                                         </thead>

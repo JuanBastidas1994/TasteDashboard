@@ -1316,6 +1316,11 @@ $(document).ready(function () {
                             placeholder="0.00" readonly value="${precio.toFixed(2)}"
                             style="text-align: right;">
                     </div>
+                    <div class="d-flex align-items-center justify-content-end mt-1" style="gap:5px;">
+                        <small style="font-size:11px;color:#888ea8;">Grava IVA</small>
+                        <input type="hidden" class="hdn_grava_iva" name="chk_grava_iva[]" value="1">
+                        <input type="checkbox" class="chkIva" checked>
+                    </div>
                 </td>
                 <td class="text-right" style="width: 15%; vertical-align: middle;">
                     <button type="button" class="p-0 border-0 bg-transparent btnDelItem mr-1"><i data-feather="trash"></i></button>
@@ -1327,6 +1332,11 @@ $(document).ready(function () {
             feather.replace();
         });
         mostrarElementosdeOpciones();
+    });
+
+    $("body").on("change", ".chkIva", function () {
+        var padre = $(this).parents(".trItem");
+        padre.find(".hdn_grava_iva").val($(this).is(":checked") ? 1 : 0);
     });
 
     $("body").on("change", ".precioCheck", function (event) {

@@ -1132,6 +1132,46 @@ function getFolder(){
     return $return;
 }
 
+function crearCarpetaDemo(){
+    global $Clempresas;
+
+    if(!isset($_GET['cod_empresa'])){
+        $return['success'] = 0;
+        $return['mensaje'] = "Falta informacion";
+        return $return;
+    }
+
+    extract($_GET);
+
+    $empresa = $Clempresas->get($cod_empresa);
+    if(!$empresa){
+        $return['success'] = 0;
+        $return['mensaje'] = "Empresa no existe";
+        return $return;
+    }
+
+    $dir = url_folder_demo.$empresa['alias'];
+
+    if(file_exists($dir)){
+        $return['success'] = 1;
+        $return['existia'] = 1;
+        $return['folder'] = $dir;
+        $return['mensaje'] = "La carpeta ya existía";
+        return $return;
+    }
+
+    if(mkdir($dir, 0755, true)){
+        $return['success'] = 1;
+        $return['existia'] = 0;
+        $return['folder'] = $dir;
+        $return['mensaje'] = "Carpeta de desarrollo creada correctamente";
+    }else{
+        $return['success'] = 0;
+        $return['mensaje'] = "No se pudo crear la carpeta";
+    }
+    return $return;
+}
+
 function updateFolder(){
     global $Clempresas;
     

@@ -54,26 +54,31 @@ if(isset($obj->driverName)){        //ASIGNADA
     $estado = "ASIGNADA";
     $Clordenes->asignarMotorizadoGacela($cod_orden, $obj->driverName,"","","",$obj->driverImage->thumbnail,$obj->driverMobile);
     $Clordenes->orderHistorial($cod_orden, "ORDEN_ACEPTADA", $fecha);
+    addOrdenFirebase($cod_empresa, $cod_orden, $cod_sucursal, "ASIGNADA");
 }else{                          //RESTO DE ESTADOS
     $status = $obj->statusText;
     switch($status){
         case "ARRIVED_AT_PICKUP":
             $Clordenes->updateProcesoMotorizado($cod_orden, 'Llegué a la tienda');
             $Clordenes->orderHistorial($cod_orden, "PUNTO_RECOGIDA", $fecha);
+            addOrdenFirebase($cod_empresa, $cod_orden, $cod_sucursal, "PUNTO_RECOGIDA");
             break;
         case "WAY_TO_DELIVER":
             $estado = "ENVIANDO";
             $Clordenes->set_estado($cod_orden, $estado);
             $Clordenes->updateProcesoMotorizado($cod_orden, 'En camino a entregar el pedido');
+            addOrdenFirebase($cod_empresa, $cod_orden, $cod_sucursal, "ENVIANDO");
             break;
         case "ARRIVED_AT_DELIVERY":
             $Clordenes->updateProcesoMotorizado($cod_orden, 'Llegué al lugar de entrega');
             $Clordenes->orderHistorial($cod_orden, "PUNTO_ENTREGA", $fecha);
+            addOrdenFirebase($cod_empresa, $cod_orden, $cod_sucursal, "PUNTO_ENTREGA");
             break;
         case "COMPLETED":
             $estado = "ENTREGADA";
             $Clordenes->set_estado($cod_orden, $estado);
             $Clordenes->updateProcesoMotorizado($cod_orden, 'Entregué correctamente el paquete');
+            addOrdenFirebase($cod_empresa, $cod_orden, $cod_sucursal, "ENTREGADA");
             break;
     }
 }
@@ -83,4 +88,30 @@ $return['success']= 1;
 $return['mensaje']= "Hizo el proceso en la orden ".$cod_orden." - Status: ".$estado;
 header("Content-type:application/json; charset=utf-8");
 echo json_encode($return);
+
+function addOrdenFirebase($cod_empresa, $id, $sucursal, $estado){
+    global $Clordenes;
+    $empresa = $Clordenes->getEmpresaByCodEmpresa($cod_empresa);
+    if($empresa){
+        $alias = $empresa['alias'];
+
+        $ProyectId = "ptoventa-3b5ed";
+        $data = '{"estado":"'.$estado.'","id":'.$id.',"sucursal":'.$sucursal.'}';
+        try {
+            $ch = curl_init("https://".$ProyectId.".firebaseio.com/ordenes/".$alias."/".$id.".json");
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            $response = curl_exec($ch);
+            if(curl_errno($ch)){
+                return curl_errno($ch);
+            }
+            curl_close($ch);
+            return $response;
+        } catch (Exception $e) {
+            return false;
+        }
+    }
+}
 ?>

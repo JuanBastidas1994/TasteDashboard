@@ -182,12 +182,6 @@ $sucursalesAll = $Clsucursales->lista();
                                                value="<?= $config_ref ? $config_ref['monto_minimo'] : '' ?>">
                                     </div>
                                 </div>
-                                <div class="form-group col-md-6">
-                                    <label>Título de la promoción</label>
-                                    <input type="text" class="form-control" id="txt_titulo"
-                                           placeholder="Ej: ¡Producto gratis en tu primera orden!"
-                                           value="<?= htmlspecialchars($config_ref['titulo'] ?? '') ?>">
-                                </div>
                             </div>
 
                             <div class="form-row">
@@ -203,24 +197,6 @@ $sucursalesAll = $Clsucursales->lista();
                                 </div>
                             </div>
 
-                            <div class="form-row">
-                                <div class="form-group col-md-4">
-                                    <label class="d-block">Disponible en Web</label>
-                                    <label class="switch s-icons s-outline s-outline-success mb-0">
-                                        <input type="checkbox" id="chk_is_web"
-                                               <?= (!$config_ref || $config_ref['is_web']) ? 'checked' : '' ?>>
-                                        <span class="slider round"></span>
-                                    </label>
-                                </div>
-                                <div class="form-group col-md-4">
-                                    <label class="d-block">Disponible en App</label>
-                                    <label class="switch s-icons s-outline s-outline-success mb-0">
-                                        <input type="checkbox" id="chk_is_app"
-                                               <?= (!$config_ref || $config_ref['is_app']) ? 'checked' : '' ?>>
-                                        <span class="slider round"></span>
-                                    </label>
-                                </div>
-                            </div>
                         </div>
 
                         <!-- Imagen -->

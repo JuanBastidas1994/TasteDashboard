@@ -575,72 +575,53 @@ function datetimeShort($fecha)
                                             <th>Monto</th>
                                         </tr>
                                     </thead>
-                                    <tbody>
-                                        <?php
-                                        foreach ($orden['pagos'] as $pagos) {
-
-                                            echo '<tr>
-                                                <td>' . $pagos['descripcion'] . ' ' . $pagos['observacion'] . ' <i data-feather="eye" onclick="getDetailPayPaymentez('.$id.')"></i> </td>
-                                                <td>$' . number_format($pagos['monto'], 2) . '</td>
-                                              </tr>';
+                                    <?php
+                                    // Una sola query — reutilizada para badge inline y widget inferior
+                                    $idTransaction    = "";
+                                    $todosDevolucion  = [];
+                                    $devExitosa       = null;
+                                    $isAnulada        = 0;
+                                    foreach ($orden['pagos'] as $p) {
+                                        if ($p['forma_pago'] == "T" && !empty($p['observacion'])) {
+                                            $idTransaction   = $p['observacion'];
+                                            $todosDevolucion = $Clordenes->getDetalleAnulada($idTransaction) ?: [];
+                                            foreach ($todosDevolucion as $d) {
+                                                if ($d['estado'] == 'success') {
+                                                    $devExitosa = $d;
+                                                    $isAnulada  = 1;
+                                                    break;
+                                                }
+                                            }
+                                            break;
                                         }
-                                        ?>
+                                    }
+                                    ?>
+                                    <tbody>
+                                        <?php foreach ($orden['pagos'] as $pagos): ?>
+                                        <tr>
+                                            <td>
+                                                <?= htmlspecialchars($pagos['descripcion']) ?>
+                                                <?= htmlspecialchars($pagos['observacion']) ?>
+                                                <?php if ($pagos['forma_pago'] == 'T'): ?>
+                                                    <i data-feather="eye" style="cursor:pointer;width:14px;height:14px;vertical-align:middle;" onclick="getDetailPayPaymentez(<?= $id ?>)"></i>
+                                                    <?php if ($devExitosa): ?>
+                                                        <span style="display:inline-flex;align-items:center;gap:4px;background:#DCFCE7;color:#16a34a;border-radius:20px;padding:2px 10px;font-size:11px;font-weight:600;margin-left:6px;vertical-align:middle;">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                                            Devuelto &middot; <?= date('d/m/Y H:i', strtotime($devExitosa['fecha'])) ?>
+                                                        </span>
+                                                    <?php endif; ?>
+                                                <?php endif; ?>
+                                            </td>
+                                            <td>$<?= number_format($pagos['monto'], 2) ?></td>
+                                        </tr>
+                                        <?php endforeach; ?>
                                     </tbody>
                                 </table>
                             </div>
                         </div>
 
-                        <?php
-                        $isAnulada = 0;
-                        $idTransaction = "";
-                        foreach ($orden['pagos'] as $pagos) {
-                            if ($pagos['forma_pago'] == "T") {
-                                $idTransaction = $pagos['observacion'];
-                            }
-                        }
-                        if ($idTransaction <> "" && $idTransaction <> null) {
-                            $datosAnulacion = $Clordenes->getDetalleAnulada($idTransaction);
-                            if ($datosAnulacion) {
-                                $trAnulacion = "";
 
-                                foreach ($datosAnulacion as $datAnula) {
-                                    $badge = "success";
-                                    $isAnulada = 1;
-                                    if ($datAnula['estado'] <> "success") {
-                                        $badge = "danger";
-                                        $isAnulada = 0;
-                                    }
-                                    $trAnulacion .= '  <tr>
-                                                  <td>' . $datAnula['fecha'] . '</td>
-                                                  <td><span class="shadow-none badge badge-' . $badge . '">' . $datAnula['estado'] . '</td>
-                                                  <td>' . $datAnula['respuesta'] . '</td>
-                                                </tr>';
-                                }
-                                echo '<!-- Estado del Pago -->
-                            <div class="widget-content widget-content-area br-6" style="margin-top: 15px;">
-                                <div><h4>Estado de anulaci&oacute;n del Pago</h4></div>
-                                <div class="row">
-                                  <table class="table style-3">
-                                    <thead>
-                                      <tr>
-                                        <th>Fecha</th>
-                                        <th>Estado</th>
-                                        <th>Respuesta</th>
-                                      </tr>
-                                    </thead>
-                                    <tbody>
-                                      ' . $trAnulacion . '
-                                    </tbody>
-                                  </table>
-                                  <div class="col-sm-12 col-xs-12" style="text-align: right;">
-                                    <button type="button" class="btn btn-danger btn-anular" data-value="' . $id . '" data-estado="ANULADA">Anular</button>
-                                  </div>
-                                </div>
-                            </div> ';
-                            }
-                        }
-
-                        $factElectronica = $Clordenes->getFacturaElectronica($id);
+                        <?php $factElectronica = $Clordenes->getFacturaElectronica($id);
                         if ($factElectronica) {
                             $badge = "success";
                             if ($factElectronica['estado'] == "ANULADA")

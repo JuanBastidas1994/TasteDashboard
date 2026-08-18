@@ -136,6 +136,32 @@ $tieneOfficInsite = in_array('OFFICE_INSITE', $permisosEmpresa);
             </div>
         </div>
     </div>
+    <!-- Modal Recortador Cumpleaños (rectangular 2:1) -->
+    <div class="modal fade" id="modalCroppieCumple" tabindex="99" role="dialog" aria-hidden="true" data-backdrop="static">
+        <div class="modal-dialog modal-xl" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Recortar imagen de cumpleaños</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+                <div class="modal-body" style="min-height:420px;">
+                    <div class="col-md-12" style="margin-bottom:10px;">
+                        <img id="my-image-cumple" src="#" style="width:100%;max-height:500px;" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-dark cumple-rotate" data-deg="-90">Rotate Left</button>
+                    <button class="btn btn-dark cumple-rotate" data-deg="90">Rotate Right</button>
+                    <button type="button" class="btn" style="background:#FD6550;color:#fff;font-weight:600;" id="cumple-crop-get">Recortar y Subir</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!--  BEGIN NAVBAR  -->
     <?php top() ?>
     <!--  END NAVBAR  -->
@@ -628,51 +654,111 @@ $tieneOfficInsite = in_array('OFFICE_INSITE', $permisosEmpresa);
 
                                 <div class="tab-pane fade" id="tab-cumple" role="tabpanel" aria-labelledby="pills-info-tab">
 
-                                    <br>
+                                    <div class="mb-3 mt-2">
+                                        <h4 style="font-weight:700;color:#202020;">Configuración de Cumpleaños 🎂</h4>
+                                        <p class="text-muted" style="font-size:13px;">Personaliza el beneficio que tus clientes recibirán en su cumpleaños.</p>
+                                    </div>
+
                                     <div class="row">
-                                        <div class="form-group col-md-7 col-sm-7 col-xs-12">
-                                            <h3 class="">Imagen Para el usuario</h3>
-                                            <p>Imagen que verá el usuario el día de su cumpleaños</p>
-                                            <hr />
-                                            <div class="form-group col-md-6 col-sm-6 col-xs-12">
-                                                <label>Cambiar Imagen </label>
-                                                <input type="file" name="image_cumple" id="image_cumple">
-                                            </div>
-                                            <div class="form-group col-md-6 col-sm-6 col-xs-12">
-                                                <label>Estado Imagen</label>
-                                                <div>
-                                                    <label class="switch s-icons s-outline  s-outline-success  mb-4 mr-2">
+                                        <!-- Imagen -->
+                                        <div class="col-md-7 col-sm-12 mb-3">
+                                            <div class="widget-content widget-content-area br-6 h-100">
+                                                <div class="d-flex align-items-center mb-3" style="gap:12px;">
+                                                    <div style="width:40px;height:40px;border-radius:10px;background:#FFDAD4;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                                                        <i data-feather="image" style="color:#FD6550;width:20px;height:20px;"></i>
+                                                    </div>
+                                                    <div>
+                                                        <h5 class="mb-0" style="font-weight:600;">Imagen para el usuario</h5>
+                                                        <small class="text-muted">Esta imagen será visible para tus clientes el día de su cumpleaños</small>
+                                                    </div>
+                                                </div>
+
+                                                <p class="mb-1" style="font-size:13px;font-weight:600;">Imagen actual</p>
+                                                <img id="imgCumple" src="<?php echo $imgCumple; ?>" style="max-width:100%;border-radius:8px;border:1px solid #E9E9E9;margin-bottom:14px;display:block;<?php echo $imgCumple ? '' : 'display:none;' ?>" />
+
+                                                <div class="mb-3">
+                                                    <label style="font-size:12px;font-weight:600;color:#555;display:block;margin-bottom:2px;">Subir nueva imagen</label>
+                                                    <small class="text-muted d-block" style="font-size:11px;">Formatos: PNG, JPG o WebP · 1200×600 px recomendado</small>
+                                                    <input type="file" name="image_cumple" id="image_cumple" class="form-control-file mt-2" accept="image/*">
+                                                </div>
+
+                                                <div class="d-flex align-items-center mt-2" style="gap:10px;">
+                                                    <label class="switch s-icons s-outline s-outline-success mb-0">
                                                         <input type="checkbox" name="chk_img_cumple" id="chk_img_cumple" <?php echo $chkCumple; ?>>
                                                         <span class="slider round"></span>
                                                     </label>
+                                                    <div>
+                                                        <span style="font-size:13px;font-weight:500;">Estado de la imagen</span>
+                                                        <small class="text-muted d-block" style="font-size:11px;">Activa o desactiva la imagen de cumpleaños.</small>
+                                                    </div>
                                                 </div>
                                             </div>
-                                            <br>
-                                            <p><b>Imagen Actual</b></p>
-                                            <img id="imgCumple" src="<?php echo $imgCumple; ?>" />
                                         </div>
 
-                                        <div class="form-group col-md-5 col-sm-5 col-xs-12">
+                                        <!-- Premio -->
+                                        <div class="col-md-5 col-sm-12 mb-3">
                                             <?php if ($isFidelizacion == 1) { ?>
-                                                <h3 class="">Premio Fidelizaci&oacute;n</h3>
-                                                <div class="form-group col-md-12 col-sm-12 col-xs-12">
-                                                    <label>Monto que el Usuario ganar&aacute; en su cumplea&ntilde;os (en d&oacute;lares)<span class="asterisco">*</span> </label>
-                                                    <input type="number" name="txt_monto_cumple" id="txt_monto_cumple" class="form-control" value="<?php echo $valor_cumple ?>">
+                                            <div class="widget-content widget-content-area br-6 h-100 d-flex flex-column">
+                                                <div class="d-flex align-items-center mb-3" style="gap:12px;">
+                                                    <div style="width:40px;height:40px;border-radius:10px;background:#FFDAD4;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                                                        <i data-feather="gift" style="color:#FD6550;width:20px;height:20px;"></i>
+                                                    </div>
+                                                    <div>
+                                                        <h5 class="mb-0" style="font-weight:600;">Premio de fidelización</h5>
+                                                        <small class="text-muted">Define el beneficio exclusivo que recibirán tus clientes.</small>
+                                                    </div>
                                                 </div>
-                                                <div class="form-group col-md-12 col-sm-12 col-xs-12">
-                                                    <label>Cant. d&iacute;as disponible para usar<span class="asterisco">*</span> </label>
-                                                    <input type="number" name="txt_dias_cumple" id="txt_dias_cumple" class="form-control" value="<?php echo $diascumple ?>">
+
+                                                <div class="form-group">
+                                                    <label style="font-size:12px;font-weight:600;color:#555;">Monto que el usuario ganará en su cumpleaños (en dólares)<span class="asterisco">*</span></label>
+                                                    <div class="input-group">
+                                                        <div class="input-group-prepend">
+                                                            <span class="input-group-text" style="background:#FFDAD4;border-color:#E9E9E9;color:#FD6550;font-weight:700;">$</span>
+                                                        </div>
+                                                        <input type="number" name="txt_monto_cumple" id="txt_monto_cumple" class="form-control" value="<?php echo $valor_cumple ?>" placeholder="0">
+                                                    </div>
+                                                    <small class="text-muted" style="font-size:11px;">Este es el monto que se acreditará a la cuenta del cliente.</small>
                                                 </div>
-                                                <div class="form-group col-md-12 col-sm-12 col-xs-12">
-                                                    <label>Valor Mínimo en compras para dar el premio ($0 = sin restricci&oacute;n)<span class="asterisco">*</span> </label>
-                                                    <input type="number" name="txt_restriccion_cumple" id="txt_restriccion_cumple" class="form-control" value="<?php echo $restriccioncumple ?>">
+
+                                                <div class="form-group">
+                                                    <label style="font-size:12px;font-weight:600;color:#555;">Cantidad de días disponible para usar<span class="asterisco">*</span></label>
+                                                    <div class="input-group">
+                                                        <div class="input-group-prepend">
+                                                            <span class="input-group-text" style="background:#FFDAD4;border-color:#E9E9E9;color:#FD6550;">
+                                                                <i data-feather="calendar" style="width:14px;height:14px;"></i>
+                                                            </span>
+                                                        </div>
+                                                        <input type="number" name="txt_dias_cumple" id="txt_dias_cumple" class="form-control" value="<?php echo $diascumple ?>" placeholder="0">
+                                                    </div>
+                                                    <small class="text-muted" style="font-size:11px;">Número de días que tendrá el cliente para utilizar su beneficio.</small>
                                                 </div>
-                                                <div class="form-group col-md-12 col-sm-12 col-xs-12" style="text-align: right;margin-bottom:15px;">
-                                                    <button type="button" class="btn btn-outline-primary actualizarCumple" data-id="<?php echo $session['cod_empresa'] ?>">Actualizar</button>
-                                                    <hr />
+
+                                                <div class="form-group">
+                                                    <label style="font-size:12px;font-weight:600;color:#555;">Valor mínimo en compras para dar el premio ($0 = sin restricción)<span class="asterisco">*</span></label>
+                                                    <div class="input-group">
+                                                        <div class="input-group-prepend">
+                                                            <span class="input-group-text" style="background:#FFDAD4;border-color:#E9E9E9;color:#FD6550;">
+                                                                <i data-feather="shopping-cart" style="width:14px;height:14px;"></i>
+                                                            </span>
+                                                        </div>
+                                                        <input type="number" name="txt_restriccion_cumple" id="txt_restriccion_cumple" class="form-control" value="<?php echo $restriccioncumple ?>" placeholder="0">
+                                                    </div>
+                                                    <small class="text-muted" style="font-size:11px;">Monto mínimo de compra para que el cliente pueda aplicar el beneficio.</small>
                                                 </div>
+
+                                                <div class="mt-auto text-right pt-2">
+                                                    <button type="button" class="btn actualizarCumple" style="background:#FD6550;color:#fff;border-radius:8px;padding:8px 20px;font-weight:600;" data-id="<?php echo $session['cod_empresa'] ?>">
+                                                        Actualizar configuración
+                                                    </button>
+                                                </div>
+                                            </div>
                                             <?php } ?>
                                         </div>
+                                    </div>
+
+                                    <div style="background:#FFDAD4;border-radius:8px;padding:12px 16px;display:flex;align-items:flex-start;gap:10px;">
+                                        <i data-feather="info" style="color:#FD6550;flex-shrink:0;width:16px;height:16px;margin-top:2px;"></i>
+                                        <small style="color:#202020;font-size:12px;"><b>Importante:</b> Asegúrate de que la información sea clara y atractiva para motivar a tus clientes a celebrar con tu marca.</small>
                                     </div>
 
                                     <br />

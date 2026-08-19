@@ -9,6 +9,8 @@ if($empresa) {
     $apikey = $empresa["api_key"];
 }
 
+$permisoAnularFacturas = $ClEmpresas->tienePermiso($session["cod_empresa"], 'ANULAR_FACTURAS') ? 1 : 0;
+
 if(!isLogin()){
     header("location:login.php");
 }
@@ -67,6 +69,7 @@ $files = url_sistema.'assets/empresas/'.$session['alias'].'/';
                                 <div class="col-xl-8 col-md-8 col-sm-8 col-8">
                                     <h4>Listado de Facturas</h4>
                                     <input type="hidden" id="apiEmpresa" value="<?=$apikey?>">
+                                    <input type="hidden" id="permisoAnularFacturas" value="<?=$permisoAnularFacturas?>">
                                 </div>
                                 <div class="col-xl-12 col-md-12 col-sm-12 col-12">
                                     <hr/>
@@ -228,6 +231,7 @@ $files = url_sistema.'assets/empresas/'.$session['alias'].'/';
                             <a href="./orden_detalle.php?id={{cod_orden}}" target="_blank">
                                 <i data-feather="eye"></i>
                             </a>
+                            {{#if permisoAnularFacturas}}
                             {{#eq estado_envio "NO_ENVIADA"}}
                             <a href="javascript:void(0);" class="bs-tooltip btnReenviar" data-id="{{cod_orden}}" data-toggle="tooltip" data-placement="top" data-original-title="Reenviar factura">
                                 <i data-feather="refresh-cw"></i>
@@ -242,6 +246,7 @@ $files = url_sistema.'assets/empresas/'.$session['alias'].'/';
                             <a href="javascript:void(0);" class="bs-tooltip btnAnular" data-id="{{cod_orden}}" data-toggle="tooltip" data-placement="top" data-original-title="Anular factura">
                                 <i data-feather="x-circle"></i>
                             </a>
+                            {{/if}}
                             {{/if}}
                         </li>
                     </ul>

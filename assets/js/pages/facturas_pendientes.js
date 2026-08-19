@@ -3,9 +3,11 @@ let ApiUrl = API_TASTE;
 let ApiKey = "";
 let facturasActuales = [];
 let facturasEnProceso = new Set();
+let permisoAnularFacturas = false;
 
 $(document).ready(function() {
     ApiKey = $("#apiEmpresa").val();
+    permisoAnularFacturas = $("#permisoAnularFacturas").val() == "1";
     $("#fecha_inicio").val(primerDiaDelMes());
     $("#fecha_fin").val(today());
     flatpickr(document.getElementsByClassName('picker'), {
@@ -101,6 +103,7 @@ function getFacturasUnificadas(silent) {
             // {{#if puede_anular}} en el template no trate "0" como verdadero.
             response.data.forEach(function(orden){
                 orden.puede_anular = (orden.puede_anular == 1);
+                orden.permisoAnularFacturas = permisoAnularFacturas;
             });
             facturasActuales = response.data;
 

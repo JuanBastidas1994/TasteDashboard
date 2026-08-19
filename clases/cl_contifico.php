@@ -239,12 +239,20 @@ class cl_contifico
 		// Una orden puede tener varias filas en tb_orden_factura_electronica si se anuló y
 		// se reenvió (ExistFacturaToOrden ignora las ANULADA al reenviar), por eso siempre
 		// se toma solo la última fila (MAX id) por orden, no un join directo por cod_orden.
-		$query = "SELECT oc.cod_orden, oc.fecha, oc.estado AS estado_orden, u.nombre AS cliente,
+		$query = "SELECT oc.cod_orden, oc.fecha, oc.estado AS estado_orden, oc.total, u.nombre AS cliente,
 						s.nombre AS sucursal,
+						(SELECT GROUP_CONCAT(fp.descripcion SEPARATOR ', ')
+							FROM tb_orden_pagos op
+							JOIN tb_formas_pago fp ON fp.cod_forma_pago = op.forma_pago
+							WHERE op.cod_orden = oc.cod_orden) AS formas_pago,
 						ofe.tipo, ofe.num_factura, ofe.estado AS estado_factura, ofe.fecha AS fecha_envio,
 						IF(ofe.estado IN ('CREADA','EMITIDA_SRI'), 'ENVIADA', 'NO_ENVIADA') AS estado_envio,
 						IF(ofe.estado IN ('CREADA','EMITIDA_SRI') AND ofe.fecha IS NOT NULL AND DATE(ofe.fecha) = CURDATE(), 1, 0) AS puede_anular,
-						err.motivo AS ultimo_error
+						CASE
+							WHEN ofe.estado IN ('CREADA','EMITIDA_SRI') THEN NULL
+							WHEN err.fecha IS NOT NULL AND err.fecha > IFNULL(ofe.fecha, '1970-01-01') THEN err.motivo
+							ELSE NULL
+						END AS ultimo_error
 					FROM tb_orden_cabecera oc
 					JOIN tb_usuarios u ON oc.cod_usuario = u.cod_usuario
 					JOIN tb_sucursales s ON oc.cod_sucursal = s.cod_sucursal

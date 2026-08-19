@@ -221,6 +221,14 @@ function initConfigGestionOrdenes(){
 
             setUserToFirebase("Online");
 
+            //ICONO DE FACTURAS EN EL HEADER (solo empresas con facturación electrónica habilitada)
+            getInfoFacturacion();
+            if(isFacturacion){
+                $("#navIconFacturas").removeClass("d-none");
+            }else{
+                $("#navIconFacturas").addClass("d-none");
+            }
+
             //WORKERS
             initializeWorkers();
         })
@@ -846,11 +854,11 @@ $('#buscador').on('keyup', function(e) {
 //WORKERS
 function activateWorkers(data){
     data.ApiUrl = ApiUrl;
-    data.ApiKey = ApiKey;  
+    data.ApiKey = ApiKey;
     data.Office = sucursal_id;
     if (typeof(Worker) !== "undefined") {
         if(typeof(WorkerRecordatorio) == "undefined") {
-            WorkerRecordatorio = new Worker("assets/js/gestion-ordenes/workers/find_orders_entrantes.js");
+            WorkerRecordatorio = new Worker("assets/js/gestion-ordenes-v5/workers/find_orders_entrantes.js");
             WorkerRecordatorio.onmessage = showResponseWorker;
             WorkerRecordatorio.postMessage(data);    //CONFIGURACION
         }
@@ -882,11 +890,45 @@ function showResponseWorker(event){
     }
 }
 
+// Red de seguridad de facturación: reintenta cada 10 min las órdenes ENTREGADA de hoy que se
+// hayan quedado sin factura en esta sucursal (por si el aviso en tiempo real por Firebase se
+// pierde). Independiente del worker de recordatorios de arriba.
+function activateWorkerFacturacion(){
+    if (typeof(Worker) === "undefined") return;
+    if (typeof(WorkerFacturacion) != "undefined") return;
+
+    getInfoFacturacion();
+    if (!isFacturacion) return;
+
+    let data = {
+        ApiUrl: ApiUrl,
+        ApiKey: ApiKey,
+        SiteUrl: new URL("controllers/controlador_facturas.php", window.location.href).href,
+        Sucursal: sucursal_id,
+        tiempo: 10 //minutos
+    };
+
+    WorkerFacturacion = new Worker("assets/js/gestion-ordenes-v5/workers/find_facturas_pendientes.js");
+    WorkerFacturacion.onmessage = function(event){
+        let response = event.data;
+        notify(response.mensaje, response.fallidas > 0 ? 'warning' : 'success', 5);
+    };
+    WorkerFacturacion.postMessage(data);
+}
+
+function disableWorkerFacturacion(){
+    if (typeof(WorkerFacturacion) != "undefined") {
+        WorkerFacturacion.terminate();
+        WorkerFacturacion = undefined;
+    }
+}
+
 function disableWorkers(){
     if(typeof(WorkerRecordatorio) != "undefined") {
         WorkerRecordatorio.terminate();
         WorkerRecordatorio = undefined;
     }
+    disableWorkerFacturacion();
 }
 
 function initializeWorkers(){
@@ -895,6 +937,7 @@ function initializeWorkers(){
     if(recordatorio.permiso == 1){
         activateWorkers(recordatorio);
     }
+    activateWorkerFacturacion();
 }
 
 function sendNotify(target, topic, title, message, type, cod_usuario = 0){

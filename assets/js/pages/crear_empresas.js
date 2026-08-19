@@ -2554,11 +2554,51 @@ $(document).ready(function() {
     }
     
     
+    $("#btnAmbienteDesarrollo, #btnAmbienteProduccion").on("click", function(){
+        let ambiente = $(this).data("ambiente");
+
+        $("#btnAmbienteDesarrollo, #btnAmbienteProduccion").removeClass("btn-primary").addClass("btn-outline-primary");
+        $(this).removeClass("btn-outline-primary").addClass("btn-primary");
+
+        if(ambiente === "produccion"){
+            $("#wrapAmbienteProduccion").removeClass("d-none");
+            $("#wrapAmbienteDesarrollo").addClass("d-none");
+        }else{
+            $("#wrapAmbienteDesarrollo").removeClass("d-none");
+            $("#wrapAmbienteProduccion").addClass("d-none");
+        }
+        $("#hddAmbienteDemo").val(ambiente);
+    });
+
+    $("#btnCrearCarpetaDemo").on("click", function(){
+        let id = $(this).data("empresa");
+
+        OpenLoad("Creando carpeta...");
+        $.ajax({
+            url: 'controllers/controlador_empresa.php?metodo=crearCarpetaDemo',
+            data: { cod_empresa: id },
+            type: "GET",
+            success: function(response){
+                CloseLoad();
+                if(response.success == 1){
+                    notify(response.mensaje, "success", 2);
+                }else{
+                    notify(response.mensaje, "error", 2);
+                }
+            },
+            error: function(){
+                CloseLoad();
+                notify('Ocurrió un error', "error", 2);
+            }
+        });
+    });
+
      $(".btnCrearDemo").on("click", function(){
          let id = $("#id").val();
         let data = $(this).data();
-        let url = $("#folder_demo").val();
-        
+        let ambiente = $("#hddAmbienteDemo").val() || "desarrollo";
+        let url = (ambiente === "produccion") ? $("#folder_prod").val() : $("#folder_demo").val();
+
         console.log(data, url);
         Swal.fire({
            title: 'Los cambios podrían ser irreversibles',

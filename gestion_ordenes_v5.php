@@ -1193,6 +1193,78 @@ $permisos = $Clempresas->getIdPermisionByBusiness($session['cod_empresa']);
         </div>
     </div>
 
+    <div class="modal" id="facturasHoyModal" role="dialog" aria-labelledby="facturasHoyModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header align-items-center">
+                    <h5 class="modal-title text-center" style="width: 100%;">Facturas de hoy</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"
+                        style="padding:0px; margin:0px;">
+                        <i data-feather="x"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Orden</th>
+                                    <th>Cliente</th>
+                                    <th>Documento</th>
+                                    <th class="text-center">Estado</th>
+                                    <th class="text-center">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="facturasHoyBody">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-danger" id="btnReenviarFacturasHoy" onclick="reenviarFacturasHoy()">
+                        <i data-feather="send"></i> Reenviar pendientes
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="errorFacturaHoyModal" tabindex="-1" role="dialog" aria-labelledby="errorFacturaHoyModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="errorFacturaHoyModalLabel">Motivo del error</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <i data-feather="x"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p id="errorFacturaHoyTexto"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script id="facturas-hoy-template" type="text/x-handlebars-template">
+        {{#each this}}
+            <tr>
+                <td>{{cod_orden}}</td>
+                <td>{{cliente}}</td>
+                <td>{{#if num_factura}}{{num_factura}}{{else}}-{{/if}}</td>
+                <td class="text-center">
+                    <span class="badge badge-{{colorStatus estado_envio}}">{{estado_envio}}</span>
+                </td>
+                <td class="text-center">
+                    {{#if ultimo_error}}
+                    <a href="javascript:void(0);" class="text-danger btnVerErrorHoy" data-id="{{cod_orden}}" title="Ver motivo del error">
+                        <i data-feather="alert-triangle"></i>
+                    </a>
+                    {{/if}}
+                </td>
+            </tr>
+        {{/each}}
+    </script>
+
     <!--  BEGIN NAVBAR  -->
     <?php top() ?>
     <!--  END NAVBAR  -->
@@ -1251,6 +1323,9 @@ $permisos = $Clempresas->getIdPermisionByBusiness($session['cod_empresa']);
                 <li class="bs-tooltip" data-placement="bottom" title="Órdenes programadas" onclick="getOrdenesProgramadas()">
                     <i data-feather="calendar"></i>
                 </li> -->
+                <li class="bs-tooltip d-none" id="navIconFacturas" data-placement="bottom" title="Facturas" onclick="abrirFacturasHoy()">
+                    <i data-feather="file-text"></i>
+                </li>
                 <li class="bs-tooltip" data-placement="bottom" title="Cierre Diario" onclick="getCierreDiario()">
                     <i data-feather="unlock"></i>
                 </li>
@@ -1445,6 +1520,10 @@ $permisos = $Clempresas->getIdPermisionByBusiness($session['cod_empresa']);
                 return "danger";
             else if (status == "NO_ENTREGADA")
                 return "danger";
+            else if (status == "ENVIADA")
+                return "success";
+            else if (status == "NO_ENVIADA")
+                return "danger";
             else if (status == "PUNTO_RECOGIDA")
                 return "info";
             else if (status == "PUNTO_ENTREGA")
@@ -1531,6 +1610,7 @@ $permisos = $Clempresas->getIdPermisionByBusiness($session['cod_empresa']);
     <script src="assets/js/gestion-ordenes-v5/printers.js?v=11" type="text/javascript"></script>
     <script src="assets/js/gestion-ordenes-v5/firebase.js?v=7" type="text/javascript"></script>
     <script src="assets/js/gestion-ordenes-v5/cierre-diario.js?v=7" type="text/javascript"></script>
+    <script src="assets/js/gestion-ordenes-v5/facturas-hoy.js?v=1" type="text/javascript"></script>
     <script src="assets/js/gestion-ordenes-v5/ordenes-programadas.js" type="text/javascript"></script>
     <script src="assets/js/gestion-ordenes-v5/autoasignar.js?v=7" type="text/javascript"></script>
 

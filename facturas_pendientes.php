@@ -9,6 +9,8 @@ if($empresa) {
     $apikey = $empresa["api_key"];
 }
 
+$permisoAnularFacturas = $ClEmpresas->tienePermiso($session["cod_empresa"], 'ANULAR_FACTURAS') ? 1 : 0;
+
 if(!isLogin()){
     header("location:login.php");
 }
@@ -21,6 +23,20 @@ $files = url_sistema.'assets/empresas/'.$session['alias'].'/';
 <head>
     <meta charset="gb18030">
     <?php css_mandatory(); ?>
+    <style type="text/css">
+        .sticky-actions {
+            position: sticky;
+            bottom: 0;
+            background: #fff;
+            padding: 12px 0;
+            box-shadow: 0 -2px 8px rgba(0,0,0,0.08);
+            z-index: 50;
+        }
+        #style-3_wrapper .dataTables_info,
+        #style-3_wrapper .dataTables_paginate {
+            margin-top: 10px;
+        }
+    </style>
 </head>
 <body>
     <!--  BEGIN NAVBAR  -->
@@ -53,6 +69,7 @@ $files = url_sistema.'assets/empresas/'.$session['alias'].'/';
                                 <div class="col-xl-8 col-md-8 col-sm-8 col-8">
                                     <h4>Listado de Facturas</h4>
                                     <input type="hidden" id="apiEmpresa" value="<?=$apikey?>">
+                                    <input type="hidden" id="permisoAnularFacturas" value="<?=$permisoAnularFacturas?>">
                                 </div>
                                 <div class="col-xl-12 col-md-12 col-sm-12 col-12">
                                     <hr/>
@@ -79,14 +96,6 @@ $files = url_sistema.'assets/empresas/'.$session['alias'].'/';
                                         <label>Cliente</label>
                                         <input type="text" id="txtCliente" class="form-control" placeholder="Nombre del cliente">
                                     </div>
-                                    <div class="col-lg-2 col-12">
-                                        <label>Documento</label>
-                                        <select id="cmbDocumento" class="form-control">
-                                            <option value="">Todos</option>
-                                            <option value="FAC">Factura</option>
-                                            <option value="DNA">Nota de crédito</option>
-                                        </select>
-                                    </div>
                                     <div class="col-lg-1 col-12">
                                         <label>Estado</label>
                                         <select id="cmbEstado" class="form-control">
@@ -95,14 +104,33 @@ $files = url_sistema.'assets/empresas/'.$session['alias'].'/';
                                             <option value="NO_ENVIADA">No enviadas</option>
                                         </select>
                                     </div>
+                                    <div class="col-lg-2 col-12">
+                                        <label>Buscar en tabla</label>
+                                        <input type="text" id="txtBuscarTabla" class="form-control" placeholder="Buscar en lo cargado...">
+                                    </div>
                                     <div class="col-lg-1 col-12 align-items-end d-flex">
                                         <button class="btn btn-primary" onclick="getFacturasUnificadas();">Filtrar</button>
                                     </div>
                                 </div>
                             </div>
 
-                            <div class="table-responsive mb-4 mt-4">
-                                <table id="style-3" class="table style-3  table-hover">
+                            <div class="col-12 my-3">
+                                <div class="row">
+                                    <div class="col-auto">
+                                        <span class="badge badge-success" style="font-size:14px;">
+                                            Enviadas: <span id="statEnviadas">0</span>
+                                        </span>
+                                    </div>
+                                    <div class="col-auto">
+                                        <span class="badge badge-danger" style="font-size:14px;">
+                                            No enviadas: <span id="statNoEnviadas">0</span>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="table-responsive mb-4">
+                                <table id="style-3" class="table style-3  table-hover" style="margin-top: 0px !important;">
                                         <thead>
                                             <tr>
                                                 <th>Orden</th>
@@ -110,6 +138,8 @@ $files = url_sistema.'assets/empresas/'.$session['alias'].'/';
                                                 <th>Cliente</th>
                                                 <th>Documento</th>
                                                 <th>Fecha</th>
+                                                <th>Total</th>
+                                                <th>Forma de pago</th>
                                                 <th class="text-center">Estado</th>
                                                 <th class="text-center">Acciones</th>
                                             </tr>
@@ -120,17 +150,21 @@ $files = url_sistema.'assets/empresas/'.$session['alias'].'/';
                                     </table>
                             </div>
 
-                            <div class="col-12 layout-spacing">
-                                <button class="btn btn-danger" onclick="reenviarPendientes();">
-                                    <i data-feather="send"></i>
-                                    Reenviar pendientes del rango
-                                </button>
-                            </div>
                         </div>
                     </div>
 
                 </div>
 
+            </div>
+            <div class="sticky-actions">
+                <button class="btn btn-danger" onclick="reenviarPendientes();">
+                    <i data-feather="send"></i>
+                    Reenviar pendientes del rango
+                </button>
+                <button class="btn btn-primary" onclick="descargarExcel();">
+                    <i data-feather="download"></i>
+                    Descargar Excel
+                </button>
             </div>
             <?php footer(); ?>
         </div>
@@ -179,6 +213,8 @@ $files = url_sistema.'assets/empresas/'.$session['alias'].'/';
                 <td>{{cliente}}</td>
                 <td>{{#if num_factura}}{{num_factura}}{{else}}-{{/if}}</td>
                 <td>{{fecha}}</td>
+                <td>${{decimal total}}</td>
+                <td>{{#if formas_pago}}{{formas_pago}}{{else}}-{{/if}}</td>
                 <td class="text-center">
                     <span class="badge badge-{{colorStatus estado_envio}}">
                         {{estado_envio}}
@@ -195,6 +231,7 @@ $files = url_sistema.'assets/empresas/'.$session['alias'].'/';
                             <a href="./orden_detalle.php?id={{cod_orden}}" target="_blank">
                                 <i data-feather="eye"></i>
                             </a>
+                            {{#if permisoAnularFacturas}}
                             {{#eq estado_envio "NO_ENVIADA"}}
                             <a href="javascript:void(0);" class="bs-tooltip btnReenviar" data-id="{{cod_orden}}" data-toggle="tooltip" data-placement="top" data-original-title="Reenviar factura">
                                 <i data-feather="refresh-cw"></i>
@@ -209,6 +246,7 @@ $files = url_sistema.'assets/empresas/'.$session['alias'].'/';
                             <a href="javascript:void(0);" class="bs-tooltip btnAnular" data-id="{{cod_orden}}" data-toggle="tooltip" data-placement="top" data-original-title="Anular factura">
                                 <i data-feather="x-circle"></i>
                             </a>
+                            {{/if}}
                             {{/if}}
                         </li>
                     </ul>

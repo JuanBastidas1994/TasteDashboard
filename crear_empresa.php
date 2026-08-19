@@ -334,8 +334,32 @@ if(file_exists($folder_demo)){
                           <p>
                               La idea es después poder escoger si es demo o producción de esa forma se actualizaría la carpeta demo.miecommerce o la carpeta que apunta a produccion
                           </p>
-                            <input class="form-control" type="text" id="folder_demo" value="<?php echo $folder_demo; ?>"/>
-                            <input class="form-control" type="text" id="folder_prod" value="/home1/digitalmind/<?php echo $folder; ?>"/>
+
+                            <input type="hidden" id="hddAmbienteDemo" value="desarrollo">
+                            <div class="btn-group mb-3" role="group" aria-label="Ambiente" id="grpAmbienteDemo">
+                                <button type="button" class="btn btn-primary" id="btnAmbienteDesarrollo" data-ambiente="desarrollo">
+                                    <i data-feather="code"></i> Desarrollo
+                                </button>
+                                <button type="button" class="btn btn-outline-primary" id="btnAmbienteProduccion" data-ambiente="produccion">
+                                    <i data-feather="globe"></i> Producción
+                                </button>
+                            </div>
+
+                            <div id="wrapAmbienteDesarrollo">
+                                <div class="input-group mb-3">
+                                    <input class="form-control" type="text" id="folder_demo" value="<?php echo $folder_demo; ?>"/>
+                                    <div class="input-group-append">
+                                        <button class="btn btn-outline-secondary" type="button" id="btnCrearCarpetaDemo" data-empresa="<?php echo $cod_empresa; ?>">
+                                            <i data-feather="folder-plus"></i> Crear carpeta
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="wrapAmbienteProduccion" class="d-none">
+                                <input class="form-control mb-3" type="text" id="folder_prod" value="/home1/digitalmind/<?php echo $folder; ?>" readonly/>
+                            </div>
+
                             <table class="table">
                                 <thead>
                                     <tr>
@@ -1703,7 +1727,7 @@ if(file_exists($folder_demo)){
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script> 
     <script src="assets/js/clipboard/clipboard.min.js"></script>
     <script src="assets/js/jscolor.js"></script>
-    <script src="assets/js/pages/crear_empresas.js?v=5" type="text/javascript"></script>
+    <script src="assets/js/pages/crear_empresas.js?v=6" type="text/javascript"></script>
     
     <!-- BEGIN PAGE LEVEL CUSTOM SCRIPTS -->
     <script src="assets/js/scrollspyNav.js"></script>

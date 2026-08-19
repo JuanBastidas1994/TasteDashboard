@@ -2,10 +2,13 @@ const { API_TASTE, API_MOTORIZADOS } = window.__CONFIG__;
 let ApiUrl = API_TASTE;
 let ApiKey = "";
 let facturasActuales = [];
+let facturasEnProceso = new Set();
+let permisoAnularFacturas = false;
 
 $(document).ready(function() {
     ApiKey = $("#apiEmpresa").val();
-    $("#fecha_inicio").val(today());
+    permisoAnularFacturas = $("#permisoAnularFacturas").val() == "1";
+    $("#fecha_inicio").val(primerDiaDelMes());
     $("#fecha_fin").val(today());
     flatpickr(document.getElementsByClassName('picker'), {
         enableTime: false,
@@ -16,14 +19,22 @@ $(document).ready(function() {
     getFacturasUnificadas();
 });
 
-function today() {
-    let date = new Date();
+function formatDate(date) {
     let d = date.getDate();
     let day = d.toString().padStart(2, "0");
     let m = date.getMonth() + 1;
     let month = m.toString().padStart(2, "0");
     let year = date.getFullYear();
     return `${year}-${month}-${day}`;
+}
+
+function today() {
+    return formatDate(new Date());
+}
+
+function primerDiaDelMes() {
+    let date = new Date();
+    return formatDate(new Date(date.getFullYear(), date.getMonth(), 1));
 }
 
 function getSucursales() {
@@ -67,23 +78,21 @@ function buildFiltros() {
         fecha_fin: fecha_fin,
         sucursal: $("#cmbSucursal").val(),
         cliente: $("#txtCliente").val(),
-        documento: $("#cmbDocumento").val(),
         estado: $("#cmbEstado").val()
     };
 }
 
-function getFacturasUnificadas() {
+// silent=true evita el bloqueo de pantalla completa (OpenLoad/blockUI), se usa al refrescar
+// después de un reenvío/anulación individual para no taparle la pantalla al usuario.
+function getFacturasUnificadas(silent) {
     let filtros = buildFiltros();
     if(!filtros) return;
 
-    datatableReInit();
-    let target = $("#style-3 tbody");
-
     let params = `?metodo=getFacturasUnificadas&fecha_inicio=${filtros.fecha_inicio}&fecha_fin=${filtros.fecha_fin}`
         + `&sucursal=${filtros.sucursal}&cliente=${encodeURIComponent(filtros.cliente)}`
-        + `&documento=${filtros.documento}&estado=${filtros.estado}`;
+        + `&estado=${filtros.estado}`;
 
-    OpenLoad("Cargando...");
+    if(!silent) OpenLoad("Cargando...");
     fetch(`controllers/controlador_facturas.php${params}`, {
         method: 'GET'
     })
@@ -94,51 +103,98 @@ function getFacturasUnificadas() {
             // {{#if puede_anular}} en el template no trate "0" como verdadero.
             response.data.forEach(function(orden){
                 orden.puede_anular = (orden.puede_anular == 1);
+                orden.permisoAnularFacturas = permisoAnularFacturas;
             });
             facturasActuales = response.data;
 
             let template = Handlebars.compile($("#facturas-unificadas-template").html());
-            target.html(template(response.data));
-            feather.replace();
-            $('[data-toggle="tooltip"]').tooltip();
+            pintarFilas(template(response.data));
+            actualizarIndicadores(response.data);
         }
         else{
             facturasActuales = [];
-            target.html("");
+            pintarFilas("");
             notify(response.mensaje, "error", 2);
-            datatableReInit();
+            actualizarIndicadores([]);
         }
-        CloseLoad();
+        if(!silent) CloseLoad();
     })
     .catch(error => {
-        target.html("");
+        pintarFilas("");
         notify("Error al realizar la petición", "error", 2);
-        CloseLoad();
+        actualizarIndicadores([]);
+        if(!silent) CloseLoad();
         console.log(error);
-        datatableReInit();
     });
 }
 
-function datatableReInit() {
-    $('#style-3').DataTable().clear().destroy();
-    $('#style-3').DataTable({
-        dom: 'Bfrtip',
-        buttons: {
-            buttons: [
-                { extend: 'copy', className: 'btn' },
-                { extend: 'excel', className: 'btn' },
-                { extend: 'pdfHtml5', className: 'btn' },
-            ]
-        },
+function actualizarIndicadores(data) {
+    let enviadas = data.filter(o => o.estado_envio === "ENVIADA").length;
+    let noEnviadas = data.filter(o => o.estado_envio === "NO_ENVIADA").length;
+    $("#statEnviadas").text(enviadas);
+    $("#statNoEnviadas").text(noEnviadas);
+}
+
+// Devuelve la instancia de DataTables, inicializándola una sola vez. Pasar opciones de nuevo
+// a una tabla ya inicializada tira error, por eso siempre se re-obtiene sin argumentos.
+function getDataTable() {
+    if($.fn.DataTable.isDataTable('#style-3')){
+        return $('#style-3').DataTable();
+    }
+    let tabla = $('#style-3').DataTable({
+        dom: 'rtip',
         stripeClasses: [],
         lengthMenu: [7, 10, 20, 50],
         pageLength: 20,
         order: [[4, "desc"]]
     });
+    $("#txtBuscarTabla").on("keyup", function(){
+        tabla.search(this.value).draw();
+    });
+    // draw.dt dispara en TODO redraw (filtro, paginación, orden), no solo el primero — así los
+    // íconos feather y tooltips de filas que entran a la vista al cambiar de página también
+    // se procesan (rows.add() usa los nodos reales del handlebars, no strings).
+    tabla.on('draw.dt', function(){
+        feather.replace();
+        $('[data-toggle="tooltip"]').tooltip();
+    });
+    return tabla;
+}
+
+// Mezclar manipulación directa del DOM (target.html(...)) con la API de DataTables rompe la
+// tabla: al llamar .destroy() DataTables restaura las filas que tenía cacheadas en su propio
+// modelo de datos, pisando lo recién inyectado por jQuery — por eso el filtrado no se veía
+// reflejado aunque el controlador sí devolvía los datos correctos. La forma correcta es dejar
+// que DataTables maneje el DOM: clear() + rows.add() + draw().
+function pintarFilas(filasHtml) {
+    let tabla = getDataTable();
+    tabla.clear();
+    let $filas = $('<table>').html(filasHtml).find('tr');
+    if($filas.length > 0){
+        tabla.rows.add($filas);
+    }
+    tabla.draw();
+}
+
+// Evita que un doble clic (o clic mientras ya está en curso) dispare la misma acción dos veces,
+// y muestra un spinner pequeño en el propio botón en vez de tapar toda la pantalla con OpenLoad.
+function iniciarAccionBoton(cod_orden, claseBoton) {
+    if(facturasEnProceso.has(cod_orden)) return false;
+    facturasEnProceso.add(cod_orden);
+    $(`.${claseBoton}[data-id="${cod_orden}"]`)
+        .css("pointer-events", "none")
+        .html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>');
+    return true;
+}
+
+function finalizarAccionBoton(cod_orden) {
+    facturasEnProceso.delete(cod_orden);
 }
 
 $("body").on("click", ".btnReenviar", function(){
     let cod_orden = $(this).data("id");
+    if(facturasEnProceso.has(cod_orden)) return;
+
     swal.fire({
        title: 'Se reenviará la factura',
        text: '¿Continuar?',
@@ -149,7 +205,11 @@ $("body").on("click", ".btnReenviar", function(){
        padding: '2em'
     }).then(function(result){
        if (result.value) {
-          reenviarFactura(cod_orden).then(() => getFacturasUnificadas());
+          if(!iniciarAccionBoton(cod_orden, "btnReenviar")) return;
+          reenviarFactura(cod_orden).then(() => {
+              finalizarAccionBoton(cod_orden);
+              getFacturasUnificadas(true);
+          });
        }
     });
 });
@@ -164,6 +224,8 @@ $("body").on("click", ".btnVerError", function(){
 
 $("body").on("click", ".btnAnular", function(){
     let cod_orden = $(this).data("id");
+    if(facturasEnProceso.has(cod_orden)) return;
+
     swal.fire({
        title: 'Se anulará la factura',
        text: 'La orden podrá volver a facturarse después. ¿Continuar?',
@@ -174,7 +236,11 @@ $("body").on("click", ".btnAnular", function(){
        padding: '2em'
     }).then(function(result){
        if (result.value) {
-          anularFactura(cod_orden).then(() => getFacturasUnificadas());
+          if(!iniciarAccionBoton(cod_orden, "btnAnular")) return;
+          anularFactura(cod_orden).then(() => {
+              finalizarAccionBoton(cod_orden);
+              getFacturasUnificadas(true);
+          });
        }
     });
 });
@@ -242,7 +308,7 @@ async function reenviarPendientes() {
     OpenLoad("Buscando pendientes...");
     let params = `?metodo=getFacturasUnificadas&fecha_inicio=${filtros.fecha_inicio}&fecha_fin=${filtros.fecha_fin}`
         + `&sucursal=${filtros.sucursal}&cliente=${encodeURIComponent(filtros.cliente)}`
-        + `&documento=${filtros.documento}&estado=NO_ENVIADA`;
+        + `&estado=NO_ENVIADA`;
 
     let response;
     try {
@@ -287,4 +353,49 @@ async function reenviarPendientes() {
     CloseLoad();
     notify(`Reenvío masivo terminado: ${exitosas} enviadas, ${fallidas} fallidas`, fallidas > 0 ? 'warning' : 'success', 5);
     getFacturasUnificadas();
+}
+
+function escapeHtml(texto) {
+    return $("<div>").text(texto == null ? "" : texto).html();
+}
+
+// Exporta todo el listado actualmente filtrado (facturasActuales), sin la columna de Acciones.
+// Se arma como una tabla HTML con MIME de Excel: Excel la abre directamente como hoja de cálculo,
+// sin depender de la extensión de Buttons de DataTables (que se ocultó a pedido).
+function descargarExcel() {
+    if(!facturasActuales || facturasActuales.length === 0){
+        notify("No hay datos para descargar", "warning", 2);
+        return;
+    }
+
+    let encabezados = ["Orden", "Sucursal", "Cliente", "Documento", "Fecha", "Total", "Forma de pago", "Estado"];
+    let filas = facturasActuales.map(function(o){
+        let estado = o.estado_envio + (o.estado_factura ? ` (${o.estado_factura})` : "");
+        return [
+            o.cod_orden,
+            o.sucursal,
+            o.cliente,
+            o.num_factura || "-",
+            o.fecha,
+            parseFloat(o.total || 0).toFixed(2),
+            o.formas_pago || "-",
+            estado
+        ];
+    });
+
+    let html = '<table border="1"><thead><tr>'
+        + encabezados.map(h => `<th>${escapeHtml(h)}</th>`).join("")
+        + '</tr></thead><tbody>'
+        + filas.map(fila => '<tr>' + fila.map(c => `<td>${escapeHtml(c)}</td>`).join("") + '</tr>').join("")
+        + '</tbody></table>';
+
+    let blob = new Blob(['﻿' + html], { type: 'application/vnd.ms-excel' });
+    let url = URL.createObjectURL(blob);
+    let a = document.createElement("a");
+    a.href = url;
+    a.download = `facturas_${today()}.xls`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
 }

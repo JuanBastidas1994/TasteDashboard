@@ -657,16 +657,17 @@ if ($hour >= 15 || $hour < 9) {
                                 </div>
 
                                 <div id="purchaseClient" class="text-left" style="display:none;">
+                                    <span id="clientCod" class="d-none"></span>
                                     <div class="d-flex justify-content-start">
                                         <div>
                                             back
                                         </div>
                                         <div>
-                                            <div style="font-size:14px">Juan Bastidas</div>
-                                            <div style="font-size:12px">0952423606</div>
+                                            <div id="clientName" style="font-size:14px"></div>
+                                            <div id="clientDni" style="font-size:12px"></div>
                                         </div>
                                         <div class="ml-auto">
-                                            <h3 style="padding: 0; margin: 0;">$0.00</h3>
+                                            <h3 id="clientTotalSaldoReal" style="padding: 0; margin: 0;">$0.00</h3>
                                             <!--<div>Bronce</div>-->
                                             <!--<div>Falta $1.00</div>-->
                                         </div>
@@ -674,18 +675,18 @@ if ($hour >= 15 || $hour < 9) {
                                     <div class="d-flex justify-content-start">
                                         <div class="ml-1">
                                             <label style="font-size:11px" class="p-0 m-0">Total</label>
-                                            <input type="number" class="form-control" placeholder="0" style="padding: 2px 8px; height: 35px;" />
+                                            <input id="totalInput" type="number" class="form-control" placeholder="0" style="padding: 2px 8px; height: 35px;" />
                                         </div>
                                         <div>
                                             <label style="font-size:11px" class="p-0 m-0">Puntos</label>
-                                            <input type="number" class="form-control input-sm" placeholder="0" style="padding: 2px 8px; height: 35px;" />
+                                            <input id="pointsInput" type="number" class="form-control input-sm" placeholder="0" style="padding: 2px 8px; height: 35px;" />
                                         </div>
                                         <div>
                                             <label style="font-size:11px" class="p-0 m-0">Porcentaje</label>
-                                            5.15%
+                                            <span id="percentageDisplay">0%</span>
                                         </div>
                                         <div>
-                                            <button class="btn btn-primary" style="padding: 3px 8px; font-size: 12px">Save</button>
+                                            <button type="button" id="saveDataFidelizacionButton" class="btn btn-primary" style="padding: 3px 8px; font-size: 12px">Save</button>
                                         </div>
                                     </div>
                                     <!--<div class="d-flex justify-content-end">-->
@@ -1181,7 +1182,7 @@ if ($hour >= 15 || $hour < 9) {
                 <!-- <li class="bs-tooltip" data-placement="bottom" title="Zoom" id="btnZoom" onclick="changeModeZoom()()">
                     <i data-feather="maximize"></i>
                 </li> -->
-                <li class="bs-tooltip" data-placement="bottom" title="Fidelización" onclick="openFidelizacionModal()">
+                <li class="bs-tooltip d-none" id="navIconFidelizacion" data-placement="bottom" title="Fidelización" onclick="openFidelizacionModal()">
                     <i data-feather="star"></i>
                 </li>
                 <li class="bs-tooltip" data-placement="bottom" title="Órdenes programadas" onclick="getOrdenesProgramadas()">

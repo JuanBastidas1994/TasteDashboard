@@ -219,6 +219,11 @@ function initConfigGestionOrdenes(){
                 $("#navIconImpresion").removeClass("d-none");
             }
 
+            //ICONO DE FIDELIZACIÓN (SCANNER DE BILLETERA) EN EL HEADER
+            if(data.permisos && data.permisos.includes('GO_SCAN_BARCODE')){
+                $("#navIconFidelizacion").removeClass("d-none");
+            }
+
             setUserToFirebase("Online");
 
             //ICONO DE FACTURAS EN EL HEADER (solo empresas con facturación electrónica habilitada)

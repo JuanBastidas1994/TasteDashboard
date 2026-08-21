@@ -199,6 +199,11 @@ function initConfigGestionOrdenes(){
             //CONFIGURACION RECORDATORIOS
             localStorage.setItem('recordatorio', JSON.stringify(data.casher.recordatorio));
 
+            //ICONO DE FIDELIZACIÓN (SCANNER DE BILLETERA) EN EL HEADER
+            if(data.permisos && data.permisos.includes('GO_SCAN_BARCODE')){
+                $("#navIconFidelizacion").removeClass("d-none");
+            }
+
             setUserToFirebase("Online");
 
             //WORKERS

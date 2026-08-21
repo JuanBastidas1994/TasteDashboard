@@ -135,7 +135,7 @@ if(!isLogin()){
                 <td>{{creado_en}}</td>
                 <td><span class="badge badge-{{colorStatus vigente_estado}}">{{vigente_estado}}</span></td>
                 <td class="text-center">
-                    <a href="https://www.google.com/maps/search/?api=1&query={{latitud}},{{longitud}}" target="_blank" class="btn btn-sm btn-primary bs-tooltip" data-toggle="tooltip" data-placement="top" data-original-title="Ver en Google Maps">
+                    <a href="https://www.google.com/maps/dir/?api=1&origin={{sucursal_latitud}},{{sucursal_longitud}}&destination={{latitud}},{{longitud}}" target="_blank" class="btn btn-sm btn-primary bs-tooltip" data-toggle="tooltip" data-placement="top" data-original-title="Ver ruta en Google Maps">
                         <i data-feather="map-pin"></i>
                     </a>
                 </td>

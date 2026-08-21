@@ -11,7 +11,7 @@ class cl_cotizacion_precio
 
 	public function lista($sucursal){
 		$params = [$this->cod_empresa];
-		$query = "SELECT cp.*, s.nombre as sucursal, u.nombre as cliente,
+		$query = "SELECT cp.*, s.nombre as sucursal, s.latitud as sucursal_latitud, s.longitud as sucursal_longitud, u.nombre as cliente,
 					CASE WHEN cp.vigente_hasta >= NOW() THEN 'VIGENTE' ELSE 'EXPIRADO' END as vigente_estado
 					FROM tb_cotizacion_precio cp
 					INNER JOIN tb_sucursales s ON s.cod_sucursal = cp.cod_sucursal

@@ -11,6 +11,9 @@ let $tableIngredientes = null;
 let $tableRecipientes = null;
 let $trContificoConfirm = null;
 let rucId = 0;
+let contificoProductosLoaded = false;
+let contificoBodegasLoaded = false;
+
 $(document).ready(function () {
     rucId = $.urlParam('id');
    loadMisProductos();
@@ -18,14 +21,39 @@ $(document).ready(function () {
    loadTalonarios();
    loadIngredientes();
    loadRecipientes();
-   
-   //Carga desde contifico
-   loadProductosContifico();
-   loadBodegas();
+   loadDomicilioAdicionalesStatus();
 
-
-   loadCategoriasContifico();
+   //Los productos/bodegas de Contífico son un servicio externo y pueden tardar bastante;
+   //solo se consultan la primera vez que el usuario realmente abre el modal de "Asignar"
 });
+
+//Productos/Ingredientes/Recipientes/Configuración comparten el mismo modal de productos de Contífico (v1 o v2)
+function ensureProductosContifico(){
+    if(contificoProductosLoaded){
+        return;
+    }
+    contificoProductosLoaded = true;
+
+    let msgEspera = 'Estamos trayendo los productos de Contífico, esto puede tardar unos minutos...';
+    $("#table-products").html(`<tr><td colspan="5" class="text-center">${msgEspera}</td></tr>`);
+    $("#LstCategorias").html(`<div class="text-center p-3">${msgEspera}</div>`);
+
+    loadProductosContifico();
+    loadCategoriasContifico();
+}
+
+//Bodegas tiene su propio modal de Contífico
+function ensureBodegasContifico(){
+    if(contificoBodegasLoaded){
+        return;
+    }
+    contificoBodegasLoaded = true;
+
+    let msgEspera = 'Estamos trayendo las bodegas de Contífico, esto puede tardar unos minutos...';
+    $("#body-bodega").html(`<tr><td colspan="3" class="text-center">${msgEspera}</td></tr>`);
+
+    loadBodegas();
+}
 
 //Mis productos
 function loadMisProductos(){
@@ -241,9 +269,10 @@ $("body").on("click", ".btnAsignarProducto", function(){
    hideButtonsProducts();
    $("#titleProductosModal").html("Ligar producto");
    $(".btnSetProducto").show();
-   
+
    $modalProductos.modal();
-   
+   ensureProductosContifico();
+
    typeImportContificoProduct = "PRODUCTO";
    $trContificoConfirm = $(this).parents("tr").find(".info-contifico");
 });
@@ -287,7 +316,8 @@ $("body").on("click", ".btnAsignarBodega", function(){
    console.log(data);
    officeSelected = data.id;
    $("#modalBodegasContifico").modal();
-   
+   ensureBodegasContifico();
+
    $trContificoConfirm = $(this).parents("tr").find(".info-contifico");
 });
 
@@ -329,9 +359,49 @@ function openNewTalonario(){
         .then(response => {
             console.log("Offices",response);
             if(response.success == 1){
+                $("#txt_cod_postoken").val("");
+                $("#talonarioModalLabel").html("Nuevo Talonario");
+                $("#txt_api_token").val("").prop("disabled", false);
+                $("#txt_emisor").val("");
+                $("#txt_emision").val("");
+                $("#txt_sec_fac").val("");
+                $("#txt_sec_dna").val("");
+                $("#chk_facturar_modal").prop("checked", true);
+
                 var template = Handlebars.compile($("#offices-check-template").html());
                 $("#officesCheck").html(template(response.offices));
                 //feather.replace();
+                $("#modalCrearTalonario").modal();
+            }else{
+                messageDone(response.mensaje,'error');
+            }
+        })
+        .catch(error=>{
+            messageDone(error,'error');
+        });
+}
+
+function openEditTalonario(cod_postoken){
+    fetch(`controllers/controlador_ruc.php?metodo=getPostokenDetail&id=${cod_postoken}`,{
+            method: 'GET',
+        })
+        .then(res => res.json())
+        .then(response => {
+            console.log("Postoken Detail",response);
+            if(response.success == 1){
+                let postoken = response.postoken;
+
+                $("#txt_cod_postoken").val(postoken.cod_postoken);
+                $("#talonarioModalLabel").html("Editar Talonario");
+                $("#txt_api_token").val(postoken.pos);
+                $("#txt_emisor").val(postoken.emisor);
+                $("#txt_emision").val(postoken.ptoemision);
+                $("#txt_sec_fac").val(postoken.secuencial);
+                $("#txt_sec_dna").val(postoken.secuencial_dna);
+                $("#chk_facturar_modal").prop("checked", postoken.facturar == "1");
+
+                var template = Handlebars.compile($("#offices-check-template").html());
+                $("#officesCheck").html(template(response.offices));
                 $("#modalCrearTalonario").modal();
             }else{
                 messageDone(response.mensaje,'error');
@@ -354,7 +424,8 @@ function saveNewTalonario(){
         messageDone("Debes asignar como mínimo una sucursal",'error');
         return;
     }
-        
+
+    let codPostoken = $("#txt_cod_postoken").val();
     let info = {
         ruc_id: rucId,
         api_token: $("#txt_api_token").val(),
@@ -362,22 +433,30 @@ function saveNewTalonario(){
         emision: $("#txt_emision").val(),
         sec_fac: $("#txt_sec_fac").val(),
         sec_dna: $("#txt_sec_dna").val(),
+        facturar: $("#chk_facturar_modal").is(':checked'),
         offices: offices
     }
-    console.log(info);
-    fetch(`controllers/controlador_ruc.php?metodo=savePosToken`,{
+
+    let metodo = "savePosToken";
+    if(codPostoken){
+        metodo = "updatePosToken";
+        info.cod_postoken = codPostoken;
+    }
+
+    console.log(metodo, info);
+    fetch(`controllers/controlador_ruc.php?metodo=${metodo}`,{
             method: 'POST',
             body: JSON.stringify(info)
         })
         .then(res => res.json())
         .then(response => {
             if(response.success == 1){
-                
+
                 $tableTalonarios.destroy();
                 loadTalonarios();
                 notify(response.mensaje,'success',2);
                 $("#modalCrearTalonario").modal('hide');
-                
+
             }else{
                 messageDone(response.mensaje,'error');
             }
@@ -385,6 +464,64 @@ function saveNewTalonario(){
         .catch(error=>{
             messageDone(error,'error');
         });
+}
+
+/*Editar / Eliminar Talonario*/
+$("body").on("click", ".btnEditar", function(){
+    let cod_postoken = $(this).data("value");
+    openEditTalonario(cod_postoken);
+});
+
+$("body").on("click", ".btnEliminar", function(){
+    let cod_postoken = $(this).data("value");
+    messageConfirm("¿Estás seguro de eliminar este talonario?", "Esta acción no se puede deshacer", "question")
+        .then(function(result){
+            if(result){
+                fetch(`controllers/controlador_ruc.php?metodo=deletePosToken`,{
+                        method: 'POST',
+                        body: JSON.stringify({id: cod_postoken})
+                    })
+                    .then(res => res.json())
+                    .then(response => {
+                        if(response.success == 1){
+                            $tableTalonarios.destroy();
+                            loadTalonarios();
+                            notify(response.mensaje,'success',2);
+                        }else{
+                            messageDone(response.mensaje,'error');
+                        }
+                    })
+                    .catch(error=>{
+                        messageDone(error,'error');
+                    });
+            }
+        });
+});
+
+/*Estado de configuracion Domicilio / Adicionales*/
+function loadDomicilioAdicionalesStatus(){
+    fetch(`controllers/controlador_ruc.php?metodo=getDomicilioAdicionales&id=${rucId}`,{
+            method: 'GET',
+        })
+        .then(res => res.json())
+        .then(response => {
+            console.log("Config Domicilio/Adicionales",response);
+            if(response.success == 1){
+                pintarStatusConfig("#statusDomicilio", response.config.ENVIO_DOMICILIO);
+                pintarStatusConfig("#statusAdicionales", response.config.ADICIONALES);
+            }
+        })
+        .catch(error=>{
+            console.log(error);
+        });
+}
+
+function pintarStatusConfig(selector, data){
+    if(data){
+        $(selector).html(`<span class="badge badge-success">Ligado a: ${data.name_in_contifico} (ID: ${data.id})</span>`);
+    }else{
+        $(selector).html(`<span class="badge badge-warning">No configurado</span>`);
+    }
 }
 
 
@@ -399,9 +536,10 @@ $("body").on("click", ".btnAsignarIngrediente", function(){
    hideButtonsProducts();
    $("#titleProductosModal").html("Ligar Ingrediente");
    $(".btnSetIngrediente").show();
-   
+
    $modalProductos.modal();
-   
+   ensureProductosContifico();
+
    typeImportContificoProduct = "INGREDIENTE";
    $trContificoConfirm = $(this).parents("tr").find(".info-contifico-ingredientes");
 });
@@ -446,8 +584,9 @@ $("body").on("click", ".btnImportarIngredientes", function(){
    hideButtonsProducts();
    $("#titleProductosModal").html("Importar ingrediente");
     $(".btnImportar").show();
-   
+
    $modalProductos.modal();
+   ensureProductosContifico();
    typeImportContificoProduct = "IMPORTAR";
 });
 
@@ -520,9 +659,10 @@ $("body").on("click", ".btnAsignarRecipiente", function(){
    hideButtonsProducts();
    $("#titleProductosModal").html("Ligar Recipientes");
    $(".btnSetRecipiente").show();
-   
+
    $modalProductos.modal();
-   
+   ensureProductosContifico();
+
    typeImportContificoProduct = "RECIPIENTE";
    $trContificoConfirm = $(this).parents("tr").find(".info-contifico-recipientes");
 });
@@ -568,6 +708,7 @@ $("body").on("click", ".btnImportarRecipientes", function(){
    $("#titleProductosModal").html("Importar recipiente");
     $(".btnSaveRecipiente").show();
    $modalProductos.modal();
+   ensureProductosContifico();
    typeImportContificoProduct = "IMPORTAR_RECIPIENTES";
 });
 
@@ -624,9 +765,10 @@ $("body").on("click", ".btnAsignarDomiciliouAdicionales", function(){
    typeImportContificoProduct = "DOMICILIO";
    hideButtonsProducts();
    $(".btnSetDomiciliouAdicionales").show();
-   
+
    $modalProductos.modal();
-   
+   ensureProductosContifico();
+
 });
 
 $("body").on("click", ".btnSetDomiciliouAdicionales", function(){
@@ -658,13 +800,20 @@ $("body").on("click", ".btnSetDomiciliouAdicionales", function(){
 });
 
 $("body").on("change", ".chkTalonario", function(){    //Activar/Desactivar Talonario
-   let data = $(this).data();
+    let $chk = $(this);
+    let $spinner = $chk.closest("td").find(".chkTalonarioSpinner");
+    let estadoAnterior = !$chk.is(':checked');
+    let data = $chk.data();
     let info = {
         id: data.id,
-        estado: $(this).is(':checked')
+        estado: $chk.is(':checked')
     };
     console.log(info);
-   fetch(`controllers/controlador_ruc.php?metodo=activateTalonario`,{
+
+    $chk.prop("disabled", true);
+    $spinner.show();
+
+    fetch(`controllers/controlador_ruc.php?metodo=activateTalonario`,{
             method: 'POST',
             body: JSON.stringify(info)
         })
@@ -674,22 +823,35 @@ $("body").on("change", ".chkTalonario", function(){    //Activar/Desactivar Talo
                 console.log("Activate Talonario",response);
                 notify(response.mensaje,'success',2);
             }else{
+                $chk.prop("checked", estadoAnterior);
                 messageDone(response.mensaje,'error');
             }
         })
         .catch(error=>{
+            $chk.prop("checked", estadoAnterior);
             messageDone(error,'error');
+        })
+        .finally(()=>{
+            $chk.prop("disabled", false);
+            $spinner.hide();
         });
 });
 
 $("body").on("change", ".chkInventario", function(){    //Activar/Desactivar Inventario
-   let data = $(this).data();
+    let $chk = $(this);
+    let $spinner = $chk.closest("td").find(".chkInventarioSpinner");
+    let estadoAnterior = !$chk.is(':checked');
+    let data = $chk.data();
     let info = {
         id: data.id,
-        estado: $(this).is(':checked')
+        estado: $chk.is(':checked')
     };
     console.log(info);
-   fetch(`controllers/controlador_ruc.php?metodo=activateInventario`,{
+
+    $chk.prop("disabled", true);
+    $spinner.show();
+
+    fetch(`controllers/controlador_ruc.php?metodo=activateInventario`,{
             method: 'POST',
             body: JSON.stringify(info)
         })
@@ -699,11 +861,17 @@ $("body").on("change", ".chkInventario", function(){    //Activar/Desactivar Inv
                 console.log("Activate Inventario",response);
                 notify(response.mensaje,'success',2);
             }else{
+                $chk.prop("checked", estadoAnterior);
                 messageDone(response.mensaje,'error');
             }
         })
         .catch(error=>{
+            $chk.prop("checked", estadoAnterior);
             messageDone(error,'error');
+        })
+        .finally(()=>{
+            $chk.prop("disabled", false);
+            $spinner.hide();
         });
 });
 
@@ -741,7 +909,6 @@ function loadCategoriasContifico(){
     .then(response => {
         console.log("Mis Categorias",response);
         if(response.success == 1){
-            $("#modalCategoriasContifico").modal();
             var template = Handlebars.compile($("#categorias-contifico-template").html());
             $("#LstCategorias").html(template(response.categorias));
         }else{

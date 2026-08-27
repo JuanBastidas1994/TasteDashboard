@@ -4,6 +4,7 @@ let ApiKey = "";
 let facturasActuales = [];
 let facturasEnProceso = new Set();
 let permisoAnularFacturas = false;
+let inventarioJsonActual = null;
 
 $(document).ready(function() {
     ApiKey = $("#apiEmpresa").val();
@@ -82,6 +83,34 @@ function buildFiltros() {
     };
 }
 
+// Una vez en Contifico (CREADA), la emisión al SRI la hace Contifico solo (puede demorar hasta
+// 1 hora) — ya no depende de este sistema, por eso CREADA y EMITIDA_SRI se muestran igual (✓).
+function calcularEstadoElectronica(orden) {
+    if(orden.estado_factura === "ANULADA") {
+        return { icono: "x-circle", clase: "danger", title: "Factura anulada" };
+    }
+    if(orden.estado_envio === "ENVIADA") {
+        return { icono: "check-circle", clase: "success", title: "Enviada a Contifico" };
+    }
+    return { icono: "x-circle", clase: "danger", title: "No enviada a Contifico" };
+}
+
+// null cuando estado_inventario viene vacío (orden nunca facturada, sin fila en tb_orden_factura_electronica).
+function calcularEstadoInventario(orden) {
+    switch(orden.estado_inventario) {
+        case "DEBITADO":
+            return { icono: "check-circle", clase: "success", title: "Inventario debitado en Contifico" };
+        case "REVERTIDO":
+            return { icono: "check-circle", clase: "success", title: "Inventario revertido tras la anulación" };
+        case "NO_DEBITADO":
+            return { icono: "x-circle", clase: "danger", title: "Inventario no se pudo debitar" };
+        case "NO_REVERTIDO":
+            return { icono: "x-circle", clase: "danger", title: "Inventario no se pudo revertir tras la anulación" };
+        default:
+            return null;
+    }
+}
+
 // silent=true evita el bloqueo de pantalla completa (OpenLoad/blockUI), se usa al refrescar
 // después de un reenvío/anulación individual para no taparle la pantalla al usuario.
 function getFacturasUnificadas(silent) {
@@ -104,6 +133,8 @@ function getFacturasUnificadas(silent) {
             response.data.forEach(function(orden){
                 orden.puede_anular = (orden.puede_anular == 1);
                 orden.permisoAnularFacturas = permisoAnularFacturas;
+                orden.electronica = calcularEstadoElectronica(orden);
+                orden.inventario = calcularEstadoInventario(orden);
             });
             facturasActuales = response.data;
 
@@ -214,6 +245,66 @@ $("body").on("click", ".btnReenviar", function(){
     });
 });
 
+$("body").on("click", ".btnVerInventario", function(){
+    let cod_orden = $(this).data("id");
+
+    inventarioJsonActual = null;
+    $("#inventarioOrigenTexto").text("Cargando...");
+    $("#inventarioTablaBody").html("");
+    $("#inventarioModal").modal("show");
+
+    fetch(`${ApiUrl}/facturacion/ver-inventario`, {
+        method: 'POST',
+        headers: {
+            'Api-Key': ApiKey
+        },
+        body: JSON.stringify({ id: cod_orden })
+    })
+    .then(res => res.json())
+    .then(response => {
+        if(response.success !== 1){
+            $("#inventarioOrigenTexto").text(response.mensaje || "No se pudo obtener el detalle de inventario");
+            return;
+        }
+
+        let inv = response.inventario;
+        inventarioJsonActual = inv;
+
+        $("#inventarioOrigenTexto").text(response.origen === "HISTORICO"
+            ? `Ya enviado a Contifico el ${response.fecha}. Esto es exactamente lo que se debitó.`
+            : "Aún no se ha debitado: esto es lo que se enviaría si se procesa ahora.");
+
+        let detalles = (inv && inv.detalles) ? inv.detalles : [];
+        if(detalles.length === 0){
+            $("#inventarioTablaBody").html('<tr><td colspan="4" class="text-center text-muted">Sin items</td></tr>');
+            return;
+        }
+        let filas = detalles.map(function(d){
+            return `<tr>
+                <td>${escapeHtml(d.nombre || d.producto_id)}</td>
+                <td>${escapeHtml(d.cantidad)}</td>
+                <td>${escapeHtml(d.unidad || '-')}</td>
+                <td>$${escapeHtml(d.precio)}</td>
+            </tr>`;
+        }).join("");
+        $("#inventarioTablaBody").html(filas);
+    })
+    .catch(error => {
+        console.log(error);
+        $("#inventarioOrigenTexto").text("Error de red al obtener el detalle de inventario");
+    });
+});
+
+$("body").on("click", "#btnCopiarJsonInventario", function(){
+    if(!inventarioJsonActual){
+        notify("No hay datos para copiar", "warning", 2);
+        return;
+    }
+    navigator.clipboard.writeText(JSON.stringify(inventarioJsonActual, null, 2))
+        .then(() => notify("JSON copiado al portapapeles", "success", 2))
+        .catch(() => notify("No se pudo copiar el JSON", "error", 2));
+});
+
 $("body").on("click", ".btnVerError", function(){
     let cod_orden = $(this).data("id");
     let orden = facturasActuales.find(o => o.cod_orden == cod_orden);
@@ -245,6 +336,52 @@ $("body").on("click", ".btnAnular", function(){
     });
 });
 
+$("body").on("click", ".btnReintentarInventario", function(){
+    let cod_orden = $(this).data("id");
+    if(facturasEnProceso.has(cod_orden)) return;
+
+    swal.fire({
+       title: 'Se reintentará el débito de inventario',
+       text: '¿Continuar?',
+       type: 'warning',
+       showCancelButton: true,
+       confirmButtonText: 'Aceptar',
+       cancelButtonText: 'Cancelar',
+       padding: '2em'
+    }).then(function(result){
+       if (result.value) {
+          if(!iniciarAccionBoton(cod_orden, "btnReintentarInventario")) return;
+          reintentarInventario(cod_orden).then(() => {
+              finalizarAccionBoton(cod_orden);
+              getFacturasUnificadas(true);
+          });
+       }
+    });
+});
+
+$("body").on("click", ".btnReintentarReversionInventario", function(){
+    let cod_orden = $(this).data("id");
+    if(facturasEnProceso.has(cod_orden)) return;
+
+    swal.fire({
+       title: 'Se reintentará la reversión de inventario',
+       text: '¿Continuar?',
+       type: 'warning',
+       showCancelButton: true,
+       confirmButtonText: 'Aceptar',
+       cancelButtonText: 'Cancelar',
+       padding: '2em'
+    }).then(function(result){
+       if (result.value) {
+          if(!iniciarAccionBoton(cod_orden, "btnReintentarReversionInventario")) return;
+          reintentarReversionInventario(cod_orden).then(() => {
+              finalizarAccionBoton(cod_orden);
+              getFacturasUnificadas(true);
+          });
+       }
+    });
+});
+
 /*ENDPOINT UNICO: el api de gestion de ordenes resuelve internamente si es Contifico o Runfood*/
 function anularFactura(cod_orden) {
     let ruta = `${ApiUrl}/facturacion/anular`;
@@ -269,6 +406,60 @@ function anularFactura(cod_orden) {
     .catch(error => {
         console.log(error);
         notify("Error de red al anular la factura", "error", 2);
+        return { success: 0 };
+    });
+}
+
+function reintentarInventario(cod_orden) {
+    let ruta = `${ApiUrl}/facturacion/reintentar-inventario`;
+
+    return fetch(ruta, {
+        method: 'POST',
+        headers: {
+            'Api-Key': ApiKey
+        },
+        body: JSON.stringify({ id: cod_orden })
+    })
+    .then(res => res.json())
+    .then(response => {
+        if(response.success === 1){
+            notify(response.mensaje, 'success', 2);
+        }
+        else{
+            notify(response.mensaje, 'error', 5);
+        }
+        return response;
+    })
+    .catch(error => {
+        console.log(error);
+        notify("Error de red al reintentar el débito de inventario", "error", 2);
+        return { success: 0 };
+    });
+}
+
+function reintentarReversionInventario(cod_orden) {
+    let ruta = `${ApiUrl}/facturacion/reintentar-reversion-inventario`;
+
+    return fetch(ruta, {
+        method: 'POST',
+        headers: {
+            'Api-Key': ApiKey
+        },
+        body: JSON.stringify({ id: cod_orden })
+    })
+    .then(res => res.json())
+    .then(response => {
+        if(response.success === 1){
+            notify(response.mensaje, 'success', 2);
+        }
+        else{
+            notify(response.mensaje, 'error', 5);
+        }
+        return response;
+    })
+    .catch(error => {
+        console.log(error);
+        notify("Error de red al reintentar la reversión de inventario", "error", 2);
         return { success: 0 };
     });
 }

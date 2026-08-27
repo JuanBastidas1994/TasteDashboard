@@ -140,7 +140,8 @@ $files = url_sistema.'assets/empresas/'.$session['alias'].'/';
                                                 <th>Fecha</th>
                                                 <th>Total</th>
                                                 <th>Forma de pago</th>
-                                                <th class="text-center">Estado</th>
+                                                <th class="text-center">Electrónica</th>
+                                                <th class="text-center">Inventario</th>
                                                 <th class="text-center">Acciones</th>
                                             </tr>
                                         </thead>
@@ -191,6 +192,42 @@ $files = url_sistema.'assets/empresas/'.$session['alias'].'/';
         </div>
     </div>
 
+    <div class="modal fade" id="inventarioModal" tabindex="-1" role="dialog" aria-labelledby="inventarioModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="inventarioModalLabel">Detalle de inventario</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p id="inventarioOrigenTexto" class="text-muted mb-3"></p>
+                    <div class="table-responsive">
+                        <table class="table table-sm table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Producto</th>
+                                    <th>Cantidad</th>
+                                    <th>Unidad</th>
+                                    <th>Precio</th>
+                                </tr>
+                            </thead>
+                            <tbody id="inventarioTablaBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="btnCopiarJsonInventario">Copiar JSON</button>
+                    <button type="button" class="btn btn-light" data-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <?php js_mandatory(); ?>
 
     <!-- HANDLEBARS -->
@@ -216,13 +253,22 @@ $files = url_sistema.'assets/empresas/'.$session['alias'].'/';
                 <td>${{decimal total}}</td>
                 <td>{{#if formas_pago}}{{formas_pago}}{{else}}-{{/if}}</td>
                 <td class="text-center">
-                    <span class="badge badge-{{colorStatus estado_envio}}">
-                        {{estado_envio}}
+                    <span class="bs-tooltip" data-toggle="tooltip" data-placement="top" data-original-title="{{electronica.title}}">
+                        <i data-feather="{{electronica.icono}}" class="text-{{electronica.clase}}"></i>
                     </span>
-                    {{#if estado_factura}}
-                    <span class="badge badge-{{colorStatus estado_factura}}">
-                        {{estado_factura}}
+                </td>
+                <td class="text-center">
+                    {{#if inventario}}
+                    <span class="bs-tooltip" data-toggle="tooltip" data-placement="top" data-original-title="{{inventario.title}}">
+                        <i data-feather="{{inventario.icono}}" class="text-{{inventario.clase}}"></i>
                     </span>
+                    {{else}}
+                    <span class="text-muted bs-tooltip" data-toggle="tooltip" data-placement="top" data-original-title="Sin movimiento de inventario asociado">-</span>
+                    {{/if}}
+                    {{#if estado_inventario}}
+                    <a href="javascript:void(0);" class="bs-tooltip btnVerInventario" data-id="{{cod_orden}}" data-toggle="tooltip" data-placement="top" data-original-title="Ver detalle de inventario">
+                        <i data-feather="list"></i>
+                    </a>
                     {{/if}}
                 </td>
                 <td class="text-center">
@@ -247,6 +293,18 @@ $files = url_sistema.'assets/empresas/'.$session['alias'].'/';
                                 <i data-feather="x-circle"></i>
                             </a>
                             {{/if}}
+                            {{#eq estado_envio "ENVIADA"}}
+                            {{#ifIn estado_inventario (array "NO_DEBITADO" "NO_APLICA")}}
+                            <a href="javascript:void(0);" class="bs-tooltip btnReintentarInventario" data-id="{{cod_orden}}" data-toggle="tooltip" data-placement="top" data-original-title="Verificar / reintentar inventario">
+                                <i data-feather="package"></i>
+                            </a>
+                            {{/ifIn}}
+                            {{/eq}}
+                            {{#eq estado_inventario "NO_REVERTIDO"}}
+                            <a href="javascript:void(0);" class="bs-tooltip btnReintentarReversionInventario" data-id="{{cod_orden}}" data-toggle="tooltip" data-placement="top" data-original-title="Reintentar reversión de inventario">
+                                <i data-feather="rotate-ccw"></i>
+                            </a>
+                            {{/eq}}
                             {{/if}}
                         </li>
                     </ul>

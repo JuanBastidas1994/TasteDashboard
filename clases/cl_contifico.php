@@ -246,6 +246,7 @@ class cl_contifico
 							JOIN tb_formas_pago fp ON fp.cod_forma_pago = op.forma_pago
 							WHERE op.cod_orden = oc.cod_orden) AS formas_pago,
 						ofe.tipo, ofe.num_factura, ofe.estado AS estado_factura, ofe.fecha AS fecha_envio,
+						ofe.estado_inventario,
 						IF(ofe.estado IN ('CREADA','EMITIDA_SRI'), 'ENVIADA', 'NO_ENVIADA') AS estado_envio,
 						IF(ofe.estado IN ('CREADA','EMITIDA_SRI') AND ofe.fecha IS NOT NULL AND DATE(ofe.fecha) = CURDATE(), 1, 0) AS puede_anular,
 						CASE

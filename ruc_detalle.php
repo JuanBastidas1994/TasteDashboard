@@ -268,19 +268,29 @@ $permisos = $Clempresas->getIdPermisionByBusiness($cod_empresa);
         <!--MODAL PRODUCTOS CONTIFICO -->
         
         <!-- MODAL CREAR TALONARIO -->
-        <div class="modal fade bs-example-modal-md" id="modalCrearTalonario" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal fade bs-example-modal-md" id="modalCrearTalonario" tabindex="-1" role="dialog" aria-labelledby="talonarioModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-md" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">Nuevo Talonario</h5>
+                        <h5 class="modal-title" id="talonarioModalLabel">Nuevo Talonario</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                           <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                         </button>
                     </div>
                     <div class="modal-body">
-                    <form id="frmSave" name="frmSave" class="form-horizontal form-label-left">    
-                        <div class="x_content">    
+                    <form id="frmSave" name="frmSave" class="form-horizontal form-label-left">
+                        <div class="x_content">
+                            <input type="hidden" id="txt_cod_postoken" value="" />
                             <div class="form-group">
+                                <!-- FACTURAR -->
+                                <div class="col-md-12 col-sm-12 col-xs-12" style="margin-bottom:10px;">
+                                    <label class="mr-2">Facturar</label>
+                                    <label class="switch s-icons s-outline s-outline-success">
+                                        <input type="checkbox" id="chk_facturar_modal" checked>
+                                        <span class="slider round"></span>
+                                    </label>
+                                </div>
+
                                 <!-- API TOKEN -->
                                 <div class="col-md-12 col-sm-12 col-xs-12 input-group" style="margin-bottom:10px;">
                                     <label>Api token <span class="asterisco">*</span> 
@@ -363,7 +373,7 @@ $permisos = $Clempresas->getIdPermisionByBusiness($cod_empresa);
                                                 {{#eq disable true}}
                                                     <div class="n-chk mb-3">
                                                         <label class="new-control new-checkbox new-checkbox-rounded checkbox-success">
-                                                        <input type="checkbox" name="cmb_offices[]" value="{{cod_sucursal}}" class="new-control-input chkOffices">
+                                                        <input type="checkbox" name="cmb_offices[]" value="{{cod_sucursal}}" class="new-control-input chkOffices" {{#eq checked true}}checked{{/eq}}>
                                                         <span class="new-control-indicator"></span> <b class="text-primary">{{nombre}}</b>
                                                         </label>
                                                     </div>
@@ -423,47 +433,47 @@ $permisos = $Clempresas->getIdPermisionByBusiness($cod_empresa);
                         <ul class="nav nav-tabs mb-3" id="lineTab" role="tablist">
                             <!-- Tabs -->
                             <li class="nav-item">
-                                <a  class="nav-link active" data-toggle="tab" href="#tab-info" role="tab" aria-controls="pills-info" aria-selected="true">
-                                    <i data-feather="coffee"></i> 
-                                    <span>Productos</span>
+                                <a  class="nav-link active" data-toggle="tab" href="#tab-talonarios" role="tab" aria-controls="pills-talonarios" aria-selected="true">
+                                    <i data-feather="file"></i>
+                                    <span>Talonarios</span>
                                 </a>
                             </li>
-                            
+
                             <li class="nav-item">
                                 <a class="nav-link" data-toggle="tab" href="#tab-bodegas" role="tab" aria-controls="pills-sucursales" aria-selected="true">
-                                    <i data-feather="archive"></i> 
+                                    <i data-feather="archive"></i>
                                     <span>Bodegas</span>
                                 </a>
                             </li>
-                            
+
+                            <li class="nav-item">
+                                <a class="nav-link" data-toggle="tab" href="#tab-info" role="tab" aria-controls="pills-info" aria-selected="true">
+                                    <i data-feather="coffee"></i>
+                                    <span>Productos</span>
+                                </a>
+                            </li>
+
                             <?php if(in_array("PRODUCTO_INGREDIENTES", $permisos)){ ?>
                             <li class="nav-item">
                                 <a class="nav-link" data-toggle="tab" href="#tab-ingredientes" role="tab" aria-controls="pills-ingredientes" aria-selected="true">
-                                    <i data-feather="droplet"></i> 
+                                    <i data-feather="droplet"></i>
                                     <span>Ingredientes</span>
                                 </a>
                             </li>
                             <?php } ?>
-                            
+
                             <?php if(in_array("GESTIONAR_RECIPIENTES", $permisos)){ ?>
                             <li class="nav-item">
                                 <a class="nav-link" data-toggle="tab" href="#tab-recipientes" role="tab" aria-controls="pills-recipientes" aria-selected="true">
-                                    <i data-feather="shopping-bag"></i> 
+                                    <i data-feather="shopping-bag"></i>
                                     <span>Recipientes</span>
                                 </a>
                             </li>
                             <?php } ?>
-                            
-                            <li class="nav-item">
-                                <a class="nav-link" data-toggle="tab" href="#tab-talonarios" role="tab" aria-controls="pills-talonarios" aria-selected="true">
-                                    <i data-feather="file"></i> 
-                                    <span>Talonarios</span>
-                                </a>
-                            </li>
-                            
+
                             <li class="nav-item">
                                 <a class="nav-link" data-toggle="tab" href="#tab-configuracion" role="tab" aria-controls="pills-recipientes" aria-selected="true">
-                                    <i data-feather="settings"></i> 
+                                    <i data-feather="settings"></i>
                                     <span>Configuración</span>
                                 </a>
                             </li>
@@ -471,7 +481,7 @@ $permisos = $Clempresas->getIdPermisionByBusiness($cod_empresa);
                         <div class="tab-content" id="pills-tabContent">
                             
                             <!-- Tab Productos -->
-                            <div class="tab-pane fade show active" id="tab-info" role="tabpanel" aria-labelledby="pills-info-tab">
+                            <div class="tab-pane fade" id="tab-info" role="tabpanel" aria-labelledby="pills-info-tab">
                                     <div class="row">
                                         <!--Table-->
                                         <script id="my-product-template" type="text/x-handlebars-template">
@@ -528,6 +538,7 @@ $permisos = $Clempresas->getIdPermisionByBusiness($cod_empresa);
                                                                 {{#eq inventario "1"}} checked {{/eq}}>
                                                             <span class="slider round"></span>
                                                         </label>
+                                                        <span class="spinner-border spinner-border-sm text-primary chkInventarioSpinner" style="display:none;vertical-align:middle;"></span>
                                                     {{/diferent}}
                                                 </td>
                                                 <td class="text-center">
@@ -558,7 +569,7 @@ $permisos = $Clempresas->getIdPermisionByBusiness($cod_empresa);
                             </div>
                             
                             <!-- Tab Talonarios -->
-                            <div class="tab-pane fade" id="tab-talonarios" role="tabpanel" aria-labelledby="pills-talonarios-tab">
+                            <div class="tab-pane fade show active" id="tab-talonarios" role="tabpanel" aria-labelledby="pills-talonarios-tab">
                                 <div class="widget-content widget-content-area">
                                     <div class="row">
                                         <div class="col-8 mb-5">
@@ -584,6 +595,7 @@ $permisos = $Clempresas->getIdPermisionByBusiness($cod_empresa);
                                                             {{#eq facturar "1"}} checked {{/eq}}>
                                                         <span class="slider round"></span>
                                                     </label>
+                                                    <span class="spinner-border spinner-border-sm text-primary chkTalonarioSpinner" style="display:none;vertical-align:middle;"></span>
                                                 </td>
                                                 <td class="text-center">
                                                     <ul class="table-controls">
@@ -719,8 +731,11 @@ $permisos = $Clempresas->getIdPermisionByBusiness($cod_empresa);
                                                         </div>
                                                     </div>
                                                     <p class="card-text mt-4 mb-0">
-                                                        Para poder facturar correctamente mediante <b>Contífico</b> se necesita tener o crear un producto de <b>Servicio a Domicilio</b> 
+                                                        Para poder facturar correctamente mediante <b>Contífico</b> se necesita tener o crear un producto de <b>Servicio a Domicilio</b>
                                                         en el mismo <br/> Puedes importarlo si ya lo tienes creado en contífico.
+                                                    </p>
+                                                    <p class="card-text mt-3 mb-0" id="statusDomicilio">
+                                                        <span class="badge badge-secondary">Verificando...</span>
                                                     </p>
                                                 </div>
                                                 <div class="card-footer pt-0 border-0 text-center">
@@ -745,8 +760,11 @@ $permisos = $Clempresas->getIdPermisionByBusiness($cod_empresa);
                                                         </div>
                                                     </div>
                                                     <p class="card-text mt-4 mb-0">
-                                                        Para poder facturar correctamente mediante <b>Contífico</b> se necesita tener o crear un producto de las <b>opciones adicionales</b> 
+                                                        Para poder facturar correctamente mediante <b>Contífico</b> se necesita tener o crear un producto de las <b>opciones adicionales</b>
                                                         que el usuario escoge. <br/> Puedes importarlo si ya lo tienes creado en contífico.
+                                                    </p>
+                                                    <p class="card-text mt-3 mb-0" id="statusAdicionales">
+                                                        <span class="badge badge-secondary">Verificando...</span>
                                                     </p>
                                                 </div>
                                                 <div class="card-footer pt-0 border-0 text-center">
@@ -799,7 +817,7 @@ $permisos = $Clempresas->getIdPermisionByBusiness($cod_empresa);
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.7.7/handlebars.min.js"></script>
     <script>
         Handlebars.registerHelper('eq', function(arg1, arg2, options) {
-            return (arg1 === arg2) ? options.fn(this) : options.inverse(this);
+            return (arg1 == arg2) ? options.fn(this) : options.inverse(this);
         });
         Handlebars.registerHelper('diferent', function(arg1, arg2, options) {
             return (arg1 !== arg2) ? options.fn(this) : options.inverse(this);

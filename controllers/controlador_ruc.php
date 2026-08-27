@@ -550,18 +550,19 @@ function setDomicilioAdicional($ruc_id, $alias, $cod_empresa, $id_contifico, $co
 function activateTalonario(){
     global $Clcontifico;
     global $cod_empresa;
-    
+
     $input = json_decode(file_get_contents('php://input'), true);
     extract($input);
-    
+
+    $id = intval($id);
     $isFacturar = 0;
     $msg = "Talonario inactivado correctamente";
     if($estado){
         $isFacturar = 1;
         $msg = "Talonario activado correctamente";
     }
-    
-    $query = "UPDATE tb_contifico_empresa_postokens SET facturar = $isFacturar WHERE cod_postoken = $id";
+
+    $query = "UPDATE tb_contifico_empresa_postokens SET facturar = $isFacturar WHERE cod_postoken = $id AND cod_empresa = $cod_empresa";
     if(Conexion::ejecutar($query,NULL)){
         $return['success'] = 1;
         $return['mensaje'] = $msg;
@@ -577,18 +578,22 @@ function activateTalonario(){
 function activateInventario(){
     global $Clcontifico;
     global $cod_empresa;
-    
+
     $input = json_decode(file_get_contents('php://input'), true);
     extract($input);
-    
+
+    $id = intval($id);
     $isInventario = 0;
     $msg = "Bodega inactivado para inventario correctamente";
     if($estado){
         $isInventario = 1;
         $msg = "Bodega activado para inventario correctamente";
     }
-    
-    $query = "UPDATE tb_contifico_sucursal SET inventario = $isInventario WHERE cod_contifico_sucursal = $id";
+
+    $query = "UPDATE tb_contifico_sucursal cs
+              INNER JOIN tb_sucursales s ON s.cod_sucursal = cs.cod_sucursal
+              SET cs.inventario = $isInventario
+              WHERE cs.cod_contifico_sucursal = $id AND s.cod_empresa = $cod_empresa";
     if(Conexion::ejecutar($query,NULL)){
         $return['success'] = 1;
         $return['mensaje'] = $msg;
@@ -597,6 +602,152 @@ function activateInventario(){
         $return['success'] = 0;
         $return['mensaje'] = "Error al realizar la acción, por favor intentelo nuevamente";
     }
+    return $return;
+}
+
+//Editar Talonario
+function getPostokenDetail(){
+    global $cod_empresa;
+
+    if(!isset($_GET['id'])){
+        $return['success'] = 0;
+        $return['mensaje'] = "Falta informacion";
+        return $return;
+    }
+    $id = intval($_GET['id']);
+
+    $query = "SELECT cod_postoken, pos, emisor, ptoemision, secuencial, secuencial_dna, facturar
+                FROM tb_contifico_empresa_postokens
+                WHERE cod_postoken = $id AND cod_empresa = $cod_empresa";
+    $postoken = Conexion::buscarRegistro($query);
+    if(!$postoken){
+        $return['success'] = 0;
+        $return['mensaje'] = "Talonario no encontrado";
+        return $return;
+    }
+
+    $return['success'] = 1;
+    $return['mensaje'] = "Detalle del talonario";
+    $return['postoken'] = $postoken;
+    $return['offices'] = getOfficesForPostoken($id, $cod_empresa);
+    return $return;
+}
+
+function getOfficesForPostoken($cod_postoken, $cod_empresa){
+    $query = "SELECT s.cod_sucursal, s.nombre, cs.cod_postoken
+            FROM tb_sucursales s
+            LEFT JOIN tb_contifico_sucursal cs ON s.cod_sucursal = cs.cod_sucursal
+            WHERE s.estado IN ('A', 'I')
+            AND s.cod_empresa = $cod_empresa";
+    $resp = Conexion::buscarVariosRegistro($query);
+    foreach($resp as $key => $item){
+        $postoken = intval($item['cod_postoken']);
+        $resp[$key]['disable'] = ($postoken === 0 || $postoken === intval($cod_postoken));
+        $resp[$key]['checked'] = ($postoken === intval($cod_postoken));
+    }
+    return $resp;
+}
+
+function updatePosToken(){
+    global $cod_empresa;
+
+    $input = json_decode(file_get_contents('php://input'), true);
+    extract($input);
+
+    $cod_postoken = intval($cod_postoken);
+    $query = "SELECT cod_contifico_empresa FROM tb_contifico_empresa_postokens WHERE cod_postoken = $cod_postoken AND cod_empresa = $cod_empresa";
+    $current = Conexion::buscarRegistro($query);
+    if(!$current){
+        $return['success'] = 0;
+        $return['mensaje'] = "Talonario no encontrado";
+        return $return;
+    }
+    $ruc_id = $current['cod_contifico_empresa'];
+
+    if(empty($offices)){
+        $return['success'] = 0;
+        $return['mensaje'] = "Debes asignar como mínimo una sucursal";
+        return $return;
+    }
+
+    $isFacturar = (!empty($facturar)) ? 1 : 0;
+    $api_token = addslashes($api_token);
+    $emisor = addslashes($emisor);
+    $emision = addslashes($emision);
+    $sec_fac = addslashes($sec_fac);
+    $sec_dna = addslashes($sec_dna);
+
+    $query = "UPDATE tb_contifico_empresa_postokens
+              SET pos = '$api_token', emisor = '$emisor', ptoemision = '$emision',
+                  secuencial = '$sec_fac', secuencial_dna = '$sec_dna', facturar = $isFacturar
+              WHERE cod_postoken = $cod_postoken AND cod_empresa = $cod_empresa";
+    if(Conexion::ejecutar($query,NULL)){
+        //Liberar sucursales que ya no estén seleccionadas
+        Conexion::ejecutar("UPDATE tb_contifico_sucursal SET cod_postoken = 0 WHERE cod_postoken = $cod_postoken", NULL);
+
+        foreach($offices as $office){
+            setPostokenToOffice($ruc_id, intval($office), $cod_postoken);
+        }
+
+        $return['success'] = 1;
+        $return['mensaje'] = "Talonario actualizado correctamente";
+    }else{
+        $return['success'] = 0;
+        $return['mensaje'] = "Error al actualizar el talonario";
+    }
+    return $return;
+}
+
+function deletePosToken(){
+    global $cod_empresa;
+
+    $input = json_decode(file_get_contents('php://input'), true);
+    extract($input);
+
+    $id = intval($id);
+    $query = "SELECT cod_postoken FROM tb_contifico_empresa_postokens WHERE cod_postoken = $id AND cod_empresa = $cod_empresa";
+    $current = Conexion::buscarRegistro($query);
+    if(!$current){
+        $return['success'] = 0;
+        $return['mensaje'] = "Talonario no encontrado";
+        return $return;
+    }
+
+    Conexion::ejecutar("UPDATE tb_contifico_sucursal SET cod_postoken = 0 WHERE cod_postoken = $id", NULL);
+    if(Conexion::ejecutar("DELETE FROM tb_contifico_empresa_postokens WHERE cod_postoken = $id AND cod_empresa = $cod_empresa", NULL)){
+        $return['success'] = 1;
+        $return['mensaje'] = "Talonario eliminado correctamente";
+    }else{
+        $return['success'] = 0;
+        $return['mensaje'] = "Error al eliminar el talonario";
+    }
+    return $return;
+}
+
+//Configuracion - Estado de Domicilio/Adicionales
+function getDomicilioAdicionales(){
+    global $cod_empresa;
+
+    if(!isset($_GET['id'])){
+        $return['success'] = 0;
+        $return['mensaje'] = "Falta informacion";
+        return $return;
+    }
+    $id = intval($_GET['id']);
+
+    $query = "SELECT alias, id, name_in_contifico FROM tb_productos_envio_facturacion
+              WHERE cod_contifico_empresa = $id AND cod_empresa = $cod_empresa
+              AND alias IN ('ENVIO_DOMICILIO','ADICIONALES')";
+    $resp = Conexion::buscarVariosRegistro($query);
+
+    $config = array('ENVIO_DOMICILIO' => null, 'ADICIONALES' => null);
+    foreach($resp as $item){
+        $config[$item['alias']] = $item;
+    }
+
+    $return['success'] = 1;
+    $return['mensaje'] = "Configuración de facturación";
+    $return['config'] = $config;
     return $return;
 }
 ?>

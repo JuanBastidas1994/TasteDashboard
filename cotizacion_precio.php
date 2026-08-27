@@ -63,7 +63,7 @@ if(!isLogin()){
                             </div>
 
                             <div class="table-responsive mb-4">
-                                <table id="style-3" class="table style-3  table-hover" style="margin-top: 0px !important;">
+                                <table id="style-3" class="table table-hover" style="margin-top: 0px !important;">
                                         <thead>
                                             <tr>
                                                 <th>Sucursal</th>

@@ -20,10 +20,12 @@ Handlebars.registerHelper('colorStatus', function(status) {
         return "warning";
     else if(status == "ENVIANDO")
         return "secondary";
-    else if(status == "ENTREGADA" || status == "CREADA" || status == "A" || status == "ENVIADA" || status == "EMITIDA_SRI")
+    else if(status == "ENTREGADA" || status == "CREADA" || status == "A" || status == "ENVIADA" || status == "EMITIDA_SRI" || status == "DEBITADO" || status == "REVERTIDO")
         return "success";
-    else if(status == "ANULADA" || status == "I" || status == "D" || status == "NO_ENVIADA")
+    else if(status == "ANULADA" || status == "I" || status == "D" || status == "NO_ENVIADA" || status == "NO_DEBITADO" || status == "NO_REVERTIDO")
         return "danger";
+    else if(status == "NO_APLICA")
+        return "secondary";
     else if(status == "PUNTO_RECOGIDA" || status == "VIGENTE")
         return "info";
     else if(status == "PUNTO_ENTREGA" || status == "UTILIZADO")

@@ -1,0 +1,12 @@
+# Los .log de aca dentro (nuvei_pagos/, gacela/, pedidosya/, etc.) tienen
+# datos sensibles (email, tarjeta, credenciales de pago) y no deben poder
+# descargarse por URL. Esto NO toca ModSecurity, solo bloquea archivos.
+<FilesMatch "\.log$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Deny from all
+    </IfModule>
+</FilesMatch>

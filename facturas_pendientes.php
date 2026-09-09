@@ -158,9 +158,13 @@ $files = url_sistema.'assets/empresas/'.$session['alias'].'/';
 
             </div>
             <div class="sticky-actions">
-                <button class="btn btn-danger" onclick="reenviarPendientes();">
+                <button class="btn btn-danger" onclick="reenviarFacturasPendientes();">
                     <i data-feather="send"></i>
-                    Reenviar pendientes del rango
+                    Reenviar Facturas pendientes
+                </button>
+                <button class="btn btn-warning" onclick="reenviarInventarioPendiente();">
+                    <i data-feather="package"></i>
+                    Reenviar Inventario pendiente
                 </button>
                 <button class="btn btn-primary" onclick="descargarExcel();">
                     <i data-feather="download"></i>
@@ -187,6 +191,68 @@ $files = url_sistema.'assets/empresas/'.$session['alias'].'/';
                 </div>
                 <div class="modal-body">
                     <p id="errorFacturaTexto"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="resultadoReenvioModal" tabindex="-1" role="dialog" aria-labelledby="resultadoReenvioModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="resultadoReenvioModalLabel">Resultado del reenvío masivo</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <ul class="nav nav-tabs" id="resultadoReenvioTabs" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active" id="tab-enviadas-link" data-toggle="tab" href="#tab-enviadas" role="tab">
+                                Enviadas <span class="badge badge-success" id="resultadoEnviadasCount">0</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="tab-no-enviadas-link" data-toggle="tab" href="#tab-no-enviadas" role="tab">
+                                No enviadas <span class="badge badge-danger" id="resultadoNoEnviadasCount">0</span>
+                            </a>
+                        </li>
+                    </ul>
+                    <div class="tab-content pt-3">
+                        <div class="tab-pane fade show active" id="tab-enviadas" role="tabpanel">
+                            <div class="table-responsive">
+                                <table class="table table-sm table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Orden</th>
+                                            <th>Cliente</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="resultadoEnviadasBody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="tab-no-enviadas" role="tabpanel">
+                            <div class="table-responsive">
+                                <table class="table table-sm table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Orden</th>
+                                            <th>Cliente</th>
+                                            <th>Motivo del error</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="resultadoNoEnviadasBody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-dismiss="modal">Cerrar</button>
                 </div>
             </div>
         </div>

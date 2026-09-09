@@ -2,8 +2,8 @@ $(function() {
     
 });
 
-function getUserById(user_id){
-    $("#clientModal").modal();
+function getUserById(user_id, orden_id, openTab){
+    $("#clientModal").modal().data("ordenId", orden_id);
 
     fetch(`${ApiUrl}/usuarios/${user_id}`,{
             method: 'GET',
@@ -25,6 +25,10 @@ function getUserById(user_id){
                 });
 
                 feather.replace();
+
+                if(openTab){
+                    $(".client-detail-options[data-target='"+openTab+"']").trigger("click");
+                }
             }else{
 
             }

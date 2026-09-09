@@ -1204,16 +1204,19 @@ function generarLinkMotorizado(order_id, phoneNumber){
         });
 }
 
-function notificarPedidoListo(cod_usuario){
+function notificarPedidoListo(cod_orden){
     let info = {
-        cod_usuario,
+        cod_orden,
         titulo: "Tu pedido está listo 🎉",
-        descripcion: "Ya está listo para que lo retires. ¡Te esperamos con muchas ganas!"
+        mensaje: "Ya está listo para que lo retires. ¡Te esperamos con muchas ganas!"
     }
 
     OpenLoad("Enviando notificación...");
-    fetch(`controllers/controlador_notificaciones_expo.php?metodo=notificarCliente`,{
+    fetch(`${ApiUrl}/ordenes/notificar-cliente`,{
         method: 'POST',
+        headers: {
+            'Api-Key': ApiKey
+        },
         body: JSON.stringify(info)
     })
     .then(res => res.json())

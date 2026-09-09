@@ -233,8 +233,21 @@
                         </div>
                     </div>
                     <div class="ml-auto">
-                        <div><i data-feather="eye" title="Ver detalles" onclick="getUserById({{usuario.id}})"></i></div>
+                        <div><i data-feather="eye" title="Ver detalles" onclick="getUserById({{usuario.id}}, {{id}})"></i></div>
                     </div>
+                </div>
+            </div>
+            <div class="mt-3">
+                <h5>Notificaciones</h5>
+                <div class="d-flex" style="gap:10px;">
+                    <button class="btn btn-secondary" style="flex:1;" onclick="notificarPedidoListo({{id}})">
+                        <i data-feather="check-circle" style="width:16px;height:16px;vertical-align:text-bottom;"></i>
+                        Pedido listo
+                    </button>
+                    <button class="btn btn-outline-secondary" style="flex:1;" onclick="getUserById({{usuario.id}}, {{id}}, 'client-tab-notificar')">
+                        <i data-feather="more-horizontal" style="width:16px;height:16px;vertical-align:text-bottom;"></i>
+                        Más
+                    </button>
                 </div>
             </div>
             {{#diferent datos_facturacion false}}
@@ -343,10 +356,6 @@
                 {{/eq}}
 
             {{/eq}}
-
-            <div class="mt-3">
-                <button class="btn btn-secondary" onclick="notificarPedidoListo({{usuario.id}})">Notificar pedido listo</button>
-            </div>
 
             {{#if motivo_cancelacion}}
             <div class="mt-3">
@@ -601,17 +610,102 @@
         </div>
         <div id="client-tab-notificar" class="client-tab-details" style="display: none;">
             <h2>Notificar al cliente</h2>
-            <div class="mt-2">
+            <p style="font-size:13px;font-weight:600;color:#2d3748;margin:10px 0;">Selecciona qué quieres avisarle</p>
+            <div id="notificar_motivos_wrap">
+                <label class="notificar-motivo-row" data-value="PEDIDO_LISTO"
+                    data-titulo="Tu pedido está listo 🎉"
+                    data-mensaje="Ya está listo para que lo retires. ¡Te esperamos con muchas ganas!"
+                    style="display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:12px;cursor:pointer;margin-bottom:7px;border:1.5px solid #edf0f5;background:#fff;">
+                    <div class="notificar-radio-dot" style="width:18px;height:18px;border-radius:50%;border:2px solid #cbd5e0;flex-shrink:0;display:flex;align-items:center;justify-content:center;"></div>
+                    <div style="width:38px;height:38px;border-radius:10px;background:#2ECC71;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                        <i data-feather="check-circle" style="color:#fff;width:18px;height:18px;"></i>
+                    </div>
+                    <div style="flex:1;">
+                        <div style="font-size:14px;font-weight:600;color:#2d3748;">Pedido listo</div>
+                        <div style="font-size:12px;color:#718096;">El pedido ya puede retirarse</div>
+                    </div>
+                    <input type="radio" name="notificar_motivo" value="PEDIDO_LISTO" style="display:none;">
+                </label>
+                <label class="notificar-motivo-row" data-value="RETRASO"
+                    data-titulo="Vamos con un poco de retraso ⏱️"
+                    data-mensaje="Tu pedido está tomando un poco más de lo esperado. ¡Gracias por tu paciencia!"
+                    style="display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:12px;cursor:pointer;margin-bottom:7px;border:1.5px solid #edf0f5;background:#fff;">
+                    <div class="notificar-radio-dot" style="width:18px;height:18px;border-radius:50%;border:2px solid #cbd5e0;flex-shrink:0;display:flex;align-items:center;justify-content:center;"></div>
+                    <div style="width:38px;height:38px;border-radius:10px;background:#F39C12;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                        <i data-feather="clock" style="color:#fff;width:18px;height:18px;"></i>
+                    </div>
+                    <div style="flex:1;">
+                        <div style="font-size:14px;font-weight:600;color:#2d3748;">Retraso en el pedido</div>
+                        <div style="font-size:12px;color:#718096;">Va a tardar más de lo previsto</div>
+                    </div>
+                    <input type="radio" name="notificar_motivo" value="RETRASO" style="display:none;">
+                </label>
+                <label class="notificar-motivo-row" data-value="SIN_CONTACTO"
+                    data-titulo="Intentamos contactarte 📞"
+                    data-mensaje="Necesitamos confirmar un detalle de tu pedido, por favor contáctanos."
+                    style="display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:12px;cursor:pointer;margin-bottom:7px;border:1.5px solid #edf0f5;background:#fff;">
+                    <div class="notificar-radio-dot" style="width:18px;height:18px;border-radius:50%;border:2px solid #cbd5e0;flex-shrink:0;display:flex;align-items:center;justify-content:center;"></div>
+                    <div style="width:38px;height:38px;border-radius:10px;background:#4A9EE0;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                        <i data-feather="phone-call" style="color:#fff;width:18px;height:18px;"></i>
+                    </div>
+                    <div style="flex:1;">
+                        <div style="font-size:14px;font-weight:600;color:#2d3748;">No logramos contactarte</div>
+                        <div style="font-size:12px;color:#718096;">Necesitas confirmar algo con el cliente</div>
+                    </div>
+                    <input type="radio" name="notificar_motivo" value="SIN_CONTACTO" style="display:none;">
+                </label>
+                <label class="notificar-motivo-row" data-value="RECORDATORIO_RETIRO"
+                    data-titulo="¡Te esperamos! 🔔"
+                    data-mensaje="Tu pedido sigue listo para retirar, no olvides pasar por él."
+                    style="display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:12px;cursor:pointer;margin-bottom:7px;border:1.5px solid #edf0f5;background:#fff;">
+                    <div class="notificar-radio-dot" style="width:18px;height:18px;border-radius:50%;border:2px solid #cbd5e0;flex-shrink:0;display:flex;align-items:center;justify-content:center;"></div>
+                    <div style="width:38px;height:38px;border-radius:10px;background:#FF8C42;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                        <i data-feather="bell" style="color:#fff;width:18px;height:18px;"></i>
+                    </div>
+                    <div style="flex:1;">
+                        <div style="font-size:14px;font-weight:600;color:#2d3748;">Recordatorio de retiro</div>
+                        <div style="font-size:12px;color:#718096;">El pedido sigue esperando ser retirado</div>
+                    </div>
+                    <input type="radio" name="notificar_motivo" value="RECORDATORIO_RETIRO" style="display:none;">
+                </label>
+                <label class="notificar-motivo-row" data-value="PROBLEMA_PAGO"
+                    data-titulo="Hay un problema con tu pago 💳"
+                    data-mensaje="No pudimos confirmar tu pago, por favor contáctanos para resolverlo."
+                    style="display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:12px;cursor:pointer;margin-bottom:7px;border:1.5px solid #edf0f5;background:#fff;">
+                    <div class="notificar-radio-dot" style="width:18px;height:18px;border-radius:50%;border:2px solid #cbd5e0;flex-shrink:0;display:flex;align-items:center;justify-content:center;"></div>
+                    <div style="width:38px;height:38px;border-radius:10px;background:#E53E3E;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                        <i data-feather="credit-card" style="color:#fff;width:18px;height:18px;"></i>
+                    </div>
+                    <div style="flex:1;">
+                        <div style="font-size:14px;font-weight:600;color:#2d3748;">Problema con el pago</div>
+                        <div style="font-size:12px;color:#718096;">Hay que resolver algo del cobro</div>
+                    </div>
+                    <input type="radio" name="notificar_motivo" value="PROBLEMA_PAGO" style="display:none;">
+                </label>
+                <label class="notificar-motivo-row" data-value="OTRO"
+                    style="display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:12px;cursor:pointer;margin-bottom:7px;border:1.5px solid #edf0f5;background:#fff;">
+                    <div class="notificar-radio-dot" style="width:18px;height:18px;border-radius:50%;border:2px solid #cbd5e0;flex-shrink:0;display:flex;align-items:center;justify-content:center;"></div>
+                    <div style="width:38px;height:38px;border-radius:10px;background:#95A5A6;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                        <i data-feather="more-horizontal" style="color:#fff;width:18px;height:18px;"></i>
+                    </div>
+                    <div style="flex:1;">
+                        <div style="font-size:14px;font-weight:600;color:#2d3748;">Otro motivo</div>
+                        <div style="font-size:12px;color:#718096;">Redacta tu propio mensaje</div>
+                    </div>
+                    <input type="radio" name="notificar_motivo" value="OTRO" style="display:none;">
+                </label>
+            </div>
+            <div id="notificar_otro_wrap" class="mt-2" style="display:none;">
                 <label>Título <span class="asterisco">*</span></label>
                 <input type="text" class="form-control txtNotificaionTitulo" placeholder="Título de la notificación">
+                <div class="mt-2">
+                    <label>Descripci&oacute;n <span class="asterisco">*</span></label>
+                    <textarea style="display:none" placeholder="Descripcion" name="descripcion" id="txt_descripcion" class="form-control textRecordatorio" required="required" autocomplete="off"></textarea>
+                    <div class="containerEmoji"></div>
+                </div>
             </div>
-            <div class="mt-2">
-                <label>Descripci&oacute;n <span class="asterisco">*</span></label>
-                <textarea style="display:none" placeholder="Descripcion" name="descripcion" id="txt_descripcion" class="form-control textRecordatorio" required="required" autocomplete="off"></textarea>
-                <div class="containerEmoji"></div>
-            </div>
-            <div class="mt-2 text-right">
-                <button class="btn btn-secondary" onclick="notificarACliente({{id}})">Notificar al cliente</button>
+            <div class="mt-3 text-right">
+                <button class="btn btn-secondary" onclick="notificarACliente()">Notificar al cliente</button>
             </div>
         </div>
     </div>

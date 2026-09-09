@@ -24,9 +24,9 @@ error_reporting(E_ALL);
 $fecha = fecha();
 $API_BASE = API_TASTE_ECOMMERCE;
 
-function nuveiLog($cod_empresa, $mensaje) {
+function nuveiLog($identificadorEmpresa, $mensaje) {
     global $fecha;
-    $carpeta = "nuvei_pagos/" . ($cod_empresa ? $cod_empresa : "_sin_identificar");
+    $carpeta = "nuvei_pagos/" . ($identificadorEmpresa ? preg_replace('/[^A-Za-z0-9_-]/', '_', $identificadorEmpresa) : "_sin_identificar");
     if (!is_dir($carpeta)) {
         mkdir($carpeta, 0775, true);
     }
@@ -91,12 +91,17 @@ if (!$cod_sucursal) {
     responder(200, ['success' => 0, 'mensaje' => 'Preorden sin sucursal']);
 }
 
-$sucursal = Conexion::buscarRegistro("SELECT cod_empresa FROM tb_sucursales WHERE cod_sucursal = $cod_sucursal");
+$sucursal = Conexion::buscarRegistro("SELECT s.cod_empresa, e.alias FROM tb_sucursales s
+    JOIN tb_empresas e ON e.cod_empresa = s.cod_empresa
+    WHERE s.cod_sucursal = $cod_sucursal");
 $cod_empresa = $sucursal ? $sucursal['cod_empresa'] : null;
 if (!$cod_empresa) {
     nuveiLog(null, "No se pudo resolver cod_empresa para sucursal $cod_sucursal (preorden $cod_preorden)");
     responder(200, ['success' => 0, 'mensaje' => 'No se pudo resolver la empresa']);
 }
+
+$empresaLog = $sucursal['alias'] ? $sucursal['alias'] : $cod_empresa;
+nuveiLog($empresaLog, "REQUEST CRUDO: " . $request);
 
 $ClBotonPagos = new cl_botonpagos();
 $credsSucursal = $ClBotonPagos->sucursalPaymentez($cod_sucursal);
@@ -107,26 +112,33 @@ if (!$server_key) {
     $server_key = $credsEmpresa ? $credsEmpresa['server_key'] : null;
 }
 
+$origenServerKey = $credsSucursal ? "sucursal $cod_sucursal" : "empresa $cod_empresa";
+
 if (!$server_key) {
-    nuveiLog($cod_empresa, "No hay credenciales Nuvei/Paymentez para sucursal $cod_sucursal / empresa $cod_empresa");
+    nuveiLog($empresaLog, "No hay credenciales Nuvei/Paymentez para sucursal $cod_sucursal / empresa $cod_empresa");
     responder(200, ['success' => 0, 'mensaje' => 'Sin credenciales Nuvei configuradas']);
 }
 
-$stokenEsperado = md5("{$t->id}_{$t->application_code}_{$preorden['cod_usuario']}_{$server_key}");
+// stoken = HMAC-SHA256("{id}_{application_code}_{cod_usuario}", server_key)
+// Verificado contra un webhook real (transaccion MD-16936767, preorden 144493).
+// La doc de Nuvei dice "MD5 hash of ..." pero esta desactualizada.
+$stokenEsperado = hash_hmac('sha256', "{$t->id}_{$t->application_code}_{$preorden['cod_usuario']}", $server_key);
 if ($t->stoken !== $stokenEsperado) {
-    nuveiLog($cod_empresa, "stoken invalido para preorden $cod_preorden (posible intento fraudulento)");
+    nuveiLog($empresaLog, "stoken invalido para preorden $cod_preorden (posible intento fraudulento). "
+        . "recibido={$t->stoken} calculado=$stokenEsperado | inputs: id={$t->id} application_code={$t->application_code} "
+        . "cod_usuario={$preorden['cod_usuario']} server_key_origen=$origenServerKey server_key=$server_key");
     responder(200, ['success' => 0, 'mensaje' => 'stoken invalido']);
 }
 
 $status = isset($t->status) ? intval($t->status) : null;
 $statusDetail = isset($t->status_detail) ? intval($t->status_detail) : null;
 if ($status !== 1 || $statusDetail !== 3) {
-    nuveiLog($cod_empresa, "Preorden $cod_preorden: transaccion no aprobada (status=$status, status_detail=$statusDetail), sin accion");
+    nuveiLog($empresaLog, "Preorden $cod_preorden: transaccion no aprobada (status=$status, status_detail=$statusDetail), sin accion");
     responder(200, ['success' => 1, 'mensaje' => 'Transaccion no aprobada, sin accion']);
 }
 
 if (intval($preorden['cod_orden']) !== 0) {
-    nuveiLog($cod_empresa, "Preorden $cod_preorden ya tiene orden #{$preorden['cod_orden']}, nada que hacer");
+    nuveiLog($empresaLog, "Preorden $cod_preorden ya tiene orden #{$preorden['cod_orden']}, nada que hacer");
     responder(200, ['success' => 1, 'mensaje' => 'La orden ya existia']);
 }
 
@@ -135,11 +147,11 @@ $avisoActual = Conexion::buscarRegistro("SELECT webhook FROM tb_preorden_json WH
 $intentos = $avisoActual ? intval($avisoActual['webhook']) : 1;
 
 if ($intentos < 2) {
-    nuveiLog($cod_empresa, "Aviso #$intentos para preorden $cod_preorden: esperando a que la web/app la cree primero");
+    nuveiLog($empresaLog, "Aviso #$intentos para preorden $cod_preorden: esperando a que la web/app la cree primero");
     responder(404, ['success' => 1, 'mensaje' => 'Registrado, en espera de confirmacion de la web/app']);
 }
 
-nuveiLog($cod_empresa, "Aviso #$intentos para preorden $cod_preorden: la web/app no la creo, creando via API como blindaje");
+nuveiLog($empresaLog, "Aviso #$intentos para preorden $cod_preorden: la web/app no la creo, creando via API como blindaje");
 
 $ClEmpresas = new cl_empresas();
 $empresa = $ClEmpresas->get($cod_empresa);
@@ -147,7 +159,7 @@ $apikey = $empresa ? $empresa['api_key'] : null;
 $userId = $preorden['cod_usuario'];
 
 if (!$apikey) {
-    nuveiLog($cod_empresa, "No se encontro api_key para la empresa $cod_empresa, no se puede llamar al API");
+    nuveiLog($empresaLog, "No se encontro api_key para la empresa $cod_empresa, no se puede llamar al API");
     responder(404, ['success' => 0, 'mensaje' => 'Sin api_key de la empresa, se reintentara']);
 }
 
@@ -159,11 +171,11 @@ $campos = [
 ];
 
 $respPago = llamarApi("$API_BASE/ordenes/preorden-pago-exitoso", $apikey, $userId, $campos);
-nuveiLog($cod_empresa, "Respuesta preorden-pago-exitoso: " . json_encode($respPago));
+nuveiLog($empresaLog, "Respuesta preorden-pago-exitoso: " . json_encode($respPago));
 
 $campos['paymentProvider'] = 2;
 $respOrden = llamarApi("$API_BASE/ordenes/preorden", $apikey, $userId, $campos);
-nuveiLog($cod_empresa, "Respuesta preorden: " . json_encode($respOrden));
+nuveiLog($empresaLog, "Respuesta preorden: " . json_encode($respOrden));
 
 if ($respOrden && isset($respOrden['success']) && $respOrden['success'] == 1) {
     responder(200, [
@@ -173,5 +185,5 @@ if ($respOrden && isset($respOrden['success']) && $respOrden['success'] == 1) {
     ]);
 }
 
-nuveiLog($cod_empresa, "Fallo al crear la orden via API, se deja que Nuvei siga reintentando");
+nuveiLog($empresaLog, "Fallo al crear la orden via API, se deja que Nuvei siga reintentando");
 responder(404, ['success' => 0, 'mensaje' => 'Error creando la orden, se reintentara']);

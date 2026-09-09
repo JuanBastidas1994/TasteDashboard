@@ -492,7 +492,7 @@ function reenviarFactura(cod_orden) {
     });
 }
 
-async function reenviarPendientes() {
+async function reenviarFacturasPendientes() {
     let filtros = buildFiltros();
     if(!filtros) return;
 
@@ -531,19 +531,127 @@ async function reenviarPendientes() {
     });
     if(!confirm.value) return;
 
-    let exitosas = 0;
-    let fallidas = 0;
+    let enviadas = [];
+    let noEnviadas = [];
 
     for(let orden of pendientes){
-        OpenLoad(`Reenviando ${exitosas + fallidas + 1} de ${pendientes.length}...`);
+        OpenLoad(`Reenviando ${enviadas.length + noEnviadas.length + 1} de ${pendientes.length}...`);
         let resultado = await reenviarFactura(orden.cod_orden);
-        if(resultado.success === 1) exitosas++; else fallidas++;
+        if(resultado.success === 1){
+            enviadas.push({ cod_orden: orden.cod_orden, cliente: orden.cliente });
+        }
+        else{
+            noEnviadas.push({ cod_orden: orden.cod_orden, cliente: orden.cliente, error: resultado.mensaje || "Error desconocido" });
+        }
         await new Promise(resolve => setTimeout(resolve, 500));
     }
 
     CloseLoad();
-    notify(`Reenvío masivo terminado: ${exitosas} enviadas, ${fallidas} fallidas`, fallidas > 0 ? 'warning' : 'success', 5);
+    mostrarResultadoReenvioMasivo(enviadas, noEnviadas, "Resultado del reenvío de facturas");
     getFacturasUnificadas();
+}
+
+// Mismo criterio que usan los íconos/botones individuales de reintento en el template
+// (facturas-unificadas-template): estado_inventario "NO_REVERTIDO" -> reintentar reversión;
+// estado_envio "ENVIADA" + estado_inventario en ("NO_DEBITADO","NO_APLICA") -> reintentar débito.
+// DEBITADO/REVERTIDO (visto verde) ya están completos y estado_inventario vacío (guión medio)
+// es una orden sin movimiento de inventario asociado: ninguno de esos dos se reintenta.
+function esInventarioPendiente(orden) {
+    if(orden.estado_inventario === "NO_REVERTIDO") return true;
+    if(orden.estado_envio === "ENVIADA" && (orden.estado_inventario === "NO_DEBITADO" || orden.estado_inventario === "NO_APLICA")) return true;
+    return false;
+}
+
+async function reenviarInventarioPendiente() {
+    let filtros = buildFiltros();
+    if(!filtros) return;
+
+    OpenLoad("Buscando inventario pendiente...");
+    // estado="" (Todos): el filtro "Estado" del combo es sobre el envío de la factura electrónica,
+    // no sobre el inventario, así que aquí siempre se trae el rango completo y se filtra abajo.
+    let params = `?metodo=getFacturasUnificadas&fecha_inicio=${filtros.fecha_inicio}&fecha_fin=${filtros.fecha_fin}`
+        + `&sucursal=${filtros.sucursal}&cliente=${encodeURIComponent(filtros.cliente)}`
+        + `&estado=`;
+
+    let response;
+    try {
+        let res = await fetch(`controllers/controlador_facturas.php${params}`, { method: 'GET' });
+        response = await res.json();
+    } catch(error) {
+        CloseLoad();
+        notify("Error al buscar las órdenes con inventario pendiente", "error", 2);
+        return;
+    }
+
+    if(response.success != 1 || !response.data){
+        CloseLoad();
+        notify("No hay órdenes en el rango seleccionado", "warning", 2);
+        return;
+    }
+
+    let pendientes = response.data.filter(esInventarioPendiente);
+    CloseLoad();
+
+    if(pendientes.length === 0){
+        notify("No hay inventario pendiente en el rango seleccionado", "warning", 2);
+        return;
+    }
+
+    let confirm = await swal.fire({
+        title: `Se reintentará el inventario de ${pendientes.length} orden(es)`,
+        text: '¿Continuar?',
+        type: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Aceptar',
+        cancelButtonText: 'Cancelar',
+        padding: '2em'
+    });
+    if(!confirm.value) return;
+
+    let enviadas = [];
+    let noEnviadas = [];
+
+    for(let orden of pendientes){
+        OpenLoad(`Procesando ${enviadas.length + noEnviadas.length + 1} de ${pendientes.length}...`);
+        let resultado = orden.estado_inventario === "NO_REVERTIDO"
+            ? await reintentarReversionInventario(orden.cod_orden)
+            : await reintentarInventario(orden.cod_orden);
+        if(resultado.success === 1){
+            enviadas.push({ cod_orden: orden.cod_orden, cliente: orden.cliente });
+        }
+        else{
+            noEnviadas.push({ cod_orden: orden.cod_orden, cliente: orden.cliente, error: resultado.mensaje || "Error desconocido" });
+        }
+        await new Promise(resolve => setTimeout(resolve, 500));
+    }
+
+    CloseLoad();
+    mostrarResultadoReenvioMasivo(enviadas, noEnviadas, "Resultado del reenvío de inventario");
+    getFacturasUnificadas();
+}
+
+function mostrarResultadoReenvioMasivo(enviadas, noEnviadas, titulo) {
+    $("#resultadoReenvioModalLabel").text(titulo || "Resultado del reenvío masivo");
+    $("#resultadoEnviadasCount").text(enviadas.length);
+    $("#resultadoNoEnviadasCount").text(noEnviadas.length);
+
+    $("#resultadoEnviadasBody").html(enviadas.length > 0
+        ? enviadas.map(o => `<tr><td>${escapeHtml(o.cod_orden)}</td><td>${escapeHtml(o.cliente)}</td></tr>`).join("")
+        : '<tr><td colspan="2" class="text-center text-muted">Sin órdenes enviadas</td></tr>');
+
+    $("#resultadoNoEnviadasBody").html(noEnviadas.length > 0
+        ? noEnviadas.map(o => `<tr><td>${escapeHtml(o.cod_orden)}</td><td>${escapeHtml(o.cliente)}</td><td>${escapeHtml(o.error)}</td></tr>`).join("")
+        : '<tr><td colspan="3" class="text-center text-muted">Sin órdenes con error</td></tr>');
+
+    // Abre en la pestaña con datos de error si hubo fallidas, si no en Enviadas.
+    if(noEnviadas.length > 0 && enviadas.length === 0){
+        $("#tab-no-enviadas-link").tab("show");
+    }
+    else{
+        $("#tab-enviadas-link").tab("show");
+    }
+
+    $("#resultadoReenvioModal").modal("show");
 }
 
 function escapeHtml(texto) {

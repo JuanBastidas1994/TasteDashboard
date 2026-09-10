@@ -272,6 +272,24 @@ $files = url_sistema.'assets/empresas/'.$session['alias'].'/';
                 </div>
                 <div class="modal-body">
                     <p id="inventarioOrigenTexto" class="text-muted mb-3"></p>
+                    <div id="inventarioContificoInfo" class="mb-3" style="display:none;">
+                        <table class="table table-sm table-borderless mb-0">
+                            <tbody>
+                                <tr>
+                                    <td class="font-weight-bold" style="width:160px;">Id en Contifico:</td>
+                                    <td id="inventarioIdContifico"></td>
+                                </tr>
+                                <tr>
+                                    <td class="font-weight-bold">Código:</td>
+                                    <td id="inventarioCodigoContifico"></td>
+                                </tr>
+                                <tr>
+                                    <td class="font-weight-bold">Descripción:</td>
+                                    <td id="inventarioDescripcionContifico"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                     <div class="table-responsive">
                         <table class="table table-sm table-bordered">
                             <thead>

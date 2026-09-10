@@ -251,6 +251,7 @@ $("body").on("click", ".btnVerInventario", function(){
     inventarioJsonActual = null;
     $("#inventarioOrigenTexto").text("Cargando...");
     $("#inventarioTablaBody").html("");
+    $("#inventarioContificoInfo").hide();
     $("#inventarioModal").modal("show");
 
     fetch(`${ApiUrl}/facturacion/ver-inventario`, {
@@ -273,6 +274,13 @@ $("body").on("click", ".btnVerInventario", function(){
         $("#inventarioOrigenTexto").text(response.origen === "HISTORICO"
             ? `Ya enviado a Contifico el ${response.fecha}. Esto es exactamente lo que se debitó.`
             : "Aún no se ha debitado: esto es lo que se enviaría si se procesa ahora.");
+
+        if(response.origen === "HISTORICO"){
+            $("#inventarioIdContifico").text(response.id_contifico || "-");
+            $("#inventarioCodigoContifico").text(response.codigo || "-");
+            $("#inventarioDescripcionContifico").text(response.descripcion || "-");
+            $("#inventarioContificoInfo").show();
+        }
 
         let detalles = (inv && inv.detalles) ? inv.detalles : [];
         if(detalles.length === 0){

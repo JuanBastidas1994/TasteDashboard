@@ -1,5 +1,7 @@
-# Archivos sensibles
-config.php
+# Secretos
+.env
+.env.*
+!.env.example
 
 # Logs
 *error_log*

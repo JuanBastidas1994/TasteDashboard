@@ -135,13 +135,13 @@ $(document).ready(function(){
 
     function actualizarLogos() {
         let cod_empresa = $("#id").val();
-        let url = "/home1/digitalmind/" + $("#urlFolder").val();
+        let url = window.tasteHostPath($("#urlFolder").val());
         let parametros = {
             "id": cod_empresa,
             "url": url
         }
         $.ajax({
-            url: 'https://dashboard.mie-commerce.com/replicador/iconos.php',
+            url: window.tasteUrl('replicador/iconos.php'),
             data: parametros,
             type: "GET",
             success: function(response){

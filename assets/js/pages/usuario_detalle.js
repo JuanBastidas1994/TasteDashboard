@@ -203,7 +203,7 @@ $(".btnNotificarMoto").on("click", function(){
     }
     
     $.ajax({
-       url:'https://dashboard.mie-commerce.com/controllers/controlador_notificaciones.php',
+       url: 'controllers/controlador_notificaciones.php',
        data: parametros,
        type: "GET",
        success: function(response){

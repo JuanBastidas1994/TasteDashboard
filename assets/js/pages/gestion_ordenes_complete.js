@@ -1624,7 +1624,7 @@ function enviarCorreoLaarAsignacion(cod_orden){
     return;
   }
   $.ajax({
-     url:'https://dashboard.mie-commerce.com/correosFront/asignacionLaar.php?cod_orden='+cod_orden,
+     url: window.tasteUrl('correosFront/asignacionLaar.php?cod_orden='+cod_orden),
      data: parametros,
      type: "GET",
      success: function(response){

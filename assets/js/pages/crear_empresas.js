@@ -2296,13 +2296,13 @@ $(document).ready(function() {
 
     function actualizarLogos() {
         let cod_empresa = $("#id").val();
-        let url = "/home1/digitalmind/" + $("#urlFolder").val();
+        let url = window.tasteHostPath($("#urlFolder").val());
         let parametros = {
             "id": cod_empresa,
             "url": url
         }
         $.ajax({
-           url:'https://dashboard.mie-commerce.com/replicador/iconos.php',
+           url: window.tasteUrl('replicador/iconos.php'),
            data: parametros,
            type: "GET",
            success: function(response){
@@ -2369,9 +2369,9 @@ $(document).ready(function() {
     });
 
     function updateEmprendedor(cod_empresa, isEmprendedor){
-        let link = 'https://dashboard.mie-commerce.com/replicador/emprendedores_delete.php?id=' + cod_empresa;
+        let link = window.tasteUrl('replicador/emprendedores_delete.php?id=' + cod_empresa);
         if(1 == isEmprendedor){
-            link = 'https://dashboard.mie-commerce.com/replicador/emprendedores.php?id=' + cod_empresa;
+            link = window.tasteUrl('replicador/emprendedores.php?id=' + cod_empresa);
         }
         $.ajax({url: link, success: function(result){
             console.log(result);
@@ -2612,7 +2612,7 @@ $(document).ready(function() {
            if (result.value) {
 
                 $.ajax({
-                    url:'https://dashboard.mie-commerce.com/replicador/replicar.php',
+                    url: window.tasteUrl('replicador/replicar.php'),
                     data: {
                         id,
                         template: data.file,
@@ -2644,11 +2644,11 @@ $(document).ready(function() {
         let params = {
             id: $("#id").val(),
             template: data.file,
-            url: `/home1/digitalmind/dashboard.mie-commerce.com/replicador/tempPageforDownload`,
+            url: window.__CONFIG__.URL_UPLOAD + 'replicador/tempPageforDownload',
             download: 1
         };
         
-        let openUrl = 'https://dashboard.mie-commerce.com/replicador/replicar.php';
+        let openUrl = window.tasteUrl('replicador/replicar.php');
         let queryString = new URLSearchParams(params).toString();
         let finalUrl = `${openUrl}?${queryString}`;
         window.open(finalUrl, '_blank');
@@ -2662,12 +2662,12 @@ $(document).ready(function() {
         let params = {
             id: $("#id").val(),
             template: data.file,
-            url: `/home1/digitalmind/dashboard.mie-commerce.com/replicador/tempPageforDownload`,
+            url: window.__CONFIG__.URL_UPLOAD + 'replicador/tempPageforDownload',
             compress: 1
         };
         
         $.ajax({
-            url:'https://dashboard.mie-commerce.com/replicador/replicar.php',
+            url: window.tasteUrl('replicador/replicar.php'),
             data: params,
             type: "GET",
             success: function(response){

@@ -357,7 +357,7 @@ if(file_exists($folder_demo)){
                             </div>
 
                             <div id="wrapAmbienteProduccion" class="d-none">
-                                <input class="form-control mb-3" type="text" id="folder_prod" value="/home1/digitalmind/<?php echo $folder; ?>" readonly/>
+                                <input class="form-control mb-3" type="text" id="folder_prod" value="<?php echo path_hosting.'/'.$folder; ?>" readonly/>
                             </div>
 
                             <table class="table">
@@ -758,7 +758,7 @@ if(file_exists($folder_demo)){
                                                     
                                                     <div class="form-row">
                                                         <div class="form-group col-md-12 col-sm-12 col-xs-12" style="margin-bottom:10px;">
-                                                            <label>Carpeta en hosting (no poner home1/digitalmind/)</label>
+                                                            <label>Carpeta en hosting (sin el PATH_HOSTING)</label>
                                                             <input type="text" placeholder="Ej: micarpetaenelhosting" name="txt_folder" id="txt_folder" class="form-control" autocomplete="off" value="<?php echo $folder; ?>">
                                                         </div>
                                                     </div>

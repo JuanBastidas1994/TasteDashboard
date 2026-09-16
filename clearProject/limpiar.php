@@ -1,4 +1,6 @@
 <?php
+require_once dirname(__DIR__) . '/config.php';
+
 if(!isset($_GET['url'])){
     $return['success'] = 0;
     $return['mensaje'] = "Falta directorio donde se limpiará la página";
@@ -13,7 +15,7 @@ if(trim($dir) == ""){
     showResponse($return);
 }
 
-$dir = '/home1/digitalmind/'.$dir;
+$dir = path_hosting.'/'.$dir;
 if(!file_exists($dir)){
     $return['success'] = 0;
     $return['mensaje'] = "Directorio no existe";

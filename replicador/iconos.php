@@ -33,7 +33,7 @@ if(!file_exists($path)){
 
 $detalle = "";
 //URL DONDE SE REPLICARÁ
-$logoPath = '/home1/digitalmind/dashboard.mie-commerce.com/assets/empresas/'.$empresa['alias'].'/';
+$logoPath = rtrim(url_upload, '/').'/assets/empresas/'.$empresa['alias'].'/';
 
 $detalle .= '<h3>Proceso de replicación de Gráficos</h3>';
 

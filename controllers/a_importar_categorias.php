@@ -111,7 +111,7 @@ function createCategory($data){
         echo '- ID:'.$id;
         
         //Imagenes
-        $url_upload = "/home1/digitalmind/dashboard.mie-commerce.com/assets";
+        $url_upload = rtrim(url_upload, '/').'/assets';
         $noImg = $url_upload.'/img/200x200.jpg';
         copy($noImg, $url_upload.'/empresas/megaproductos86/'.$nameImg);
         copy($noImg, $url_upload.'/empresas/megaproductos86/'.$nameImgMin);

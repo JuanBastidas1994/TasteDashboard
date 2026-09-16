@@ -254,7 +254,7 @@ function verificarTokens(){
 
    require_once "../clases/cl_gacela.php";
     $ClGacela = new cl_gacela($api, $token, $ambiente);
-    $UrlWebhooks = 'https://dashboard.mie-commerce.com/webhooks/order_status.php';
+    $UrlWebhooks = rtrim(url_sistema, '/').'/webhooks/order_status.php';
     $data = $ClGacela->order_status_update($UrlWebhooks);
 
     if($data->status=="Webhook agregado exitosamente.")
@@ -317,7 +317,7 @@ function verificarTokensPicker(){
 
    require_once "../clases/cl_picker.php";
     $ClPicker = new cl_picker($cod_picker_sucursal);
-    $UrlWebhooks = 'https://dashboard.mie-commerce.com/webhooks/order_status_picker.php';
+    $UrlWebhooks = rtrim(url_sistema, '/').'/webhooks/order_status_picker.php';
     $data = $ClPicker->order_status_update_ambiente($api, $UrlWebhooks,"DRIVER_ASSIGNED",$ambiente);
     $return['DRIVER_ASSIGNED'] = $data;
     $data = $ClPicker->order_status_update_ambiente($api, $UrlWebhooks,"UPDATE_BOOKING_STATUS",$ambiente);
@@ -1176,7 +1176,7 @@ function updateFolder(){
     global $Clempresas;
     
     extract($_GET);
-    if(file_exists("/home1/digitalmind/".$folder)){
+    if(file_exists(path_hosting.'/'.$folder)){
         if($Clempresas->updateFolder($cod_empresa, $folder)){
             $return['success'] = 1;
             $return['mensaje'] = "Carperta actualizada";
@@ -1334,7 +1334,7 @@ function setPedidosYa() {
     $success = 0;
 
     $ClPedidosYa = new cl_pedidosya($token, $ambiente);
-    $UrlWebhooks = 'https://dashboard.mie-commerce.com/webhooks/order_status_pedidosya.php';
+    $UrlWebhooks = rtrim(url_sistema, '/').'/webhooks/order_status_pedidosya.php';
     $data = $ClPedidosYa->shipping_status($UrlWebhooks);
 
     if(isset($data["status"])) {

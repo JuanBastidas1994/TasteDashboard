@@ -10,5 +10,5 @@ define('contrasena', env('DB_PASSWORD', ''));
 define('name_session', env('RUNFOOD_SESSION_NAME', 'ADMIN_FEED_CREW'));
 define('DURACION_SESION', env('SESSION_LIFETIME', '7200'));
 define('url_sistema', env('URL_SISTEMA', 'https://tastedashboard.test/'));
-define('url_upload', env('URL_UPLOAD', ''));
+define('url_upload', rtrim(env('URL_UPLOAD', ''), '/') . '/');
 define('ENVIRONMENT', env('APP_ENV', 'development'));

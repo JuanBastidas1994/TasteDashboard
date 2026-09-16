@@ -134,14 +134,14 @@ $(document).ready(function() {
 
     function replicarWeb(){
         let id = $("#cmb_empresas").val();
-        let url = "/home1/digitalmind/" + $("#txt_url").val();
+        let url = window.tasteHostPath($("#txt_url").val());
 
         let parametros = {
             "id": id,
             "url": url
         }
         $.ajax({
-        url:'https://dashboard.mie-commerce.com/replicador/replicar.php',
+        url: window.tasteUrl('replicador/replicar.php'),
         data: parametros,
         type: "GET",
         success: function(response){

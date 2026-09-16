@@ -137,7 +137,7 @@ foreach ($empresas as $empresa) {
                                         </select>
                                     </div>
                                     <div class="col-md-6 col-sm-6 col-xs-12" style="margin-bottom:10px;">
-                                        <label>/home1/digitalmind/</label>
+                                        <label><?php echo path_hosting; ?>/</label>
                                         <input type="text" class="form-control" id="txt_url" name="txt_url" placeholder="Folder" required>
                                     </div>
                                     <div class="col-md-12 col-sm-6 col-xs-12" style="margin-bottom:10px;">

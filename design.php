@@ -52,18 +52,26 @@ function css_mandatory(){
 }
 
 function js_mandatory(){
-	echo '
-		<script>
-			window.__CONFIG__ = {
-				API_TASTE: "'.API_TASTE_URL.'",
-				API_TASTE_ECOMMERCE: "'.API_TASTE_ECOMMERCE.'",
-				API_MOTORIZADOS: "'.API_MOTORIZADOS_URL.'",
-				API_FLOTAS: "'.API_FLOTAS_URL.'",
-				API_POS: "'.API_POS_URL.'"
-			};
-			console.log("CONFIG CARGADA:", window.__CONFIG__);
-		</script>
-	';
+	$config = array(
+		'API_TASTE' => API_TASTE_URL,
+		'API_TASTE_ECOMMERCE' => API_TASTE_ECOMMERCE,
+		'API_MOTORIZADOS' => API_MOTORIZADOS_URL,
+		'API_FLOTAS' => API_FLOTAS_URL,
+		'API_POS' => API_POS_URL,
+		'URL_SISTEMA' => url_sistema,
+		'PATH_HOSTING' => path_hosting,
+		'URL_UPLOAD' => url_upload,
+	);
+	echo '<script>window.__CONFIG__ = '.json_encode($config).';
+	window.tasteUrl = function (path) {
+		var base = (window.__CONFIG__ && window.__CONFIG__.URL_SISTEMA) ? window.__CONFIG__.URL_SISTEMA : "/";
+		return base.replace(/\\/?$/, "/") + String(path || "").replace(/^\\//, "");
+	};
+	window.tasteHostPath = function (sub) {
+		var base = (window.__CONFIG__ && window.__CONFIG__.PATH_HOSTING) ? window.__CONFIG__.PATH_HOSTING : "";
+		return base.replace(/\\/$/, "") + "/" + String(sub || "").replace(/^\\//, "");
+	};
+	</script>';
 	echo '
 		<!-- BEGIN GLOBAL MANDATORY SCRIPTS -->
 	    <script src="assets/js/libs/jquery-3.1.1.min.js"></script>

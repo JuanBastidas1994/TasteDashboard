@@ -2,15 +2,17 @@
 require_once "config.php";
 ob_start();
 
-session_start();
-
-if(ENVIRONMENT == "production"){
+if (ENVIRONMENT == "production") {
   ini_set('display_errors', 0);
   error_reporting(0);
-}else{
+  ini_set('session.cookie_secure', '1');
+} else {
   ini_set('display_errors', 1);
   error_reporting(E_ALL);
 }
+ini_set('session.cookie_httponly', '1');
+
+session_start();
 
    // ini_set('display_errors', 1);
   //error_reporting(E_ALL);

@@ -55,11 +55,11 @@ $(document).ready(function() {
 
     function replicarWeb(id, folder) {
       return new Promise((resolve, reject) => {
-        let url = "/home1/digitalmind/" + folder;
+        let url = window.tasteHostPath(folder);
         let template = $("#cmbVersion").val();
     
         $.ajax({
-          url: 'https://dashboard.mie-commerce.com/replicador/replicar.php',
+          url: window.tasteUrl('replicador/replicar.php'),
           data: { id, url, template },
           type: "GET",
           success: function(response) {

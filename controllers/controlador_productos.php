@@ -79,7 +79,7 @@ function crear(){
     
     $cod_producto = 0;
 
-    $isLoadImage = ($txt_crop != "" && $txt_crop_min != "") ? true : false;
+    $isLoadImage = hasCropImage('img_crop', 'txt_crop') && hasCropImage('img_crop_min', 'txt_crop_min');
 
     if(!isset($_POST['cod_producto'])){
         
@@ -102,7 +102,7 @@ function crear(){
                 $nameImg = 'product_'.datetime_format().'.jpg';
                 $nameImgMin = 'min_'.$nameImg;
 
-                if(base64ToImage($txt_crop, $nameImg) && base64ToImage($txt_crop_min, $nameImgMin)){
+                if(saveCropImage('img_crop', 'txt_crop', $nameImg) && saveCropImage('img_crop_min', 'txt_crop_min', $nameImgMin)){
                     $Clproductos->setImages($nameImg, $nameImgMin, $cod_producto);
                 }else{
                     $return['mensaje'] .= ", pero no se pudo guardar la imagen (revisa URL_UPLOAD)";
@@ -194,7 +194,7 @@ function crear(){
                     $nameImgMin = 'min_'.$nameImg;
 
                     // Solo se reemplaza (y se borra la anterior) si la nueva imagen se guardó en disco
-                    if(base64ToImage($txt_crop, $nameImg) && base64ToImage($txt_crop_min, $nameImgMin)){
+                    if(saveCropImage('img_crop', 'txt_crop', $nameImg) && saveCropImage('img_crop_min', 'txt_crop_min', $nameImgMin)){
                         $Clproductos->setImages($nameImg, $nameImgMin, $cod_producto);
 
                         if($data['image_max'] !== "")
@@ -327,12 +327,13 @@ function upload_img(){
 
     extract($_POST);
     $nameImg = 'galery-'.$cod_producto.'-'.datetime_format().'.jpg';
-    if($txt_crop_galeria != ""){
+    if(hasCropImage('img_crop_galeria', 'txt_crop_galeria')){
         /*CODIGO PARA GUARDAR*/
-        
-        base64ToImage($txt_crop_galeria, $nameImg);
         $id=0;
-        if($Clproductos->add_img_product($cod_producto, $nameImg, $id)){
+        if(!saveCropImage('img_crop_galeria', 'txt_crop_galeria', $nameImg)){
+            $return['success'] = 0;
+            $return['mensaje'] = "No se pudo guardar la imagen (revisa URL_UPLOAD)";
+        }else if($Clproductos->add_img_product($cod_producto, $nameImg, $id)){
             $return['success'] = 1;
             $return['mensaje'] = "Imagen Subida con exito";
 

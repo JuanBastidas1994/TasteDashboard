@@ -231,8 +231,13 @@ $(document).ready(function () {
         var formData = new FormData($("#frmSave")[0]);
         var data = CKEDITOR.instances.editor1.getData();
         formData.append('desc_larga', data);
-        formData.append('txt_crop', $("#txt_crop").val());
-        formData.append('txt_crop_min', $("#txt_crop_min").val());
+        // La imagen va como archivo binario: en base64 (texto) el POST crece y ModSecurity lo rechaza (406)
+        formData.delete('txt_crop');
+        formData.delete('txt_crop_min');
+        if ($("#txt_crop").val() != "" && $("#txt_crop_min").val() != "") {
+            formData.append('img_crop', dataURLtoBlob($("#txt_crop").val()), 'crop');
+            formData.append('img_crop_min', dataURLtoBlob($("#txt_crop_min").val()), 'crop_min');
+        }
         var id = parseInt($("#id").val());
         if (id > 0)
             formData.append('cod_producto', id);
@@ -325,6 +330,10 @@ $(document).ready(function () {
         if (id > 0) {
             formData.append('cod_producto', id);
         }
+        // Imagen como archivo binario (ver comentario en guardar producto)
+        formData.delete('txt_crop_galeria');
+        if ($("#txt_crop_galeria").val() != "")
+            formData.append('img_crop_galeria', dataURLtoBlob($("#txt_crop_galeria").val()), 'crop');
 
         $.ajax({
             beforeSend: function () {
@@ -2343,4 +2352,15 @@ function refrescarVariantes() {
                 feather.replace();
         }
     });
+}
+
+// Convierte el base64 del recortador (data:image/...;base64,...) en un Blob para enviarlo como archivo
+function dataURLtoBlob(dataURL) {
+    var partes = dataURL.split(',');
+    var mime = partes[0].match(/:(.*?);/)[1];
+    var binario = atob(partes[1]);
+    var bytes = new Uint8Array(binario.length);
+    for (var i = 0; i < binario.length; i++)
+        bytes[i] = binario.charCodeAt(i);
+    return new Blob([bytes], { type: mime });
 }

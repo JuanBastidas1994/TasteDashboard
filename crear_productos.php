@@ -1710,7 +1710,7 @@ $tipoRecorte = $empresa['tipo_recorte'];
     <!-- END MAIN CONTAINER -->
 
     <?php js_mandatory(); ?>
-    <script src="assets/js/pages/crear_productos2.js?v=131" type="text/javascript"></script>
+    <script src="assets/js/pages/crear_productos2.js?v=132" type="text/javascript"></script>
     <script>
     $(function () {
         $('#chk_precio_especial').on('change', function () {

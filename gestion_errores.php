@@ -948,7 +948,7 @@ $Clsucursales = new cl_sucursales(NULL);
     <script src="assets/js/clipboard/clipboard.min.js"></script>
     <script src="assets/js/moment.min.js"></script>
     <script src="assets/js/gestion-errores/sounds.js" type="text/javascript"></script>
-    <script src="assets/js/gestion-errores/index.js?v=4" type="text/javascript"></script>
+    <script src="assets/js/gestion-errores/index.js?v=5" type="text/javascript"></script>
     <script src="assets/js/gestion-errores/facturacion.js?v=1" type="text/javascript"></script>
     <script src="assets/js/gestion-errores/tracking.js?v=1" type="text/javascript"></script>
     <script src="assets/js/gestion-errores/recipientes.js?v=1" type="text/javascript"></script>

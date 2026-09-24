@@ -237,7 +237,19 @@
                     </div>
                 </div>
             </div>
-            
+            <div class="mt-3">
+                <h5>Notificaciones</h5>
+                <div class="d-flex" style="gap:10px;">
+                    <button class="btn btn-secondary" style="flex:1;" onclick="notificarPedidoListo({{id}})">
+                        <i data-feather="check-circle" style="width:16px;height:16px;vertical-align:text-bottom;"></i>
+                        Pedido listo
+                    </button>
+                    <button class="btn btn-outline-secondary" style="flex:1;" onclick="getUserById({{usuario.id}}, {{id}}, 'client-tab-notificar')">
+                        <i data-feather="more-horizontal" style="width:16px;height:16px;vertical-align:text-bottom;"></i>
+                        Más
+                    </button>
+                </div>
+            </div>
             {{#diferent datos_facturacion false}}
             <div class="mt-2">
                 <h5>Datos de Facturación</h5>

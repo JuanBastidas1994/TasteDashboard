@@ -27,7 +27,8 @@ if(isLogin()){
         body {
             min-height: 100vh;
             font-family: 'Nunito', sans-serif;
-            background-image: url('assets/img/bg-login.png');
+            /* background-image: url('assets/img/bg-login.png'); */
+            background-color: #E4E3EA;
             background-size: cover;
             background-position: center top;
             background-repeat: no-repeat;

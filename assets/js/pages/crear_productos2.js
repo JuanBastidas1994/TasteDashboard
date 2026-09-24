@@ -633,184 +633,152 @@ $(document).ready(function () {
         });
     });
 
-    //VARIANTES
-    $("#btnAgregarVariante").on("click", function (event) {
-        var cant = $(".tagging").length - 1;
-        var element = `<div class="row">
-                                  <div class="form-group col-md-4 col-sm-4 col-xs-12">
-                                      <label>Caracter&iacute;stica <span class="asterisco">*</span></label>
-                                      <input type="text" placeholder="Ej. Talla" name="txt_opcion_titulo[]" class="form-control" required="required" autocomplete="off" value="">
-                                  </div>
-                                  <div class="form-group col-md-6 col-sm-6 col-xs-12">
-                                      <label>Atributos <span class="asterisco">*</span>
-                                      <span class="far fa-question-circle rounded bs-tooltip" data-placement="top" title="Escoja los productos que el usuario tendra que decidir a escoger"></span><span><i>&nbsp;Separar las opciones con una coma</i></span></label>
-                                      <select multiple="multiple" name="cmb_variante_productos[`+ cant + `][]" class="form-control tagging" required="required">
-                                        </select>
-                                  </div>
-                                  <div class="form-group col-md-2 col-sm-2 col-xs-12">
-                                        <label>Tipo</label>
-                                        <select name="cmb_variante_tipo[]" class="form-control" required="required">
-                                            <option value="texto">Texto</option>
-                                            <option value="color">Color</option>
-                                        </select>
-                                    </div>
-                                  
-                              </div>`;
-        $(".VariantesSeleccion").append(element);
-        $(".tagging").select2({
-            closeOnSelect: false,
-            tags: true,
-            tokenSeparators: [',']
-        });
+    //CARACTERÍSTICAS Y VARIANTES
+    initTaggingVariantes();
+
+    $("body").on("click", "#btnAgregarVariante", function (event) {
+        var index = $("#frmCaracteristicas .filaCaracteristica").length;
+        var fila = `<div class="row filaCaracteristica">
+                        <div class="form-group col-md-4 col-sm-4 col-xs-12">
+                            <label>Caracter&iacute;stica <span class="asterisco">*</span></label>
+                            <input type="text" placeholder="Ej. Talla" name="txt_opcion_titulo[]" class="form-control" required="required" autocomplete="off" value="">
+                        </div>
+                        <div class="form-group col-md-6 col-sm-6 col-xs-12">
+                            <label>Atributos <span class="asterisco">*</span><span><i>&nbsp;Separar las opciones con una coma</i></span></label>
+                            <select multiple="multiple" name="cmb_variante_productos[${index}][]" class="form-control taggingCaracteristica" required="required"></select>
+                        </div>
+                        <div class="form-group col-md-2 col-sm-2 col-xs-12">
+                            <label>Tipo</label>
+                            <select name="cmb_variante_tipo[]" class="form-control" required="required">
+                                <option value="texto">Texto</option>
+                                <option value="color">Color</option>
+                            </select>
+                        </div>
+                    </div>`;
+        $("#frmCaracteristicas .VariantesSeleccion").append(fila);
+        initTaggingVariantes();
     });
 
-    $("#btnValidarVariante").on("click", function (event) {
-        var formData = new FormData($("#frmCaracteristicas")[0]);
-        formData.append('tipo_empresa', $("#txt_cod_tipo_empresa").val());
-        formData.append('sku_padre', $("#txt_sku").val());
-        $.ajax({
-            beforeSend: function () {
-                OpenLoad("Validando información, por favor espere...");
-            },
-            url: 'controllers/controlador_productos2.php?metodo=detectarColores',
-            type: 'POST',
-            data: formData,
-            contentType: false,
-            processData: false,
-            success: function (response) {
-                console.log(response);
-                if (response['success'] == 1) {
-                    //messageDone(response['mensaje'],'success');
-                    $(".respAtributosValidar").html(response['html']);
-                }
-                else {
-                    messageDone(response['mensaje'], 'error');
-                }
-
-            },
-            error: function (data) {
-                console.log(data);
-
-            },
-            complete: function (resp) {
-                CloseLoad();
-            }
+    // Genera un selector de color por cada valor de las características tipo "Color"
+    $("body").on("change", "#frmCaracteristicas select", function () {
+        var anteriores = {};
+        $("#frmCaracteristicas .respAtributosValidar input[type=color]").each(function () {
+            anteriores[$(this).attr("data-valor")] = $(this).val();
         });
-        console.log($(this).val());
+
+        var filas = "";
+        $("#frmCaracteristicas .filaCaracteristica").each(function () {
+            if ($(this).find("select[name='cmb_variante_tipo[]']").val() != "color")
+                return;
+            ($(this).find("select.taggingCaracteristica").val() || []).forEach(function (valor) {
+                var color = anteriores[valor] || "#000000";
+                filas += '<tr><td>' + $("<div>").text(valor).html() + '</td>'
+                    + '<td><input type="color" class="form-control" data-valor="' + $("<div>").text(valor).html() + '" value="' + color + '"/></td></tr>';
+            });
+        });
+        $("#frmCaracteristicas .respAtributosValidar").html(filas);
+        $("#frmCaracteristicas .tablaColores").toggle(filas != "");
     });
 
-
-    $("#btnGuardarCaracteristicas").on("click", function (event) {
+    $("body").on("click", "#btnGuardarCaracteristicas", function (event) {
         event.preventDefault();
 
-        var form = $("#frmCaracteristicas");
-        form.validate();
-        if (form.valid() == false) {
-            messageDone('Debes llenar todos los campos', 'error');
-            return false;
-        }
-
-        var formData = new FormData($("#frmCaracteristicas")[0]);
         var id = parseInt($("#id").val());
-        if (id > 0) {
-            formData.append('cod_producto', id);
-        } else {
+        if (!(id > 0)) {
             messageDone('Debe guardar primero el producto para guardar sus características', 'error');
             return;
         }
 
-        $.ajax({
-            beforeSend: function () {
-                OpenLoad("Guardando características del producto, por favor espere...");
-            },
-            url: 'controllers/controlador_productos2.php?metodo=guardar_caracteristicas',
-            type: 'POST',
-            data: formData,
-            contentType: false,
-            processData: false,
-            success: function (response) {
-                console.log(response);
-
-                if (response['success'] == 1) {
-                    messageDone(response['mensaje'], 'success');
-                    //location.reload();
-
-                }
-                else {
-                    messageDone(response['mensaje'], 'error');
-                }
-
-            },
-            error: function (data) {
-                console.log(data);
-
-            },
-            complete: function (resp) {
-                CloseLoad();
-            }
+        var completo = true;
+        $("#frmCaracteristicas .filaCaracteristica").each(function () {
+            var titulo = $.trim($(this).find("input[name='txt_opcion_titulo[]']").val());
+            var valores = $(this).find("select.taggingCaracteristica").val() || [];
+            if (titulo == "" || valores.length == 0)
+                completo = false;
         });
-    });
-
-    $("#btnGuardarVariante").on("click", function (event) {
-        event.preventDefault();
-
-        var form = $("#frmVariantes");
-        form.validate();
-        if (form.valid() == false) {
-            messageDone('Debes llenar todos los campos', 'error');
-            return false;
+        if (!completo) {
+            messageDone('Cada característica debe tener nombre y al menos un valor', 'error');
+            return;
         }
 
-        var formData = new FormData($("#frmVariantes")[0]);
-        var id = parseInt($("#id").val());
-        if (id > 0) {
-            formData.append('cod_producto', id);
+        var formData = new FormData($("#frmCaracteristicas")[0]);
+        formData.append('cod_producto', id);
+        $("#frmCaracteristicas .respAtributosValidar input[type=color]").each(function () {
+            formData.append('colores[' + $(this).attr("data-valor") + ']', $(this).val());
+        });
+
+        ajaxVariantes('guardar_caracteristicas', formData, "Guardando características del producto, por favor espere...");
+    });
+
+    $("body").on("click", ".btnAgregarValores", function (event) {
+        event.preventDefault();
+        var bloque = $(this).closest(".frmAgregarValores");
+        var formData = new FormData();
+        formData.append('cod_caracteristica', bloque.attr("data-caracteristica"));
+
+        var valores = [];
+        if (bloque.attr("data-tipo") == "color") {
+            var valor = $.trim(bloque.find(".txtNuevoValor").val());
+            if (valor != "")
+                valores.push(valor);
+            formData.append('color', bloque.find(".txtNuevoColor").val());
         } else {
+            valores = bloque.find("select.taggingValores").val() || [];
+        }
+        if (valores.length == 0) {
+            messageDone('Escribe el valor que quieres agregar', 'error');
+            return;
+        }
+        valores.forEach(function (valor) {
+            formData.append('valores[]', valor);
+        });
+
+        ajaxVariantes('agregar_valores_caracteristica', formData, "Agregando valores, por favor espere...");
+    });
+
+    $("body").on("change", ".chkCrearTodas", function () {
+        $("#frmVariantes .chkCrearVariante").prop("checked", $(this).is(":checked")).trigger("change");
+    });
+
+    // Las filas desmarcadas se deshabilitan para que no se envíen
+    $("body").on("change", ".chkCrearVariante", function () {
+        var fila = $(this).closest("tr");
+        fila.find("input").not(this).prop("disabled", !$(this).is(":checked"));
+        fila.css("opacity", $(this).is(":checked") ? 1 : 0.5);
+    });
+
+    $("body").on("click", "#btnGuardarVariante", function (event) {
+        event.preventDefault();
+
+        var id = parseInt($("#id").val());
+        if (!(id > 0)) {
             messageDone('Debe guardar primero el producto para guardar sus variantes', 'error');
             return;
         }
 
-        $.ajax({
-            beforeSend: function () {
-                OpenLoad("Guardando datos, por favor espere...");
-            },
-            url: 'controllers/controlador_productos2.php?metodo=guardar_variantes',
-            type: 'POST',
-            data: formData,
-            contentType: false,
-            processData: false,
-            success: function (response) {
-                console.log(response);
-
-                if (response['success'] == 1) {
-                    messageDone(response['mensaje'], 'success');
-                    // location.reload();
-
-                }
-                else {
-                    messageDone(response['mensaje'], 'error');
-                }
-
-            },
-            error: function (data) {
-                console.log(data);
-
-            },
-            complete: function (resp) {
-                CloseLoad();
-            }
+        var seleccionadas = $("#frmVariantes .chkCrearVariante:checked");
+        if (seleccionadas.length == 0) {
+            messageDone('Marca al menos una variante para crear', 'error');
+            return;
+        }
+        var sinPrecio = false;
+        seleccionadas.each(function () {
+            var precio = $(this).closest("tr").find(".txtPrecioVariante").val();
+            if (precio === "" || isNaN(parseFloat(precio)))
+                sinPrecio = true;
         });
+        if (sinPrecio) {
+            messageDone('Ingresa el precio de todas las variantes marcadas', 'error');
+            return;
+        }
+
+        var formData = new FormData($("#frmVariantes")[0]);
+        formData.append('cod_producto', id);
+        ajaxVariantes('guardar_variantes', formData, "Creando variantes, por favor espere...");
     });
 
     $(".btnActualizarAtributosVariante").on("click", function (event) {
         event.preventDefault();
-
-        var form = $("#frmVarianteEditarCaracteristicas");
-        form.validate();
-        if (form.valid() == false) {
-            messageDone('Debes llenar todos los campos', 'error');
-            return false;
-        }
 
         var formData = new FormData($("#frmVarianteEditarCaracteristicas")[0]);
         var id = parseInt($("#id").val());
@@ -825,43 +793,31 @@ $(document).ready(function () {
             beforeSend: function () {
                 OpenLoad("Asignando atributos al producto, por favor espere...");
             },
-            url: 'controllers/controlador_productos2.php?metodo=guardar_atributos_variante',
+            url: 'controllers/controlador_productos.php?metodo=guardar_atributos_variante',
             type: 'POST',
             data: formData,
             contentType: false,
             processData: false,
             success: function (response) {
-                console.log(response);
-
                 if (response['success'] == 1) {
                     messageDone(response['mensaje'], 'success');
-                    //location.reload();
-
+                    var badges = "";
+                    $("#frmVarianteEditarCaracteristicas select[name='cmbAtributoVariante[]'] option:selected").each(function () {
+                        badges += '<span class="shadow-none badge badge-primary">' + $("<div>").text($(this).text()).html() + '</span> &nbsp;';
+                    });
+                    $(".boxAtributosVariante").html(badges);
                 }
                 else {
                     messageDone(response['mensaje'], 'error');
                 }
-
             },
             error: function (data) {
                 console.log(data);
-
             },
             complete: function (resp) {
                 CloseLoad();
             }
         });
-    });
-
-    $("#btnAddNewVariante").on("click", function (event) {
-        var atributos = $("#cmb_new_variante_atributos").val();
-        console.log(atributos);
-        var json = JSON.stringify(atributos);
-        console.log(json);
-        var base64 = window.btoa(unescape(encodeURIComponent(json)));
-        console.log(base64);
-        $("#txt_new_variante_atributos").val(base64);
-        $("#btnGuardarVariante").trigger("click");
     });
 
     $("body").on("change", ".txt_cantidadCombo", function () {
@@ -1180,21 +1136,19 @@ $(document).ready(function () {
         let minHeight = $("#minHeight").val();
         let maxWidth = $("#maxWidth").val();
         let maxHeight = $("#maxHeight").val();
-        let quality = $("#quality").val();
+        let quality = parseFloat($("#quality").val()) || 1;
 
-        // let boundaryWidth = 500;
-        // let boundaryHeight = 500;
-        let boundaryWidth = maxWidth;
-        let boundaryHeight = maxHeight;
-
-        /*if ("rectangle" == tipoRecorte) {
-            boundaryWidth = 333.3333
-            boundaryHeight = 500
-        }*/
+        // El área visible del recortador es fija; el tamaño final (maxWidth x maxHeight) se aplica al exportar.
+        // Así el modal no crece con la resolución y el viewport queda más chico que el boundary (zona oscura afuera).
+        let boundaryWidth = 500;
+        let boundaryHeight = 500;
         if ("rectangle" == tipoRecorte) {
             boundaryWidth = 600
             boundaryHeight = 400
         }
+        let escala = Math.min((boundaryWidth * 0.8) / maxWidth, (boundaryHeight * 0.8) / maxHeight);
+        let viewportWidth = Math.round(maxWidth * escala);
+        let viewportHeight = Math.round(maxHeight * escala);
 
         console.log(minWidth, minHeight, maxWidth, maxHeight);
 
@@ -1221,15 +1175,16 @@ $(document).ready(function () {
 
             resize = new Croppie($('#my-image')[0], {
                 enableExif: true,
-                viewport: { width: maxWidth, height: maxHeight }, //tamaño de la foto que se va a obtener
+                viewport: { width: viewportWidth, height: viewportHeight }, //área de recorte en pantalla (misma proporción que la foto final)
                 boundary: { width: boundaryWidth, height: boundaryHeight }, //la imagen total
                 showZoomer: true, // hacer zoom a la foto
                 enableResize: false,
                 enableOrientation: true, // para q funcione girar la imagen 
                 mouseWheelZoom: 'ctrl'
             });
-            $('#crop-get').on('click', function () { // boton recortar
-                resize.result({ type: 'base64', size: 'viewport', format: formato, quality: quality, backgroundColor: fondoImg }).then(function (dataImg) {
+            // .off() para no acumular handlers cada vez que se abre el modal
+            $('#crop-get').off('click').on('click', function () { // boton recortar
+                resize.result({ type: 'base64', size: { width: parseInt(maxWidth), height: parseInt(maxHeight) }, format: formato, quality: quality, backgroundColor: fondoImg }).then(function (dataImg) {
                     var InsertImgBase64 = dataImg;
                     if (selectDropify == "PERFIL") {
                         $("#txt_crop").val(InsertImgBase64);
@@ -1250,7 +1205,7 @@ $(document).ready(function () {
 
 
             });
-            $('.crop-rotate').on('click', function (ev) {
+            $('.crop-rotate').off('click').on('click', function (ev) {
                 resize.rotate(parseInt($(this).data('deg')));
             });
 
@@ -1840,7 +1795,7 @@ $(document).ready(function () {
             "cod_producto": id
         }
         $.ajax({
-            url: 'controllers/controlador_productos2.php?metodo=cambiarVarianteVisualizacion',
+            url: 'controllers/controlador_productos.php?metodo=cambiarVarianteVisualizacion',
             data: parametros,
             type: "GET",
             success: function (response) {
@@ -2329,3 +2284,63 @@ $("body").on("click", "#btnCloseModalOpcionesIngredientes", function(){
     $("#modalOpcionesIngredientes").modal("hide");
     $("#modalItems").modal();
 });
+
+//CARACTERÍSTICAS Y VARIANTES
+function initTaggingVariantes() {
+    $("select.taggingCaracteristica, select.taggingValores").not(".select2-hidden-accessible").select2({
+        closeOnSelect: false,
+        tags: true,
+        tokenSeparators: [','],
+        placeholder: "Escribe y presiona Enter o coma"
+    });
+}
+
+// Envía el formulario y, si todo sale bien, vuelve a pintar Características y Variantes sin recargar la página
+function ajaxVariantes(metodo, formData, mensajeCarga) {
+    $.ajax({
+        beforeSend: function () {
+            OpenLoad(mensajeCarga);
+        },
+        url: 'controllers/controlador_productos.php?metodo=' + metodo,
+        type: 'POST',
+        data: formData,
+        contentType: false,
+        processData: false,
+        success: function (response) {
+            if (response['success'] == 1) {
+                notify(response['mensaje'], "success", 2);
+                refrescarVariantes();
+            }
+            else {
+                messageDone(response['mensaje'], 'error');
+            }
+        },
+        error: function (data) {
+            console.log(data);
+            messageDone('Ocurrió un error, por favor intentelo nuevamente', 'error');
+        },
+        complete: function (resp) {
+            CloseLoad();
+        }
+    });
+}
+
+function refrescarVariantes() {
+    var id = parseInt($("#id").val());
+    if (!(id > 0))
+        return;
+    $.ajax({
+        url: 'controllers/controlador_productos.php?metodo=html_variantes',
+        data: { cod_producto: id },
+        type: 'GET',
+        success: function (response) {
+            if (response['success'] != 1)
+                return;
+            $("#boxCaracteristicas").html(response['caracteristicas']);
+            $("#boxVariantes").html(response['variantes']);
+            initTaggingVariantes();
+            if (typeof feather !== "undefined")
+                feather.replace();
+        }
+    });
+}

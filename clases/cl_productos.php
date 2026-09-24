@@ -328,6 +328,14 @@ class cl_productos
 		    return Conexion::ejecutar($query,NULL);
 		}
 		
+		/* Cuántos otros productos usan este archivo de imagen (las variantes pueden compartir la del padre) */
+		public function imagenEnUso($nombre, $cod_producto_excluir){
+			$query = "SELECT COUNT(*) FROM tb_productos
+						WHERE cod_empresa = ? AND cod_producto <> ?
+						AND (image_min = ? OR image_max = ?)";
+			return intval(Conexion::getSingleValue($query, [$this->session['cod_empresa'], $cod_producto_excluir, $nombre, $nombre])) > 0;
+		}
+
 		public function set_categorias($cod_producto){
 			$query = "DELETE FROM tb_productos_categorias WHERE cod_producto = $cod_producto";
 			Conexion::ejecutar($query,NULL);
@@ -404,8 +412,8 @@ class cl_productos
 			Conexion::ejecutar($query,NULL);
 
 			foreach ($atributos as $value) {
-				$query = "INSERT INTO tb_productos_variante(cod_producto, atributo) VALUES($cod_producto, '$value')";
-				if(!Conexion::ejecutar($query,NULL)){
+				$query = "INSERT INTO tb_productos_variante(cod_producto, atributo) VALUES(?, ?)";
+				if(!Conexion::ejecutar($query,[$cod_producto, $value])){
 	        		return false;
 	        	}
 			}
@@ -1141,17 +1149,52 @@ class cl_productos
 		
 		public function setCaracteristica($cod_producto, $caracteristica, $tipo){
 			$query = "INSERT INTO tb_producto_caracteristica(cod_producto, caracteristica, tipo, posicion, estado)
-						VALUES($cod_producto, '$caracteristica', '$tipo', 1, 'A')";
-			if(Conexion::ejecutar($query, null)){
+						VALUES(?, ?, ?, 1, 'A')";
+			if(Conexion::ejecutar($query, [$cod_producto, $caracteristica, $tipo])){
 			    return Conexion::lastId();
 			}else
 			    return false;
 		}
-		
+
 		public function setCaracteristicaDetalle($cod_caracteristica, $detalle, $detalle2){
 			$query = "INSERT INTO tb_producto_caracteristica_detalle(cod_producto_caracteristica, detalle, detalle2, posicion, estado)
-						VALUES($cod_caracteristica, '$detalle', '$detalle2', 1, 'A')";
-			return Conexion::ejecutar($query, null);
+						VALUES(?, ?, ?, 1, 'A')";
+			return Conexion::ejecutar($query, [$cod_caracteristica, $detalle, $detalle2]);
+		}
+
+		/* Característica validando que pertenezca a un producto de la empresa en sesión */
+		public function getCaracteristica($cod_caracteristica){
+			$query = "SELECT pc.*
+						FROM tb_producto_caracteristica pc
+						INNER JOIN tb_productos p ON p.cod_producto = pc.cod_producto
+						WHERE pc.cod_producto_caracteristica = ?
+						AND p.cod_empresa = ?";
+			$resp = Conexion::buscarRegistro($query, [$cod_caracteristica, $this->session['cod_empresa']]);
+			if($resp)
+				$resp['detalle'] = $this->getCaracteristicasDetalle($resp['cod_producto_caracteristica']);
+			return $resp;
+		}
+
+		/* Por cada variante hija: códigos de detalle de característica y textos de atributos */
+		public function getCombinacionesVariantes($cod_producto_padre){
+			$query = "SELECT p.cod_producto, vc.cod_caracteristica_detalle
+						FROM tb_productos p
+						INNER JOIN tb_variante_caracteristica vc ON vc.cod_producto = p.cod_producto
+						WHERE p.cod_producto_padre = ? AND p.estado IN('A','I')";
+			$codigos = Conexion::buscarVariosRegistro($query, [$cod_producto_padre]);
+
+			$query = "SELECT p.cod_producto, pv.atributo
+						FROM tb_productos p
+						INNER JOIN tb_productos_variante pv ON pv.cod_producto = p.cod_producto
+						WHERE p.cod_producto_padre = ? AND p.estado IN('A','I')";
+			$textos = Conexion::buscarVariosRegistro($query, [$cod_producto_padre]);
+
+			$lista = [];
+			foreach(($codigos ?: []) as $row)
+				$lista[$row['cod_producto']]['codigos'][] = intval($row['cod_caracteristica_detalle']);
+			foreach(($textos ?: []) as $row)
+				$lista[$row['cod_producto']]['textos'][] = $row['atributo'];
+			return $lista;
 		}
 
 		public function cambiarVarianteVisualizacion($tipo, $cod_producto){

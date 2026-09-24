@@ -1602,7 +1602,7 @@ if ($hour >= 15 || $hour < 9) {
     <script src="assets/js/moment.min.js"></script>
     <!--<script src="assets/js/gestion-ordenes-v5/sounds.js" type="text/javascript"></script>-->
     <!--<script src="assets/js/gestion-ordenes-v5/toastJc.js?v=7" type="text/javascript"></script>-->
-    <script src="assets/js/gestion-ordenes-vmap/index.js?v=8" type="text/javascript"></script>
+    <script src="assets/js/gestion-ordenes-vmap/index.js?v=9" type="text/javascript"></script>
     <script src="assets/js/gestion-ordenes-vmap/facturacion.js?v=7" type="text/javascript"></script>
     <script src="assets/js/gestion-ordenes-vmap/tracking.js?v=7" type="text/javascript"></script>
     <script src="assets/js/gestion-ordenes-vmap/recipientes.js?v=7" type="text/javascript"></script>

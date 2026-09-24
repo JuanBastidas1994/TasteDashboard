@@ -323,6 +323,7 @@ function openOrden(id){
     getOrden(id)
         .then(order => {
             CloseLoad();
+            order.permisos = getConfigGestionOrdenes().permisos || [];
             var template = Handlebars.compile($("#order-detalle-body").html());
             $("#orden-detalle-body").html(template(order));
 

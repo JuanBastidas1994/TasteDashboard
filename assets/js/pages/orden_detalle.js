@@ -26,35 +26,6 @@ $(document).ready(function() {
         }
       }); 
       
-    $(".btnNotificar").on("click",function(){
-         var $this = $(this);
-        var usuario = $this.data("usuario");
-        var texto = $("#demo1").val();
-        let tipo = $("#cmbTipoNotificacion");
-        let tituloTipo = $("#cmbTipoNotificacion option:selected").text();
-        if(texto == "" || texto == null){
-          messageDone("La notificación no puede estar vacía", "error");
-          return;
-        }
-        //ENVIAR NOTIFICACION
-        $.ajax({
-          url: 'controllers/controlador_notificaciones.php?metodo=notificarUsuario&usuario='+usuario+'&texto='+texto+'&tipo='+tipo+'&tituloTipo='+tituloTipo,
-          type:'GET',
-          success: function(response){
-              console.log(response);
-              messageDone(response['mensaje'], "success");
-              $("#demo1").val("");
-              $("#cmbTipoNotificacion").val("");
-              $(".emojionearea-editor").html("");
-          },
-          error: function(data){
-            messageDone("Error al enviar la notificacion, intenta nuevamente", "error");
-          }
-        });
-
-        
-      });   
-
       if($(".btn-anular").length > 0){
         if($("#hdAnulada").length > 0){
           if($("#hdAnulada").val() == 1){

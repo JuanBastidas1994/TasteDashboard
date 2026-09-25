@@ -235,6 +235,46 @@ $(".btnFidelizacion").on("click",function(event){
     }
 });
 
+$(".btnMetaPuntos").on("click",function(event){
+    var meta = $("#txt_meta_puntos").val();
+    if(!(parseFloat(meta) > 0)){
+        messageDone("La meta de puntos debe ser mayor a 0",'error');
+        return;
+    }
+
+    swal.fire({
+        title: '¿Estas seguro?',
+        text: 'Se actualizará la meta de puntos',
+        type: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Actualizar',
+        cancelButtonText: 'Cancelar',
+        padding: '2em'
+    }).then(function(result) {
+        if (!result.value) return;
+        $.ajax({
+            beforeSend: function(){
+                OpenLoad("Actualizando meta, por favor espere...");
+            },
+            url: 'controllers/controlador_configuraciones.php?metodo=update_meta_puntos',
+            type: 'GET',
+            data: { "meta": meta },
+            success: function(response){
+                if( response['success'] == 1)
+                    messageDone(response['mensaje'],'success');
+                else
+                    messageDone(response['mensaje'],'error');
+            },
+            error: function(data){
+                console.log(data);
+            },
+            complete: function(resp){
+                CloseLoad();
+            }
+        });
+    });
+});
+
 $(".btnNiveles").on("click",function(event){
     var codigo=$(this).attr("data-id");
     var nombre=$("#txt_nombre"+codigo).val();
@@ -512,6 +552,10 @@ $("body").on("click", ".btnCaducidad", function(){
     }
     if(fechaSaldo == ""){
         messageDone("Ingrese el tiempo de caducidad del saldo", "error");
+        return;
+    }
+    if(parseInt(fechaPuntos) < 30 || parseInt(fechaDinero) < 30 || parseInt(fechaSaldo) < 30){
+        messageDone("La caducidad no puede ser menor a 30 días", "error");
         return;
     }
     swal.fire({

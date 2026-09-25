@@ -87,9 +87,32 @@ $files = url_sistema . 'assets/empresas/' . $session['alias'] . '/';
 
 
 
+<!-- Modal: notificar a un cliente (push) -->
+<div class="modal fade" id="notificarUsuarioModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Notificar a <span id="notificarUsuarioNombre"></span></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <label>Mensaje</label>
+                <textarea id="notificarUsuarioMensaje" class="form-control" rows="3" maxlength="200" placeholder="Ej: Tenemos una sorpresa para ti en tu próximo pedido"></textarea>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" data-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="btnEnviarNotificacionUsuario">Enviar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- BEGIN GLOBAL MANDATORY SCRIPTS -->
 <?php js_mandatory(); ?>
 <script src="assets/js/pages/cliente_detalle.js" type="text/javascript"></script>
+<script src="assets/js/pages/notificar_usuario.js?v=1" type="text/javascript"></script>
 <script>
     $(function() {
         loadDatatable();

@@ -966,7 +966,7 @@ $Clsucursales = new cl_sucursales(NULL);
     <!-- <script src="assets/js/pages/gestion_ordenes_impresion.js?v=1" type="text/javascript"></script> -->
     <script type="text/javascript" src="emoji/dist/emojionearea.js"></script>
     <link rel="stylesheet" type="text/css" href="emoji/dist/emojionearea.min.css" media="screen">
-    <script src="assets/js/pages/notificaciones.js" type="text/javascript"></script>
+    <script src="assets/js/pages/notificaciones.js?v=2" type="text/javascript"></script>
     <script>
         $("#txt_descripcion").emojioneArea({
             container: "#containerEmoji",

@@ -8,6 +8,7 @@ require_once '../clases/cl_laar.php';
 require_once '../clases/cl_botonPagos.php';
 require_once '../clases/cl_couriers.php';
 require_once '../clases/cl_pedidosya.php';
+require_once '../clases/cl_fidelizacion.php';
 
 $Clempresas = new cl_empresas();
 $Clusuarios = new cl_usuarios();
@@ -16,6 +17,7 @@ $ClLaar = new cl_laar();
 $ClBotonPagos = new cl_botonpagos();
 //$ClBotonPagos = new cl_botonpagos();
 $ClCouriers = new cl_couriers();
+$Clfidelizacion = new cl_fidelizacion();
 
 $session = getSession();
 error_reporting(E_ALL);
@@ -946,9 +948,19 @@ function setGravaIva(){
 
 function setPermisoFidelizacion(){
     global $Clempresas;
+    global $Clfidelizacion;
 
-    $cod_empresa = $_GET['cod_empresa'];
-    $permiso = $_GET['estado'];
+    $cod_empresa = intval($_GET['cod_empresa']);
+    $permiso = intval($_GET['estado']);
+
+    if($permiso == 1){
+        $error = $Clfidelizacion->validarActivacion($cod_empresa);
+        if($error != ""){
+            $return['success'] = 0;
+            $return['mensaje'] = $error;
+            return $return;
+        }
+    }
 
     if($Clempresas->setPermisoFidelizacion($permiso, $cod_empresa)){
         $return['success'] = 1;
@@ -957,6 +969,78 @@ function setPermisoFidelizacion(){
     else{
         $return['success'] = 0;
         $return['mensaje'] = "Error al editar permiso";
+    }
+    return $return;
+}
+
+function guardarFidelizacion(){
+    global $Clempresas;
+    global $Clfidelizacion;
+
+    if(!isset($_GET['cod_empresa']) || !isset($_GET['tipo'])){
+        $return['success'] = 0;
+        $return['mensaje'] = "Falta informacion";
+        return $return;
+    }
+
+    $cod_empresa = intval($_GET['cod_empresa']);
+    $tipo = ($_GET['tipo'] == 'clasico') ? 'clasico' : 'simple';
+    $barcode = (isset($_GET['barcode']) && $_GET['barcode'] == 1) ? 1 : 0;
+    $meta = isset($_GET['meta']) ? floatval($_GET['meta']) : 0;
+    $divisor = isset($_GET['divisor']) ? intval($_GET['divisor']) : 0;
+    $puntos = isset($_GET['puntos']) ? intval($_GET['puntos']) : 0;
+
+    if($cod_empresa <= 0){
+        $return['success'] = 0;
+        $return['mensaje'] = "Primero debes crear la empresa";
+        return $return;
+    }
+    if($tipo == 'simple' && $meta <= 0){
+        $return['success'] = 0;
+        $return['mensaje'] = "La meta de puntos debe ser mayor a 0";
+        return $return;
+    }
+    if($tipo == 'clasico' && ($divisor <= 0 || $puntos <= 0)){
+        $return['success'] = 0;
+        $return['mensaje'] = "El divisor y los puntos deben ser mayores a 0";
+        return $return;
+    }
+
+    //Los valores del esquema que no se edita se conservan
+    $actual = $Clfidelizacion->datos_fidelizacion($cod_empresa);
+    if($tipo == 'simple'){
+        $divisor = $actual ? intval($actual['divisor_puntos']) : 0;
+        $puntos = $actual ? intval($actual['monto_puntos']) : 1;
+    }else{
+        $meta = $actual ? floatval($actual['meta_puntos']) : 20;
+    }
+    $cambioEsquema = $actual && $actual['tipo_fidelizacion'] != $tipo;
+
+    if(!$Clfidelizacion->guardarEsquema($cod_empresa, $tipo, $divisor, $puntos, $meta, $barcode)){
+        $return['success'] = 0;
+        $return['mensaje'] = "Error al guardar el esquema, por favor vuelva a intentarlo";
+        return $return;
+    }
+
+    if($cambioEsquema)
+        $Clfidelizacion->eliminarPuntosClientes($cod_empresa);
+
+    if($tipo == 'simple')
+        $Clfidelizacion->crearNivelAutomatico($cod_empresa);
+    else
+        $Clfidelizacion->eliminarNivelAutomatico($cod_empresa);
+
+    $return['success'] = 1;
+    $return['mensaje'] = $cambioEsquema
+        ? "Esquema cambiado correctamente, los puntos y saldos de los clientes fueron reiniciados"
+        : "Esquema guardado correctamente";
+    $return['recargar'] = $cambioEsquema || !$actual;
+
+    //Si el esquema quedo incompleto (ej. clasico sin niveles) la fidelizacion no puede seguir activa
+    $error = $Clfidelizacion->validarActivacion($cod_empresa);
+    if($error != ""){
+        $Clempresas->setPermisoFidelizacion(0, $cod_empresa);
+        $return['mensaje'] .= ". La fidelización quedó desactivada: $error";
     }
     return $return;
 }

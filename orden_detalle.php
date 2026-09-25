@@ -979,7 +979,7 @@ function datetimeShort($fecha)
     <?php js_mandatory(); ?>
     <script src="//maps.googleapis.com/maps/api/js?key=AIzaSyAWo6DXlAmrqEiKiaEe9UyOGl3NJ208lI8"></script>
     <script src="plugins/maps-latlon/jquery-gmaps-latlon-picker.js"></script>
-    <script src="assets/js/pages/orden_detalle.js" type="text/javascript"></script>
+    <script src="assets/js/pages/orden_detalle.js?v=1" type="text/javascript"></script>
     <script src="assets/js/rating.js" type="text/javascript"></script>
 
     <!-- BEGIN PAGE LEVEL CUSTOM SCRIPTS -->

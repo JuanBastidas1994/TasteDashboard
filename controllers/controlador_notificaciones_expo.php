@@ -63,12 +63,28 @@ function enviarEvento()
     return $ClNotificacionesExpo->enviar('evento', $titulo, $descripcion);
 }
 
+/* Mensaje libre a UN usuario: campana de clientes.php, cliente_detalle.php y usuario_detalle.php */
+function enviarUsuario()
+{
+    global $ClNotificacionesExpo;
+
+    $cod_usuario = isset($_POST['cod_usuario']) ? (int)$_POST['cod_usuario'] : 0;
+    $mensaje = isset($_POST['mensaje']) ? trim($_POST['mensaje']) : '';
+    if (!$cod_usuario || $mensaje === '') {
+        $return['success'] = 0;
+        $return['mensaje'] = "Escribe un mensaje";
+        return $return;
+    }
+
+    return $ClNotificacionesExpo->enviarAUsuario($cod_usuario, $mensaje);
+}
+
 function historial()
 {
     global $ClNotificacionesExpo;
 
     $return['success'] = 1;
-    $return['data'] = $ClNotificacionesExpo->historial();
+    $return['data'] = $ClNotificacionesExpo->lista(50);
     return $return;
 }
 ?>

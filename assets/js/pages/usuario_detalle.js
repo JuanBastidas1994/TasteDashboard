@@ -193,28 +193,3 @@ function eliminarCliente(cod_usuario) {
     },
     });
 }
-
-$(".btnNotificarMoto").on("click", function(){
-    let cod_motorizado = $(this).data("usuario");
-    let parametros = {
-        "metodo": "notificarMotorizadoCustom",
-        "cod_motorizado": cod_motorizado,
-        "mensaje": $("#txt").val()
-    }
-    
-    $.ajax({
-       url: 'controllers/controlador_notificaciones.php',
-       data: parametros,
-       type: "GET",
-       success: function(response){
-          console.log(response);
-          if(response['success']==1){
-            $("#txt").val("");
-          }
-       },
-       error: function(data){
-       },
-       complete: function(){
-       },
-    });
-});

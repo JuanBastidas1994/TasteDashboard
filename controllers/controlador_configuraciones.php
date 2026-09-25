@@ -147,6 +147,14 @@ function update_fidelizacion(){
     extract($_GET);
 
     $cod_empresa = $session['cod_empresa'];
+    $datos = $Clfidelizacion->datos_fidelizacion($cod_empresa);
+    if($datos && $datos['tipo_fidelizacion'] == 'simple'){
+        $return['success'] = 0;
+        $return['mensaje'] = "El esquema simple no usa divisor de puntos";
+        return $return;
+    }
+    if(!isset($barcode))
+        $barcode = $datos ? intval($datos['generate_barcode']) : 0;
     if($Clfidelizacion->set_fidelizacion_puntos($cod_empresa, $divisor, $puntos, $barcode)){
         $return['success'] = 1;
         $return['mensaje'] = "Parametros  actualizados correctamente";
@@ -876,16 +884,56 @@ function guardarMesaTipo() {
     return ['success' => 0, 'mensaje' => 'Error al guardar la configuración de mesa'];
 }
 
-function actualizarFechasCaducidad() {
+function update_meta_puntos(){
+    global $session;
     global $Clfidelizacion;
 
-    if(!isset($_GET['fechaPuntos']) || !isset($_GET['fechaDinero']) || !isset($_GET['fechaSaldo']) || !isset($_GET['cod_empresa'])) {
+    $cod_empresa = $session['cod_empresa'];
+    $meta = isset($_GET['meta']) ? floatval($_GET['meta']) : 0;
+    if($meta <= 0){
+        $return['success'] = 0;
+        $return['mensaje'] = "La meta de puntos debe ser mayor a 0";
+        return $return;
+    }
+
+    $datos = $Clfidelizacion->datos_fidelizacion($cod_empresa);
+    if(!$datos || $datos['tipo_fidelizacion'] != 'simple'){
+        $return['success'] = 0;
+        $return['mensaje'] = "La meta de puntos solo aplica al esquema simple";
+        return $return;
+    }
+
+    if(!$Clfidelizacion->set_meta_puntos($cod_empresa, $meta)){
+        $return['success'] = 0;
+        $return['mensaje'] = "Error al actualizar la meta, por favor vuelva a intentarlo";
+        return $return;
+    }
+    $return['success'] = 1;
+    $return['mensaje'] = "Meta de puntos actualizada correctamente";
+    return $return;
+}
+
+function actualizarFechasCaducidad() {
+    global $session;
+    global $Clfidelizacion;
+    $minimoDias = 30;
+
+    if(!isset($_GET['fechaPuntos']) || !isset($_GET['fechaDinero']) || !isset($_GET['fechaSaldo'])) {
         $return['success'] = 0;
         $return['mensaje'] = "Falta información";
         return $return;
     }
 
-    extract($_GET);
+    $cod_empresa = $session['cod_empresa'];
+    $fechaPuntos = intval($_GET['fechaPuntos']);
+    $fechaDinero = intval($_GET['fechaDinero']);
+    $fechaSaldo = intval($_GET['fechaSaldo']);
+
+    if($fechaPuntos < $minimoDias || $fechaDinero < $minimoDias || $fechaSaldo < $minimoDias) {
+        $return['success'] = 0;
+        $return['mensaje'] = "La caducidad no puede ser menor a $minimoDias días";
+        return $return;
+    }
 
     $Clfidelizacion->cantDiasCaducidadPuntos = $fechaPuntos;
     $Clfidelizacion->cantDiasCaducidadDinero = $fechaDinero;

@@ -12,7 +12,7 @@ $session = getSession();
 $tiposValidos = [
     'promo'          => ['titulo' => 'Promoción',       'volver' => 'promociones.php', 'campoId' => 'cod_promocion'],
     'producto_nuevo' => ['titulo' => 'Producto nuevo',  'volver' => 'productos.php',   'campoId' => 'alias'],
-    'evento'         => ['titulo' => 'Evento',          'volver' => 'index.php',       'campoId' => null],
+    'evento'         => ['titulo' => 'Evento',          'volver' => 'notificaciones.php',       'campoId' => null],
 ];
 
 $tipo = isset($_GET['tipo']) ? $_GET['tipo'] : '';

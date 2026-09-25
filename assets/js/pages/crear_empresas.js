@@ -553,102 +553,78 @@ $(document).ready(function() {
 
      });
      
+    $("#cmb_tipo_fidelizacion").on("change", function(){
+        var tipo = $(this).val();
+        var tipoGuardado = $(".btnFidelizacion").attr("data-tipo");
+        $(".fid-simple").toggle(tipo == "simple");
+        $(".fid-clasico").toggle(tipo == "clasico");
+        $(".fid-aviso-cambio").toggle(tipoGuardado != "" && tipoGuardado != tipo);
+    });
+
     $(".btnFidelizacion").on("click",function(event){
-        var codigo=$(this).attr("data-id");
-        var divisor=$("#txt_divisor_puntos").val();
-        var puntos=$("#txt_monto_puntos").val();
-        var barcode = $("#chk_generate_barcode").is(":checked") ? 1 : 0;
-        var cod_empresa=$("#id").val();
-    
-        if(divisor<=0 || puntos<=0)
-        {
-            messageDone("Los valores no son los correctos, vuelva a ingresarlos",'error');
+        var tipo = $("#cmb_tipo_fidelizacion").val();
+        var tipoGuardado = $(this).attr("data-tipo");
+        var cod_empresa = parseInt($("#id").val());
+        var parametros = {
+            "cod_empresa": cod_empresa,
+            "tipo": tipo,
+            "meta": $("#txt_meta_puntos").val(),
+            "divisor": $("#txt_divisor_puntos").val(),
+            "puntos": $("#txt_monto_puntos").val(),
+            "barcode": $("#chk_generate_barcode").is(":checked") ? 1 : 0,
         }
-        else
-        {
-            var parametros = {
-                "codigo": codigo,
-                "divisor": divisor,
-                "cod_empresa": cod_empresa,
-                "puntos": puntos,
-                "barcode": barcode,
-            }
-            if(codigo!=0)
-            {
-                  Swal.fire({
-                  title: '¿Estas seguro?',
-                  text: 'No se puede revertir los cambios',
-                  icon: 'warning',
-                  showCancelButton: true,
-                  confirmButtonText: 'Actualizar',
-                  cancelButtonText: 'Cancelar',
-                  padding: '2em'
-                }).then(function(result) {
-                  if (result.value) {
-                    $.ajax({
-                        beforeSend: function(){
-                            OpenLoad("Editando informacion, por favor espere...");
-                        },
-                        url: 'controllers/controlador_configuraciones.php?metodo=update_fidelizacion',
-                        type: 'GET',
-                        data: parametros,
-                        success: function(response){
-                            console.log(response);
-                            if( response['success'] == 1)
-                            {
-                                messageDone(response['mensaje'],'success');
-                            } 
-                            else
-                            {
-                                messageDone(response['mensaje'],'error');
-                            } 
-                                                    
-                        },
-                        error: function(data){
-                            console.log(data);
-                            
-                        },
-                        complete: function(resp)
-                        {
-                            CloseLoad();
-                        }
-                    });
-                  }
-                });
-            }
-            else
-            {
-                $.ajax({
-                    beforeSend: function(){
-                        OpenLoad("Insertando datos, por favor espere...");
-                    },
-                    url: 'controllers/controlador_configuraciones.php?metodo=insert_fidelizacion',
-                    type: 'GET',
-                    data: parametros,
-                    success: function(response){
-                        console.log(response);
-                        if( response['success'] == 1)
-                        {
-                            messageDone(response['mensaje'],'success');
-                            $(".btnFidelizacion").attr("data-id",response['id']);
-                        } 
-                        else
-                        {
-                            messageDone(response['mensaje'],'error');
-                        } 
-                                                
-                    },
-                    error: function(data){
-                        console.log(data);
-                        
-                    },
-                    complete: function(resp)
-                    {
-                        CloseLoad();
+
+        if(cod_empresa == 0){
+            messageDone("Primero debes crear la empresa", "error");
+            return;
+        }
+        if(tipo == "simple" && !(parseFloat(parametros.meta) > 0)){
+            messageDone("La meta de puntos debe ser mayor a 0", "error");
+            return;
+        }
+        if(tipo == "clasico" && (!(parseInt(parametros.divisor) > 0) || !(parseInt(parametros.puntos) > 0))){
+            messageDone("Los valores no son los correctos, vuelva a ingresarlos", "error");
+            return;
+        }
+
+        var cambioEsquema = tipoGuardado != "" && tipoGuardado != tipo;
+        Swal.fire({
+            title: cambioEsquema ? '¿Cambiar de esquema?' : '¿Estas seguro?',
+            text: cambioEsquema
+                ? 'Se eliminarán los puntos y el saldo acumulado de TODOS los clientes (el dinero se conserva). No se puede revertir'
+                : 'Se actualizará el esquema de fidelización',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Actualizar',
+            cancelButtonText: 'Cancelar',
+            padding: '2em'
+        }).then(function(result) {
+            if (!result.value) return;
+            $.ajax({
+                beforeSend: function(){
+                    OpenLoad("Guardando esquema, por favor espere...");
+                },
+                url: 'controllers/controlador_empresa.php?metodo=guardarFidelizacion',
+                type: 'GET',
+                data: parametros,
+                success: function(response){
+                    if(response['success'] == 1){
+                        messageDone(response['mensaje'], 'success');
+                        if(response['recargar'])
+                            setTimeout(function(){ location.reload(); }, 1500);
                     }
-               });
-            }
-        }
+                    else{
+                        messageDone(response['mensaje'], 'error');
+                    }
+                },
+                error: function(data){
+                    console.log(data);
+                },
+                complete: function(resp){
+                    CloseLoad();
+                }
+            });
+        });
     });
     
     $("body").on("click",".btnInsertNiveles", function(event){
@@ -1941,27 +1917,7 @@ $(document).ready(function() {
             return;
         }
 
-        if($("#chk_fidelizacion").is(":checked")){
-            /*VALIDAR QUE NO ESTEN VACIOS LOS CAMPOS */
-            // let nomNivel2 = $(".txt_nombre2").val();
-            // let nomNivel3 = $(".txt_nombre3").val();
-            // let nomNivel1 = $(".txt_nombre1").val();
-            // if(nomNivel1 == "" | nomNivel2 == "" | nomNivel3 == ""){
-            //     alert("Por favor llenar los datos de los niveles primero");
-            //     $("#chk_fidelizacion").prop("checked", false);
-            //     return;
-            // }
-
-            let divisor = $("#txt_divisor_puntos").val();
-            let monto = $("#txt_monto_puntos").val();
-
-            if(divisor == "" | monto == ""){
-                alert("Por favor llenar esquema primero");
-                $("#chk_fidelizacion").prop("checked", false);
-                return;
-            }
-        }
-
+        /*La validacion del esquema (meta, divisor, niveles) la hace el servidor*/
         let checkb = $(this);
         let estado = 0;
         if(checkb.is(":checked"))
@@ -1984,10 +1940,12 @@ $(document).ready(function() {
                     messageDone(response['mensaje'], "success");
                     }
                     else{
+                    checkb.prop("checked", !checkb.is(":checked"));
                     messageDone(response['mensaje'], "error");
                 }
            },
            error: function(data){
+                checkb.prop("checked", !checkb.is(":checked"));
                 console.log(data);
            },
            complete: function(){

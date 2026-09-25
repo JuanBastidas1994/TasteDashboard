@@ -968,78 +968,97 @@ if(file_exists($folder_demo)){
                                 </div>
                                 
                                 <!--CONTENIDO FIDELIZACION-->
-                                <div class="tab-pane fade" id="fidelizacion" role="tabpanel" aria-labelledby="fidelizacion-tab" style="height: 450px;">
+                                <div class="tab-pane fade" id="fidelizacion" role="tabpanel" aria-labelledby="fidelizacion-tab">
+                                  <div class="mb-4 mt-2">
+                                   <div class="widget-content widget-content-area">
                                     <div class="col-md-12">
                                         <h4>Fidelizaci&oacute;n</h4>
                                         <?php
-                                        // $mostrarCheckFidelizacion = "";
-                                        $mostrarCheckFidelizacion = "display: none;";
-                                        $resp = $Clfidelizacion->niveles($cod_empresa);
-                                        if($resp)
-                                            $mostrarCheckFidelizacion = "";
+                                        //Simple es el esquema por defecto para empresas sin configuracion
+                                        $tipo_fidelizacion_guardado = "";
+                                        $tipo_fidelizacion = "simple";
+                                        $divisor_puntos = 0;
+                                        $monto_puntos = 0;
+                                        $meta_puntos = 0;
+                                        $generate_barcode = "checked";
+
+                                        $datosFidelizacion = $Clfidelizacion->datos_fidelizacion($cod_empresa);
+                                        if($datosFidelizacion){
+                                            $tipo_fidelizacion_guardado = $datosFidelizacion['tipo_fidelizacion'];
+                                            $tipo_fidelizacion = $tipo_fidelizacion_guardado;
+                                            $divisor_puntos = $datosFidelizacion['divisor_puntos'];
+                                            $monto_puntos = $datosFidelizacion['monto_puntos'];
+                                            $meta_puntos = floatval($datosFidelizacion['meta_puntos']);
+                                            if ($datosFidelizacion['generate_barcode'] == '0')
+                                                $generate_barcode = "";
+                                        }
+                                        $mostrarSimple = ($tipo_fidelizacion == 'simple') ? '' : 'display: none;';
+                                        $mostrarClasico = ($tipo_fidelizacion == 'clasico') ? '' : 'display: none;';
                                         ?>
-                                        <label class="switch s-icons s-outline  s-outline-success  mb-4 mr-2 chkFidelizacion" style="<?= $mostrarCheckFidelizacion?>">
+                                        <label class="switch s-icons s-outline  s-outline-success  mb-4 mr-2 chkFidelizacion">
                                             <input type="checkbox" name="chk_fidelizacion" id="chk_fidelizacion" <?php echo $chkFidelizacion; ?> />
                                             <span class="slider round"></span>
                                         </label>
                                     </div>
-                                    <div class="mb-4 mt-4">
-                                        
-                                        
+                                    <div class="row mt-4">
                                         <div class="col-xl-4 col-lg-4 col-sm-12  layout-spacing">
-                                            <div class="widget-content widget-content-area br-6" style="height: 300px;">
+                                            <div class="widget-content widget-content-area br-6">
                                                 <div class="col-xl-12 col-md-12 col-sm-12 col-12" wfd-id="42">
                                                     <h4>Esquema</h4>
                                                 </div>
                                                 <table id="style-3" class="table style-3">
                                                     <tbody id="lstDisponibles">
-                                                        <?php
-                                                        $divisor_puntos=0;
-                                                        $monto_puntos=0;
-                                                        $cod_fidelizacion_puntos=0;
-                                                        $generate_barcode = "checked";
-                                                        
-                                                        $resp = $Clfidelizacion->datos_fidelizacion($cod_empresa);
-                                                        if($resp){
-                                                            $divisor_puntos=$resp['divisor_puntos'];
-                                                            $monto_puntos=$resp['monto_puntos'];
-                                                            $cod_fidelizacion_puntos=$resp['cod_fidelizacion_puntos'];
-                                                            if ($resp['generate_barcode'] == '0')
-                                                                $generate_barcode = "";
-                                                        }
-                                                        echo'
                                                         <tr>
-                                                            <td>Por cada($):</td>
-                                                            <td><input type="number" id="txt_divisor_puntos" class="form-control" value="'.$divisor_puntos.'" style="width: 90px;"></td>
+                                                            <td>Tipo:</td>
+                                                            <td>
+                                                                <select id="cmb_tipo_fidelizacion" class="form-control" style="width: 140px;">
+                                                                    <option value="simple" <?= ($tipo_fidelizacion == 'simple') ? 'selected' : '' ?>>Simple</option>
+                                                                    <option value="clasico" <?= ($tipo_fidelizacion == 'clasico') ? 'selected' : '' ?>>Cl&aacute;sico</option>
+                                                                </select>
+                                                            </td>
                                                         </tr>
-                                                        <tr>
+                                                        <tr class="fid-simple" style="<?= $mostrarSimple ?>">
+                                                            <td>Meta($):<br><small>Cada vez que el cliente acumula la meta recibe $1.00</small></td>
+                                                            <td><input type="number" id="txt_meta_puntos" class="form-control" value="<?= $meta_puntos ?>" min="0" step="0.01" style="width: 90px;"></td>
+                                                        </tr>
+                                                        <tr class="fid-clasico" style="<?= $mostrarClasico ?>">
+                                                            <td>Por cada($):</td>
+                                                            <td><input type="number" id="txt_divisor_puntos" class="form-control" value="<?= $divisor_puntos ?>" style="width: 90px;"></td>
+                                                        </tr>
+                                                        <tr class="fid-clasico" style="<?= $mostrarClasico ?>">
                                                             <td>Recibes(Puntos):</td>
-                                                            <td><input type="number" id="txt_monto_puntos" class="form-control" 
-                                                            value="'.$monto_puntos.'" style="width: 90px;"></td>
+                                                            <td><input type="number" id="txt_monto_puntos" class="form-control" value="<?= $monto_puntos ?>" style="width: 90px;"></td>
                                                         </tr>
                                                         <tr>
                                                             <td>Generar Barcode en Web</td>
                                                             <td>
                                                                 <label class="switch s-icons s-outline s-outline-success mt-2">
-                                                                    <input type="checkbox" name="chk_generate_barcode" id="chk_generate_barcode" '.$generate_barcode.' />
+                                                                    <input type="checkbox" name="chk_generate_barcode" id="chk_generate_barcode" <?= $generate_barcode ?> />
                                                                     <span class="slider round"></span>
                                                                 </label>
                                                             </td>
                                                         </tr>
-                                                        ';
-                                                         
-                                                               
-                                                        ?>
                                                     </tbody>
                                                 </table>
-        
+
+                                                <div class="alert alert-light-warning mx-3 fid-aviso-cambio" style="display: none;">
+                                                    Al cambiar de esquema se reinician los puntos y el saldo acumulado de todos los clientes (el dinero se conserva).
+                                                </div>
+
                                                 <div class="form-group col-md-12 col-sm-12 col-xs-12" style="text-align: right;" wfd-id="67">
-                                                    <button type="button" class="btn btn-outline-primary btnFidelizacion" data-id="<?php echo $cod_fidelizacion_puntos?>" wfd-id="252">Actualizar</button>
+                                                    <button type="button" class="btn btn-outline-primary btnFidelizacion" data-tipo="<?= $tipo_fidelizacion_guardado ?>" wfd-id="252">Actualizar</button>
                                                 </div>
                                             </div>
                                         </div>
-                                      
-                                       
+
+                                        <?php if($tipo_fidelizacion_guardado != 'clasico'){ ?>
+                                        <div class="col-xl-8 col-lg-8 col-sm-12 layout-spacing fid-clasico" style="<?= $mostrarClasico ?>">
+                                            <div class="widget-content widget-content-area br-6">
+                                                <h4>Niveles</h4>
+                                                <p>Guarda el esquema cl&aacute;sico para poder configurar los niveles.</p>
+                                            </div>
+                                        </div>
+                                        <?php } else { ?>
                                         <div class="col-xl-8 col-lg-8 col-sm-12  layout-spacing">
                                             <div class="widget-content widget-content-area br-6">
                                                 <div class="col-xl-12 col-md-12 col-sm-12 col-12" wfd-id="42">
@@ -1168,7 +1187,10 @@ if(file_exists($folder_demo)){
                                                   ?>
                                             </div>
                                         </div>
+                                        <?php } ?>
                                     </div>
+                                   </div>
+                                  </div>
                                 </div>
                                 <!--FIN FIDELIZACION-->
 
@@ -1727,7 +1749,7 @@ if(file_exists($folder_demo)){
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script> 
     <script src="assets/js/clipboard/clipboard.min.js"></script>
     <script src="assets/js/jscolor.js"></script>
-    <script src="assets/js/pages/crear_empresas.js?v=6" type="text/javascript"></script>
+    <script src="assets/js/pages/crear_empresas.js?v=8" type="text/javascript"></script>
     
     <!-- BEGIN PAGE LEVEL CUSTOM SCRIPTS -->
     <script src="assets/js/scrollspyNav.js"></script>

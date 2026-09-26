@@ -14,8 +14,9 @@ if(!$empresa)
 
 $alias = $empresa['alias'];
 $assetsPath = url_sistema."assets/empresas/$alias/";
+$logoFile = !empty($empresa['logo']) ? $empresa['logo'] : 'logo.png';
 $assets = [
-    'logo' => $assetsPath."logo.png",
+    'logo' => $assetsPath.$logoFile,
     'logofooter' => $assetsPath."logo-footer.png",
     'favicon' => $assetsPath."favicon.png",
     'compartir' => $assetsPath."compartir.jpg",

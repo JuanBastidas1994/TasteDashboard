@@ -33,6 +33,7 @@ if ($image_data = @getimagesize($assets['logo'])) {
 
 $info = [
     'nombre' => $empresa['nombre'],
+    'alias' => $alias,
     'color' => $empresa['color'],
     'api_key' => $empresa['api_key'],
     'keywords' => $empresa['keywords'],

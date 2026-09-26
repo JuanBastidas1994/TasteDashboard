@@ -3,6 +3,7 @@ require_once "funciones.php";
 require_once "clases/cl_empresas.php";
 require_once "clases/cl_sucursales.php";
 require_once "clases/cl_productos.php";
+require_once "templates/producto_variantes.php";
 require_once "clases/cl_categorias.php";
 
 if (!isLogin()) {
@@ -128,11 +129,11 @@ $esEvento = false;
 
 
 
-$sizeMinWidth = 150;
-$sizeMinHeight = 150;
-$sizeMaxWidth = 400;
-$sizeMaxHeight = 400;
-$quality = 0.8;
+$sizeMinWidth = 400;
+$sizeMinHeight = 400;
+$sizeMaxWidth = 1000;
+$sizeMaxHeight = 1000;
+$quality = 0.9;
 $alias = "";
 
 $sizeCrop = $Clempresas->getSizeCrop($session['cod_empresa']);
@@ -240,25 +241,6 @@ if (isset($_GET['id'])) {
 $empresa = $Clempresas->get($session['cod_empresa']);
 $tipoRecorte = $empresa['tipo_recorte'];
 
-$cod_variaciones = [];
-$variaciones = [];
-function recursive($array, $posicion, &$data, &$codigos)
-{
-    global $variaciones, $cod_variaciones;
-    $opcion = $array[$posicion]['detalle'];
-    foreach ($opcion as $key => $value) {
-        if (isset($array[$posicion + 1])) {
-            $data[0][$posicion] = $value['detalle'];
-            $codigos[0][$posicion] = intval($value['cod_producto_caracteristica_detalle']);
-            recursive($array, $posicion + 1, $data, $codigos);
-        } else {
-            $data[0][$posicion] = $value['detalle'];
-            $codigos[0][$posicion] = intval($value['cod_producto_caracteristica_detalle']);
-            $variaciones[] = $data[0];
-            $cod_variaciones[] = $codigos[0];
-        }
-    }
-}
 ?>
 
 <!DOCTYPE html>
@@ -962,92 +944,9 @@ function recursive($array, $posicion, &$data, &$codigos)
                                     <p>Este producto tiene múltiples variaciones, as&iacute; como diferentes tama&ntilde;os o colores</p>
                                 </div>
 
-                                <?php
-                                if ($cod_producto == 0)
-                                    $caracteristicas = false;
-                                else
-                                    $caracteristicas = $Clproductos->getCaracteristicas($cod_producto);
-                                if (!$caracteristicas) {
-                                ?>
-                                    <form id="frmCaracteristicas" class="frmCaracteristicas" method="POST" action="#">
-                                        <div class="VariantesSeleccion">
-                                            <div class="row">
-                                                <div class="form-group col-md-4 col-sm-4 col-xs-12">
-                                                    <label>Caracter&iacute;stica <span class="asterisco">*</span></label>
-                                                    <input type="text" placeholder="Ej. Talla" name="txt_opcion_titulo[]" class="form-control" required="required" autocomplete="off" value="">
-                                                </div>
-                                                <div class="form-group col-md-6 col-sm-6 col-xs-12">
-                                                    <label>Atributos <span class="asterisco">*</span>
-                                                        <span class="far fa-question-circle rounded bs-tooltip" data-placement="top" title="Escoja los productos que el usuario tendra que decidir a escoger"></span><span><i>&nbsp;Separar las opciones con una coma</i></span></label>
-                                                    <select multiple="multiple" name="cmb_variante_productos[0][]" class="form-control tagging" required="required">
-                                                    </select>
-                                                </div>
-                                                <div class="form-group col-md-2 col-sm-2 col-xs-12">
-                                                    <label>Tipo</label>
-                                                    <select name="cmb_variante_tipo[]" class="form-control" required="required">
-                                                        <option value="texto">Texto</option>
-                                                        <option value="color">Color</option>
-                                                    </select>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="row">
-                                            <div class="form-group col-md-12 col-sm-12 col-xs-12" style="text-align: right;">
-                                                <button type="button" class="btn btn-outline-primary" id="btnAgregarVariante">Agregar otra caracter&iacute;stica</button>
-                                                <button type="button" class="btn btn-outline-primary" id="btnValidarVariante">Validar</button>
-                                            </div>
-                                        </div>
-                                        <div class="row">
-                                            <div class="col-md-12 col-sm-12 col-xs-12">
-                                                <table class="table table-hover table-bordered">
-                                                    <thead>
-                                                        <tr>
-                                                            <th>Característica</th>
-                                                            <th>Color</th>
-                                                            <th>&nbsp;</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody class="respAtributosValidar">
-
-                                                    </tbody>
-                                                </table>
-
-                                            </div>
-                                        </div>
-                                        <div class="row">
-                                            <div class="form-group col-md-12 col-sm-12 col-xs-12" style="text-align: right;">
-                                                <button type="button" class="btn btn-outline-primary" id="btnGuardarCaracteristicas">Guardar Características</button>
-                                            </div>
-                                        </div>
-                                    </form>
-                                <?php
-                                } else {
-                                ?>
-                                    <div class="row">
-                                        <div class="col-md-12 col-sm-12 col-xs-12">
-                                            <?php
-                                            foreach ($caracteristicas as $key => $caracteristica) {
-                                                $items = "";
-                                                $detalleCaracteristica = $caracteristica['detalle'];
-                                                foreach ($detalleCaracteristica as $detalle) {
-                                                    $style = '';
-                                                    if ($caracteristica['tipo'] == "COLOR")
-                                                        $style = 'style="background:' . $detalle['detalle2'] . '40; color:' . $detalle['detalle2'] . '; border: 0.1px solid #d1cfcf;"';
-                                                    $items .= '<span class="shadow-none badge badge-primary" ' . $style . '>' . $detalle['detalle'] . '</span> &nbsp;';
-                                                }
-
-                                                echo '<div>
-                                                <h5>' . $caracteristica['caracteristica'] . '</h5>
-                                                ' . $items . '
-                                          </div>';
-                                            }
-
-                                            ?>
-                                        </div>
-                                    </div>
-                                <?php
-                                }
-                                ?>
+                                <div id="boxCaracteristicas">
+                                    <?= html_producto_caracteristicas($Clproductos, $cod_producto) ?>
+                                </div>
                             </div>
                         <?php
                         } else {  //SOLO PARA VARIANTES
@@ -1058,7 +957,7 @@ function recursive($array, $posicion, &$data, &$codigos)
                                     <p>Características de esta variante</p>
                                 </div>
                                 <div class="row">
-                                    <div class="col-md-12 col-sm-12 col-xs-12">
+                                    <div class="col-md-12 col-sm-12 col-xs-12 boxAtributosVariante">
                                         <?php
                                         $caracteristicas = $Clproductos->get_atributos_variante($cod_producto);
                                         foreach ($caracteristicas as $key => $caracteristica) {
@@ -1118,128 +1017,9 @@ function recursive($array, $posicion, &$data, &$codigos)
                                     </div>
                                 </div>
 
-                                <?php
-                                if ($cod_producto == 0)
-                                    $variantes = false;
-                                else
-                                    $variantes = $Clproductos->lista_variantes($cod_producto);
-
-                                if (!$variantes) {
-                                    if (!$caracteristicas)
-                                        echo 'Para crear variantes el producto debe tener creada características';
-                                    else {
-                                        $info = null;
-                                        $cods = null;
-                                        recursive($caracteristicas, 0, $info, $cods);
-                                ?>
-                                        <form id="frmVariantes" class="frmVariantes" method="POST" action="#">
-                                            <div class="row">
-                                                <div class="col-md-12 col-sm-12 col-xs-12">
-                                                    <table class="table table-hover table-bordered style-3">
-                                                        <thead>
-                                                            <tr>
-                                                                <th>Variante</th>
-                                                                <th>Precio</th>
-                                                                <th>SKU</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody class="">
-                                                            <?php
-                                                            foreach ($variaciones as $key => $items) {
-                                                                $attrTexto = base64_encode(json_encode($items));
-                                                                $attrCodigos = base64_encode(json_encode($cod_variaciones[$key]));
-                                                                $texto = implode("/", $items);
-                                                                echo '<tr>
-                                                        <td>' . $texto . '</td>
-                                                        <td>
-                                                            <input type="text" value="0.00" name="txt_precio_variante[]" class="form-control"/>
-                                                            <input type="hidden" value="' . $attrTexto . '" name="txt_atributos_texto[]" class="form-control"/>
-                                                            <input type="hidden" value="' . $attrCodigos . '" name="txt_atributos_codigo[]" class="form-control"/>
-                                                        </td>
-                                                        <td>
-                                                            <input type="text" name="txt_variante_sku[]" class="form-control" placeholder="SKU" value="' . $txt_sku . '"/>
-                                                        </td>
-                                                    </tr>';
-                                                            }
-                                                            ?>
-                                                        </tbody>
-                                                    </table>
-
-                                                </div>
-                                            </div>
-                                            <div class="row">
-                                                <div class="form-group col-md-12 col-sm-12 col-xs-12" style="text-align: right;">
-                                                    <button type="button" class="btn btn-outline-primary" id="btnGuardarVariante">Guardar</button>
-                                                </div>
-                                            </div>
-                                        </form>
-                                    <?php
-                                    }
-                                } else {
-                                    ?>
-                                    <div class="row">
-                                        <div class="col-md-12 col-sm-12 col-xs-12">
-                                            <table class="table table-hover table-bordered style-3">
-                                                <thead>
-                                                    <tr>
-                                                        <th>&nbsp;</th>
-                                                        <th>Variaciones</th>
-                                                        <th>Precio</th>
-                                                        <th>&nbsp;</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody class="respVariantes">
-                                                    <?php
-                                                    foreach ($variantes as $variante) {
-                                                        $nombreVariante = $variante['nombre'];
-                                                        $imagenVariante = $files . $variante['image_min'];
-                                                        // $htmlOpciones = implode("/", $variante['atributos']);
-                                                        $htmlOpciones = ($variante['atributos']) ? implode("/", $variante['atributos']) : "";
-                                                        echo '
-                                            <tr>
-                                              <td class="text-center">
-                                                  <span><img src="' . $imagenVariante . '" class="profile-img" alt="' . $nombreVariante . '"></span>
-                                              </td>
-                                              <td>' . $htmlOpciones . '</td>
-                                              <td>$' . $variante['precio'] . '</td>
-                                              <td>
-                                                <a target="_blank" href="crear_productos.php?id=' . $variante['alias'] . '" data-value="' . $variante['alias'] . '"  class="bs-tooltip" data-toggle="tooltip" data-placement="top" title="" data-original-title="Editar Variante"><i data-feather="edit-2"></i></a>
-                                              </td>
-                                            </tr>';
-                                                    }
-                                                    ?>
-                                                </tbody>
-                                            </table>
-                                        </div>
-
-                                        <form id="frmVariantes" method="POST" action="#">
-                                            <div class="col-md-12 col-sm-12 col-xs-12">
-                                                <p><b>Nueva Variante</b></p>
-                                                <div class="form-group col-md-6 col-sm-8 col-xs-12">
-                                                    <label>Atributos <span class="asterisco">*</span>
-                                                        <span class="far fa-question-circle rounded bs-tooltip" data-placement="top" title="Escriba separado por comas ',' los atributos de este producto"></span></label>
-                                                    <select multiple="multiple" id="cmb_new_variante_atributos" name="cmb_new_variante_atributos[]" class="form-control tagging" required="required">
-                                                    </select>
-                                                    <input type="hidden" id="txt_new_variante_atributos" value="" name="txt_atributos_variante[]" class="form-control" />
-                                                </div>
-                                                <div class="form-group col-md-3 col-sm-4 col-xs-12">
-                                                    <label>SKU <span class="asterisco">*</span></label>
-                                                    <input type="number" placeholder="0.00" name="txt_variante_sku[]" class="form-control" required="required" autocomplete="off" value="">
-                                                </div>
-                                                <div class="form-group col-md-3 col-sm-4 col-xs-12">
-                                                    <label>Precio <span class="asterisco">*</span></label>
-                                                    <input type="number" placeholder="0.00" name="txt_precio_variante[]" class="form-control" required="required" autocomplete="off" value="">
-                                                </div>
-                                                <div class="form-group col-md-12 col-sm-12 col-xs-12" style="text-align: right;">
-                                                    <button type="button" class="btn btn-outline-primary" id="btnAddNewVariante">Agregar</button>
-                                                    <button type="button" class="btn btn-outline-primary" id="btnGuardarVariante" style="display:none;">Guardar</button>
-                                                </div>
-                                            </div>
-                                        </form>
-                                    </div>
-                                <?php
-                                }
-                                ?>
+                                <div id="boxVariantes">
+                                    <?= html_producto_variantes($Clproductos, $cod_producto, $txt_sku, $files) ?>
+                                </div>
                             </div>
                         <?php
                         }
@@ -1930,7 +1710,7 @@ function recursive($array, $posicion, &$data, &$codigos)
     <!-- END MAIN CONTAINER -->
 
     <?php js_mandatory(); ?>
-    <script src="assets/js/pages/crear_productos2.js?v=129" type="text/javascript"></script>
+    <script src="assets/js/pages/crear_productos2.js?v=132" type="text/javascript"></script>
     <script>
     $(function () {
         $('#chk_precio_especial').on('change', function () {

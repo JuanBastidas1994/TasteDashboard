@@ -1601,7 +1601,7 @@ $permisos = $Clempresas->getIdPermisionByBusiness($session['cod_empresa']);
     <script src="assets/js/moment.min.js"></script>
     <!--<script src="assets/js/gestion-ordenes-v5/sounds.js" type="text/javascript"></script>-->
     <!--<script src="assets/js/gestion-ordenes-v5/toastJc.js?v=7" type="text/javascript"></script>-->
-    <script src="assets/js/gestion-ordenes-v5/index.js?v=17" type="text/javascript"></script>
+    <script src="assets/js/gestion-ordenes-v5/index.js?v=18" type="text/javascript"></script>
     <script src="assets/js/gestion-ordenes-v5/facturacion.js?v=7" type="text/javascript"></script>
     <script src="assets/js/gestion-ordenes-v5/tracking.js?v=8" type="text/javascript"></script>
     <script src="assets/js/gestion-ordenes-v5/recipientes.js?v=7" type="text/javascript"></script>
@@ -1622,7 +1622,7 @@ $permisos = $Clempresas->getIdPermisionByBusiness($session['cod_empresa']);
     <!-- <script src="assets/js/pages/gestion_ordenes_impresion.js?v=1" type="text/javascript"></script> -->
     <script type="text/javascript" src="emoji/dist/emojionearea.js"></script>
     <link rel="stylesheet" type="text/css" href="emoji/dist/emojionearea.min.css" media="screen">
-    <script src="assets/js/pages/notificaciones.js" type="text/javascript"></script>
+    <script src="assets/js/pages/notificaciones.js?v=2" type="text/javascript"></script>
     <script>
         $(function() {
             $(".textRecordatorio").emojioneArea({

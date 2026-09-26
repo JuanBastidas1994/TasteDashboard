@@ -948,7 +948,7 @@ $Clsucursales = new cl_sucursales(NULL);
     <script src="assets/js/clipboard/clipboard.min.js"></script>
     <script src="assets/js/moment.min.js"></script>
     <script src="assets/js/gestion-errores/sounds.js" type="text/javascript"></script>
-    <script src="assets/js/gestion-errores/index.js?v=4" type="text/javascript"></script>
+    <script src="assets/js/gestion-errores/index.js?v=5" type="text/javascript"></script>
     <script src="assets/js/gestion-errores/facturacion.js?v=1" type="text/javascript"></script>
     <script src="assets/js/gestion-errores/tracking.js?v=1" type="text/javascript"></script>
     <script src="assets/js/gestion-errores/recipientes.js?v=1" type="text/javascript"></script>
@@ -966,7 +966,7 @@ $Clsucursales = new cl_sucursales(NULL);
     <!-- <script src="assets/js/pages/gestion_ordenes_impresion.js?v=1" type="text/javascript"></script> -->
     <script type="text/javascript" src="emoji/dist/emojionearea.js"></script>
     <link rel="stylesheet" type="text/css" href="emoji/dist/emojionearea.min.css" media="screen">
-    <script src="assets/js/pages/notificaciones.js" type="text/javascript"></script>
+    <script src="assets/js/pages/notificaciones.js?v=2" type="text/javascript"></script>
     <script>
         $("#txt_descripcion").emojioneArea({
             container: "#containerEmoji",

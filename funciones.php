@@ -531,13 +531,53 @@ function base64ToImage($base64, $name){
   $files = url_upload.'/assets/empresas/'.$session['alias'].'/';
   $dir = $files.$name;
   try {
+    if(!is_dir($files) && !@mkdir($files, 0755, true)){
+      error_log("[base64ToImage] No se pudo crear la carpeta $files (revisa URL_UPLOAD en .env)");
+      return false;
+    }
     $img = explode(',',$base64,2);
-    $data = base64_decode($img[1]);
-    file_put_contents($dir, $data);
+    $data = isset($img[1]) ? base64_decode($img[1]) : false;
+    if(!$data){
+      error_log("[base64ToImage] Imagen base64 inválida para $name");
+      return false;
+    }
+    if(@file_put_contents($dir, $data) === false){
+      error_log("[base64ToImage] No se pudo escribir $dir (revisa URL_UPLOAD en .env y permisos)");
+      return false;
+    }
     return true;
   } catch (Exception $e) {
+    error_log("[base64ToImage] ".$e->getMessage());
     return false;
   }
+}
+
+/* Imagen del recortador: llega como archivo ($_FILES[$fileKey]); si no, como base64 en $_POST[$base64Key] */
+function saveCropImage($fileKey, $base64Key, $name){
+  if(isset($_FILES[$fileKey]) && $_FILES[$fileKey]['error'] === UPLOAD_ERR_OK){
+    if(@getimagesize($_FILES[$fileKey]['tmp_name']) === false){
+      error_log("[saveCropImage] $fileKey no es una imagen válida");
+      return false;
+    }
+    $session = getSession();
+    $files = url_upload.'/assets/empresas/'.$session['alias'].'/';
+    if(!is_dir($files) && !@mkdir($files, 0755, true)){
+      error_log("[saveCropImage] No se pudo crear la carpeta $files (revisa URL_UPLOAD en .env)");
+      return false;
+    }
+    if(!@move_uploaded_file($_FILES[$fileKey]['tmp_name'], $files.$name)){
+      error_log("[saveCropImage] No se pudo escribir ".$files.$name);
+      return false;
+    }
+    return true;
+  }
+  if(!empty($_POST[$base64Key]))
+    return base64ToImage($_POST[$base64Key], $name);
+  return false;
+}
+
+function hasCropImage($fileKey, $base64Key){
+  return (isset($_FILES[$fileKey]) && $_FILES[$fileKey]['error'] === UPLOAD_ERR_OK) || !empty($_POST[$base64Key]);
 }
 
 function base64ToImageDir($base64, $name, $url){

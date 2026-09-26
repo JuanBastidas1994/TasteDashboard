@@ -1602,7 +1602,7 @@ if ($hour >= 15 || $hour < 9) {
     <script src="assets/js/moment.min.js"></script>
     <!--<script src="assets/js/gestion-ordenes-v5/sounds.js" type="text/javascript"></script>-->
     <!--<script src="assets/js/gestion-ordenes-v5/toastJc.js?v=7" type="text/javascript"></script>-->
-    <script src="assets/js/gestion-ordenes-vmap/index.js?v=8" type="text/javascript"></script>
+    <script src="assets/js/gestion-ordenes-vmap/index.js?v=9" type="text/javascript"></script>
     <script src="assets/js/gestion-ordenes-vmap/facturacion.js?v=7" type="text/javascript"></script>
     <script src="assets/js/gestion-ordenes-vmap/tracking.js?v=7" type="text/javascript"></script>
     <script src="assets/js/gestion-ordenes-vmap/recipientes.js?v=7" type="text/javascript"></script>
@@ -1624,7 +1624,7 @@ if ($hour >= 15 || $hour < 9) {
     <!-- <script src="assets/js/pages/gestion_ordenes_impresion.js?v=1" type="text/javascript"></script> -->
     <script type="text/javascript" src="emoji/dist/emojionearea.js"></script>
     <link rel="stylesheet" type="text/css" href="emoji/dist/emojionearea.min.css" media="screen">
-    <script src="assets/js/pages/notificaciones.js" type="text/javascript"></script>
+    <script src="assets/js/pages/notificaciones.js?v=2" type="text/javascript"></script>
     <script>
         $(function() {
             $(".textRecordatorio").emojioneArea({

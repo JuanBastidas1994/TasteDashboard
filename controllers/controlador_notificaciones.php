@@ -12,48 +12,6 @@ $session = getSession();
 
 controller_create();
 
-function notificar() {
-    // ? SE UTILZA EN MÓDULOS -> NOTIFICACIONES
-
-    global $ClNotificaciones;
-    global $session;
-
-    if (!isset($_POST['titulo']) || !isset($_POST['descripcion']) || !isset($_POST['aplicacion'])) {
-        $return['success'] = 0;
-        $return['mensaje'] = "Falta informacion";
-        return $return;
-    }
-
-    extract($_POST);
-
-    $empresa = $ClNotificaciones->get($aplicacion);
-    if ($empresa) {
-        $token = $empresa['token'];
-        $topic = $empresa['topic'];
-        if ($token == "") {
-            $return['success'] = 0;
-            $return['mensaje'] = "La empresa no esta configurada para enviar notificaciones, por favor ponerse en contacto con Soporte";
-            return $return;
-        }
-
-        if ($ClNotificaciones->crear($aplicacion, 0, "ORDEN", htmlentities($titulo), htmlentities($descripcion))) {
-            $resp = sendNotify_v1($token, $titulo, $topic, $descripcion, 0, "NOTIFICACION");
-            $return['success'] = 1;
-            $return['mensaje'] = "Notificacion enviada";
-            $return['resp'] = $resp;
-            return $return;
-        } else {
-            $return['success'] = 0;
-            $return['mensaje'] = "No se pudo crear la notificacion";
-            return $return;
-        }
-    } else {
-        $return['success'] = 0;
-        $return['mensaje'] = "Error al encontrar la empresa";
-        return $return;
-    }
-}
-
 function notificar_admins()
 {
     global $ClNotificaciones;
@@ -308,39 +266,8 @@ function notificarPedidoListo()
     return $return;
 }
 
-function notificarMotorizadoCustom()
-{
-    global $ClNotificaciones;
-    global $session;
-
-    if (!isset($_GET['cod_motorizado']) || !isset($_GET['mensaje'])) {
-        $return['success'] = 0;
-        $return['mensaje'] = "Falta informacion";
-        return $return;
-    }
-    extract($_GET);
-
-    /*NOTIFICAR AL MOTORIZADO*/
-    $config = $ClNotificaciones->getByTipo($session['cod_empresa'], "MOTORIZADOS");
-    if ($config) {
-        $token = $config['token'];
-        $topic = $config['topic'];
-        $topic = "motorizado" . $cod_motorizado;
-        $titulo = "Orden Lista";
-        $descripcion = $mensaje;
-        sendNotify($token, $titulo, $topic, $descripcion, 0, "GENERAL");
-        $return['success'] = 1;
-        $return['mensaje'] = "Notificacion enviada";
-    } else {
-        $return['success'] = 0;
-        $return['mensaje'] = "La empresa no esta configurada para enviar notificaciones, por favor ponerse en contacto con Soporte";
-    }
-
-    return $return;
-}
-
 function notificarUsuario() {
-    // ? SE UTILZA EN CLIENTE DETALLE
+    // ? SE UTILZA EN PANTALLAS ANTIGUAS DE ÓRDENES (orden_tracking, apps_email, gestion_ordenes_complete)
 
     global $ClNotificaciones;
     global $session;

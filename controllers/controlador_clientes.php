@@ -31,6 +31,7 @@ function datatable(){
             'formatter' => function($d, $row){
                 return '<ul class="table-controls">
                     <li><a href="cliente_detalle.php?id='.$row['cod_usuario'].'" title="Ver m&aacute;s informaci&oacute;n"><i data-feather="eye"></i></a></li>
+                    <li><a href="javascript:void(0);" class="btnNotificarUsuario" data-value="'.$row['cod_usuario'].'" data-nombre="'.htmlspecialchars($row['nombre']).'" title="Notificar"><i data-feather="bell"></i></a></li>
                     <li><a href="javascript:void(0);" data-value="'.$row['cod_usuario'].'" title="Eliminar"><i data-feather="trash"></i></a></li>
                 </ul>';
             }

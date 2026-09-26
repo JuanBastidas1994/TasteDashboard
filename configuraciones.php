@@ -46,9 +46,13 @@ $monto = 0;
 $valor_cumple = 0;
 $diascumple = 0;
 $restriccioncumple = 0;
+$tipo_fidelizacion = "simple";
+$meta_puntos = 0;
 $fidelizacion = $Clfidelizacion->datos_fidelizacion($cod_empresa);
 if ($fidelizacion) {
     $cod_fidelizacion_puntos = $fidelizacion['cod_fidelizacion_puntos'];
+    $tipo_fidelizacion = $fidelizacion['tipo_fidelizacion'];
+    $meta_puntos = floatval($fidelizacion['meta_puntos']);
     $divisor = $fidelizacion['divisor_puntos'];
     $monto = $fidelizacion['monto_puntos'];
     $valor_cumple = $fidelizacion['valor_regalo_cumple'];
@@ -179,20 +183,13 @@ $tieneOfficInsite = in_array('OFFICE_INSITE', $permisosEmpresa);
                     <div class="col-xl-12 col-lg-12 col-sm-12  layout-spacing underline-content">
                         <div class="widget-content widget-content-area br-6">
                             <ul class="nav nav-tabs mb-3 mt-3" id="lineTab" role="tablist">
-                                <li class="nav-item">
-                                    <a class="nav-link active" data-toggle="tab" href="#tab-info" role="tab" aria-controls="pills-info" aria-selected="true">
-                                        <i data-feather="home"></i>
-                                        <span data-translate="conf-tab1">Informaci&oacute;n de Empresa</span>
-                                    </a>
-                                </li>
-
                                 <li class="nav-item d-none">
                                     <a class="nav-link" data-toggle="tab" href="#tab-envio" role="tab" aria-controls="pills-home" aria-selected="true">
                                         <i data-feather="truck"></i>
                                         <span data-translate="conf-tab2">Costo de env&iacute;o</span>
                                     </a>
                                 </li>
-                                <li class="nav-item">
+                                <li class="nav-item d-none">
                                     <a class="nav-link" data-toggle="tab" href="#tab-formaspago" role="tab" aria-controls="pills-pago" aria-selected="false">
                                         <i data-feather="credit-card"></i>
                                         <span data-translate="conf-tab4">Formas de pago</span>
@@ -214,11 +211,7 @@ $tieneOfficInsite = in_array('OFFICE_INSITE', $permisosEmpresa);
                                     </li>
                                 <?php } ?>
 
-
-
-
-
-                                <li class="nav-item">
+                                <li class="nav-item d-none">
                                     <a class="nav-link" data-toggle="tab" href="#tab-permisos" role="tab" aria-controls="pills-pago" aria-selected="false">
                                         <i data-feather="check-square"></i>
                                         <span data-translate="conf-tab5">Permisos</span>
@@ -251,6 +244,12 @@ $tieneOfficInsite = in_array('OFFICE_INSITE', $permisosEmpresa);
                                     </a>
                                 </li>
                                 <?php } ?>
+                                <li class="nav-item">
+                                    <a class="nav-link active" data-toggle="tab" href="#tab-info" role="tab" aria-controls="pills-info" aria-selected="true">
+                                        <i data-feather="instagram"></i>
+                                        <span data-translate="conf-tab1">Redes Sociales</span>
+                                    </a>
+                                </li>
                                 <!--
                             <li class="nav-item">
                                 <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
@@ -262,23 +261,6 @@ $tieneOfficInsite = in_array('OFFICE_INSITE', $permisosEmpresa);
 
                                     <br>
                                     <div class="row">
-                                        <div class="form-group col-md-6 col-sm-6 col-xs-12">
-                                            <h3 class="" data-translate="conf-tab1-titulo1">Contacto</h3>
-                                            <div class="form-group col-md-12 col-sm-12 col-xs-12">
-                                                <label data-translate="conf-tab1-subtitulo1">Direcci&oacute;n<span class="asterisco">*</span> </label>
-                                                <input type="text" placeholder="Ingrese Direcci&oacute;n" name="txt_direccion" id="txt_direccion" class="form-control" value="<?php echo $direccion ?>">
-                                            </div>
-                                            <div class="form-group col-md-12 col-sm-12 col-xs-12">
-                                                <label data-translate="conf-tab1-subtitulo2">Tel&eacute;fono<span class="asterisco">*</span> </label>
-                                                <input type="text" placeholder="Ingrese Tel&eacute;fono" required="required" name="txt_telefono" id="txt_telefono" class="form-control" value="<?php echo $telefono ?>">
-                                            </div>
-                                            <div class="form-group col-md-12 col-sm-12 col-xs-12">
-                                                <label data-translate="conf-tab1-subtitulo3">Correo<span class="asterisco">*</span> </label>
-                                                <input type="text" placeholder="Ingrese Correo" required="required" name="txt_correo" id="txt_correo" class="form-control" value="<?php echo $correo ?>">
-                                            </div>
-
-                                        </div>
-
                                         <div class="form-group col-md-6 col-sm-6 col-xs-12">
                                             <h3 class="" data-translate="conf-tab1-titulo2">Redes Sociales</h3>
                                             <?php
@@ -294,7 +276,6 @@ $tieneOfficInsite = in_array('OFFICE_INSITE', $permisosEmpresa);
                                                     </div>';
                                             }
                                             ?>
-
                                         </div>
                                     </div>
 
@@ -448,123 +429,149 @@ $tieneOfficInsite = in_array('OFFICE_INSITE', $permisosEmpresa);
                                     </div>
                                 </div>
 
-                                <div class="tab-pane fade" id="tab-fidelizacion" role="tabpanel" aria-labelledby="pills-profile-tab2" style="height: 350px;">
-
-                                    <div class="col-xl-12 col-lg-12 col-sm-12  layout-spacing">
-                                        <div class="widget-content widget-content-area br-6">
-                                            <div class="col-xl-12 col-md-12 col-sm-12 col-12" wfd-id="42">
-                                                <h4>Niveles</h4>
-                                            </div>
-                                            <table id="style-3" class="table style-3">
-                                                <thead>
-                                                    <tr>
-                                                        <th class="text-center">&nbsp;</th>
-                                                        <th class="text-center">Nombre</th>
-                                                        <th class="text-center">Inicio</th>
-                                                        <th class="text-center">Fin</th>
-                                                        <th class="text-center">Monto</th>
-                                                        <th class="text-center">Actualizar</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody id="lstDisponibles">
-                                                    <?php
-                                                    $c = 1;
-                                                    $resp = $Clfidelizacion->niveles($session['cod_empresa']);
-                                                    foreach ($resp as $niveles) {
-                                                        $numeroitems = count($resp);
-                                                        if ($c == 1) {
-                                                            $atributo = "readonly";
-                                                        } else {
-                                                            $atributo = "";
-                                                        }
-                                                        if ($c == $numeroitems) {
-                                                            $atributoFinal = "readonly";
-                                                        } else {
-                                                            $atributoFinal = "";
-                                                        }
-                                                        $imagen = $files . $niveles['imagen'] . "?v=" . fecha();
-                                                        echo '
-                                                    <tr>
-                                                        <td class="text-center">
-                                                            <span><img src="' . $imagen . '" class="profile-img" alt="Imagen"></span>
-                                                        </td>
-                                                        <td class="text-center" >
-                                                           <input type="text" id="txt_nombre' . $niveles['cod_nivel'] . '" class="form-control" style="text-align: center;"
-                                                        value="' . $niveles['nombre'] . '" >
-                                                        </td>
-                                                        <td class="text-center">
-                                                         <input type="number" id="txt_inicio' . $niveles['cod_nivel'] . '" class="form-control" 
-                                                        value="' . $niveles['punto_inicial'] . '"' . $atributo . '>
-                                                        </td>
-                                                        <td class="text-center">
-                                                        <input type="number" id="txt_fin' . $niveles['cod_nivel'] . '" class="form-control" 
-                                                        value="' . $niveles['punto_final'] . '"' . $atributoFinal . '>
-                                                        </td>
-                                                        <td class="text-center"><input type="number" id="txt_monto' . $niveles['cod_nivel'] . '" class="form-control" 
-                                                        value="' . $niveles['dinero_x_punto'] . '"
-                                                        </td>
-                                                        <td class="text-center"><button type="button" class="btn btn-outline-primary btnNiveles" data-id="' . $niveles['cod_nivel'] . '">Actualizar</button></td>
-                                                    </tr>
-                                                    ';
-                                                        $c++;
-                                                    }
-
-                                                    ?>
-
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-xl-4 col-lg-4 col-sm-12  layout-spacing">
-                                        <div class="widget-content widget-content-area br-6" style="height: 300px;">
-                                            <div class="col-xl-12 col-md-12 col-sm-12 col-12" wfd-id="42">
-                                                <h4>Esquema</h4>
-                                            </div>
-                                            <table id="style-3" class="table style-3">
-                                                <tbody id="lstDisponibles">
-                                                    <tr>
-                                                        <td>Por cada($):</td>
-                                                        <td><input type="number" id="txt_divisor_puntos" class="form-control" value="<?php echo $divisor; ?>" style="width: 90px;"></td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>Recibes(Puntos):</td>
-                                                        <td><input type="number" id="txt_monto_puntos" class="form-control" value="<?php echo $monto; ?>" style="width: 90px;"></td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-
-                                            <div class="form-group col-md-12 col-sm-12 col-xs-12" style="text-align: right;" wfd-id="67">
-                                                <button type="button" class="btn btn-outline-primary btnFidelizacion" data-id="<?php echo $cod_fidelizacion_puntos ?>" wfd-id="252">Actualizar</button>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-xl-6 col-lg-6 col-sm-12 ">
-                                        <div class="widget-content widget-content-area br-6">
-                                            <div class="row">
-                                                <div class="col-xl-12 col-md-12 col-sm-12 col-12" wfd-id="42">
-                                                    <h4>Tiempos de Caducidad</h4>
+                                <div class="tab-pane fade" id="tab-fidelizacion" role="tabpanel" aria-labelledby="pills-profile-tab2">
+                                    <div class="widget-content widget-content-area">
+                                        <div class="row">
+                                            <?php if ($tipo_fidelizacion == 'simple') { ?>
+                                            <div class="col-xl-4 col-lg-4 col-sm-12  layout-spacing">
+                                                <div class="widget-content widget-content-area br-6">
                                                     <div class="col-xl-12 col-md-12 col-sm-12 col-12">
-                                                        <label>Caducidad de los Puntos (En d&iacute;as)</label>
-                                                        <input class="form-control" type="number" id="txt_cdPuntos" name="txt_cdPuntos" value="<?= $cantDiasPuntos ?>">
+                                                        <h4>Meta de puntos</h4>
+                                                        <p>Cada vez que el cliente acumula esta cantidad en compras recibe $1.00 para canjear.</p>
                                                     </div>
-                                                    <div class="col-xl-12 col-md-12 col-sm-12 col-12">
-                                                        <label>Caducidad del Dinero (En d&iacute;as)</label>
-                                                        <input class="form-control" type="number" id="txt_cdDinero" name="txt_cdDinero" value="<?= $cantDiasDinero ?>">
+                                                    <table class="table style-3">
+                                                        <tbody>
+                                                            <tr>
+                                                                <td>Meta($):</td>
+                                                                <td><input type="number" id="txt_meta_puntos" class="form-control" value="<?php echo $meta_puntos; ?>" min="0" step="0.01" style="width: 90px;"></td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                    <div class="form-group col-md-12 col-sm-12 col-xs-12" style="text-align: right;">
+                                                        <button type="button" class="btn btn-outline-primary btnMetaPuntos">Actualizar</button>
                                                     </div>
-                                                    <div class="col-xl-12 col-md-12 col-sm-12 col-12">
-                                                        <label>Caducidad del Saldo (En d&iacute;as)</label>
-                                                        <input class="form-control" type="number" id="txt_cdSaldo" name="txt_cdSaldo" value="<?= $cantDiasSaldo ?>">
+                                                </div>
+                                            </div>
+                                            <?php } else { ?>
+                                            <div class="col-xl-12 col-lg-12 col-sm-12  layout-spacing">
+                                                <div class="widget-content widget-content-area br-6">
+                                                    <div class="col-xl-12 col-md-12 col-sm-12 col-12" wfd-id="42">
+                                                        <h4>Niveles</h4>
                                                     </div>
-                                                    <div class="col-xl-12 col-md-12 col-sm-12 col-12" style="text-align: right;">
-                                                        <button style="margin-top: 20px;" class="btn btn-outline-primary btnCaducidad" data-empresa="<?= $cod_empresa ?>">Actualizar</button>
+                                                    <table id="style-3" class="table style-3">
+                                                        <thead>
+                                                            <tr>
+                                                                <th class="text-center">&nbsp;</th>
+                                                                <th class="text-center">Nombre</th>
+                                                                <th class="text-center">Inicio</th>
+                                                                <th class="text-center">Fin</th>
+                                                                <th class="text-center">Monto</th>
+                                                                <th class="text-center">Actualizar</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody id="lstDisponibles">
+                                                            <?php
+                                                            $c = 1;
+                                                            $resp = $Clfidelizacion->niveles($session['cod_empresa']);
+                                                            foreach ($resp as $niveles) {
+                                                                $numeroitems = count($resp);
+                                                                if ($c == 1) {
+                                                                    $atributo = "readonly";
+                                                                } else {
+                                                                    $atributo = "";
+                                                                }
+                                                                if ($c == $numeroitems) {
+                                                                    $atributoFinal = "readonly";
+                                                                } else {
+                                                                    $atributoFinal = "";
+                                                                }
+                                                                $imagen = $files . $niveles['imagen'] . "?v=" . fecha();
+                                                                echo '
+                                                            <tr>
+                                                                <td class="text-center">
+                                                                    <span><img src="' . $imagen . '" class="profile-img" alt="Imagen"></span>
+                                                                </td>
+                                                                <td class="text-center" >
+                                                                <input type="text" id="txt_nombre' . $niveles['cod_nivel'] . '" class="form-control" style="text-align: center;"
+                                                                value="' . $niveles['nombre'] . '" >
+                                                                </td>
+                                                                <td class="text-center">
+                                                                <input type="number" id="txt_inicio' . $niveles['cod_nivel'] . '" class="form-control" 
+                                                                value="' . $niveles['punto_inicial'] . '"' . $atributo . '>
+                                                                </td>
+                                                                <td class="text-center">
+                                                                <input type="number" id="txt_fin' . $niveles['cod_nivel'] . '" class="form-control" 
+                                                                value="' . $niveles['punto_final'] . '"' . $atributoFinal . '>
+                                                                </td>
+                                                                <td class="text-center"><input type="number" id="txt_monto' . $niveles['cod_nivel'] . '" class="form-control" 
+                                                                value="' . $niveles['dinero_x_punto'] . '"
+                                                                </td>
+                                                                <td class="text-center"><button type="button" class="btn btn-outline-primary btnNiveles" data-id="' . $niveles['cod_nivel'] . '">Actualizar</button></td>
+                                                            </tr>
+                                                            ';
+                                                                $c++;
+                                                            }
+
+                                                            ?>
+
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-xl-4 col-lg-4 col-sm-12  layout-spacing">
+                                                <div class="widget-content widget-content-area br-6" style="height: 300px;">
+                                                    <div class="col-xl-12 col-md-12 col-sm-12 col-12" wfd-id="42">
+                                                        <h4>Esquema</h4>
+                                                    </div>
+                                                    <table id="style-3" class="table style-3">
+                                                        <tbody id="lstDisponibles">
+                                                            <tr>
+                                                                <td>Por cada($):</td>
+                                                                <td><input type="number" id="txt_divisor_puntos" class="form-control" value="<?php echo $divisor; ?>" style="width: 90px;"></td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>Recibes(Puntos):</td>
+                                                                <td><input type="number" id="txt_monto_puntos" class="form-control" value="<?php echo $monto; ?>" style="width: 90px;"></td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+
+                                                    <div class="form-group col-md-12 col-sm-12 col-xs-12" style="text-align: right;" wfd-id="67">
+                                                        <button type="button" class="btn btn-outline-primary btnFidelizacion" data-id="<?php echo $cod_fidelizacion_puntos ?>" wfd-id="252">Actualizar</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <?php } ?>
+
+                                            <div class="col-xl-6 col-lg-6 col-sm-12 ">
+                                                <div class="widget-content widget-content-area br-6">
+                                                    <div class="row">
+                                                        <div class="col-xl-12 col-md-12 col-sm-12 col-12" wfd-id="42">
+                                                            <h4>Tiempos de Caducidad</h4>
+                                                            <p>M&iacute;nimo 30 d&iacute;as.</p>
+                                                            <!--En el esquema simple los puntos solo son historial y caducan con el saldo-->
+                                                            <div class="col-xl-12 col-md-12 col-sm-12 col-12" style="<?= ($tipo_fidelizacion == 'simple') ? 'display: none;' : '' ?>">
+                                                                <label>Caducidad de los Puntos (En d&iacute;as)</label>
+                                                                <input class="form-control" type="number" min="30" id="txt_cdPuntos" name="txt_cdPuntos" value="<?= $cantDiasPuntos ?>">
+                                                            </div>
+                                                            <div class="col-xl-12 col-md-12 col-sm-12 col-12">
+                                                                <label>Caducidad del Dinero (En d&iacute;as)</label>
+                                                                <input class="form-control" type="number" min="30" id="txt_cdDinero" name="txt_cdDinero" value="<?= $cantDiasDinero ?>">
+                                                            </div>
+                                                            <div class="col-xl-12 col-md-12 col-sm-12 col-12">
+                                                                <label><?= ($tipo_fidelizacion == 'simple') ? 'Caducidad del acumulado hacia la meta' : 'Caducidad del Saldo' ?> (En d&iacute;as)</label>
+                                                                <input class="form-control" type="number" min="30" id="txt_cdSaldo" name="txt_cdSaldo" value="<?= $cantDiasSaldo ?>">
+                                                            </div>
+                                                            <div class="col-xl-12 col-md-12 col-sm-12 col-12" style="text-align: right;">
+                                                                <button style="margin-top: 20px;" class="btn btn-outline-primary btnCaducidad" data-empresa="<?= $cod_empresa ?>">Actualizar</button>
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-
                                 </div>
 
                                 <div class="tab-pane fade" id="tab-formaspago" role="tabpanel" aria-labelledby="pills-pago-tab2">
@@ -881,7 +888,7 @@ $tieneOfficInsite = in_array('OFFICE_INSITE', $permisosEmpresa);
     <?php js_mandatory(); ?>
     <script src="assets/js/scrollspyNav.js"></script>
     <script src="plugins/croppie/croppie.js"></script>
-    <script src="assets/js/pages/configuraciones.js" type="text/javascript"></script>
+    <script src="assets/js/pages/configuraciones.js?v=2" type="text/javascript"></script>
     <script src="assets/js/pages/sucursales/config_couriers.js" type="text/javascript"></script>
     <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script> -->
     <!-- END PAGE LEVEL CUSTOM SCRIPTS -->

@@ -4,7 +4,6 @@ require_once "clases/cl_ordenes.php";
 require_once "clases/cl_usuarios.php";
 require_once "clases/cl_sucursales.php";
 require_once "clases/cl_clientes.php";
-require_once "clases/cl_notificaciones.php";
 
 if (!isLogin()) {
     header("location:login.php");
@@ -13,7 +12,6 @@ if (!isLogin()) {
 $Clordenes = new cl_ordenes(NULL);
 //$Clsucursales = new cl_sucursales(NULL);
 $Clusuarios = new cl_usuarios(NULL);
-$Clnotificaciones = new cl_notificaciones(NULL);
 $session = getSession();
 
 $cod_empresa = $session['cod_empresa'];
@@ -66,15 +64,6 @@ if (isset($_GET['id'])) {
         /*UBICACION*/
         $latitud =  "";
         $longitud =  "";
-
-        /*NOTIFICACIONES*/
-        $htmlTiposNotificaciones = "";
-        $notificaciones = $Clnotificaciones->getTipoNotificacionUsuario();
-        if ($notificaciones) {
-            foreach ($notificaciones as $tipo) {
-                $htmlTiposNotificaciones .= '<option value="' . strtolower($tipo['cod_notificacion_tipo']) . '">' . ucwords(strtolower($tipo['tipo'])) . '</option>';
-            }
-        }
     } else {
         header("location: ./index.php");
     }
@@ -331,22 +320,12 @@ function datetimeShort($fecha)
                             </div>
                             <div class="row">
                                 <div class="col-12">
-                                    <p>Tipo</p>
-                                    <select class="form-control" name="cmbTipoNotificacion" id="cmbTipoNotificacion">
-                                        <?= $htmlTiposNotificaciones ?>
-                                    </select>
-                                </div>
-                                <div class="col-12" style="display:none;">
-                                    <p>From:</p>
-                                    <textarea id="demo1"></textarea>
-                                </div>
-                                <div class="col-12">
-                                    <p style="margin-top: 10px;">Mensaje:</p>
-                                    <div id="containerEmoji"></div>
+                                    <p>Mensaje:</p>
+                                    <textarea id="txtNotificarUsuario" maxlength="200" placeholder="Le llegará como notificación a su celular"></textarea>
                                 </div>
 
                                 <div class="col-sm-12 col-12" style="text-align: right;">
-                                    <a style="margin-top: 10px;" class="btn btn-primary btnNotificar" id="btnNotificar" data-usuario="<?php echo $id; ?>">Notificar</a>
+                                    <a style="margin-top: 10px;" class="btn btn-primary" id="btnNotificarUsuario" data-usuario="<?php echo $id; ?>">Notificar</a>
                                 </div>
                             </div>
                         </div>
@@ -479,11 +458,11 @@ function datetimeShort($fecha)
     <?php js_mandatory(); ?>
     <script src="//maps.googleapis.com/maps/api/js?key=AIzaSyAHa67r_2hPqR_URtU8zsibmJx9Ahq7yGQ"></script>
     <script src="plugins/maps-latlon/jquery-gmaps-latlon-picker.js"></script>
-    <script src="assets/js/pages/orden_detalle.js" type="text/javascript"></script>
-    <script src="assets/js/pages/emoji.js" type="text/javascript"></script>
+    <script src="assets/js/pages/orden_detalle.js?v=1" type="text/javascript"></script>
     <script src="assets/js/pages/cliente_detalle.js" type="text/javascript"></script>
     <script type="text/javascript" src="emoji/dist/emojionearea.js"></script>
     <link rel="stylesheet" type="text/css" href="emoji/dist/emojionearea.min.css" media="screen">
+    <script src="assets/js/pages/notificar_usuario.js?v=1" type="text/javascript"></script>
 
     <!-- BEGIN PAGE LEVEL CUSTOM SCRIPTS -->
     <script src="assets/js/scrollspyNav.js"></script>

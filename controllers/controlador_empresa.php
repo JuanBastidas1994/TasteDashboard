@@ -1152,7 +1152,11 @@ function subirLogos(){
 
     if($cod_empresa > 0){
         $row = $Clempresas->get($cod_empresa);
-        $rutafile = url_upload.'assets/empresas/'.$row['alias'].'/'.$nomImage;
+        $dir = url_upload.'assets/empresas/'.$row['alias'];
+        if(!is_dir($dir)){
+            mkdir($dir, 0755, true);
+        }
+        $rutafile = $dir.'/'.$nomImage;
         $rutaImagen = url_sistema.'assets/empresas/'.$row['alias'].'/'.$nomImage."?v=".date("s");
         if(move_uploaded_file($_FILES['inputFile']['tmp_name'], $rutafile)){
             $return['success'] = 1;

@@ -2260,7 +2260,7 @@ $(document).ready(function() {
             "url": url
         }
         $.ajax({
-           url: window.tasteUrl('replicador/iconos.php'),
+           url: 'replicador/iconos.php',
            data: parametros,
            type: "GET",
            success: function(response){
@@ -2327,9 +2327,9 @@ $(document).ready(function() {
     });
 
     function updateEmprendedor(cod_empresa, isEmprendedor){
-        let link = window.tasteUrl('replicador/emprendedores_delete.php?id=' + cod_empresa);
+        let link = 'replicador/emprendedores_delete.php?id=' + cod_empresa;
         if(1 == isEmprendedor){
-            link = window.tasteUrl('replicador/emprendedores.php?id=' + cod_empresa);
+            link = 'replicador/emprendedores.php?id=' + cod_empresa;
         }
         $.ajax({url: link, success: function(result){
             console.log(result);
@@ -2570,7 +2570,7 @@ $(document).ready(function() {
            if (result.value) {
 
                 $.ajax({
-                    url: window.tasteUrl('replicador/replicar.php'),
+                    url: 'replicador/replicar.php',
                     data: {
                         id,
                         template: data.file,
@@ -2602,11 +2602,10 @@ $(document).ready(function() {
         let params = {
             id: $("#id").val(),
             template: data.file,
-            url: window.__CONFIG__.URL_UPLOAD + 'replicador/tempPageforDownload',
             download: 1
         };
         
-        let openUrl = window.tasteUrl('replicador/replicar.php');
+        let openUrl = 'replicador/replicar.php';
         let queryString = new URLSearchParams(params).toString();
         let finalUrl = `${openUrl}?${queryString}`;
         window.open(finalUrl, '_blank');
@@ -2620,12 +2619,11 @@ $(document).ready(function() {
         let params = {
             id: $("#id").val(),
             template: data.file,
-            url: window.__CONFIG__.URL_UPLOAD + 'replicador/tempPageforDownload',
             compress: 1
         };
         
         $.ajax({
-            url: window.tasteUrl('replicador/replicar.php'),
+            url: 'replicador/replicar.php',
             data: params,
             type: "GET",
             success: function(response){

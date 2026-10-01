@@ -185,7 +185,7 @@ $imagen = url_sistema.'/assets/img/200x200.jpg';
     <!-- Mapas -->
     <script src="//maps.googleapis.com/maps/api/js?key=AIzaSyDe9LjbQR0UAc8PMVJXc66flE7yqrJbD6o&libraries=places"></script>
     <script src="plugins/maps-latlon/jquery-gmaps-latlon-picker.js"></script>
-    <script src="assets/js/pages/replicar_web_masivo.js" type="text/javascript"></script>
+    <script src="assets/js/pages/replicar_web_masivo.js?v=2" type="text/javascript"></script>
     <!-- END PAGE LEVEL CUSTOM SCRIPTS -->
 </body>
 </html>

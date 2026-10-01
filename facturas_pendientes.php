@@ -342,7 +342,10 @@ $files = url_sistema.'assets/empresas/'.$session['alias'].'/';
                     </span>
                 </td>
                 <td class="text-center">
-                    {{#if inventario}}
+                    {{#if esRunfood}}
+                    <!-- Runfood gestiona su propio inventario: aquí se muestra el estado de la comanda -->
+                    <span class="badge badge-{{comanda.clase}} bs-tooltip" data-toggle="tooltip" data-placement="top" data-original-title="{{comanda.title}}">{{comanda.texto}}</span>
+                    {{else if inventario}}
                     <span class="bs-tooltip" data-toggle="tooltip" data-placement="top" data-original-title="{{inventario.title}}">
                         <i data-feather="{{inventario.icono}}" class="text-{{inventario.clase}}"></i>
                     </span>

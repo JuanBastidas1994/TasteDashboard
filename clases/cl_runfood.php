@@ -162,37 +162,106 @@ class cl_runfood
     }
 
     /**
-     * Recorre el catalogo de Runfood y liga automaticamente los productos cuyo SKU
-     * ya coincide con tb_productos.sku y que aun no tienen asignacion para esta sucursal.
+     * Asignación masiva por SKU: liga cada producto nuestro sin asignación cuyo tb_productos.sku
+     * exista en el catálogo de Runfood de esta sucursal. Devuelve:
+     *  - match: productos ligados (nuevos y los que ya estaban), con alertas que harían fallar la
+     *    factura (IVA distinto entre Taste y Runfood, SKU que ya no existe, inactivo en Runfood).
+     *  - mismatch: productos que quedaron sin ligar y por qué.
+     * Retorna false si no se pudo leer el catálogo de Runfood.
      */
     function verificarProductos($office_id){
         $productosRunfood = $this->LstProductos();
         if (!$productosRunfood || !isset($productosRunfood['data'])) {
-            return ['matched' => 0, 'productos' => []];
+            return false;
+        }
+        $runfoodPorSku = [];
+        foreach ($productosRunfood['data'] as $pRunfood) {
+            if (isset($pRunfood['sku']) && $pRunfood['sku'] !== '') {
+                $runfoodPorSku[(string)$pRunfood['sku']] = $pRunfood;
+            }
         }
 
         $cod_empresa = $this->cod_empresa;
-        $matched = [];
+        $query = "SELECT p.cod_producto, p.nombre, p.sku, p.cobra_iva, pf.id AS id_runfood, pf.sku AS sku_runfood
+                    FROM tb_productos p
+                    LEFT JOIN tb_productos_facturacion pf ON pf.cod_producto = p.cod_producto AND pf.cod_contifico_empresa = $office_id
+                    WHERE p.cod_empresa = $cod_empresa AND p.estado IN ('A','I')
+                    ORDER BY p.nombre";
+        $productos = Conexion::buscarVariosRegistro($query) ?: [];
 
-        foreach ($productosRunfood['data'] as $pRunfood) {
-            $sku = $pRunfood['sku'] ?? null;
-            if (!$sku) continue;
-
-            $query = "SELECT cod_producto FROM tb_productos
-                        WHERE cod_empresa = $cod_empresa AND sku = '$sku' AND estado IN ('A','I')";
-            $producto = Conexion::buscarRegistro($query);
-            if (!$producto) continue;
-
-            $query = "SELECT cod_producto_facturacion FROM tb_productos_facturacion
-                        WHERE cod_producto = {$producto['cod_producto']} AND cod_contifico_empresa = $office_id";
-            $yaLigado = Conexion::buscarRegistro($query);
-            if ($yaLigado) continue;
-
-            $this->setProduct($office_id, $producto['cod_producto'], $sku, $pRunfood['name'] ?? $sku, $sku);
-            $matched[] = ['cod_producto' => $producto['cod_producto'], 'sku' => $sku, 'name' => $pRunfood['name'] ?? $sku];
+        // Un SKU de Runfood solo puede estar ligado a un producto: los ya usados no se reasignan
+        // (setProduct desligaría al anterior).
+        $skusUsados = [];
+        foreach ($productos as $p) {
+            $skuLigado = $p['sku_runfood'] ?: $p['id_runfood'];
+            if ($skuLigado) $skusUsados[(string)$skuLigado] = $p['nombre'];
         }
 
-        return ['matched' => count($matched), 'productos' => $matched];
+        $match = [];
+        $mismatch = [];
+        $nuevos = 0;
+        foreach ($productos as $p) {
+            $nombre = html_entity_decode($p['nombre']);
+            $skuLigado = $p['sku_runfood'] ?: $p['id_runfood'];
+            if ($skuLigado) {
+                $match[] = $this->itemVerificacion($p, $runfoodPorSku[(string)$skuLigado] ?? null, $skuLigado, false);
+                continue;
+            }
+
+            $sku = trim((string)$p['sku']);
+            if ($sku === '') {
+                $mismatch[] = ['cod_producto' => $p['cod_producto'], 'nombre' => $nombre, 'sku' => '', 'motivo' => 'No tiene SKU en Taste'];
+                continue;
+            }
+            if (!isset($runfoodPorSku[$sku])) {
+                $mismatch[] = ['cod_producto' => $p['cod_producto'], 'nombre' => $nombre, 'sku' => $sku, 'motivo' => 'El SKU no existe en Runfood'];
+                continue;
+            }
+            if (isset($skusUsados[$sku])) {
+                $mismatch[] = ['cod_producto' => $p['cod_producto'], 'nombre' => $nombre, 'sku' => $sku, 'motivo' => 'El SKU ya está ligado a "' . html_entity_decode($skusUsados[$sku]) . '"'];
+                continue;
+            }
+
+            $pRunfood = $runfoodPorSku[$sku];
+            if (!$this->setProduct($office_id, $p['cod_producto'], $sku, $pRunfood['name'] ?? $sku, $sku)) {
+                $mismatch[] = ['cod_producto' => $p['cod_producto'], 'nombre' => $nombre, 'sku' => $sku, 'motivo' => 'Error al guardar la asignación'];
+                continue;
+            }
+            $skusUsados[$sku] = $p['nombre'];
+            $match[] = $this->itemVerificacion($p, $pRunfood, $sku, true);
+            $nuevos++;
+        }
+
+        return ['matched' => $nuevos, 'match' => $match, 'mismatch' => $mismatch];
+    }
+
+    private function itemVerificacion($producto, $pRunfood, $sku, $nuevo){
+        $alertas = [];
+        // Lo que viaja a Runfood es el SKU del ligado (tb_productos_facturacion); si alguien editó el
+        // SKU del producto, la integración sigue funcionando pero conviene saberlo.
+        if (trim((string)$producto['sku']) !== (string)$sku) {
+            $alertas[] = 'El SKU del producto (' . ($producto['sku'] ?: 'vacío') . ') no coincide con el ligado; se sigue usando ' . $sku;
+        }
+        if (!$pRunfood) {
+            $alertas[] = 'El SKU ligado ya no existe en Runfood';
+        } else {
+            if (isset($pRunfood['active']) && !$pRunfood['active']) {
+                $alertas[] = 'Inactivo en Runfood';
+            }
+            $ivaTaste = (int)$producto['cobra_iva'] === 1;
+            $ivaRunfood = !empty($pRunfood['vat_applicable']);
+            if ($ivaTaste !== $ivaRunfood) {
+                $alertas[] = 'IVA distinto: Taste ' . ($ivaTaste ? 'cobra' : 'no cobra') . ', Runfood ' . ($ivaRunfood ? 'cobra' : 'no cobra') . ' (la factura será rechazada)';
+            }
+        }
+        return [
+            'cod_producto'   => $producto['cod_producto'],
+            'nombre'         => html_entity_decode($producto['nombre']),
+            'sku'            => (string)$sku,
+            'nombre_runfood' => $pRunfood['name'] ?? '',
+            'nuevo'          => $nuevo,
+            'alertas'        => $alertas,
+        ];
     }
     
     function setIngrediente($office_id, $cod_ingrediente, $id_contifico, $contifico_name){

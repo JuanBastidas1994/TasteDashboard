@@ -5,6 +5,7 @@ require_once "../funciones.php";
 require_once "../clases/cl_contifico.php";
 require_once "../clases/cl_empresas.php";
 require_once "../clases/cl_sucursales.php";
+require_once "../clases/cl_ordenes.php";
 
 $session = getSession();
 $ClContifico = new cl_contifico($session["cod_empresa"]);
@@ -81,7 +82,6 @@ function getSucursales() {
 }
 
 function getFacturasUnificadas() {
-    global $ClContifico;
     global $session;
     extract($_GET);
 
@@ -90,7 +90,8 @@ function getFacturasUnificadas() {
     $documento = isset($documento) ? $documento : '';
     $estado = isset($estado) ? $estado : '';
 
-    $documentos = $ClContifico->getFacturasUnificadas(
+    $ClOrdenes = new cl_ordenes();
+    $documentos = $ClOrdenes->getFacturasUnificadas(
         $session["cod_empresa"],
         $fecha_inicio." 00:00:00",
         $fecha_fin." 23:59:59",

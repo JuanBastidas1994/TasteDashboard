@@ -83,6 +83,70 @@ $permisos = $Clempresas->getIdPermisionByBusiness($cod_empresa);
         <?php echo sidebar(); ?>
         <!--  END SIDEBAR  -->
         
+        <!--MODAL RESULTADO ASIGNACION MASIVA POR SKU -->
+        <div class="modal fade bs-example-modal-lg" id="modalAsignacionSku" tabindex="99" role="dialog" aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Asignación masiva por SKU</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                          <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                        </button>
+                    </div>
+                    <div class="modal-body" id="contentAsignacionSku"></div>
+                    <script id="asignacion-sku-template" type="text/x-handlebars-template">
+                        <p>{{mensaje}}</p>
+                        <ul class="nav nav-tabs mb-3" role="tablist">
+                            <li class="nav-item">
+                                <a class="nav-link active" data-toggle="tab" href="#tabSkuMatch" role="tab">Match ({{match.length}})</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" data-toggle="tab" href="#tabSkuMismatch" role="tab">Mismatch ({{mismatch.length}})</a>
+                            </li>
+                        </ul>
+                        <div class="tab-content" style="max-height: 60vh; overflow-y: auto;">
+                            <div class="tab-pane fade show active" id="tabSkuMatch" role="tabpanel">
+                                <table class="table table-sm">
+                                    <thead><tr><th>Producto Taste</th><th>SKU</th><th>Producto Runfood</th><th></th></tr></thead>
+                                    <tbody>
+                                    {{#each match}}
+                                        <tr>
+                                            <td>{{nombre}}</td>
+                                            <td>{{sku}}</td>
+                                            <td>{{nombre_runfood}}</td>
+                                            <td>
+                                                {{#if nuevo}}<span class="badge badge-success">Nuevo</span>{{else}}<span class="badge badge-secondary">Ya ligado</span>{{/if}}
+                                                {{#each alertas}}<div><span class="badge badge-warning mt-1">{{this}}</span></div>{{/each}}
+                                            </td>
+                                        </tr>
+                                    {{else}}
+                                        <tr><td colspan="4">Ningún producto quedó ligado</td></tr>
+                                    {{/each}}
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="tab-pane fade" id="tabSkuMismatch" role="tabpanel">
+                                <table class="table table-sm">
+                                    <thead><tr><th>Producto Taste</th><th>SKU</th><th>Motivo</th></tr></thead>
+                                    <tbody>
+                                    {{#each mismatch}}
+                                        <tr>
+                                            <td>{{nombre}}</td>
+                                            <td>{{sku}}</td>
+                                            <td>{{motivo}}</td>
+                                        </tr>
+                                    {{else}}
+                                        <tr><td colspan="3">Todos los productos están ligados</td></tr>
+                                    {{/each}}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </script>
+                </div>
+            </div>
+        </div>
+
         <!--MODAL OPCIONES PRODUCTO -->
         <div class="modal fade bs-example-modal-lg" id="modalOpcionesProducto" tabindex="99" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-lg" role="document" style="z-index: 9999999 !important;">
@@ -137,11 +201,21 @@ $permisos = $Clempresas->getIdPermisionByBusiness($cod_empresa);
                                                     <div class="ml-2" style="display: none;">No son bases de datos</div>    
                                                 {{/eq}}
                                                 <div class="ml-auto">
-                                                    <button class="btn btn-outline-primary btnAsignarOpciones" data-id="{{cod_producto_opciones_detalle}}">
-                                                        <i data-feather="plus-circle"></i> Asignar
-                                                    </button>
+                                                    {{#eq ../isDatabase "1"}}
+                                                        <!-- Opción que es un producto real: se factura con el mapeo del propio producto, no se liga aquí -->
+                                                        {{#if productoLigado}}
+                                                            <span class="badge badge-success">Ligado vía producto: {{productoLigado.name_in_contifico}} (SKU {{productoLigado.sku}})</span>
+                                                        {{else}}
+                                                            <span class="badge badge-warning">Producto sin ligar: lígalo en la pestaña Productos</span>
+                                                        {{/if}}
+                                                    {{else}}
+                                                        <button class="btn btn-outline-primary btnAsignarOpciones" data-id="{{cod_producto_opciones_detalle}}">
+                                                            <i data-feather="plus-circle"></i> Asignar
+                                                        </button>
+                                                    {{/eq}}
                                                 </div>
                                             </div>
+                                            {{#diferent ../isDatabase "1"}}
                                             {{#diferent facturacion false}}
                                             <div class="ml-3">
                                                 <div class="d-flex align-items-center justify-content-start mt-2 item-ingrediente">
@@ -160,7 +234,8 @@ $permisos = $Clempresas->getIdPermisionByBusiness($cod_empresa);
                                                 </div>
                                             </div>
                                             {{/diferent}}
-                                            
+                                            {{/diferent}}
+
                                         </div>
                                         {{/each}}
                                     </div>
@@ -329,7 +404,7 @@ $permisos = $Clempresas->getIdPermisionByBusiness($cod_empresa);
                 </div>
                 <div class="col-md-4 text-right">
                     <button type="button" class="btn btn-outline-primary" id="btnVerificarProductos">
-                        <i data-feather="refresh-cw"></i> <span class="btn-text-inner ms-3">Verificar</span>
+                        <i data-feather="refresh-cw"></i> <span class="btn-text-inner ms-3">Asignación masiva por SKU</span>
                     </button>
                 </div>
 

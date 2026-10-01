@@ -38,6 +38,13 @@ $("body").on("click", ".btnShare", async function(){
             
         });
     }
+    else if(type == "table"){
+        const $table = $($(this).data('target')).clone().removeAttr('id');
+        $table.find('[id]').removeAttr('id');
+        const $wrapper = $('<div style="max-width:600px; margin:0 auto; text-align:left;"></div>').append($table);
+        $('#shared-chart-render').append($wrapper);
+        capturarYCompartir(null, title, shared, 0);
+    }
     else{
         widgetChart = $(this).parents('.card').find('.widget-chart')[0];
         capturarYCompartir(widgetChart, title, shared);

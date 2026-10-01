@@ -52,9 +52,14 @@ $respSucursal = $Clsucursales->lista();
     <!-- Top 5 Productos -->
     <div class="col-xl-4 col-lg-12 col-md-12 col-sm-12 col-12">
         <div class="card p-3" style="border-radius:20px; min-height:280px;">
-            <h6 style="font-weight:700;color:black;" class="mb-3">Top 5 Productos</h6>
+            <div class="d-flex mb-3">
+                <h6 style="font-weight:700;color:black;" class="flex-grow-1 mb-0">Top 5 Productos</h6>
+                <div class="btnShare" id="btnShareTopProductos" data-type="table" data-title="Top 5 Productos" data-target="#tableTopProductos" data-shared="">
+                    <i data-feather="share-2"></i>
+                </div>
+            </div>
             <div class="table-responsive">
-                <table class="table table-sm mb-0">
+                <table id="tableTopProductos" class="table table-sm mb-0">
                     <thead>
                         <tr style="font-size:11px;text-transform:uppercase;color:#888ea8;">
                             <th style="color:black;">Producto</th>
@@ -71,9 +76,14 @@ $respSucursal = $Clsucursales->lista();
     <!-- Rendimiento por Sucursal -->
     <div class="col-xl-4 col-lg-12 col-md-12 col-sm-12 col-12">
         <div class="card p-3" style="border-radius:20px; min-height:280px;">
-            <h6 style="font-weight:700;color:black;" class="mb-3">Rendimiento por Sucursal</h6>
+            <div class="d-flex mb-3">
+                <h6 style="font-weight:700;color:black;" class="flex-grow-1 mb-0">Rendimiento por Sucursal</h6>
+                <div class="btnShare" id="btnShareSucursales" data-type="table" data-title="Rendimiento por Sucursal" data-target="#tableSucursales" data-shared="">
+                    <i data-feather="share-2"></i>
+                </div>
+            </div>
             <div class="table-responsive">
-                <table class="table table-sm mb-0">
+                <table id="tableSucursales" class="table table-sm mb-0">
                     <thead>
                         <tr style="font-size:11px;text-transform:uppercase;color:black;">
                             <th style="color:black;">Sucursal</th>

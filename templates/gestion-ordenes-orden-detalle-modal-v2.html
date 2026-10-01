@@ -478,10 +478,13 @@
                         </div>
                     {{/eq}}
                 {{else}}
-                    <button class="btn btn-success" 
+                    <!-- Pickup: primero se acepta; entregar directo desde ENTRANTE salta tracking, notificaciones y comanda -->
+                    {{#diferent estado "ENTRANTE"}}
+                    <button class="btn btn-success"
                         onclick="preChangeStatus({{id}}, 'ENTREGADA')">Orden entregada</button>
-                {{/eq}}    
-            </div>   
+                    {{/diferent}}
+                {{/eq}}
+            </div>
         {{/ifIn}}
         {{#ifIn estado (array "PREPARANDO")}}
                 <div class="mr-auto">

@@ -35,3 +35,5 @@ define('API_TASTE_ECOMMERCE', env('API_TASTE_ECOMMERCE', 'https://tasteapi.test'
 define('API_MOTORIZADOS_URL', env('API_MOTORIZADOS_URL', ''));
 define('API_FLOTAS_URL', env('API_FLOTAS_URL', ''));
 define('API_POS_URL', env('API_POS_URL', 'https://tasteordenes.test'));
+// Mismo valor que TRACKING_SECRET de api/api_gestion_ordenes: el cron de notificaciones arma links de tracking
+define('TRACKING_SECRET', env('TRACKING_SECRET', ''));

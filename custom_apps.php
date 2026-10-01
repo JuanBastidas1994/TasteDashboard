@@ -323,7 +323,7 @@ foreach($availableOrder as $key){
 
     <?php js_mandatory(); ?>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
-    <script src="assets/js/pages/custom_apps.js?v=2" type="text/javascript"></script>
+    <script src="assets/js/pages/custom_apps.js?v=3" type="text/javascript"></script>
 
     <!-- BEGIN PAGE LEVEL CUSTOM SCRIPTS -->
     <script src="assets/js/scrollspyNav.js"></script>

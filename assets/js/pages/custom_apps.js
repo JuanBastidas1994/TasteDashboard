@@ -141,7 +141,7 @@ $(document).ready(function(){
             "url": url
         }
         $.ajax({
-            url: window.tasteUrl('replicador/iconos.php'),
+            url: 'replicador/iconos.php',
             data: parametros,
             type: "GET",
             success: function(response){

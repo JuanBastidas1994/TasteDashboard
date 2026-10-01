@@ -13,7 +13,10 @@ if(!isset($_GET['id'])){
     showResponse($return);
 }
 
-if(!isset($_GET['url'])){
+$download = isset($_GET['download']) ? true : false;
+$compress = isset($_GET['compress']) ? true : false;
+
+if(!isset($_GET['url']) && !$download && !$compress){
     $return['success'] = 0;
     $return['mensaje'] = "Falta directorio donde se replicará la página";
     showResponse($return);
@@ -32,7 +35,8 @@ if(!$empresa){
 }
 $alias = $empresa['alias'];
 
-$path = $_GET['url'];
+// Para descargar/comprimir se arma la página en una carpeta temporal junto a este archivo
+$path = ($download || $compress) ? __DIR__.'/tempPageforDownload' : $_GET['url'];
 if(!file_exists($path)){
     $return['success'] = 0;
     $return['mensaje'] = "Directorio no existe";
@@ -141,8 +145,6 @@ if($img_bienvenida == 1){
 }
 
 $zipFileDownload = "";
-$download = isset($_GET['download']) ? true : false;
-$compress = isset($_GET['compress']) ? true : false;
 
 if($download || $compress){
     $zipName = 'page-'.$alias.'.zip';

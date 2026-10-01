@@ -250,8 +250,8 @@ $faltaPagos = Conexion::buscarRegistro($query);
     <script src="plugins/momentjs/moment.js"></script>
     <script type="text/javascript" src="templates/templates.js"></script>
     <script src="assets/js/dashboard/charts.js?v=1" type="text/javascript"></script>
-    <script src="assets/js/dashboard/metrics.js?v=1" type="text/javascript"></script>
-    <script src="assets/js/dashboard/shared.js?v=1" type="text/javascript"></script>
+    <script src="assets/js/dashboard/metrics.js?v=2" type="text/javascript"></script>
+    <script src="assets/js/dashboard/shared.js?v=2" type="text/javascript"></script>
     <script src="assets/js/dashboard/homeReports.js?v=1" type="text/javascript"></script>
     <script src="assets/js/pages/crear_empresas.js" type="text/javascript"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>

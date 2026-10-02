@@ -14,8 +14,9 @@ if(!$empresa)
 
 $alias = $empresa['alias'];
 $assetsPath = url_sistema."assets/empresas/$alias/";
+$logoFile = !empty($empresa['logo']) ? $empresa['logo'] : 'logo.png';
 $assets = [
-    'logo' => $assetsPath."logo.png",
+    'logo' => $assetsPath.$logoFile,
     'logofooter' => $assetsPath."logo-footer.png",
     'favicon' => $assetsPath."favicon.png",
     'compartir' => $assetsPath."compartir.jpg",
@@ -33,6 +34,7 @@ if ($image_data = @getimagesize($assets['logo'])) {
 
 $info = [
     'nombre' => $empresa['nombre'],
+    'alias' => $alias,
     'color' => $empresa['color'],
     'api_key' => $empresa['api_key'],
     'keywords' => $empresa['keywords'],

@@ -135,28 +135,24 @@ $(document).ready(function(){
 
     function actualizarLogos() {
         let cod_empresa = $("#id").val();
-        let url = window.tasteHostPath($("#urlFolder").val());
-        let parametros = {
-            "id": cod_empresa,
-            "url": url
-        }
+        OpenLoad("Publicando logos...");
         $.ajax({
-            url: window.tasteUrl('replicador/iconos.php'),
-            data: parametros,
-            type: "GET",
+            url: 'controllers/controlador_empresa.php?metodo=publicarLogosSitio',
+            data: { cod_empresa: cod_empresa },
+            type: "POST",
             success: function(response){
-                console.log(response);
+                CloseLoad();
                 if(response['success']==1){
-                    notify(response['mensaje'], "success", 2);
+                    Swal.fire({ icon: 'success', title: response['mensaje'], html: response['detalle'] || '' });
                 }
                 else{
-                    notify(response['mensaje'], "error", 2);
+                    Swal.fire({ icon: 'error', title: response['mensaje'] || 'No se publicaron los logos', html: response['detalle'] || '' });
                 }
             },
-            error: function(data){
-            },
-            complete: function(){
-            },
+            error: function(){
+                CloseLoad();
+                notify("No se pudo publicar los logos", "error", 3);
+            }
         });
     }
 

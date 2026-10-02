@@ -141,7 +141,7 @@ $(document).ready(function() {
             "url": url
         }
         $.ajax({
-        url: window.tasteUrl('replicador/replicar.php'),
+        url: 'replicador/replicar.php',
         data: parametros,
         type: "GET",
         success: function(response){

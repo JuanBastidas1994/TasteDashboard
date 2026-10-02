@@ -973,7 +973,11 @@ function subirLogos(){
 
     if($cod_empresa > 0){
         $row = $Clempresas->get($cod_empresa);
-        $rutafile = url_upload.'assets/empresas/'.$row['alias'].'/'.$nomImage;
+        $dir = url_upload.'assets/empresas/'.$row['alias'];
+        if(!is_dir($dir)){
+            mkdir($dir, 0755, true);
+        }
+        $rutafile = $dir.'/'.$nomImage;
         $rutaImagen = url_sistema.'assets/empresas/'.$row['alias'].'/'.$nomImage."?v=".date("s");
         if(move_uploaded_file($_FILES['inputFile']['tmp_name'], $rutafile)){
             $return['success'] = 1;
@@ -1544,5 +1548,148 @@ function replicarWebHostingExterno(){
         'installerUrl' => $installerUrl
     ];
     
+}
+
+function publicarLogosSitio(){
+    global $Clempresas;
+
+    $cod_empresa = intval($_POST['cod_empresa'] ?? $_GET['cod_empresa'] ?? 0);
+    if($cod_empresa <= 0){
+        return [ 'success' => 0, 'mensaje' => 'Falta la empresa' ];
+    }
+
+    $empresa = $Clempresas->get($cod_empresa);
+    if(!$empresa){
+        return [ 'success' => 0, 'mensaje' => 'Empresa no existe' ];
+    }
+
+    $origen = rtrim(url_upload, '/').'/assets/empresas/'.$empresa['alias'].'/';
+    if(!is_dir($origen)){
+        return [ 'success' => 0, 'mensaje' => 'No existe la carpeta de logos de la empresa' ];
+    }
+
+    $mapa = tasteLogoMapaSitio();
+    $detalle = '';
+    $copiados = 0;
+
+    $folder = trim((string) ($empresa['folder'] ?? ''), '/');
+    if($folder !== ''){
+        $local = rtrim(path_hosting, '/').'/'.$folder;
+        if(is_dir($local)){
+            $copiados += tasteCopiarLogosLocales($origen, $local, $mapa, $detalle);
+        }else{
+            $detalle .= 'La carpeta local no está en este servidor. Se publica por la URL del sitio.<br/>';
+        }
+    }
+
+    $urlWeb = trim((string) ($empresa['url_web'] ?? ''));
+    if($urlWeb === '' || !filter_var($urlWeb, FILTER_VALIDATE_URL)){
+        if($copiados > 0){
+            return [ 'success' => 1, 'mensaje' => 'Logos copiados en la carpeta local', 'detalle' => $detalle ];
+        }
+        return [ 'success' => 0, 'mensaje' => 'La empresa no tiene una URL web válida', 'detalle' => $detalle ];
+    }
+
+    $token = env('BRAND_PUSH_TOKEN', '');
+    if($token === ''){
+        return [ 'success' => 0, 'mensaje' => 'Falta BRAND_PUSH_TOKEN en el .env del dashboard', 'detalle' => $detalle ];
+    }
+
+    $remoto = tasteEnviarLogosSitio($origen, $urlWeb, $mapa, $token);
+    $detalle .= $remoto['detalle'];
+    if($remoto['success'] != 1 && $copiados === 0){
+        return [ 'success' => 0, 'mensaje' => $remoto['mensaje'], 'detalle' => $detalle ];
+    }
+
+    $mensaje = ($remoto['success'] == 1) ? 'Logos publicados en el sitio' : 'Logos copiados en la carpeta local';
+    return [ 'success' => 1, 'mensaje' => $mensaje, 'detalle' => $detalle ];
+}
+
+function tasteLogoMapaSitio(){
+    return [
+        'logo.png' => ['logo.png'],
+        'logo-footer.png' => ['logofooter.png'],
+        'favicon.png' => ['favicon.ico', 'favicon.png'],
+        'icon-192x192.png' => ['android-chrome-192x192.png'],
+        'icon-512x512.png' => ['android-chrome-512x512.png', 'apple-touch-icon.png', 'maskable_icon.png', 'any_icon.png'],
+        'bienvenida_modal.png' => ['bienvenida_modal.png'],
+        'compartir.jpg' => ['compartir.jpg'],
+    ];
+}
+
+function tasteCopiarLogosLocales($origen, $destino, $mapa, &$detalle){
+    $copiados = 0;
+    foreach($mapa as $archivo => $nombres){
+        $source = $origen.$archivo;
+        if(!is_file($source)){
+            continue;
+        }
+        foreach($nombres as $nombre){
+            $ok = copy($source, rtrim($destino, '/').'/'.$nombre);
+            $detalle .= $ok
+                ? "Copiado $nombre en la carpeta local<br/>"
+                : "No se pudo copiar $nombre en la carpeta local<br/>";
+            if($ok){
+                $copiados++;
+            }
+        }
+        $images = rtrim($destino, '/').'/images';
+        if(is_dir($images)){
+            @copy($source, $images.'/'.$archivo);
+        }
+    }
+    $payload = json_encode(['v' => time()]);
+    @file_put_contents(rtrim($destino, '/').'/brand.json', $payload);
+    return $copiados;
+}
+
+function tasteEnviarLogosSitio($origen, $urlWeb, $mapa, $token){
+    $post = [];
+    $manifest = [];
+    $i = 0;
+    foreach($mapa as $archivo => $nombres){
+        $source = $origen.$archivo;
+        if(!is_file($source)){
+            continue;
+        }
+        $field = 'f'.$i;
+        $manifest[] = [ 'field' => $field, 'names' => $nombres ];
+        $post[$field] = new CURLFile($source, 'application/octet-stream', $archivo);
+        $i++;
+    }
+
+    if(count($manifest) === 0){
+        return [ 'success' => 0, 'mensaje' => 'No hay logos para publicar', 'detalle' => '' ];
+    }
+
+    $post['manifest'] = json_encode($manifest);
+    $endpoint = rtrim($urlWeb, '/').'/brand.php';
+    $ch = curl_init($endpoint);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [ 'X-Brand-Token: '.$token ]);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+    $body = curl_exec($ch);
+    $error = curl_error($ch);
+    $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+
+    $json = json_decode($body, true);
+    if($error){
+        return [ 'success' => 0, 'mensaje' => 'No se pudo conectar con el sitio', 'detalle' => htmlspecialchars($error).'<br/>' ];
+    }
+    if(!is_array($json) || ($json['success'] ?? 0) != 1){
+        $mensaje = is_array($json) ? ($json['mensaje'] ?? 'El sitio rechazo los logos') : 'El sitio no respondió como se esperaba (HTTP '.$code.')';
+        return [ 'success' => 0, 'mensaje' => $mensaje, 'detalle' => 'URL: '.htmlspecialchars($endpoint).'<br/>' ];
+    }
+
+    $archivos = isset($json['archivos']) ? implode(', ', $json['archivos']) : '';
+    $detalle = 'Publicado en '.htmlspecialchars($endpoint).'<br/>'.$archivos.'<br/>';
+    if(empty($json['persistente'])){
+        $detalle .= 'El sitio recibió los logos, pero no quedó carpeta persistente. En el próximo deploy de código hay que copiar storage/brand sobre dist.<br/>';
+    }
+    return [ 'success' => 1, 'mensaje' => 'Logos publicados en el sitio', 'detalle' => $detalle ];
 }
 ?>

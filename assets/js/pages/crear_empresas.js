@@ -1941,28 +1941,27 @@ $(document).ready(function() {
 
     function actualizarLogos() {
         let cod_empresa = $("#id").val();
-        let url = window.tasteHostPath($("#urlFolder").val());
-        let parametros = {
-            "id": cod_empresa,
-            "url": url
-        }
+        OpenLoad("Publicando logos...");
         $.ajax({
-           url: window.tasteUrl('replicador/iconos.php'),
-           data: parametros,
-           type: "GET",
+           url: 'controllers/controlador_empresa.php?metodo=publicarLogosSitio',
+           data: { cod_empresa: cod_empresa },
+           type: "POST",
            success: function(response){
-              console.log(response);
+              CloseLoad();
               if(response['success']==1){
-                notify(response['mensaje'], "success", 2);
+                if($("#pdetalle").length){
+                    $("#pdetalle").html(response['detalle'] || '');
+                }
+                Swal.fire({ icon: 'success', title: response['mensaje'], html: response['detalle'] || '' });
               }
               else{
-                notify(response['mensaje'], "error", 2);
+                Swal.fire({ icon: 'error', title: response['mensaje'] || 'No se publicaron los logos', html: response['detalle'] || '' });
               }
            },
-           error: function(data){
-           },
-           complete: function(){
-           },
+           error: function(){
+              CloseLoad();
+              notify("No se pudo publicar los logos", "error", 3);
+           }
         });
     }
 
@@ -2014,9 +2013,9 @@ $(document).ready(function() {
     });
 
     function updateEmprendedor(cod_empresa, isEmprendedor){
-        let link = window.tasteUrl('replicador/emprendedores_delete.php?id=' + cod_empresa);
+        let link = 'replicador/emprendedores_delete.php?id=' + cod_empresa;
         if(1 == isEmprendedor){
-            link = window.tasteUrl('replicador/emprendedores.php?id=' + cod_empresa);
+            link = 'replicador/emprendedores.php?id=' + cod_empresa;
         }
         $.ajax({url: link, success: function(result){
             console.log(result);
@@ -2257,7 +2256,7 @@ $(document).ready(function() {
            if (result.value) {
 
                 $.ajax({
-                    url: window.tasteUrl('replicador/replicar.php'),
+                    url: 'replicador/replicar.php',
                     data: {
                         id,
                         template: data.file,
@@ -2289,11 +2288,10 @@ $(document).ready(function() {
         let params = {
             id: $("#id").val(),
             template: data.file,
-            url: window.__CONFIG__.URL_UPLOAD + 'replicador/tempPageforDownload',
             download: 1
         };
         
-        let openUrl = window.tasteUrl('replicador/replicar.php');
+        let openUrl = 'replicador/replicar.php';
         let queryString = new URLSearchParams(params).toString();
         let finalUrl = `${openUrl}?${queryString}`;
         window.open(finalUrl, '_blank');
@@ -2307,12 +2305,11 @@ $(document).ready(function() {
         let params = {
             id: $("#id").val(),
             template: data.file,
-            url: window.__CONFIG__.URL_UPLOAD + 'replicador/tempPageforDownload',
             compress: 1
         };
         
         $.ajax({
-            url: window.tasteUrl('replicador/replicar.php'),
+            url: 'replicador/replicar.php',
             data: params,
             type: "GET",
             success: function(response){

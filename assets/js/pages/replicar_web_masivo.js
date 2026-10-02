@@ -59,7 +59,7 @@ $(document).ready(function() {
         let template = $("#cmbVersion").val();
     
         $.ajax({
-          url: window.tasteUrl('replicador/replicar.php'),
+          url: 'replicador/replicar.php',
           data: { id, url, template },
           type: "GET",
           success: function(response) {

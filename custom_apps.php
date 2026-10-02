@@ -299,7 +299,7 @@ foreach($availableOrder as $key){
                                                 <div class="row">
                                                     <div class="col-lg-12 col-md-6 col-12 mb-3" style="text-align: right;">
                                                         <input type="hidden" id="urlFolder" value="<?= $folder?>">
-                                                        <button class="btn btn-primary btnActLogosPagina" <?= $disabledBtnLogos?>>Actualizar Logos en la p&aacute;gina</button>
+                                                        <button class="btn btn-primary btnActLogosPagina" <?= $disabledBtnLogos?>>Publicar logos en el sitio</button>
                                                     </div>
                                                 </div>
                                              </div>
@@ -323,7 +323,7 @@ foreach($availableOrder as $key){
 
     <?php js_mandatory(); ?>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
-    <script src="assets/js/pages/custom_apps.js?v=2" type="text/javascript"></script>
+    <script src="assets/js/pages/custom_apps.js?v=3" type="text/javascript"></script>
 
     <!-- BEGIN PAGE LEVEL CUSTOM SCRIPTS -->
     <script src="assets/js/scrollspyNav.js"></script>

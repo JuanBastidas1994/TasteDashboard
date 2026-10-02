@@ -66,11 +66,5 @@ class cl_giftcards
         		return false;
         	}
 	    }
-        
-        public function getGiftByCode($codigo, &$array){
-            $query = "SELECT * FROM tb_usuario_giftcards_compradas WHERE codigo = '$codigo'";
-			$array = Conexion::buscarRegistro($query);
-			return $array;
-        }
 }
 ?>

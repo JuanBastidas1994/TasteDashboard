@@ -275,45 +275,4 @@ function debitByToken($id, $correo, $monto, $descripcion, $token){
     return json_decode($response, true);
 }
 
-function setDebitLog($cod_empresa, $monto, $card, &$id){
-    $fecha = fecha();
-    $type = $card['type'];
-    $number = $card['number'];
-    $token = $card['token'];
-    $query = "INSERT INTO mie_log_pago(cod_empresa, fecha, monto, card_type, card_number, card_token, estado) 
-            VALUES($cod_empresa,'$fecha','$monto', '$type', '$number', '$token', 'INTENTO_PAGO')";
-	if(Conexion::ejecutar($query,NULL)){
-	    $id = Conexion::lastId();
-	    return true;
-	}else
-	    return false;
-}
-
-function putDebitLogSuccess($id, $transaction){
-    $tid = $transaction['id'];
-    $status = $transaction['status'];
-    $reference = $transaction['dev_reference'];
-    $autorizacion = $transaction['authorization_code'];
-    $query = "INSERT INTO mie_log_pago_success(cod_mie_log_pago, transaction_id, transaction_status, transaction_reference, transaction_autorizacion) 
-            VALUES($id,'$tid','$status', '$reference', '$autorizacion')";
-	Conexion::ejecutar($query,NULL);
-	
-	$query = "UPDATE mie_log_pago SET estado='SUCCESS' WHERE cod_mie_log_pago = $id";
-	Conexion::ejecutar($query,NULL);
-	
-	return true;
-}
-
-function putDebitLogError($id, $errores){
-    $desc = $errores['description'];
-    $json = json_encode($errores);
-    $query = "INSERT INTO mie_log_pago_error(cod_mie_log_pago, descripcion, json) 
-            VALUES($id,'$desc','$json')";
-	Conexion::ejecutar($query,NULL);
-	
-	$query = "UPDATE mie_log_pago SET estado='FAILURE' WHERE cod_mie_log_pago = $id";
-	Conexion::ejecutar($query,NULL);
-	
-	return true;
-}
 

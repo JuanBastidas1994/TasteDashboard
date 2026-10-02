@@ -22,7 +22,6 @@ define('DURACION_SESION', env('SESSION_LIFETIME', '7200'));
 define('url_sistema', env('URL_SISTEMA', 'https://tastedashboard.test/'));
 define('url_upload', rtrim(env('URL_UPLOAD', ''), '/') . '/');
 define('url_pages_installers', env('URL_PAGES_INSTALLERS', ''));
-define('url_bot', env('URL_BOT', 'https://tastedashboard.test/bot/'));
 define('url_folder_demo', env('URL_FOLDER_DEMO', ''));
 define('firebaseMessagingToken', env('FIREBASE_MESSAGING_TOKEN', ''));
 define('ENVIRONMENT', env('APP_ENV', 'development'));
@@ -35,3 +34,5 @@ define('API_TASTE_ECOMMERCE', env('API_TASTE_ECOMMERCE', 'https://tasteapi.test'
 define('API_MOTORIZADOS_URL', env('API_MOTORIZADOS_URL', ''));
 define('API_FLOTAS_URL', env('API_FLOTAS_URL', ''));
 define('API_POS_URL', env('API_POS_URL', 'https://tasteordenes.test'));
+// Mismo valor que TRACKING_SECRET de api/api_gestion_ordenes: el cron de notificaciones arma links de tracking
+define('TRACKING_SECRET', env('TRACKING_SECRET', ''));

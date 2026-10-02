@@ -83,16 +83,44 @@ function buildFiltros() {
     };
 }
 
-// Una vez en Contifico (CREADA), la emisión al SRI la hace Contifico solo (puede demorar hasta
-// 1 hora) — ya no depende de este sistema, por eso CREADA y EMITIDA_SRI se muestran igual (✓).
+const SISTEMA_RUNFOOD = "3";
+
+// El proveedor se decide por fila (cod_sistema_facturacion de la factura, o el de la empresa si aún
+// no tiene). Runfood mueve el inventario él mismo con el pedido, y una factura emitida allá solo se
+// anula con nota de crédito desde su POS: en esas filas no aplica inventario ni anular.
+function aplicarProveedor(orden) {
+    orden.esRunfood = (String(orden.cod_sistema_facturacion) === SISTEMA_RUNFOOD);
+    orden.proveedor = orden.esRunfood ? "Runfood" : "Contifico";
+    if(orden.esRunfood) {
+        orden.estado_inventario = null;
+        orden.puede_anular = false;
+        orden.comanda = calcularEstadoComanda(orden);
+    }
+}
+
+function calcularEstadoComanda(orden) {
+    switch(orden.estado_comanda) {
+        case "ABIERTA":
+            return { clase: "warning", texto: "Comanda abierta", title: "Pedido abierto en Runfood, pendiente de facturar" };
+        case "FACTURADA":
+            return { clase: "success", texto: "Comanda facturada", title: "Pedido facturado en Runfood" };
+        case "ANULADA":
+            return { clase: "secondary", texto: "Comanda anulada", title: "Pedido anulado en Runfood" };
+        default:
+            return { clase: "light", texto: "Sin comanda", title: "No se envió comanda: al reenviar se crea el pedido ya facturado" };
+    }
+}
+
+// Una vez en el proveedor (CREADA), la emisión al SRI la hace él solo (en Contifico puede demorar
+// hasta 1 hora) — ya no depende de este sistema, por eso CREADA y EMITIDA_SRI se muestran igual (✓).
 function calcularEstadoElectronica(orden) {
     if(orden.estado_factura === "ANULADA") {
         return { icono: "x-circle", clase: "danger", title: "Factura anulada" };
     }
     if(orden.estado_envio === "ENVIADA") {
-        return { icono: "check-circle", clase: "success", title: "Enviada a Contifico" };
+        return { icono: "check-circle", clase: "success", title: `Enviada a ${orden.proveedor}` };
     }
-    return { icono: "x-circle", clase: "danger", title: "No enviada a Contifico" };
+    return { icono: "x-circle", clase: "danger", title: `No enviada a ${orden.proveedor}` };
 }
 
 // null cuando estado_inventario viene vacío (orden nunca facturada, sin fila en tb_orden_factura_electronica).
@@ -133,6 +161,7 @@ function getFacturasUnificadas(silent) {
             response.data.forEach(function(orden){
                 orden.puede_anular = (orden.puede_anular == 1);
                 orden.permisoAnularFacturas = permisoAnularFacturas;
+                aplicarProveedor(orden);
                 orden.electronica = calcularEstadoElectronica(orden);
                 orden.inventario = calcularEstadoInventario(orden);
             });
@@ -565,6 +594,7 @@ async function reenviarFacturasPendientes() {
 // DEBITADO/REVERTIDO (visto verde) ya están completos y estado_inventario vacío (guión medio)
 // es una orden sin movimiento de inventario asociado: ninguno de esos dos se reintenta.
 function esInventarioPendiente(orden) {
+    if(String(orden.cod_sistema_facturacion) === SISTEMA_RUNFOOD) return false;   // Runfood maneja su inventario
     if(orden.estado_inventario === "NO_REVERTIDO") return true;
     if(orden.estado_envio === "ENVIADA" && (orden.estado_inventario === "NO_DEBITADO" || orden.estado_inventario === "NO_APLICA")) return true;
     return false;

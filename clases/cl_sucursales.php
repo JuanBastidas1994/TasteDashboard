@@ -284,50 +284,6 @@ class cl_sucursales
 		}
 		/*--NUEVO--*/
 		
-		//INICIO STOCK
-		public function getStockBySucursal($cod_sucursal){
-		    $query = "SELECT vps.cod_producto, vps.nombre, vps.sku, vps.alias, COALESCE(s.cantidad, 0) as cantidad
-                        FROM vw_producto_sucursal vps
-                        LEFT JOIN tb_stock s
-                        ON vps.sku = s.sku
-                        AND vps.cod_sucursal = s.cod_sucursal
-                        WHERE vps.cod_sucursal IN (0,$cod_sucursal)
-                        AND vps.cod_empresa = $this->cod_empresa
-						GROUP BY vps.sku";
-            $resp = Conexion::buscarVariosRegistro($query);
-            return $resp;
-		}
-		
-		public function existeStock($cod_sucursal, $sku){
-		    $query = "SELECT * FROM tb_stock WHERE cod_sucursal = $cod_sucursal AND sku = '$sku'";
-			$resp = Conexion::buscarRegistro($query);
-			if($resp)
-			    return true;
-			else
-			    return false;
-		}
-		
-		public function insertarStock(){
-		    $query = "INSERT INTO tb_stock(sku, cod_sucursal, cantidad) ";
-        	$query.= "VALUES('".$this->sku."', ".$this->cod_sucursal.", ".$this->cantidad.")";
-        	if(Conexion::ejecutar($query,NULL)){
-        		//$id = Conexion::lastId();
-        		return true;
-        	}else{
-        		return false;
-        	}
-		}
-		
-		public function editarStock(){
-		    $query = "UPDATE tb_stock SET cantidad = $this->cantidad WHERE cod_sucursal = $this->cod_sucursal AND sku = '$this->sku'";
-        	if(Conexion::ejecutar($query,NULL)){
-        		return true;
-        	}else{
-        		return false;
-        	}
-		}
-		//FIN STOCK
-		
 		public function getProvincias()
       {
           $query = "SELECT provincia FROM `tb_ciudades` GROUP by provincia order by provincia ASC";

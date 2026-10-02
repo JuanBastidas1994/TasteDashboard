@@ -390,7 +390,6 @@ function top()
                             <a data-value="en" class="dropdown-item d-flex set-lang" href="javascript:void(0);"><img id="img-lang-en" src="assets/img/en.png" class="flag-width" alt="flag"> <span class="align-self-center">&nbsp;English</span></a>
                         </div>
                     </li>
-	                '.notificaciones().'
 	                <li class="nav-item dropdown user-profile-dropdown">
 	                    <a href="javascript:void(0);" class="nav-link dropdown-toggle user" id="userProfileDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
 	                        <img src="'.$perfil.'" alt="avatar">
@@ -416,44 +415,6 @@ function top()
             <div class="position-fixed p-3 toast-top-right" style="z-index: 1040; right: 0; top: 0;"></div>
             <div class="position-fixed p-3 toast-top-left" style="z-index: 1040; left: 0; top: 0;"></div>
         </div>';
-}
-
-function notificaciones(){
-	$session = getSession();
-	$cod_usuario = $session['cod_usuario'];
-	$html = '<li class="nav-item dropdown notification-dropdown">
-	                    <a style="display: none;" href="javascript:void(0);" class="nav-link dropdown-toggle" id="notificationDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-	                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bell"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg><span class="badge badge-success"></span>
-	                    </a>
-	                    <div class="dropdown-menu position-absolute" aria-labelledby="notificationDropdown" style="max-height: 500px; overflow: auto;">
-	                        <div class="notification-scroll">';
-
-                            Conexion::ejecutar("SET NAMES 'utf8mb4'", NULL);
-	                        $query = "SELECT * 
-            	                        FROM tb_system_notification 
-            	                        WHERE cod_usuario = $cod_usuario
-            	                        ORDER BY fecha DESC
-            	                        LIMIT 0, 10";
-        					$resp = Conexion::buscarVariosRegistro($query);
-        					foreach ($resp as $notif) {
-        						$titulo = $notif['titulo'];
-        						$icono = $notif['icono'];
-        						$page = $notif['url'];
-        						$detalle = html_entity_decode($notif['detalle']);
-        						$html.='<div class="dropdown-item">
-	                                <a href="'.$page.'" class="media">
-	                                    <i data-feather="'.$icono.'"></i>
-	                                    <div class="media-body">
-	                                        <div class="notification-para"><span class="user-name">'.$titulo.'</span> '.$detalle.'</div>
-	                                    </div>
-	                                </a>
-	                            </div>';
-        					}     
-
-	$html .= '              </div>
-	                    </div>
-	                </li>';
-	return $html;                
 }
 
 function footer()

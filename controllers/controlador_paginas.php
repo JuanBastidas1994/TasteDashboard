@@ -96,7 +96,6 @@ function editar(){
         $sm = $cmbSM;
         switch($tipo){
             case "ordenar": $cod_detalle = $cmbModulos; break;
-            case "anuncios": $cod_detalle = $cmbAnuncios; break;
             case "blog": $cod_detalle = $cmbBlog; break;
         }
     }

@@ -140,6 +140,10 @@ function renderIndexTables(widget) {
     } else {
         $tp.append('<tr><td colspan="3" class="text-center text-muted py-3">Sin datos en el período</td></tr>');
     }
+    let top = (widget.topProductos || [])[0];
+    $('#btnShareTopProductos').data('shared', top
+        ? `Mi producto más vendido es ${top.nombre} con ${fmtMoneyIdx(top.total_ventas)} en ventas por Taste 📈`
+        : 'Mis productos más vendidos en Taste 📈');
 
     const $ts = $('#tbodySucursales').empty();
     if (widget.rendimientoSucursal && widget.rendimientoSucursal.length) {
@@ -159,4 +163,8 @@ function renderIndexTables(widget) {
     } else {
         $ts.append('<tr><td colspan="5" class="text-center text-muted py-3">Sin datos en el período</td></tr>');
     }
+    let topSucursal = (widget.rendimientoSucursal || [])[0];
+    $('#btnShareSucursales').data('shared', topSucursal
+        ? `Mi sucursal con más ventas es ${topSucursal.sucursal} con ${fmtMoneyIdx(topSucursal.ventas)} (${topSucursal.porcentaje}%) por Taste 📈`
+        : 'Rendimiento de mis sucursales en Taste 📈');
 }

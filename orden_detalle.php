@@ -63,8 +63,8 @@ if (isset($_GET['id'])) {
         /*--NUEVO-*/
         $is_envio = $orden['is_envio'];
         $styleLinea = "display:block";
-        if ($is_envio == 0)
-            $styleLinea = "display:none";
+        // if ($is_envio == 0)
+        //     $styleLinea = "display:none";
 
         $cod_courier = $orden['cod_courier'];
         /*--NUEVO-*/

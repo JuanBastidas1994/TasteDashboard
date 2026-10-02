@@ -4,7 +4,6 @@ require_once "clases/cl_empresas.php";
 require_once "clases/cl_fidelizacion.php";
 require_once "clases/cl_usuarios.php";
 require_once "clases/cl_sucursales.php";
-require_once "clases/cl_notificaciones.php";
 
 if(!isLogin()){
     header("location:login.php");
@@ -14,7 +13,6 @@ $Clempresas = new cl_empresas(NULL);
 $Clfidelizacion = new cl_fidelizacion(NULL);
 $Clusuarios = new cl_usuarios();
 $ClSucursales = new cl_sucursales(NULL);
-$ClNotificaciones = new cl_notificaciones();
 $session = getSession();
 $files = url_sistema.'assets/empresas/'.$session['alias'].'/';
 
@@ -225,58 +223,6 @@ if(file_exists($folder_demo)){
             </div>
         </div>
     </div>
-    
-    <!--MODAL NOTIFICAR-->
-    <div class="modal fade bs-example-modal-lg" id="modalNotificacion" tabindex="99" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" data-backdrop="static">
-        <div class="modal-dialog modal-lg" role="document" style="z-index: 9999999 !important;">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Notificar</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                      <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-                    </button>
-                </div>
-                <div class="modal-body">
-                
-                    <div class="x_content">    
-                      <div class="form-group">
-                            <form id="frmNotificar" name="frmNotificar" autocomplete="off">
-                              <div class="col-md-12 col-sm-12 col-xs-12" style="margin-bottom:10px;">
-                                <input type="hidden" id="cod_usuario" name="cod_usuario" value="" />
-                                 <div class="col-md-6 col-sm-12 col-xs-12">
-                                     <label>T&iacute;tulo <span class="asterisco">*</span></label>
-                                     <input type="text" id="txt_titulo" name="txt_titulo" class="form-control" placeholder="T&iacute;tulo" required>
-                                 </div>
-                                 
-                                 <div class="col-md-6 col-sm-12 col-xs-12">
-                                     <label>Tipo de Notificación <span class="asterisco">*</span></label>
-                                     <select id="cmb_tipo_noti" name="cmb_tipo_noti" class="form-control">
-                                         <?php 
-                                            $tipoNoti = $ClNotificaciones->getTipoNotificacion();
-                                            foreach($tipoNoti as $tn){
-                                                echo'<option value="'.$tn['icono'].'">'.$tn['nombre'].'</option>';
-                                            }
-                                         ?>
-                                     </select>
-                                 </div>
-                                 
-                                 <div class="col-md-12 col-sm-12 col-xs-12">
-                                    <label>Descripci&oacute;n <span class="asterisco">*</span></label>
-                                    <textarea style="display: initial;" placeholder="Descripcion" name="descripcion" id="txt_descripcion" class="form-control" required="required" autocomplete="off"></textarea>
-                                 </div>
-                              </div>
-                            </form>
-                      </div>              
-                    </div>
-                
-                </div>
-                <div class="modal-footer">
-                    <button class="btn btn-primary btnSendNotification">Notificar</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!--FIN NOTIFICAR-->
     
     <!--MODAL EDITAR PASS-->
     <div class="modal fade bs-example-modal-lg" id="modalEditarPass" tabindex="99" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" data-backdrop="static">
@@ -492,9 +438,6 @@ if(file_exists($folder_demo)){
                                     <a class="nav-link" id="costoEnvio-tab" data-toggle="tab" href="#costoEnvio" role="tab" aria-controls="local" aria-selected="false"><i data-feather="truck"></i> Env&iacute;o *</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" id="" data-toggle="tab" href="#soporte" role="tab" aria-controls="soporte" aria-selected="false"><i data-feather="headphones"></i> Soporte *</a>
-                                </li>
-                                <li class="nav-item">
                                     <a class="nav-link" id="permisosEmpresa-tab" data-toggle="tab" href="#permisosEmpresa" role="tab" aria-controls="local" aria-selected="false"><i data-feather="check-square"></i> Permisos</a>
                                 </li>
                                 <li class="nav-item">
@@ -508,9 +451,6 @@ if(file_exists($folder_demo)){
                                 </li>
                                 <li class="nav-item d-none">
                                     <a class="nav-link" id="ordenarItems-tab" data-toggle="tab" href="#ordenarItems" role="tab" aria-controls="ordenarItems" aria-selected="false"><i data-feather="move"></i> Ordenar Items</a>
-                                </li>
-                                <li class="nav-item d-none">
-                                    <a class="nav-link" id="anuncWeb-tab" data-toggle="tab" href="#anuncWeb" role="tab" aria-controls="anuncWeb" aria-selected="false"><i data-feather="activity"></i> Anuncios Web</a>
                                 </li>
                                 <li class="nav-item">
                                     <a class="nav-link" id="usuarios-tab" data-toggle="tab" href="#usuarios" role="tab" aria-controls="usuarios" aria-selected="false"><i data-feather="user"></i> Usuarios</a>
@@ -1341,133 +1281,6 @@ if(file_exists($folder_demo)){
                                     </div>
                                 </div>
                                 
-                                <!--CONTENIDO ANUNCIOS WEB-->
-                                <div class="tab-pane fade" id="anuncWeb" role="tabpanel" aria-labelledby="anuncWeb-tab" style="height: 600px;">
-                                    <div class="col-md-12"><h4>Anuncios Web</h4></div>
-                                    <div class="mb-4 mt-4">
-                                        
-                                        <div class="row" style="margin-bottom: 20px;">
-                                            <div class="col-xl-6 col-md-6 col-sm-6 col-6" >
-                                                <label>Nombre:</label>
-                                                <input type="text" class="form-control" id="text_nuevo_anuncio" >
-                                            </div>
-                                        </div>
-                                        
-                                        <div class="row">
-                                            <div class="col-xl-6 col-md-6 col-sm-6 col-6" >
-                                                <label>Descripci&oacute;n:</label>
-                                                <textarea class="form-control" id="txt_desc_anuncio" ></textarea>
-                                            </div>
-                                            <div class="col-xl-6 col-md-6 col-sm-6 col-6" >
-                                               <div><button type="button" class="btn btn-outline-primary btnCrearAnuncio" data-codigo="">Crear Anuncio</button></div>
-                                            </div>
-                                        </div>
-                                        
-                                        <div class="row" style="margin-top: 20px;">
-                                            <div class="col-xl-3 col-md-3 col-sm-3 col-3" >
-                                                <label>Width:</label>
-                                                <input type="text" class="form-control" id="txt_width" value="512" placeholder="500">
-                                            </div>
-                                            
-                                            <div class="col-xl-3 col-md-3 col-sm-3 col-3" >
-                                                <label>Height:</label>
-                                                <input type="text" class="form-control" id="txt_height" value="512" placeholder="500">
-                                            </div>
-                                        </div>
-                                        
-                                        <div class="col-xl-12 col-lg-12 col-sm-12  layout-spacing">
-                                            <div class="widget-content widget-content-area br-6">
-                                               <div class="col-xl-12 col-md-12 col-sm-12 col-12" wfd-id="42">
-                                                    <h4>Anuncios</h4>
-                                                </div>
-                                                <table id="style-4" class="table style-3">
-                                                    <thead>
-                                                        <tr>
-                                                            <th class="text-center">Id</th>
-                                                            <th>Nombre</th>
-                                                            <th  class="text-center">Descripcion</th>
-                                                            <th class="text-center">Width</th>
-                                                            <th class="text-center">Height</th>
-                                                            <th  colspan="2" class="text-center">Acci&oacute;n</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody id="tablaAnuncios">
-                                                        <?php
-                                                            $nombre="";
-                                                            $cod_anuncio=0;
-                                                            
-                                                                $resp = $Clfidelizacion->anuncWeb($cod_empresa);
-                                                                if($resp){
-                                                                
-                                                                    foreach ($resp as $anuncio) {
-                                                                        $nombre = $anuncio['nombre'];
-                                                                        $cod_anuncio = $anuncio['cod_anuncio_cabecera'];
-                                                                        $desc = $anuncio['descripcion'];
-                                                                        $width = $anuncio['width'];
-                                                                        $height = $anuncio['height'];
-                                                                    echo'
-                                                                    <tr id="contAn'.$cod_anuncio.'">
-                                                                        <td><span>'.$cod_anuncio.'</span></td>
-                                                                        <td><input type="text" id="txt_anuncio'.$cod_anuncio.'" class="form-control" value="'.$nombre.'" ></td>
-                                                                        <td><textarea id="txa_anuncio'.$cod_anuncio.'" class="form-control" >'.$desc.'</textarea></td>
-                                                                        <td><input type="text" id="txt_width'.$cod_anuncio.'" class="form-control" value="'.$width.'" ></td>
-                                                                        <td><input type="text" id="txt_height'.$cod_anuncio.'" class="form-control" value="'.$height.'" ></td>
-                                                                        <td  class="text-center"><button type="button" class="btn btn-outline-primary btnEditarAnuncio" data-codigo="'.$cod_anuncio.'">Editar</button></td>
-                                                                        <td  class="text-center"><button type="button" class="btn btn-outline-primary btnEliminarAnuncio" data-codigo="'.$cod_anuncio.'">Eliminar</button></td>
-                                                                    </tr>
-                                                                    ';
-                                                                    }
-                                                                }
-                                                              
-                                                        ?>
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <!--CONTENIDO SOPORTE-->
-                                <div class="tab-pane fade" id="soporte" role="tabpanel" aria-labelledby="costoEnvio-tab">
-                                    <div class="mb-4 mt-4">
-                                        
-                                         <div class="widget-content widget-content-area">
-                                            <h3 class="">Soporte</h3>
-                                            <p>Puedes integrar la gestión de tickets "soporte" con <b>Clickup</b>, el sistema creará automaticamente una nueva lista en la sección <b>Soporte y Mantenimiento</b></p>
-                                            <br>
-                                            <div class="row">
-                                            <?php
-                                                $query = "SELECT * FROM tb_empresa_clickup WHERE cod_empresa = $cod_empresa AND estado = 'A'";
-                                                $row = Conexion::buscarRegistro($query, NULL);
-                                                if($row){
-                                                    echo '
-                                                        <div class="col-md-6 col-sm-6 col-xs-12">
-                                                            <h4>Integrado con ClickUp</h4>
-                                                            <p><b>'.$row['id_lista'].'</b></p>
-                                                        </div>
-                                                    ';
-                                                    
-                                                }else{
-                                            ?>
-                                            
-                                                <div class="col-md-6 col-sm-6 col-xs-12">
-                                                    <h4>Integrarse con Click up</h4>
-                                                    <button type="button" class="btn btn-outline-primary btnIntegrarClickUp">Comenzar</button>
-                                                </div>
-                                                <div class="col-md-4 col-sm-4 col-xs-12">
-                                                </div>
-                                            <?php
-                                                }
-                                            ?>
-                                            </div>
-                                            <br/>
-                                        </div>
-                                       
-                                        
-                                    </div>
-                                </div>
-                                <!-- FIN CONTENIDO SOPORTE -->
-                                
                                 <!--CONTENIDO USUARIOS-->
                                 <div class="tab-pane fade" id="usuarios" role="tabpanel" aria-labelledby="costoEnvio-tab">
                                     <div class="mb-4 mt-4">
@@ -1492,7 +1305,6 @@ if(file_exists($folder_demo)){
                                                                         <td>'.$adm['usuario'].'</td>
                                                                         <td>'.$adm['rol'].'</td>
                                                                         <td style="text-align: center;">
-                                                                            <a data-value="'.$adm['cod_usuario'].'" class="btn_notificar" href="javascript:void(0);"><i data-feather="bell"></i></a>
                                                                             <a data-value="'.$adm['cod_usuario'].'" class="btn_editar_pass" href="javascript:void(0);"><i data-feather="edit"></i></a>
                                                                             <a class="LoginAdmins" href="javascript:void(0);" data-value="'.$alias.'" data-user="'.$adm['cod_usuario'].'"><i data-feather="key"></i></a>
                                                                         </td>

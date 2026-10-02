@@ -303,9 +303,12 @@ function verificarProductos(){
     }
 
     $resultado = $Clrunfood->verificarProductos($office_id);
+    if ($resultado === false) {
+        return [ 'success' => 0, 'mensaje' => 'No se pudo leer el catálogo de productos de Runfood', 'error' => $Clrunfood->msgError];
+    }
     return [
         'success' => 1,
-        'mensaje' => $resultado['matched'] . ' producto(s) ligado(s) automáticamente',
+        'mensaje' => $resultado['matched'] . ' producto(s) ligado(s) por SKU',
         'data' => $resultado
     ];
 }

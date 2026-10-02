@@ -114,62 +114,6 @@ $(document).ready(function() {
         window.location.href = "empresas.php";
     });
 
-
-    //TELEGRAM
-    $(".btnBot").on("click", function(event){
-      event.preventDefault();
-          
-          var form = $("#frmBot");
-          form.validate();
-          if(form.valid()==false)
-          {
-            notify("Falta llenar informacion", "success", 2);
-            return false;
-          }
-    
-          var formData = new FormData($("#frmBot")[0]);
-          var id = parseInt($("#id").val());
-          if(id > 0){
-              formData.append('cod_empresa', id);
-              formData.append('alias', $("#alias").val());
-          }else{
-            messageDone("Debes guardar primero la empresa",'error');
-            return;
-          }
-
-          $.ajax({
-              beforeSend: function(){
-                  OpenLoad("Guardando datos, por favor espere...");
-               },
-              url: 'controllers/controlador_telegram.php?metodo=setBot',
-              type: 'POST',
-              data: formData,
-              contentType: false,
-              processData: false,
-              success: function(response){
-                  console.log(response);
-                  
-                  if( response['success'] == 1)
-                  {
-                    messageDone(response['mensaje'],'success');
-                  } 
-                  else
-                  {
-                    messageDone(response['mensaje'],'error');
-                  } 
-                                           
-              },
-              error: function(data){
-                console.log(data);
-                 
-              },
-              complete: function(resp)
-              {
-                CloseLoad();
-              }
-          });
-    });
-
     //COMPONENTES
     var resize = null;
     var drEvent = $('.dropify').dropify({
@@ -985,58 +929,6 @@ $(document).ready(function() {
         }
     });
     
-    $(".btnCrearAnuncio").on("click",function(event){
-        var nombre_anuncio=$("#text_nuevo_anuncio").val();
-        var cod_empresa=$("#id").val();
-        var descripcion = $("#txt_desc_anuncio").val();
-        var width=$("#txt_width").val();
-        var height=$("#txt_height").val();
-        if(nombre_anuncio=="" || width=="" || height=="")  
-        {
-            messageDone("Debe completar todos los campos, vuelva a ingresarlos",'error');
-        }
-        else
-        {
-            var parametros = {
-                "nombre_anuncio": nombre_anuncio,
-                "cod_empresa": cod_empresa,
-                "descripcion": descripcion,
-                "width": width,
-                "height": height
-            }
-            
-             $.ajax({
-                beforeSend: function(){
-                    OpenLoad("Insertando datos, por favor espere...");
-                },
-                url: 'controllers/controlador_configuraciones.php?metodo=crear_anuncio',
-                type: 'GET',
-                data: parametros,
-                success: function(response){
-                    console.log(response);
-                    if( response['success'] == 1)
-                    {
-                        messageDone(response['mensaje'],'success');
-                        $("#tablaAnuncios").append(response['html']);
-                    } 
-                    else
-                    {
-                        messageDone(response['mensaje'],'error');
-                    } 
-                                            
-                },
-                error: function(data){
-                    console.log(data);
-                    
-                },
-                complete: function(resp)
-                {
-                    CloseLoad();
-                }
-            });
-        }
-    });
-    
     $("body").on("click",".btnEditarModulo", function(event){
         var codigo=$(this).attr("data-codigo");
         var nombre_modulo=$("#txt_modulo"+codigo).val();
@@ -1084,57 +976,6 @@ $(document).ready(function() {
         }
     });
     
-    $("body").on("click",".btnEditarAnuncio", function(event){
-        var codigo=$(this).attr("data-codigo");
-        var nombre_modulo=$("#txt_anuncio"+codigo).val();
-        var descripcion = $("#txa_anuncio"+codigo).val();
-        var width=$("#txt_width"+codigo).val();
-        var height = $("#txt_height"+codigo).val();
-        if(nombre_modulo=="")  
-        {
-            messageDone("Debe completar todos los campos, vuelva a ingresarlos",'error');
-        }
-        else
-        {
-            var parametros = {
-                "nombre_anuncio": nombre_modulo,
-                "codigo": codigo,
-                "descripcion": descripcion,
-                "width": width,
-                "height": height
-            }
-            
-             $.ajax({
-                beforeSend: function(){
-                    OpenLoad("Editando datos, por favor espere...");
-                },
-                url: 'controllers/controlador_configuraciones.php?metodo=editar_anuncio',
-                type: 'GET',
-                data: parametros,
-                success: function(response){
-                    console.log(response);
-                    if( response['success'] == 1)
-                    {
-                        messageDone(response['mensaje'],'success');
-                    } 
-                    else
-                    {
-                        messageDone(response['mensaje'],'error');
-                    } 
-                                            
-                },
-                error: function(data){
-                    console.log(data);
-                    
-                },
-                complete: function(resp)
-                {
-                    CloseLoad();
-                }
-            });
-        }
-    });
-   
     $("body").on("click",".btnEliminarModulo", function(event){
         var codigo=$(this).attr("data-codigo");
        
@@ -1185,56 +1026,6 @@ $(document).ready(function() {
             });
     });
     
-    $("body").on("click",".btnEliminarAnuncio", function(event){
-        var codigo=$(this).attr("data-codigo");
-       
-            var parametros = {
-                "codigo": codigo
-            }
-            
-            Swal.fire({
-              title: '¿Estas seguro?',
-              text: 'No se puede revertir los cambios',
-              icon: 'warning',
-              showCancelButton: true,
-              confirmButtonText: 'Eliminar',
-              cancelButtonText: 'Cancelar',
-              padding: '2em'
-            }).then(function(result) {
-              if (result.value) {
-                 $.ajax({
-                    beforeSend: function(){
-                        OpenLoad("Eliminando datos, por favor espere...");
-                    },
-                    url: 'controllers/controlador_configuraciones.php?metodo=eliminar_anuncio',
-                    type: 'GET',
-                    data: parametros,
-                    success: function(response){
-                        console.log(response);
-                        if( response['success'] == 1)
-                        {
-                            messageDone(response['mensaje'],'success');
-                            $("#contAn"+codigo).css("display","none");
-                        } 
-                        else
-                        {
-                            messageDone(response['mensaje'],'error');
-                        } 
-                                                
-                    },
-                    error: function(data){
-                        console.log(data);
-                        
-                    },
-                    complete: function(resp)
-                    {
-                        CloseLoad();
-                    }
-                });
-              }
-            });
-    });
-
     $("body").on("change", ".cmb_pago_permiso", function(){
         //$(this).css("background-color", "green");
     });
@@ -1620,61 +1411,6 @@ $(document).ready(function() {
     //$("#cmb_planes").trigger("change");
 }); //FIN DOCUMENT ready
     
-    //TELEGRAM
-    $(".btnIntegrarClickUp").on("click", function(event){
-      event.preventDefault();
-          
-            
-          var id = parseInt($("#id").val());
-          if(id <= 0){
-            messageDone("Debes guardar primero la empresa",'error');
-            return;
-          }
-          
-            var parametros = {
-                cod_empresa: id,
-                alias: $("#alias").val(),
-                nombre: $("#txt_nombre").val()
-            };
-
-          $.ajax({
-              beforeSend: function(){
-                  OpenLoad("Creando ambiente en clickup, por favor espere...");
-               },
-              url: 'controllers/controlador_clickup.php?metodo=crearLista',
-              type: 'POST',
-              data: parametros,
-              success: function(response){
-                  console.log(response);
-                  
-                  if( response['success'] == 1)
-                  {
-                    messageDone(response['mensaje'],'success');
-                  } 
-                  else
-                  {
-                    messageDone(response['mensaje'],'error');
-                  } 
-                                           
-              },
-              error: function(data){
-                console.log(data);
-                 
-              },
-              complete: function(resp)
-              {
-                CloseLoad();
-              }
-          });
-    });
-    
-    $("body").on("click", ".btn_notificar", function(e){
-        e.preventDefault();
-        var cod_usuario = $(this).data("value");
-        $("#cod_usuario").val(cod_usuario);
-        $("#modalNotificacion").modal();
-    });
-    
     $("body").on("click", ".btn_editar_pass", function(e){
         e.preventDefault();
         var cod_usuario = $(this).data("value");
@@ -1698,55 +1434,6 @@ $(document).ready(function() {
                     $("#txt_usuario").val(data['usuario']);
 
                     $("#modalEditarPass").modal();
-                  } 
-                  else
-                  {
-                    messageDone(response['mensaje'],'error');
-                  } 
-                                           
-              },
-              error: function(data){
-                console.log(data);
-                 
-              },
-              complete: function(resp)
-              {
-                CloseLoad();
-              }
-          });
-    });
-    
-    $(".btnSendNotification").on("click",function(event){
-          event.preventDefault();
-          
-          var form = $("#frmNotificar");
-          form.validate();
-          var isForm = form.valid();
-
-          if(isForm ==false)
-          {
-            notify("Falta llenar informacion", "success", 2);
-            return false;
-          }
-          
-          var formData = new FormData($("#frmNotificar")[0]);
-          $.ajax({
-              beforeSend: function(){
-                  OpenLoad("Guardando datos, por favor espere...");
-               },
-              url: 'controllers/controlador_notificaciones.php?metodo=notificar_admins',
-              type: 'POST',
-              data: formData,
-              contentType: false,
-              processData: false,
-              success: function(response){
-                  console.log(response);
-                  
-                  if( response['success'] == 1)
-                  {
-                    $("#frmNotificar").trigger("reset");
-                    $("#modalNotificacion").modal("hide");
-                    messageDone(response['mensaje'],'success');
                   } 
                   else
                   {

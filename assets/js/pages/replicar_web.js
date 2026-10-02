@@ -186,48 +186,6 @@ $(document).ready(function() {
         });
     }
 
-    $("body").on("click", ".btnEliminar", function(){
-      let cod_modal_evento = $(this).data("value");
-      Swal.fire({
-         title: 'Eliminar',
-         text: '¿Está seguro?',
-         icon: 'warning',
-         showCancelButton: true,
-         confirmButtonText: 'Aceptar',
-         cancelButtonText: 'Cancelar',
-         padding: '2em'
-      }).then(function(result){
-         if (result.value) {
-          eliminar(cod_modal_evento);
-         }
-      }); 
-    });
-
-    function eliminar(cod_modal_evento){
-      let parametros = {
-        "cod_modal_evento": cod_modal_evento,
-        "estado": "D"
-      }
-      $.ajax({
-         url:'controllers/controlador_modal_eventos.php?metodo=set_estado',
-         data: parametros,
-         type: "GET",
-         success: function(response){
-            console.log(response);
-            if(response['success']==1){
-              messageDone(response['mensaje'], "success");
-            }
-            else{
-              messageDone(response['mensaje'], "error");
-            }
-         },
-         error: function(data){
-         },
-         complete: function(){
-         },
-      });
-    }
-
     var f4 = flatpickr(document.getElementById('txt_fecha_ini'), {
       enableTime: true,
       dateFormat: "Y-m-d H:i"

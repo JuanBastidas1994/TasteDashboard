@@ -35,6 +35,7 @@ $cart_campaign_max          = $empresa['cart_campaign_max']          ?? 3;
 $cart_recovery_email        = $empresa['cart_recovery_email']        ?? 0;
 $cart_recovery_push         = $empresa['cart_recovery_push']         ?? 0;
 $cart_recovery_whatsapp     = $empresa['cart_recovery_whatsapp']     ?? 0;
+$prep_time_badge_minutes    = $empresa['prep_time_badge_minutes']    ?? 120;
 $chkGravaIva = "checked";
 if ($empresa['envio_grava_iva'] == 0) {
     $chkGravaIva = "";
@@ -234,6 +235,12 @@ $tieneOfficInsite = in_array('OFFICE_INSITE', $permisosEmpresa);
                                     <a class="nav-link" data-toggle="tab" href="#tab-carrito" role="tab" aria-selected="false">
                                         <i data-feather="shopping-cart"></i>
                                         Carrito
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" data-toggle="tab" href="#tab-productos" role="tab" aria-selected="false">
+                                        <i data-feather="package"></i>
+                                        Productos
                                     </a>
                                 </li>
                                 <?php if ($tieneOfficInsite) { ?>
@@ -832,6 +839,38 @@ $tieneOfficInsite = in_array('OFFICE_INSITE', $permisosEmpresa);
                                     <div class="row">
                                         <div class="col-md-12 text-right mt-2 mb-3">
                                             <button class="btn btn-primary" id="btnGuardarCartConfig">
+                                                <i data-feather="save"></i> Guardar configuración
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <br />
+                                </div>
+
+                                <!-- Tab Productos -->
+                                <div class="tab-pane fade" id="tab-productos" role="tabpanel">
+                                    <br>
+                                    <h5>Indicador de tiempo de preparación</h5>
+                                    <hr>
+                                    <p class="text-muted">
+                                        Los productos cuyo tiempo de preparación sea <strong>igual o mayor</strong> a este valor
+                                        mostrarán el indicador "⏱ Xh de preparación" en el menú, el detalle del producto y el carrito.
+                                    </p>
+
+                                    <div class="row mt-3">
+                                        <div class="form-group col-md-4">
+                                            <label>Mostrar indicador desde <span class="asterisco">*</span></label>
+                                            <div class="input-group">
+                                                <input type="number" id="txt_prep_time_badge" class="form-control"
+                                                       value="<?= $prep_time_badge_minutes ?>" min="1" step="1">
+                                                <div class="input-group-append"><span class="input-group-text">min</span></div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-12 text-right mt-2 mb-3">
+                                            <button class="btn btn-primary" id="btnGuardarPrepTimeBadge">
                                                 <i data-feather="save"></i> Guardar configuración
                                             </button>
                                         </div>

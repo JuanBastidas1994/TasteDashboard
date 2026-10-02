@@ -12,6 +12,7 @@ let $tableIngredientes = null;
 let $tableRecipientes = null;
 let $trContificoConfirm = null;
 let OfficeId = 0;
+let misProductosMap = {};   // cod_producto -> mapeo Runfood (para opciones que son productos)
 $(document).ready(function () {
     OfficeId = $.urlParam('id');
     ApiKey = $("#api").val();
@@ -34,6 +35,8 @@ function loadMisProductos(){
         .then(response => {
             if(response.success == 1){
                 console.log("Mis Productos",response);
+                misProductosMap = {};
+                response.productos.forEach(p => { misProductosMap[p.cod_producto] = p; });
                 if($.fn.DataTable.isDataTable("#table-my-products")){
                     $("#table-my-products").DataTable().destroy();
                 }
@@ -65,6 +68,14 @@ $("body").on("click", "#btnVerificarProductos", function(){
                 console.log("Verificar productos",response);
                 notify(response.mensaje,'success',3);
                 loadMisProductos();
+
+                let template = Handlebars.compile($("#asignacion-sku-template").html());
+                $("#contentAsignacionSku").html(template({
+                    mensaje: response.mensaje,
+                    match: response.data.match,
+                    mismatch: response.data.mismatch
+                }));
+                $("#modalAsignacionSku").modal();
             }else{
                 messageDone(response.mensaje,'error');
             }
@@ -784,6 +795,17 @@ function getOpcionesByProduct(product_id){
             // let template1 = Handlebars.compile($("#product-ingredientes-template").html());
             // $("#productInformation").html(template1(response));
             
+            // Opciones que son productos: se muestran con el mapeo del producto, no se ligan aparte
+            response.opciones.forEach(opcion => {
+                if(opcion.isDatabase != "1") return;
+                opcion.items.forEach(item => {
+                    let producto = misProductosMap[item.cod_producto];
+                    item.productoLigado = (producto && (producto.sku || producto.id))
+                        ? { name_in_contifico: producto.name_in_contifico, sku: producto.sku || producto.id }
+                        : null;
+                });
+            });
+
             let target = $("#contentOpciones");
             let template = Handlebars.compile($("#product-data-template").html());
             target.html(template(response));

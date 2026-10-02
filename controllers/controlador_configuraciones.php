@@ -466,72 +466,6 @@ function eliminar_modulo(){
     return $return;
 }
 
-function crear_anuncio(){
-    global $Clfidelizacion;
-    if(count($_GET)==0){
-        $return['success'] = 0;
-        $return['mensaje'] = "Falta informacion";
-        return $return;
-    }
-
-    extract($_GET);
-    if($Clfidelizacion->insert_anuncio($nombre_anuncio, $cod_empresa, $descripcion,$width,$height, $id)){
-        $html.='<tr id="contAn'.$id.'">
-                    <td><span>'.$id.'</span></td>
-                    <td><input type="text" id="txt_anuncio'.$id.'" class="form-control" value="'.$nombre_anuncio.'" ></td>
-                    <td><textarea id="txa_anuncio'.$id.'" class="form-control" >'.$descripcion.'</textarea></td>
-                    <td  class="text-center"><button type="button" class="btn btn-outline-primary btnEditarAnuncio" data-codigo="'.$id.'">Editar</button></td>
-                    <td  class="text-center"><button type="button" class="btn btn-outline-primary btnEliminarAnuncio" data-codigo="'.$id.'">Eliminar</button></td>
-                </tr>';
-                
-        $return['success'] = 1;
-        $return['html'] = $html;
-        $return['mensaje'] = "Anuncio agregado correctamente";
-    }else{
-        $return['success'] = 0;
-        $return['mensaje'] = "Error al insertar el anuncio, por favor vuelva a intentarlo";
-    }
-    return $return;
-}
-
-function editar_anuncio(){
-    global $Clfidelizacion;
-    if(count($_GET)==0){
-        $return['success'] = 0;
-        $return['mensaje'] = "Falta informacion";
-        return $return;
-    }
-
-    extract($_GET);
-    if($Clfidelizacion->update_anuncio($nombre_anuncio, $descripcion,$width,$height, $codigo)){
-        $return['success'] = 1;
-        $return['mensaje'] = "Anuncio editado correctamente";
-    }else{
-        $return['success'] = 0;
-        $return['mensaje'] = "Error al editar el anuncio, por favor vuelva a intentarlo";
-    }
-    return $return;
-}
-
-function eliminar_anuncio(){
-    global $Clfidelizacion;
-    if(count($_GET)==0){
-        $return['success'] = 0;
-        $return['mensaje'] = "Falta informacion";
-        return $return;
-    }
-
-    extract($_GET);
-    if($Clfidelizacion->delete_anuncio($codigo)){
-        $return['success'] = 1;
-        $return['mensaje'] = "Anuncio eliminado correctamente";
-    }else{
-        $return['success'] = 0;
-        $return['mensaje'] = "Error al eliminar el anuncio, por favor vuelva a intentarlo";
-    }
-    return $return;
-}
-
 function update_descripcion(){
     global $Clempresas;
     if(count($_GET)==0){
@@ -882,6 +816,18 @@ function guardarMesaTipo() {
         return ['success' => 1, 'mensaje' => 'Configuración de mesa guardada correctamente'];
     }
     return ['success' => 0, 'mensaje' => 'Error al guardar la configuración de mesa'];
+}
+
+function guardarPrepTimeBadge() {
+    global $Clempresas, $session;
+    $minutos = isset($_POST['minutos']) ? intval($_POST['minutos']) : 0;
+    if ($minutos <= 0) {
+        return ['success' => 0, 'mensaje' => 'Ingrese un tiempo válido (mayor a 0)'];
+    }
+    if ($Clempresas->setPrepTimeBadgeMinutes($session['cod_empresa'], $minutos)) {
+        return ['success' => 1, 'mensaje' => 'Configuración de productos guardada correctamente'];
+    }
+    return ['success' => 0, 'mensaje' => 'Error al guardar la configuración de productos'];
 }
 
 function update_meta_puntos(){

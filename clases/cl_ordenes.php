@@ -734,5 +734,85 @@ class cl_ordenes
 
 			return Conexion::buscarRegistro($sql, $params);
 		}
+
+		/**
+		 * Listado de Reenvío de facturas: órdenes ENTREGADA facturadas y no facturadas, para
+		 * cualquier proveedor (Contifico, Runfood). Una orden tiene una sola factura vigente sin
+		 * importar el proveedor, así que no hace falta cruzar con la config de cada uno.
+		 * cod_sistema_facturacion sale de la factura; si aún no tiene, del proveedor activo de la
+		 * empresa. Con eso el front decide por fila qué aplica (inventario solo existe en Contifico).
+		 */
+		public function getFacturasUnificadas($cod_empresa, $fechaInicio, $fechaFin, $sucursal = '', $cliente = '', $documento = '', $estado = '') {
+			$params = [
+				':cod_empresa' => $cod_empresa,
+				':fecha_inicio' => $fechaInicio,
+				':fecha_fin' => $fechaFin
+			];
+
+			// Una orden puede tener varias filas en tb_orden_factura_electronica si se anuló y
+			// se reenvió (ExistFacturaToOrden ignora las ANULADA al reenviar), por eso siempre
+			// se toma solo la última fila (MAX id) por orden, no un join directo por cod_orden.
+			$query = "SELECT oc.cod_orden, oc.fecha, oc.estado AS estado_orden, oc.total, u.nombre AS cliente,
+							s.nombre AS sucursal,
+							(SELECT GROUP_CONCAT(fp.descripcion SEPARATOR ', ')
+								FROM tb_orden_pagos op
+								JOIN tb_formas_pago fp ON fp.cod_forma_pago = op.forma_pago
+								WHERE op.cod_orden = oc.cod_orden) AS formas_pago,
+							ofe.tipo, ofe.num_factura, ofe.estado AS estado_factura, ofe.fecha AS fecha_envio,
+							ofe.estado_inventario,
+							COALESCE(ofe.cod_sistema_facturacion,
+								(SELECT ef.cod_sistema_facturacion FROM tb_empresa_facturacion ef
+									WHERE ef.cod_empresa = oc.cod_empresa AND ef.estado = 'A'
+									ORDER BY ef.prioridad LIMIT 1)) AS cod_sistema_facturacion,
+							(SELECT c.estado FROM tb_orden_comanda c
+								WHERE c.cod_orden = oc.cod_orden
+								ORDER BY c.cod_orden_comanda DESC LIMIT 1) AS estado_comanda,
+							IF(ofe.estado IN ('CREADA','EMITIDA_SRI'), 'ENVIADA', 'NO_ENVIADA') AS estado_envio,
+							IF(ofe.estado IN ('CREADA','EMITIDA_SRI') AND ofe.fecha IS NOT NULL AND DATE(ofe.fecha) = CURDATE(), 1, 0) AS puede_anular,
+							CASE
+								WHEN ofe.estado IN ('CREADA','EMITIDA_SRI') THEN NULL
+								WHEN err.fecha IS NOT NULL AND err.fecha > IFNULL(ofe.fecha, '1970-01-01') THEN err.motivo
+								ELSE NULL
+							END AS ultimo_error
+						FROM tb_orden_cabecera oc
+						JOIN tb_usuarios u ON oc.cod_usuario = u.cod_usuario
+						JOIN tb_sucursales s ON oc.cod_sucursal = s.cod_sucursal
+						LEFT JOIN tb_orden_factura_electronica ofe
+							ON ofe.cod_orden_factura_electronica = (
+								SELECT MAX(ofe2.cod_orden_factura_electronica)
+								FROM tb_orden_factura_electronica ofe2
+								WHERE ofe2.cod_orden = oc.cod_orden
+							)
+						LEFT JOIN tb_orden_errores err
+							ON err.cod_orden_errores = (
+								SELECT MAX(e2.cod_orden_errores) FROM tb_orden_errores e2
+								WHERE e2.cod_orden = oc.cod_orden AND e2.tipo = 'FACTURA'
+							)
+						WHERE oc.cod_empresa = :cod_empresa
+						AND oc.estado = 'ENTREGADA'
+						AND oc.fecha BETWEEN :fecha_inicio AND :fecha_fin";
+
+			if($sucursal !== '' && $sucursal !== null){
+				$query .= " AND oc.cod_sucursal = :sucursal";
+				$params[':sucursal'] = $sucursal;
+			}
+			if($cliente !== '' && $cliente !== null){
+				$query .= " AND u.nombre LIKE :cliente";
+				$params[':cliente'] = "%$cliente%";
+			}
+			if($documento !== '' && $documento !== null && $documento !== 'TODOS'){
+				$query .= " AND ofe.tipo = :documento";
+				$params[':documento'] = $documento;
+			}
+			if($estado === 'ENVIADA'){
+				$query .= " AND ofe.estado IN ('CREADA','EMITIDA_SRI')";
+			}else if($estado === 'NO_ENVIADA'){
+				$query .= " AND (ofe.cod_orden_factura_electronica IS NULL OR ofe.estado NOT IN ('CREADA','EMITIDA_SRI'))";
+			}
+
+			$query .= " ORDER BY oc.fecha DESC";
+
+			return Conexion::buscarVariosRegistro($query, $params);
+		}
 }
 ?>

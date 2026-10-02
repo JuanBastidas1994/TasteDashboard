@@ -68,6 +68,43 @@ function facturarUnificada(cod_orden, crear){
     });
 }
 
+/*COMANDA: para sistemas que además son POS/cocina (Runfood) la orden se abre allá apenas sale de
+  ENTRANTE (imprime en cocina) y se factura al entregar. Para Contifico el api responde -1 y no hace nada.*/
+function enviarComanda(cod_orden){
+    getInfoFacturacion();
+    if(!isFacturacion) return;
+    llamarComanda(`${ApiUrl}/facturacion/comanda`, cod_orden);
+}
+
+function anularComanda(cod_orden){
+    getInfoFacturacion();
+    if(!isFacturacion) return;
+    llamarComanda(`${ApiUrl}/facturacion/anular-comanda`, cod_orden);
+}
+
+function llamarComanda(ruta, cod_orden){
+    fetch(ruta,{
+        method: 'POST',
+        headers: {
+            'Api-Key': ApiKey
+        },
+        body: JSON.stringify({ id: cod_orden })
+    })
+    .then(res => res.json())
+    .then(response => {
+        console.log(response);
+        if(response.success === 1 && !response.skipped){
+            notify(response.mensaje,'success',2);
+        }
+        else if(response.success === 0){
+            notify(response.mensaje,'error',5);
+        }
+    })
+    .catch(error=>{
+        console.log(error);
+    });
+}
+
 /*CONTIFICO — usado únicamente por el cierre diario (reenvío masivo), no por el flujo de asignación/entrega*/
 function facturaElectronica(cod_orden, crear){
     let ruta = `${ApiUrl}/facturas/anular`;

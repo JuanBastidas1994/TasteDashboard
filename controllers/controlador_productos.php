@@ -431,53 +431,6 @@ function add_opcion(){
     return $return;
 }
 
-function add_combo(){
-    global $Clproductos;
-    if(count($_POST)==0){
-        $return['success'] = 0;
-        $return['mensaje'] = "Falta informacion";
-        return $return;
-    }
-    extract($_POST);
-
-    $y=0;
-    $id=0;
-    $tableC="";
-    $Clproductos->delete_Combo($cod_producto);
-    for($i=0; $i<count($txt_nomCombo); $i++){
-           $aumentarPrecio = $chk_is[$i];
-            $respC = $Clproductos->crear_opcion_combo($cod_producto, $txt_cod_hijo[$i], $txt_cantidadCombo[$i],$id);
-            $tableC .='<tr class="trItem">
-                          <td>
-                                <input class="form-control txt_cod_producDetalle" name="txt_cod_producDetalle[]" value="'.$id.'" type="hidden">
-                                <input class="form-control txt_cod_hijo" name="txt_cod_hijo[]" value="'.$txt_cod_hijo[$i].'" type="hidden">
-                                <input class="form-control txt_peso_combo" name="txt_peso_combo[]" value="'.$txt_peso_combo[$i].'" type="hidden">
-                                <input class="form-control txt_nomCombo" name="txt_nomCombo[]" value="'.$txt_nomCombo[$i].'"  readonly>
-                            </td>
-                          <td><input type="number" class="form-control txt_cantidadCombo" name="txt_cantidadCombo[]" data-peso="'.$txt_peso_combo[$i].'" min="1" placeholder="cantidad" value="'.$txt_cantidadCombo[$i].'" style="text-align: right;"></td>    
-                          <td>
-                            <a href="javascript:void(0);" data-value="'.$id.'"  class="bs-tooltip btnEliminarCombo" data-toggle="tooltip" data-placement="top" title="" data-original-title="Delete"><i data-feather="trash"></i></a>
-                          </td>
-                        </tr>';
-            if($respC)
-            $y++;
-        }
-    
-    if($y == count($txt_nomCombo)) 
-    {
-        $return['success'] = 1;
-        $return['mensaje'] = "Opcion creada correctamente";
-        $return['html'] = $tableC;
-    }
-    else
-    {
-        $return['success'] = 0;
-        $return['mensaje'] = "Ups, problemas al crear tu combo. Intentalo mas tarde...";
-    }
-        
-    return $return;
-}
-
 /*--NUEVO--*/
 function importar(){
     global $Clproductos;
@@ -691,26 +644,6 @@ function eliminarUnaOpcionDetalle(){
     return $return;
 }
 
-function delete_opcionCombo(){
-    global $Clproductos;
-    if(!isset($_GET['cod_opcion'])){
-            $return['success'] = 0;
-            $return['mensaje'] = "Falta informacion";
-            return $return;
-    }
-    extract($_GET);
-
-    $resp = $Clproductos->delete_opcionCombo($cod_opcion);
-    if(($resp)){
-      $return['success'] = 1;
-      $return['mensaje'] = "opcion eliminada correctamente";
-    }else{
-      $return['success'] = 0;
-      $return['mensaje'] = "Error al eliminar la opcion";
-    }
-    return $return;
-}
-
 /* SUBIDA DIRECTA DE IMAGEN (subir_imagen_masivo.php): se guarda el archivo original sin recortar ni recomprimir */
 function subir_imagen_directa(){
     global $Clproductos;
@@ -755,10 +688,8 @@ function subir_imagen_directa(){
         return $return;
     }
 
-    // Miniatura con el ancho mínimo configurado para la empresa (tb_size_crop), por defecto 400
-    $Clempresas = new cl_empresas(NULL);
-    $sizeCrop = $Clempresas->getSizeCrop($session['cod_empresa']);
-    $anchoMin = ($sizeCrop && intval($sizeCrop['size_min_width']) > 0) ? intval($sizeCrop['size_min_width']) : 400;
+    // Miniatura de 400px de ancho
+    $anchoMin = 400;
     if(!crear_miniatura($ruta.$nameImg, $ruta.$nameImgMin, $info[2], $anchoMin))
         @copy($ruta.$nameImg, $ruta.$nameImgMin);
 
@@ -1158,49 +1089,6 @@ function getOpciones(){
    return $return;
 }
 
-function getOpcionesCombo(){
-   global $Clproductos; 
-   extract($_GET);
-   $html = "";
-   
-   $cod_producto = 0;
-   if(isset($_GET['cod_producto']))
-   $cod_producto=$_GET['cod_producto'];
-   
-   $listaProductos = $Clproductos->get_Combo($cod_producto);
-   $listaP = $Clproductos->lista();
-   if($listaP)
-   {
-        foreach ($listaP as $c) {
-            $selected = "";
-            if(in_array($c['cod_producto'], $listaProductos))
-              $selected = 'selected="selected"';
-          $html.='<option '.$selected.' value="'.$c['cod_producto'].'" data-peso="'.$c['peso'].'">'.$c['nombre'].'</option>';
-        }
-        $return['success'] = 1;
-        $return['mensaje'] = "Lista obtenida";
-        $return['html'] = $html;
-   }
-   else{
-       $return['success'] = 0;
-       $return['mensaje'] = "Error al obtener datos";
-   }  
-  /* $resp = $Clproductos->lista();
-   if($resp){
-       foreach($resp as $r){
-           $html.='<option value="'.$r['cod_producto'].'" data-peso="'.$r['peso'].'">'.$r['nombre'].'</option>';
-       }
-       $return['success'] = 1;
-       $return['mensaje'] = "Lista obtenida";
-       $return['html'] = $html;
-   }
-   else{
-       $return['success'] = 0;
-       $return['mensaje'] = "Error al obtener datos";
-   } */  
-   return $return;
-}
-
 function actualizar(){
     global $Clproductos;
 
@@ -1477,135 +1365,5 @@ function activateOpcionInventario(){
     }
     return $return;
 }
-
-#region Kiosco
-// PRODUCTOS KIOSCO
-function getProductsKiosco() {
-    global $Clproductos;
-    extract($_GET);
-
-    $productos = $Clproductos->getProductosKiosco();
-    if($productos) {
-        $return['success'] = 1;
-        $return['mensaje'] = "Lista de productos kiosco";
-        $return['data'] = $productos;
-        return $return;
-    }
-    $return['success'] = 0;
-    $return['mensaje'] = "No hay productos";
-    return $return;
-}
-
-function setProductsKiosco() {
-    global $Clproductos;
-
-    require_once '../clases/cl_sucursales.php';
-    $ClSucursales = new cl_sucursales();
-
-    $sucursales = $ClSucursales->lista();
-    if(!$sucursales) {
-        $return['success'] = 0;
-        $return['mensaje'] = "No hay sucursales";
-        return $return;
-    }
-
-    $POST = json_decode(file_get_contents('php://input'), true);
-    extract($POST);
-
-    foreach ($sucursales as $sucursal) {
-        $cod_sucursal = $sucursal["cod_sucursal"];
-
-        $Clproductos->cod_producto = $cod_producto;
-        $Clproductos->precio = $precio;
-        $Clproductos->cod_sucursal = $cod_sucursal;
-        $Clproductos->estado = $estado;
-        $Clproductos->is_custom = $is_custom;
-        if($Clproductos->setProductoKiosco()) {
-            $success[] = "Guardado sucursal: $cod_sucursal";
-        }
-        else {
-            $error[] = "Error guardar en sucursal: $cod_sucursal";
-        }
-    }
-
-    if(count($error) > 0) {
-        $return['success'] = -1;
-        $return['mensaje'] = "Error al guardar en una o varias sucursales";
-        $return['error'] = $error;
-        $return['correcto'] = $success;
-        return $return;
-    }
-
-    $return['success'] = 1;
-    $return['mensaje'] = "Guardado correctamente";
-    $return['error'] = $error;
-    $return['correcto'] = $success;
-    return $return;
-}
-
-function getProductsOffices() {
-    global $Clproductos;
-    extract($_GET);
-
-    if(!isset($cod_producto)) {
-        $return['success'] = 0;
-        $return['mensaje'] = "Falta identificador ID del producto";
-        return $return;
-    }
-
-    $productos = $Clproductos->getProductsOffices($cod_producto);
-    if($productos) {
-        $return['success'] = 1;
-        $return['mensaje'] = "Lista de productos kiosco, sucursales";
-        $return['data'] = $productos;
-        return $return;
-    }
-    $return['success'] = 0;
-    $return['mensaje'] = "No hay productos";
-    return $return;
-}
-
-function setProductsKioscoCustom() {
-    global $Clproductos;
-    $POST = json_decode(file_get_contents('php://input'), true);
-    extract($POST);
-
-    if(count($data) > 0) {
-        $success = [];
-        $error = [];
-        foreach ($data as $producto) {
-            $Clproductos->cod_producto = $producto["cod_producto"];
-            $Clproductos->precio = $producto["precio"];
-            $Clproductos->cod_sucursal = $producto["cod_sucursal"];
-            $Clproductos->estado = $producto["estado"];
-            $Clproductos->is_custom = $producto["is_custom"];
-            if($Clproductos->setProductoKiosco()) {
-                $success[] = $producto;
-            }
-            else {
-                $error[] = $producto;
-            }
-        }
-        
-        if(count($error) > 0) {
-            $return['success'] = -1;
-            $return['mensaje'] = "Error al guardar uno o varios productos";
-            $return['error'] = $error;
-            $return['correcto'] = $success;
-            return $return;
-        }
-        
-        $return['success'] = 1;
-        $return['mensaje'] = "Guardado correctamente";
-        $return['error'] = $error;
-        $return['correcto'] = $success;
-        return $return;
-    }
-    
-    $return['success'] = 0;
-    $return['mensaje'] = "No hay datos que actualizar";
-    return $return;
-}
-// FIN PRODUCTOS KIOSCO
 #endregion
 ?>

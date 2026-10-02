@@ -21,13 +21,6 @@
                     <script id="lista-funciones" type="text/x-handlebars-template">
                         <div class="col-md-12 col-sm-12 col-xs-12">
                             <div class="col-md-4 col-sm-6 col-xs-12">
-                                <a class="col-md-12 col-sm-12 col-xs-12 card-funciones" target="_blank" href="lst_web_paginas.php?id={{alias}}">
-                                    <div style="justify-content: center; align-items: center;width: 100%;"><i class="feather-18" data-feather="layout"></i></div>
-                                    <h5>Esquema</h5>
-                                </a>
-                            </div>
-                            
-                            <div class="col-md-4 col-sm-6 col-xs-12">
                                 <a class="col-md-12 col-sm-12 col-xs-12 card-funciones" target="_blank" href="empresas_buttonPayment.php?id={{alias}}" style="text-align:center;">
                                     <div style="justify-content: center; align-items: center;width: 100%;"><i class="feather-18" data-feather="credit-card"></i></div>
                                     <h5>Botón de Pagos</h5>

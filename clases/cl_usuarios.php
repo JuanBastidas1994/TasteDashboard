@@ -443,12 +443,8 @@ class cl_usuarios
         }
         
         public function getLang($cod_idioma){
-            $query = "SELECT * FROM tb_idiomas WHERE cod_idioma = $cod_idioma";
-            $resp = Conexion::buscarRegistro($query);
-            if($resp)
-                return $resp['prefijo'];
-            else
-                return "";
+            $idiomas = [1 => 'es', 2 => 'en'];
+            return $idiomas[intval($cod_idioma)] ?? "";
         }
 
 		public function editarCedula($cod_usuario, $num_documento){
@@ -525,14 +521,6 @@ class cl_usuarios
 						estado = 'A'";
 			return Conexion::ejecutar($query, null);  
 		}
-	
-	/*EMAIL CLIENT*/
-	    public function getEmailConfig($cod_usuario){
-	        $query = "SELECT * 
-                        FROM tb_usuario_client_email 
-                        WHERE cod_usuario = $cod_usuario";
-			return Conexion::buscarRegistro($query);
-	    }
 
 
 		/**

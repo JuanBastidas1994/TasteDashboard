@@ -237,7 +237,6 @@ else
                 $cod_producto = $prod['cod_producto'];
                 $nom_prod = $prod['nombre'];
                 echo "<br><br>PRODUCTO: $cod_producto<br>";
-                eliminarArchivo($cod_producto);
                 eliminarCategoria($cod_producto);
                 eliminarProdDias($cod_producto);
                 eliminarFact($cod_producto);
@@ -245,7 +244,6 @@ else
                 eliminarIngredientes($cod_producto);
                 eliminarOpciones($cod_producto);
                 //eliminarOpcionesDetalles($cod_producto);
-                eliminarPreferencia($cod_producto);
                 eliminarSucursal($cod_producto);
                 eliminarVariante($cod_producto);
                 eliminarCaracteristica($cod_producto);
@@ -285,26 +283,6 @@ else
             echo "Producto $cod_producto no eliminado <br>";
     }
 
-    function eliminarArchivo($cod_producto){
-        global $files;
-        
-        $queryA = "SELECT nombre_archivo FROM tb_productos_archivos WHERE cod_producto = $cod_producto";
-        $respA = Conexion::buscarVariosRegistro($queryA);
-        if($respA){
-            foreach($respA as $arc){
-                $archivo = $files. $arc['nombre_archivo'];
-                echo "$archivo<br>";
-                unlink($archivo);
-            }
-        }
-        
-        $query = "DELETE FROM tb_productos_archivos WHERE cod_producto = $cod_producto";
-        $resp = Conexion::ejecutar($query,NULL);
-        if($resp)
-            echo "Archivo $cod_producto eliminada <br>";
-        else
-            echo "Archivo $cod_producto no eliminado <br>";
-    }
 
     function eliminarCategoria($cod_producto){
         $query = "DELETE FROM tb_productos_categorias WHERE cod_producto = $cod_producto";
@@ -379,15 +357,6 @@ else
             echo "OpcionesDetalles $cod_producto eliminada <br>";
         else
             echo "OpcionesDetalles $cod_producto no eliminado <br>";
-    }
-
-    function eliminarPreferencia($cod_producto){
-        $query = "DELETE FROM tb_productos_preferencia WHERE cod_producto = $cod_producto";
-        $resp = Conexion::ejecutar($query,NULL);
-        if($resp)
-            echo "Preferencia $cod_producto eliminada <br>";
-        else
-            echo "Preferencia $cod_producto no eliminado <br>";
     }
 
     function eliminarSucursal($cod_producto){

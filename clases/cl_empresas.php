@@ -609,67 +609,6 @@ class cl_empresas
         	}
         }
         
-        /*------------- RECURSIVIDAD PAGOS ---------------*/
-        public function setCard($cod_empresa,$token,$type,$status,$number,$reference,$expiry_month,$expiry_year){
-            $query = "UPDATE tb_empresa_tarjeta SET estado = 'I' WHERE cod_empresa = $cod_empresa";
-            Conexion::ejecutar($query,NULL);
-            
-            $query = "INSERT INTO tb_empresa_tarjeta(cod_empresa,token,type,status,number,reference,expiry_month,expiry_year,estado) 
-                    VALUES($cod_empresa,'$token','$type','$status','$number','$reference','$expiry_month','$expiry_year','A')";
-            return Conexion::ejecutar($query,NULL);
-        }
-        
-        public function getCardActive($cod_empresa){
-            $query = "SELECT * FROM tb_empresa_tarjeta WHERE cod_empresa = ".$cod_empresa." AND estado = 'A'";
-            return Conexion::buscarRegistro($query);
-        }
-        
-        public function getPlanes(){
-            $query = "SELECT * FROM tb_planes ORDER BY posicion ASC";
-            return Conexion::buscarVariosRegistro($query);
-        }
-        
-        public function getLogsPagos($cod_empresa){
-            $query = "SELECT * FROM mie_log_pago WHERE cod_empresa = $cod_empresa";
-            return Conexion::buscarVariosRegistro($query);
-        }
-        
-        public function getLogsSuccess($cod_log, &$row){
-            $query = "SELECT *
-                        FROM mie_log_pago_success
-                        WHERE cod_mie_log_pago = $cod_log";
-            $row = Conexion::buscarRegistro($query);
-            if($row)
-                return true;
-            return false;
-        }
-        
-        public function getLogsError($cod_log, &$row){
-            $query = "SELECT *
-                        FROM mie_log_pago_error
-                        WHERE cod_mie_log_pago = $cod_log";
-            $row = Conexion::buscarRegistro($query);
-            if($row)
-                return true;
-            return false;
-        }
-        
-        public function getTarjetaActiva($cod_empresa){
-            $query = "SELECT * FROM tb_empresa_tarjeta WHERE estado = 'A' AND cod_empresa = $cod_empresa";
-            $row = Conexion::buscarRegistro($query);
-            if($row)
-                return $row['token'];
-            else{
-                return 0;
-            }
-        }
-        
-        public function actulizarTarjeta($token, $cod_empresa){
-            $query = "  UPDATE tb_empresa_tarjeta SET estado = 'I' WHERE cod_empresa = $cod_empresa AND estado = 'A';
-                        UPDATE tb_empresa_tarjeta SET estado = 'A' WHERE token = '$token';";
-            return Conexion::ejecutar($query,NULL);
-        }
-        
         
         /*------------- FACTURACION ELECTRONICA ---------------*/
         public function getProveedorFact($cod_empresa){
@@ -805,13 +744,6 @@ class cl_empresas
 						SET is_emprendedor = $isEmprendedor
 						WHERE cod_empresa = $cod_empresa";
 			return Conexion::ejecutar($query, null);
-		}
-
-		public function getSizeCrop($cod_empresa){
-			$query = "SELECT * 
-						FROM tb_size_crop 
-						WHERE cod_empresa = $cod_empresa";
-			return Conexion::buscarRegistro($query);
 		}
 
 		public function setMontoMaximoFormaPago($cod_forma_pago, $monto){
@@ -1103,6 +1035,12 @@ class cl_empresas
 		public function setMesaTipo($cod_empresa, $mesa_tipo) {
 			$mesa_tipo = ($mesa_tipo === 'NOMBRE') ? 'NOMBRE' : 'NUMERO';
 			$query = "UPDATE tb_empresas SET mesa_tipo = '$mesa_tipo' WHERE cod_empresa = $cod_empresa";
+			return Conexion::ejecutar($query, null);
+		}
+
+		public function setPrepTimeBadgeMinutes($cod_empresa, $minutos) {
+			$minutos = (int) $minutos;
+			$query = "UPDATE tb_empresas SET prep_time_badge_minutes = $minutos WHERE cod_empresa = $cod_empresa";
 			return Conexion::ejecutar($query, null);
 		}
 

@@ -5,7 +5,6 @@ require_once "funciones.php";
 require_once "clases/cl_ordenes.php";
 require_once "clases/cl_sucursales.php";
 require_once "clases/cl_categorias.php";
-require_once "clases/cl_updates.php";
 require_once "clases/cl_empresas.php";
 
 if(!isLogin()){
@@ -15,7 +14,6 @@ if(!isLogin()){
 $Clcategorias = new cl_categorias(NULL);
 $Clordenes = new cl_ordenes(NULL);
 $Clsucursales = new cl_sucursales(NULL);
-$Clupdates = new cl_updates(NULL);
 $Clempresa = new cl_empresas(null);
 
 $session = getSession();
@@ -28,40 +26,6 @@ if($cod_rol == 19) {
 }
 
 $files = url_sistema.'assets/empresas/'.$session['alias'].'/';
-
-$cod_update = "";
-$titulo = "";
-$detalle = "";
-$multimedia = "";
-$mostrarModal = "";
-if(isset($session['cod_usuario'])){
-    $visualizado = $Clupdates->mostrarUpdate($session['cod_usuario']);
-    if(!$visualizado){
-        $hayUpdate = $Clupdates->getLastUpdate($session['cod_empresa'], $update);
-        if($hayUpdate){
-            $mostrarModal = "Si";
-            $cod_update = $update['cod_update'];
-            $titulo = $update['titulo'];
-            $detalle = editor_decode($update['detalle']);
-            $url = editor_decode($update['url']);
-            if($url <> "" && $url <> null){
-                if($update['tipo_multimedia'] == 1){
-                    $multimedia = '<img style="height: 300px;" src="'.$url.'">';    
-                }
-                else if($update['tipo_multimedia'] == 2){
-                    $multimedia = '<iframe src="'.$url.'"></iframe>';
-                }
-                else{
-
-                    $multimedia = '<lottie-player src="'.$url.'"  background="transparent"  speed="1"  style="height: 300px;"  loop  autoplay></lottie-player>';
-                }
-            } 
-        }    
-        else{
-            $mostrarModal = "No";
-        }
-    }
-}
 
 /* ALERTAS DE PAGO */
 $query = "SELECT * FROM tb_empresa_pagos WHERE cod_empresa = $cod_empresa";
@@ -121,43 +85,6 @@ $faltaPagos = Conexion::buscarRegistro($query);
         <?php echo sidebar(); ?>
         <!--  END SIDEBAR  -->
 
-        
-        <!-- Modal -->
-        <div class="modal fade" id="videoMedia1" tabindex="-1" role="dialog" aria-labelledby="videoMedia1Label" aria-hidden="true">
-            <div class="modal-dialog modal-lg" role="document">
-                <div class="modal-content">
-                    <div class="modal-header" id="videoMedia1Label">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-                        </button>
-                    </div>
-                    <div class="modal-body p-0">
-                        <div class="video-container">
-                            <input type="hidden" id="mostrarModal" value="<?= $mostrarModal?>">
-                            <input type="hidden" id="codUsuario" value="<?= $cod_usuario?>">
-                            <input type="hidden" id="codUpdate" value="<?= $cod_update?>">
-                            <div class="row">
-                                <div class="col-12" style="text-align: center;">
-                                    <?= $multimedia;?>
-                                </div>
-                                <div class="col-12">
-                                    <h3 style="text-align: center; margin-top: 25px; margin-bottom: 25px;"> <?= $titulo;?> </h3>
-                                </div>
-                                <div class="col-12">
-                                    <div class="offset-1 col-10">
-                                        <?= $detalle;?>
-                                    </div>
-                                </div>
-                                <div class="offset-9 col-3" style="margin-top: 25px; margin-bottom: 25px;">
-                                    <a class="no-mostrar" style="cursor: pointer;">No volver a mostrar</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- Modal -->
         
         <!--  BEGIN CONTENT AREA  -->
         <div id="content" class="main-content">
@@ -262,10 +189,6 @@ $faltaPagos = Conexion::buscarRegistro($query);
         });
 
         $(document).ready(function(){
-            if($("#mostrarModal").val() == "Si")
-                $("#videoMedia1").modal();
-
-
             const bc = new BroadcastChannel("my-awesome-site");
             bc.onmessage = (event) => {
                 if (event.data === `Am I the first?`) {
@@ -278,34 +201,6 @@ $faltaPagos = Conexion::buscarRegistro($query);
                 }
             };
             bc.postMessage(`Am I the first?`);
-        });
-
-        $(".no-mostrar").on("click", function(){
-            var cod_usuario = $("#codUsuario").val();
-            var cod_update = $("#codUpdate").val();
-            var parametros = {
-                "cod_usuario": cod_usuario,
-                "cod_update": cod_update
-            }
-            $.ajax({
-               url:'controllers/controlador_updates.php?metodo=marcarLeido',
-               data: parametros,
-               type: "GET",
-               success: function(response){
-                  console.log(response);
-                  if(response['success']==1){
-                    $("#videoMedia1").modal("hide");    
-                    messageDone(response['mensaje'], 'success');
-                  }
-                  else{
-                    messageDone(response['mensaje'], 'error');
-                  }
-               },
-               error: function(data){
-               },
-               complete: function(){
-               },
-            });
         });
     </script>
     <script>

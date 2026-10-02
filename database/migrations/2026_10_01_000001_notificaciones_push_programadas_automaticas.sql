@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS tb_notificaciones_expo_aperturas (
     fecha DATETIME NOT NULL,
     PRIMARY KEY (id),
     UNIQUE KEY uk_notificacion_usuario (notificacion_id, cod_usuario)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Configuración de automáticas por empresa (calificación y cumpleaños van siempre, solo recompra se configura)
 CREATE TABLE IF NOT EXISTS tb_notificaciones_auto_config (
@@ -32,7 +32,7 @@ CREATE TABLE IF NOT EXISTS tb_notificaciones_auto_config (
     recompra_mensaje VARCHAR(200) NOT NULL DEFAULT '',
     fecha_update DATETIME NULL,
     PRIMARY KEY (cod_empresa)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Evita repetir automáticas: cumpleaños 1 vez por año, recompra 1 vez por ciclo (clave = última orden)
 CREATE TABLE IF NOT EXISTS tb_notificaciones_auto_log (
@@ -44,4 +44,4 @@ CREATE TABLE IF NOT EXISTS tb_notificaciones_auto_log (
     fecha DATETIME NOT NULL,
     PRIMARY KEY (id),
     UNIQUE KEY uk_usuario_tipo_clave (cod_usuario, tipo, clave)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

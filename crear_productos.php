@@ -33,8 +33,6 @@ $desc_larga = "";
 $estado = "checked";
 $open_detalle = "";
 $base = "checked";
-$combo = "";
-$displayCombo = "display:none";
 $txt_peso = 0;
 $txt_volumen = 0;
 $txt_sku = "";
@@ -136,15 +134,6 @@ $sizeMaxHeight = 1000;
 $quality = 0.9;
 $alias = "";
 
-$sizeCrop = $Clempresas->getSizeCrop($session['cod_empresa']);
-if ($sizeCrop) {
-    $sizeMinWidth = $sizeCrop['size_min_width'];
-    $sizeMinHeight = $sizeCrop['size_min_height'];
-    $sizeMaxWidth = $sizeCrop['size_max_width'];
-    $sizeMaxHeight = $sizeCrop['size_max_height'];
-    $quality = $sizeCrop['quality'];
-}
-
 if (isset($_GET['id'])) {
     $alias = $_GET['id'];
     $producto = [];
@@ -172,11 +161,6 @@ if (isset($_GET['id'])) {
             $estado = "";
         if ($producto['open_detalle'] == 0)
             $open_detalle = "checked";
-
-        if ($producto['is_combo'] == 1) {
-            $combo = "checked";
-            $displayCombo = "";
-        }
 
         $venta_delivery = ($producto['venta_delivery'] == 1) ? "checked" : "";
         $venta_pickup = ($producto['venta_pickup'] == 1) ? "checked" : "";
@@ -855,18 +839,6 @@ $tipoRecorte = $empresa['tipo_recorte'];
                                         </div>
 
                                         <div class="form-group col-md-4 col-sm-4 col-xs-12" style="margin-bottom:10px;<?php echo $displayRetail ?>">
-                                            <label>Es un combo?<span class="asterisco">*</span>
-                                                <span class="far fa-question-circle rounded bs-tooltip" data-placement="top" title="Arma tu combo o kit agregando otros productos."></span>
-                                            </label>
-                                            <div>
-                                                <label class="switch s-icons s-outline  s-outline-success  mb-4 mr-2">
-                                                    <input type="checkbox" name="chk_combo" id="chk_combo" <?php echo $combo; ?> />
-                                                    <span class="slider round"></span>
-                                                </label>
-                                            </div>
-                                        </div>
-
-                                        <div class="form-group col-md-4 col-sm-4 col-xs-12" style="margin-bottom:10px;<?php echo $displayRetail ?>">
                                             <label>Facturar sin stock<span class="asterisco">*</span>
                                                 <span class="far fa-question-circle rounded bs-tooltip" data-placement="top" title="Si está activo permite que el cliente pueda comprar este producto aunque no haya en stock."></span>
                                             </label>
@@ -1098,97 +1070,6 @@ $tipoRecorte = $empresa['tipo_recorte'];
                     </div>
 
                     <div class="col-xl-5 col-lg-12 col-sm-12  layout-spacing">
-
-                        <!--ARMA TU COMBO O KIT -->
-
-                        <div class="widget-content widget-content-area br-6 dataCombo" style="margin-bottom: 15px;<?php echo $displayCombo ?>">
-                            <div>
-                                <div class="form-group col-md-12 col-sm-12 col-xs-12">
-                                    <div class="form-group col-md-10 col-sm-10 col-xs-12">
-                                        <h4>Arma tu Kit o Combo</h4>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <form id="frmOpcionesCombo" method="POST" action="#">
-                                <div class="row">
-                                    <div class="form-group col-md-12 col-sm-12 col-xs-12">
-                                        <label>Productos <span class="asterisco">*</span></label>
-                                        <select multiple="multiple" name="cmb_productosCombo[]" id="cmb_productosCombo" class="form-control basic selectOpc" required="required">
-                                            <?php
-                                            // $listaProductos = $Clproductos->get_Combo($cod_producto);
-                                            // $listaP = $Clproductos->lista();
-                                            // foreach ($listaP as $c) {
-                                            //     $selected = "";
-                                            //     if (in_array($c['cod_producto'], $listaProductos))
-                                            //         $selected = 'selected="selected"';
-                                            //     echo '<option ' . $selected . ' value="' . $c['cod_producto'] . '" data-peso="' . $c['peso'] . '">' . $c['nombre'] . '</option>';
-                                            // }
-                                            ?>
-                                        </select>
-
-                                        <div class="row">
-                                            <div align="right" class="form-group col-md-12 col-sm-12 col-xs-12">
-                                                <button type="button" class="btn btn-primary" id="addItemCombo">A&ntilde;adir</button>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-md-12 col-sm-12 col-xs-12">
-                                        <table class="table table-hover table-bordered">
-                                            <thead>
-                                                <tr>
-                                                    <th>Producto</th>
-                                                    <th>Cantidad</th>
-                                                    <th>&nbsp;</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody id="style-3" class="tbodyCombo connectedSortable respOpcionesCombo">
-                                                <?php
-                                                $peso = 0;
-                                                $lista = $Clproductos->lista_Combo($cod_producto);
-                                                if ($lista) {
-                                                    foreach ($lista as $c) {
-                                                        $total = $c['peso'] * $c['cantidad'];
-                                                        $peso = $total + $peso;
-                                                        echo '
-                                                    <tr class="trItem">
-                                                          <td>
-                                                                <input class="form-control txt_cod_producDetalle" name="txt_cod_producDetalle[]" value="' . $c['cod_producto_detalle'] . '" type="hidden">
-                                                                <input class="form-control txt_cod_hijo" name="txt_cod_hijo[]" value="' . $c['cod_producto_hijo'] . '" type="hidden">
-                                                                <input class="form-control txt_peso_combo" name="txt_peso_combo[]" value="' . $c['peso'] . '" type="hidden">
-                                                                <input class="form-control txt_nomCombo" name="txt_nomCombo[]" value="' . $c['nombre'] . '"  readonly>
-                                                            </td>
-                                                          <td><input type="number" class="form-control txt_cantidadCombo" name="txt_cantidadCombo[]" data-peso="' . $c['peso'] . '" placeholder="cantidad" min="1" value="' . $c['cantidad'] . '" style="text-align: right;"></td>    
-                                                          <td>
-                                                            <a href="javascript:void(0);" data-value="' . $c['cod_producto_detalle'] . '"  class="bs-tooltip btnEliminarCombo" data-toggle="tooltip" data-placement="top" title="" data-original-title="Delete"><i data-feather="trash"></i></a>
-                                                          </td>
-                                                        </tr>
-                                                    ';
-                                                    }
-                                                }
-                                                ?>
-                                            </tbody>
-                                        </table>
-                                        <?php
-                                        echo '<tr>
-                                                <td>
-                                                    <label>Total peso Aprox:</label>
-                                                </td>
-                                                <td>
-                                                    <label class="txt_pesoApr">' . $peso . ' Kg</label>
-                                                </td>
-                                                </tr>';
-                                        ?>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="form-group col-md-12 col-sm-12 col-xs-12" style="text-align: right;">
-                                        <button type="button" class="btn btn-outline-primary" id="btnGuardarCombo">Guardar</button>
-                                    </div>
-                                </div>
-                            </form>
-                        </div>
 
                         <!-- Precio -->
 
@@ -1710,7 +1591,7 @@ $tipoRecorte = $empresa['tipo_recorte'];
     <!-- END MAIN CONTAINER -->
 
     <?php js_mandatory(); ?>
-    <script src="assets/js/pages/crear_productos2.js?v=132" type="text/javascript"></script>
+    <script src="assets/js/pages/crear_productos2.js?v=133" type="text/javascript"></script>
     <script>
     $(function () {
         $('#chk_precio_especial').on('change', function () {

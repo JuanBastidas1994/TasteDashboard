@@ -31,12 +31,6 @@ class cl_fidelizacion
             return $resp;
         }
         
-         public function anuncWeb($cod_empresa){
-            $query = "SELECT * FROM tb_anuncio_cabecera WHERE cod_empresa=".$cod_empresa;
-            $resp = Conexion::buscarVariosRegistro($query);
-            return $resp;
-        }
-        
         public function set_fidelizacion_puntos($cod_empresa, $divisor, $puntos, $barcode = 0){
             $query= "UPDATE tb_empresa_fidelizacion_puntos SET divisor_puntos=$divisor, monto_puntos=$puntos, generate_barcode=$barcode WHERE cod_empresa =". $cod_empresa;
             if(Conexion::ejecutar($query,NULL)){
@@ -186,43 +180,6 @@ class cl_fidelizacion
         	}
 		}
 		
-		public function insert_anuncio($nombre_anuncio, $cod_empresa, $descripcion,$width,$height, &$id){
-    			$query = "INSERT INTO  tb_anuncio_cabecera(nombre, cod_empresa, descripcion,width,height) ";
-            	$query.= "VALUES('$nombre_anuncio', $cod_empresa, '$descripcion',$width,$height)";
-            	//echo $query;
-            	if(Conexion::ejecutar($query,NULL)){
-            		$id = Conexion::lastId();
-            		return true;
-            	}else{
-            		return false;
-            	}
-		}
-        
-        public function update_anuncio($nombre_anuncio, $descripcion,$width,$height, $codigo){
-            $query= "UPDATE tb_anuncio_cabecera SET nombre = '$nombre_anuncio', descripcion = '$descripcion', width=$width,height=$height WHERE cod_anuncio_cabecera = $codigo";
-           // echo $query;
-            if(Conexion::ejecutar($query,NULL)){
-                return true;
-            }else{
-                return false;
-            }
-        }
-        
-        public function delete_anuncio($codigo){
-			$query = "DELETE FROM tb_anuncio_cabecera WHERE cod_anuncio_cabecera =".$codigo;
-        	if(Conexion::ejecutar($query,NULL)){
-        	    $queryDos = "DELETE FROM  tb_anuncio_cabecera WHERE cod_anuncio_cabecera = $codigo";
-        	    if(Conexion::ejecutar($queryDos,NULL)){
-                return true;
-                }else{
-                    return false;
-                }
-        	
-        	}else{
-        		return false;
-        	}
-		}
-
         /*ESQUEMAS: clasico (divisor + niveles) | simple (meta_puntos)*/
         const NIVEL_AUTOMATICO = 'GENERAL';
 

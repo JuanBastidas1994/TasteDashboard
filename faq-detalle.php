@@ -153,41 +153,6 @@ else{
             }).css('border', '0').appendTo('#videoMedia1 .video-container');
         });
         
-        $(document).ready(function(){
-            loadItems();
-        });
-        
-        function loadItems(){
-            var parametros = {
-                filter: $("#pfilter").val()
-            }
-            
-            $.ajax({
-                url:'controllers/controlador_helpdesk.php?metodo=lista',
-                data: parametros,
-                type: "GET",
-                success: function(response){
-                    console.log(response);
-                    if(response['success']==1){
-                    	$("#hd-statistics").html(response['html']);
-                    }else{
-                        $("#hd-statistics").html('No hay resultados');
-                    }
-                },
-                error: function(data){
-                  console.log(data);  
-                },
-                complete: function()
-                {
-                  
-                }
-            });
-        }
-        
-        $("#pfilter").on("keyup", function(){
-            loadItems();
-        });
-        
         $("#bfilter").on("click", function(){
             loadItems();
         });

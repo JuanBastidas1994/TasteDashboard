@@ -171,7 +171,7 @@ foreach ($empresas as $empresa) {
     <!-- Mapas -->
     <script src="//maps.googleapis.com/maps/api/js?key=AIzaSyDe9LjbQR0UAc8PMVJXc66flE7yqrJbD6o&libraries=places"></script>
     <script src="plugins/maps-latlon/jquery-gmaps-latlon-picker.js"></script>
-    <script src="assets/js/pages/replicar_web.js" type="text/javascript"></script>
+    <script src="assets/js/pages/replicar_web.js?v=2" type="text/javascript"></script>
     <script src="plugins/croppie/croppie.js"></script>
     <script>
         $("document").ready(function(){

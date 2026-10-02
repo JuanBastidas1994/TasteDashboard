@@ -866,3 +866,23 @@ $("#btnGuardarMesaTipo").on("click", function () {
         complete: function () { CloseLoad(); }
     });
 });
+
+// ── Tab Productos: umbral del indicador de tiempo de preparación ───────────
+$("#btnGuardarPrepTimeBadge").on("click", function () {
+    var minutos = parseInt($("#txt_prep_time_badge").val());
+    if (isNaN(minutos) || minutos <= 0) {
+        messageDone("Ingrese un tiempo válido (mayor a 0)", "error");
+        return;
+    }
+    OpenLoad();
+    $.ajax({
+        url: "controllers/controlador_configuraciones.php?metodo=guardarPrepTimeBadge",
+        type: "POST",
+        data: { minutos: minutos },
+        success: function (response) {
+            messageDone(response["mensaje"], response["success"] == 1 ? "success" : "error");
+        },
+        error: function () { messageDone("Error al conectar con el servidor", "error"); },
+        complete: function () { CloseLoad(); }
+    });
+});

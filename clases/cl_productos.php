@@ -560,53 +560,8 @@ class cl_productos
         	}
 		}
 		
-		public function crear_opcion_combo($cod_producto, $cod_productoHijo, $cantidad,&$id){
-			$query = "INSERT INTO tb_productos_detalle(cod_producto_padre, cod_producto_hijo, cantidad) ";
-        	$query.= "VALUES($cod_producto, $cod_productoHijo, $cantidad)";
-        	if(Conexion::ejecutar($query,NULL)){
-        		$id = Conexion::lastId();
-        		return true;
-        	}else{
-        		return false;
-        	}
-		}
-		
-		public function get_Combo($cod_producto){
-		    $return= null;
-		    $query = "select * from tb_productos_detalle d, tb_productos p where p.cod_producto=d.cod_producto_hijo and d.cod_producto_padre = $cod_producto";
-			 $row = Conexion::buscarVariosRegistro($query);
-			foreach ($row as $data) {
-            	$return[] = $data['cod_producto_hijo'];
-            }
-            return $return;
-        }
-        
-        public function lista_Combo($cod_producto){
-		    $query = "select * from tb_productos_detalle d, tb_productos p where p.cod_producto=d.cod_producto_hijo and d.cod_producto_padre = $cod_producto";
-			$row = Conexion::buscarVariosRegistro($query);
-            return $row;
-        }
-
 		public function delete_opcion($cod_opcion){
 			$query = "DELETE FROM tb_productos_opciones WHERE cod_producto_opcion = $cod_opcion";
-        	if(Conexion::ejecutar($query,NULL)){
-        		return true;
-        	}else{
-        		return false;
-        	}
-		}
-		
-		public function delete_Combo($cod_producto){
-			$query = "DELETE FROM tb_productos_detalle WHERE cod_producto_padre = $cod_producto";
-        	if(Conexion::ejecutar($query,NULL)){
-        		return true;
-        	}else{
-        		return false;
-        	}
-		}
-		
-		public function delete_opcionCombo($cod_opcion){
-			$query = "DELETE FROM tb_productos_detalle WHERE cod_producto_detalle = $cod_opcion";
         	if(Conexion::ejecutar($query,NULL)){
         		return true;
         	}else{
@@ -1405,69 +1360,6 @@ class cl_productos
 			return Conexion::ejecutar($query,NULL);
 		}
 		
-		//PRODUCTOS KIOSCO
-		public function getProductosKiosco() {
-			$session = $this->session;
-			$cod_empresa = $session["cod_empresa"];
-			$alias = $session["alias"];
-			$url_sistema = url_sistema . "assets/empresas/" . $alias . "/";
-			$query = "SELECT p.cod_producto, CONCAT('$url_sistema', p.image_min) as image_min, p.nombre, IFNULL(pk.precio, p.precio) as precio, p.estado, IFNULL(pk.is_custom, 0) as is_custom, IFNULL(pk.estado, p.estado) as visible
-						FROM tb_productos p
-							LEFT JOIN tb_productos_kiosco pk
-								ON p.cod_producto = pk.cod_producto
-						WHERE p.cod_empresa = $cod_empresa
-						AND p.estado IN('A', 'I')
-						GROUP BY p.cod_producto
-						ORDER BY p.cod_producto";
-			return Conexion::buscarVariosRegistro($query);
-		}
-
-		public function getProductsOffices($cod_producto) {
-			$session = $this->session;
-			$cod_empresa = $session["cod_empresa"];
-			$query = "SELECT s.cod_sucursal, s.nombre, IFNULL(pk.precio, 0) as precio, IFNULL(pk.estado, 'I') as estado
-						FROM tb_sucursales s
-						LEFT JOIN tb_productos_kiosco pk
-							ON s.cod_sucursal = pk.cod_sucursal
-							AND pk.cod_producto = $cod_producto
-						WHERE s.cod_empresa = $cod_empresa
-						AND s.estado IN('A', 'I')";
-			return Conexion::buscarVariosRegistro($query);
-		}
-
-		/* public function setCustomKiosco() {
-
-		} */
-
-		public function setProductoKiosco() {
-			$query = "SELECT *
-						FROM tb_productos_kiosco
-						WHERE cod_producto = $this->cod_producto
-						AND cod_sucursal = $this->cod_sucursal";
-			$resp = Conexion::buscarRegistro($query);
-			if(!$resp) {
-				$query = "INSERT INTO tb_productos_kiosco
-							SET 
-								cod_producto = $this->cod_producto,
-								cod_sucursal = $this->cod_sucursal,
-								precio = $this->precio,
-								estado = '$this->estado',
-								is_custom = $this->is_custom";
-				return Conexion::ejecutar($query, null);
-			}
-			else {
-				$query = "UPDATE tb_productos_kiosco
-							SET 
-								precio = $this->precio,
-								estado = '$this->estado',
-								is_custom = $this->is_custom
-							WHERE cod_producto = $this->cod_producto
-							AND cod_sucursal = $this->cod_sucursal";
-				return Conexion::ejecutar($query, null);
-			}
-		}
-		
-		//FIN PRODUCTOS KIOSCO
 		public function getCantOptionsAndVariants($product_id){
 		    $query = "SELECT
                   (

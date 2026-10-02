@@ -26,19 +26,6 @@ class cl_notificaciones
         	return Conexion::ejecutar($query,NULL);
 		}
 		
-		public function getTipoNotificacion(){
-		    $query = "SELECT * FROM tb_system_notification_tipos";
-		    $resp = Conexion::buscarVariosRegistro($query);
-            return $resp;
-		}
-		
-		public function insertarNotiDash(){
-		    Conexion::ejecutar("SET NAMES 'utf8mb4'", NULL);
-		    $query = "INSERT INTO tb_system_notification(cod_usuario, icono, titulo, detalle, url, fecha) ";
-		    $query.= "VALUES($this->cod_usuario, '$this->icono', '$this->titulo', '$this->detalle', '$this->url', '$this->fecha')";
-		    return Conexion::ejecutar($query,NULL);
-		}
-
 		public function getTipoNotificacionUsuario(){
 			$query = "SELECT * 
 						FROM tb_notificaciones_tipo 

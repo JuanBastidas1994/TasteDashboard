@@ -50,19 +50,6 @@ $(document).ready(function () {
         $("#cmb_tipo_opcion").trigger("change");
     });
 
-    function CalcularPesoApr() {
-        var totalPeso = 0;
-        $("input[name='txt_cantidadCombo[]']").each(function (indice, elemento) {
-            var cantidad = $(elemento).val();
-            var peso = $(elemento).attr("data-peso");
-            var total = parseInt(cantidad) * parseFloat(peso);
-            console.log("total" + total);
-            totalPeso = totalPeso + total;
-        });
-        console.log(totalPeso);
-        $(".txt_pesoApr").html(totalPeso + " Kg");
-    }
-
     $("#txt_precio").on("input", function () {
         calculateNoTax();
     });
@@ -480,115 +467,6 @@ $(document).ready(function () {
     });
 
     //OPCIONES
-    $("#btnGuardarCombo").on("click", function (event) {
-        event.preventDefault();
-
-        var form = $("#frmOpcionesCombo");
-        form.validate();
-        if (form.valid() == false) {
-            messageDone('Debes llenar todos los campos', 'error');
-            return false;
-        }
-
-        var formData = new FormData($("#frmOpcionesCombo")[0]);
-        var id = parseInt($("#id").val());
-        if (id > 0) {
-            formData.append('cod_producto', id);
-        } else {
-            messageDone('Debe guardar primero el producto para asignar opciones', 'error');
-            return;
-        }
-
-        $.ajax({
-            beforeSend: function () {
-                OpenLoad("Guardando datos, por favor espere...");
-            },
-            url: 'controllers/controlador_productos.php?metodo=add_combo',
-            type: 'POST',
-            data: formData,
-            contentType: false,
-            processData: false,
-            success: function (response) {
-                console.log(response);
-
-                if (response['success'] == 1) {
-                    messageDone(response['mensaje'], 'success');
-                    $(".tbodyCombo").html(response['html']);
-                    feather.replace();
-                }
-                else {
-                    messageDone(response['mensaje'], 'error');
-                }
-
-            },
-            error: function (data) {
-                console.log(data);
-
-            },
-            complete: function (resp) {
-                CloseLoad();
-            }
-        });
-    });
-
-    $(".respOpcionesCombo").on("click", ".btnEliminarCombo", function () {
-        var cod_opcion = parseInt($(this).attr("data-value"));
-        if (cod_opcion == 0) {
-            $(this).parent().parent().remove();
-            CalcularPesoApr();
-            var padre = $(this).parents(".trItem");
-            var txt = padre.find("input[name='txt_nomCombo[]']").val();
-            alert(txt);
-            return;
-        }
-        var element = $(this);
-
-        swal.fire({
-            title: '¿Estas seguro?',
-            text: "¡No podrás revertir esto!",
-            type: 'warning',
-            showCancelButton: true,
-            confirmButtonText: 'Eliminar',
-            cancelButtonText: 'Cancelar',
-            padding: '2em'
-        }).then(function (result) {
-            if (result.value) {
-
-                var parametros = {
-                    "cod_opcion": cod_opcion,
-                    "estado": "D"
-                }
-                $.ajax({
-                    beforeSend: function () {
-                        OpenLoad("Eliminando datos, por favor espere...");
-                    },
-                    url: 'controllers/controlador_productos.php?metodo=delete_opcionCombo',
-                    type: 'GET',
-                    data: parametros,
-                    success: function (response) {
-                        console.log(response);
-                        if (response['success'] == 1) {
-                            messageDone(response['mensaje'], 'success');
-                            $(element).parent().parent().remove();
-                            CalcularPesoApr();
-                        }
-                        else {
-                            messageDone(response['mensaje'], 'error');
-                        }
-
-                    },
-                    error: function (data) {
-                        console.log(data);
-
-                    },
-                    complete: function (resp) {
-                        CloseLoad();
-                    }
-                });
-            }
-        });
-    });
-
     $(".respOpciones").on("click", ".btnEliminarOpciones", function () {
         var cod_opcion = parseInt($(this).attr("data-value"));
         if (cod_opcion == 0) {
@@ -829,10 +707,6 @@ $(document).ready(function () {
         });
     });
 
-    $("body").on("change", ".txt_cantidadCombo", function () {
-        CalcularPesoApr();
-    });
-
     $("body").on("click", ".btnEditarVariante", function () {
         var alias = $(this).attr("data-value");
         swal.fire({
@@ -942,8 +816,6 @@ $(document).ready(function () {
         var identificador = $("#identificador_fact").val();
         if (identificador == "CONTIFICO") {
             urlAjax = 'controllers/controlador_contifico.php?metodo=crear_producto';
-        } else if (identificador == "FACTMOVIL") {
-            urlAjax = 'controllers/controlador_fact_movil.php?metodo=crear_producto';
         } else {
             messageDone('Proveedor de sistema contable no reconocido, por favor ponerse en contacto con soporte', 'error');
             return;
@@ -999,8 +871,6 @@ $(document).ready(function () {
         var identificador = $("#identificador_fact").val();
         if (identificador == "CONTIFICO") {
             urlAjax = 'controllers/controlador_contifico.php?metodo=set_id_producto';
-        } else if (identificador == "FACTMOVIL") {
-            urlAjax = 'controllers/controlador_fact_movil.php?metodo=set_id_producto';
         } else {
             messageDone('Proveedor de sistema contable no reconocido, por favor ponerse en contacto con soporte', 'error');
             return;
@@ -1259,12 +1129,6 @@ $(document).ready(function () {
     //     });
     // });
 
-    $("#cmb_productosCombo").select2({
-        closeOnSelect: false,
-        tags: true,
-        tokenSeparators: [',']
-    });
-
     $("#btnBack").on("click", function () {
         var link = $(this).attr("data-module-back");
         if (typeof link === "undefined") {
@@ -1401,51 +1265,6 @@ $(document).ready(function () {
         }
     });
 
-    $("#chk_combo").on("change", function () {
-        if ($(this).prop("checked")) {
-            $(".dataCombo").show();
-            $('#cmb_productosCombo').html("");
-            $('#cmb_productosCombo').select2('destroy');
-            var id = parseInt($("#id").val());
-            var parametros;
-            if (id > 0) {
-                parametros = {
-                    "cod_producto": id,
-                }
-            }
-
-            $.ajax({
-                beforeSend: function () {
-                    OpenLoad("Buscando informacion, por favor espere...");
-                },
-                url: 'controllers/controlador_productos.php?metodo=getOpcionesCombo',
-                type: 'GET',
-                data: parametros,
-                success: function (response) {
-                    console.log(response);
-                    if (response['success'] == 1) {
-                        $("#cmb_productosCombo").html(response['html']);
-                    }
-                    else {
-                        messageDone(response['mensaje'], 'error');
-                    }
-
-                },
-                error: function (data) {
-                    console.log(data);
-
-                },
-                complete: function (resp) {
-                    CloseLoad();
-                }
-            });//FIN AJAX
-            $("#cmb_productosCombo").select2();
-        }
-        else {
-            $(".dataCombo").hide();
-        }
-    });
-
     
     $("#addItem").on("click", function () {
 
@@ -1508,45 +1327,6 @@ $(document).ready(function () {
             feather.replace();
         });
         mostrarElementosdeOpciones();
-    });
-
-    $("#addItemCombo").on("click", function () {
-        var totalPeso = 0;
-        var peso = 0;
-        $("#cmb_productosCombo option:selected").each(function () {
-            var concatValor = $(this).html();
-            var cod_productoHijo = $(this).val();
-            peso = $(this).attr("data-peso");
-            //totalPeso = parseInt(totalPeso) + parseInt(peso);
-            var pasar = true;
-            $("input[name='txt_nomCombo[]']").each(function (indice, elemento) {
-                txt = $(elemento).val();
-                if (txt == concatValor) {
-                    pasar = false;
-                }
-            });
-
-            if (pasar) {
-                var nuevaLinea = `<tr class="trItem">
-                                        <td>
-                                            <input class="form-control txt_cod_producDetalle" name="txt_cod_producDetalle[]" value="0" type="hidden">
-                                            <input class="form-control txt_cod_hijo" name="txt_cod_hijo[]" value="`+ cod_productoHijo + `" type="hidden">
-                                            <input class="form-control txt_peso_combo" name="txt_peso_combo[]" value="`+ peso + `" type="hidden">
-                                            <input class="form-control txt_nomCombo" name="txt_nomCombo[]" value="`+ concatValor + `"  readonly>
-                                        </td>
-                                        <td><input type="number" class="form-control txt_cantidadCombo" name="txt_cantidadCombo[]" data-peso="`+ peso + `" placeholder="cantidad" value="1" min="1" style="text-align: right;"></td>
-                                        <td>
-                                            <a href="javascript:void(0);" data-value="0"  class="bs-tooltip btnEliminarCombo" data-toggle="tooltip" data-placement="top" title="" data-original-title="Delete"><i data-feather="trash"></i></a>
-                                          </td>
-                                    </tr>`;
-                                    
-                $(".tbodyCombo").append(nuevaLinea);
-                feather.replace();
-
-            }
-
-        });
-        CalcularPesoApr();
     });
 
     $("body").on("change", ".precioCheck", function (event) {

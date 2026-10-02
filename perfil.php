@@ -2,7 +2,6 @@
 require_once "funciones.php";
 require_once "clases/cl_usuarios.php";
 require_once "clases/cl_empresas.php";
-require_once "clases/cl_telegram.php";
 
 if(!isLogin()){
     header("location:login.php");
@@ -16,20 +15,6 @@ $nombres = $Clusuarios->nombre.' '.$Clusuarios->apellido;
 
 $Clempresas = new cl_empresas(NULL);
 $permisos = $Clempresas->getIdPermisionByBusiness($session['cod_empresa']);
-
-$ClTelegram = new cl_telegram(NULL);
-if(in_array("NOTIFY_TELEGRAM", $permisos)){
-    if(isset($_POST['btnEliminar'])){
-        $ClTelegram->deleteTelegramUsuarios($session['cod_usuario']);
-    }
-
-    $resp = $ClTelegram->listaTelegramUsuarios($session['cod_usuario']);
-    if(!$resp){
-        $ClTelegram->crearTelegramUsuarios($session['cod_usuario']);
-    }    
-}
-
-
 
                                        
 ?>
@@ -155,61 +140,6 @@ if(in_array("NOTIFY_TELEGRAM", $permisos)){
                                         <button type="button" class="btn btn-outline-primary" id="btnActualizarPassword">Actualizar contrase&ntilde;a</button>
                                     </div>
                                 </div> 
-                            </div>
-                        </div>
-                        
-                        <div class="skills layout-spacing" style="display: <?php echo in_array("NOTIFY_TELEGRAM", $permisos) ? 'initial' : 'none'; ?>;">
-                            <div class="widget-content widget-content-area">
-                                <h3 class="">Telegram</h3>
-                                
-                                    <div class="table-responsive mb-4 mt-4">
-                                    <table id="style-3" class="table style-3  table-hover">
-                                        <thead>
-                                            <tr>
-                                                <th>Id</th>
-                                                <th>C&oacute;digo</th>
-                                                <th>Usuario</th>
-                                                <th class="text-center">Estado</th>
-                                                <th>&nbsp;</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <?php
-                                            $resp = $ClTelegram->listaTelegramUsuarios($session['cod_usuario']);
-                                            $datTelegram = $resp[0];
-                                            $badge='primary';
-                                            if($datTelegram['estado'] == 'P')
-                                                $badge='warning';
-                                                
-
-                                            echo '<tr data-value="'.$datTelegram['id'].'">
-                                                <td>'.$datTelegram['id'].'</td>
-                                                <td>
-                                                    <a class="btnCopiar" href="javascript:;" data-clipboard-action="copy" data-clipboard-text="'.$datTelegram['code'].'"><i data-feather="copy"></i></a>
-                                                    '.$datTelegram['code'].'
-                                                </td>
-                                                <td>'.$datTelegram['nombre'].'</td>
-                                                <td class="text-center"><span class="shadow-none badge badge-'.$badge.'">'.getEstado($datTelegram['estado']).'</span></td>
-                                            </tr>';
-                                            ?>
-                                        </tbody>
-                                    </table>
-                                    <div style="text-align:center">
-                                        
-                                        <form method="POST" action="">
-                                            <a class="btn btn-primary" href="https://t.me/tasteordenes_bot" target="_blank">Hablar con el bot</a>
-                                            <?php
-                                            if($datTelegram['estado'] == 'A'){
-                                            ?>
-                                                <button type="submit" name="btnEliminar" class="btn btn-danger btnEliminar">Eliminar</button>
-                                            <?php
-                                            }
-                                            ?>
-                                        </form>
-                                        
-                                        
-                                    </div>
-                            </div>
                             </div>
                         </div>
 

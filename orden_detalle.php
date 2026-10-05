@@ -172,6 +172,150 @@ function datetimeShort($fecha)
     $nombreMes = str_replace($meses_EN, $meses_ES, $mes);
     return "$nombreMes $numeroDia/$anio " . substr($separate[1], 0, 5);
 }
+
+// "+5 min" / "+1 h 20 min" entre dos pasos del timeline — deja ver de un vistazo qué tramo se demoró.
+function duracionEntre($desde, $hasta)
+{
+    $minutos = (int) round((strtotime($hasta) - strtotime($desde)) / 60);
+    if ($minutos < 1) return "+<1 min";
+    if ($minutos < 60) return "+$minutos min";
+    $horas = intdiv($minutos, 60);
+    $resto = $minutos % 60;
+    return "+$horas h" . ($resto ? " $resto min" : "");
+}
+
+/**
+ * Flota a la que se enrutó la orden (courier 101). Mismo criterio que cl_couriers::getFlota en
+ * api_gestion_ordenes.
+ */
+function flotaOrden($cod_orden)
+{
+    $cod_orden = (int) $cod_orden;
+    $flota = Conexion::buscarRegistro("SELECT e.nombre, e.alias, e.logo
+                FROM tb_ordenes_flota ofl
+                INNER JOIN tb_empresas e ON e.cod_empresa = ofl.cod_flota
+                WHERE ofl.cod_orden = $cod_orden");
+    if ($flota) {
+        $flota['imagen'] = $flota['logo'] ? url_sistema . 'assets/empresas/' . $flota['alias'] . '/' . $flota['logo'] : '';
+    }
+    return $flota;
+}
+
+/**
+ * Motorizado de la orden. Mismo criterio que cl_ordenes::getMotorizadoByOrden en
+ * api_gestion_ordenes: primero tb_motorizado_asignacion (flotas / mis motorizados, con el tramo
+ * fino de api_flotas) y si no hay, tb_orden_motorizado (couriers externos vía webhook).
+ */
+function motorizadoOrden($cod_orden, $aliasComercio)
+{
+    $cod_orden = (int) $cod_orden;
+    $ma = Conexion::buscarRegistro("SELECT u.nombre, u.apellido, u.placa, u.imagen, u.telefono,
+                    oc.estado, ma.fecha_asignacion, ma.fecha_aceptacion, ma.fecha_llegada_local, ma.push_cercania_enviado,
+                    ef.alias AS flota_alias
+                FROM tb_motorizado_asignacion ma
+                INNER JOIN tb_orden_cabecera oc ON oc.cod_orden = ma.cod_orden
+                INNER JOIN tb_usuarios u ON u.cod_usuario = ma.cod_motorizado
+                LEFT JOIN tb_ordenes_flota ofe ON ofe.cod_orden = ma.cod_orden
+                LEFT JOIN tb_empresas ef ON ef.cod_empresa = ofe.cod_flota
+                WHERE ma.cod_orden = $cod_orden
+                ORDER BY ma.cod_motorizado_asignacion DESC
+                LIMIT 1");
+    if ($ma) {
+        $alias = $ma['flota_alias'] ? $ma['flota_alias'] : $aliasComercio;
+        switch ($ma['estado']) {
+            case 'ENVIANDO':
+                $proceso = $ma['push_cercania_enviado'] ? 'Cerca del cliente' : 'Camino al cliente';
+                break;
+            case 'ENTREGADA':
+                $proceso = 'Entregado';
+                break;
+            case 'NO_ENTREGADA':
+                $proceso = 'No entregado';
+                break;
+            default:
+                $proceso = $ma['fecha_llegada_local'] ? 'Llegó al local' : ($ma['fecha_aceptacion'] ? 'Camino al local' : 'Asignado');
+        }
+        return [
+            'nombre' => trim($ma['nombre'] . ' ' . $ma['apellido']),
+            'placa' => $ma['placa'],
+            'telefono' => $ma['telefono'],
+            // Algunos motorizados (login con Google) guardan la URL completa en vez del archivo.
+            'foto' => !$ma['imagen'] ? '' : (preg_match('#^https?://#', $ma['imagen']) ? $ma['imagen'] : url_sistema . 'assets/empresas/' . $alias . '/' . $ma['imagen']),
+            'proceso' => $proceso,
+            'fecha_asignacion' => $ma['fecha_asignacion'],
+        ];
+    }
+
+    $om = Conexion::buscarRegistro("SELECT * FROM tb_orden_motorizado WHERE cod_orden = $cod_orden");
+    if ($om) {
+        return [
+            'nombre' => trim($om['nombre'] . ' ' . $om['apellido']),
+            'placa' => $om['placa'],
+            'telefono' => $om['telefono'],
+            'foto' => $om['foto'],
+            'proceso' => $om['proceso'],
+            'fecha_asignacion' => null,
+        ];
+    }
+    return null;
+}
+
+/**
+ * Línea de tiempo completa (todo tb_orden_historial, incluido el tramo fino del motorizado:
+ * ORDEN_ACEPTADA, PUNTO_RECOGIDA, PUNTO_ENTREGA) + el momento en que la flota asignó al
+ * motorizado, que no queda en el historial sino en tb_motorizado_asignacion.fecha_asignacion.
+ */
+function timelineOrden($orden, $motorizado, $flota)
+{
+    $pasos = [
+        'ENTRANTE' => ['Orden recibida', 'El cliente realizó la orden', 'primary'],
+        'ACEPTADA' => ['Orden aceptada', 'El local aceptó la orden', 'primary'],
+        'PREPARANDO' => ['Preparando', 'La orden se está preparando', 'info'],
+        'ASIGNADA' => ['Enviada al courier', $flota ? 'Orden enviada a ' . $flota['nombre'] : 'Orden enviada al courier', 'warning'],
+        'MOTORIZADO_ASIGNADO' => ['Motorizado asignado', $motorizado ? $motorizado['nombre'] . ' tomará el pedido' : '', 'warning'],
+        'ORDEN_ACEPTADA' => ['Camino al local', 'El motorizado aceptó la carrera', 'warning'],
+        'PUNTO_RECOGIDA' => ['Llegó al local', 'El motorizado llegó a recoger el pedido', 'warning'],
+        'ENVIANDO' => ['Camino al cliente', 'El motorizado salió con el pedido', 'info'],
+        'PUNTO_ENTREGA' => ['Cerca del cliente', 'El motorizado llegó a la zona de entrega', 'info'],
+        'ENTREGADA' => ['Entregada', 'El pedido fue entregado', 'success'],
+        'NO_ENTREGADA' => ['No entregada', 'El motorizado no pudo entregar el pedido', 'danger'],
+        'ASIGNACION_CANCELADA' => ['Asignación cancelada', 'Se canceló la asignación al courier', 'danger'],
+        'ANULADA' => ['Anulada', 'La orden fue anulada', 'danger'],
+    ];
+
+    $cod_orden = (int) $orden['cod_orden'];
+    $historial = Conexion::buscarVariosRegistro("SELECT estado, fecha FROM tb_orden_historial WHERE cod_orden = $cod_orden ORDER BY fecha ASC");
+    if (!$historial) $historial = [];
+
+    $tieneEntrante = false;
+    foreach ($historial as $h) {
+        if ($h['estado'] == 'ENTRANTE') $tieneEntrante = true;
+    }
+    if (!$tieneEntrante) {
+        array_unshift($historial, ['estado' => 'ENTRANTE', 'fecha' => $orden['fecha']]);
+    }
+    if ($motorizado && $motorizado['fecha_asignacion']) {
+        $historial[] = ['estado' => 'MOTORIZADO_ASIGNADO', 'fecha' => $motorizado['fecha_asignacion']];
+    }
+    usort($historial, function ($a, $b) {
+        return strtotime($a['fecha']) - strtotime($b['fecha']);
+    });
+
+    $items = [];
+    $anterior = null;
+    foreach ($historial as $h) {
+        $paso = $pasos[$h['estado']] ?? [ucfirst(strtolower(str_replace('_', ' ', $h['estado']))), '', 'dark'];
+        $items[] = [
+            'titulo' => $paso[0],
+            'descripcion' => $paso[1],
+            'danger' => $paso[2] == 'danger',
+            'fecha' => datetimeShort($h['fecha']),
+            'duracion' => $anterior ? duracionEntre($anterior, $h['fecha']) : '',
+        ];
+        $anterior = $h['fecha'];
+    }
+    return $items;
+}
 ?>
 
 <!DOCTYPE html>
@@ -182,6 +326,7 @@ function datetimeShort($fecha)
     <meta charset="utf8">
     <?php css_mandatory(); ?>
     <link href="assets/css/components/timeline/custom-timeline.css" rel="stylesheet" type="text/css" />
+    <link href="assets/css/components/timeline/timeline-pasos.css?v=1" rel="stylesheet" type="text/css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha512-SfTiTlX6kk+qitfevl/7LibUOeJWlt9rbyDn92a1DqWOw9vWG2MFoays0sgObmWazO5BQPiFucnnEAjpAB+/Sw==" crossorigin="anonymous" />
     <style type="text/css">
         .respGalery>div {
@@ -780,165 +925,93 @@ function datetimeShort($fecha)
                         <?php } ?>
                         <!--Tracking-->
                         <?php
+                        $flotaOrden = ($cod_courier == 101) ? flotaOrden($id) : null;
+                        $motorizadoOrden = ($is_envio == 1) ? motorizadoOrden($id, $session['alias']) : null;
                         if ($cod_courier != 0) {
-                            $query = "SELECT * FROM tb_courier WHERE cod_courier = " . $cod_courier;
+                            $query = "SELECT * FROM tb_courier WHERE cod_courier = " . (int) $cod_courier;
                             $courier = Conexion::buscarRegistro($query);
+                            if ($flotaOrden) {
+                                $courier = ['nombre' => $flotaOrden['nombre'], 'imagen' => $flotaOrden['imagen'], 'etiqueta' => 'Flota'];
+                            } else if ($courier) {
+                                $courier['etiqueta'] = 'Courier';
+                            }
                             if($courier){
                         ?>
                             <div class="widget-content widget-content-area br-6" style="margin-top: 15px;">
-                                <div>
-                                    <h4>Tracking</h4>
+                                <div class="d-flex align-items-center mb-3">
+                                    <h4 class="mb-0">Tracking</h4>
+                                    <span class="badge outline-badge-<?php echo $badge; ?> ml-auto"><?php echo htmlspecialchars($estado); ?></span>
                                 </div>
-                                <div class="row">
-                                    <a class="col-12" href="javascript:void:0;" style="padding:8px; color:#7e7b80;">
-                                        <div class="row">
-                                            <div class="col-2">
-                                                <img src="<?php echo $courier['imagen']; ?>" class="rounded-circle w-100" alt="">
-                                            </div>
-                                            <div class="col-10">
-                                                <h3><?php echo $courier['nombre']; ?></h3>
-                                            </div>
-                                        </div>
-                                    </a>
-                                    <div class="col-12" style="text-align: right;">
-                                        <a class="btn btn-primary" href="orden_tracking.php?id=<?php echo $id; ?>" style="margin-top: :8px;">
-                                            Ver m&aacute;s
-                                        </a>
+
+                                <div class="d-flex align-items-center mb-3">
+                                    <?php if (!empty($courier['imagen'])) { ?>
+                                        <img src="<?php echo htmlspecialchars($courier['imagen']); ?>" class="rounded-circle mr-3" alt="" style="width: 42px; height: 42px; object-fit: cover;">
+                                    <?php } ?>
+                                    <div>
+                                        <div style="font-size: 12px; color: #888ea8;"><?php echo $courier['etiqueta']; ?></div>
+                                        <div style="font-size: 16px; font-weight: 600;"><?php echo htmlspecialchars($courier['nombre']); ?></div>
                                     </div>
+                                </div>
+
+                                <?php if ($motorizadoOrden) { ?>
+                                    <div class="d-flex align-items-center p-3 rounded" style="background: #f1f2f3;">
+                                        <?php if ($motorizadoOrden['foto']) { ?>
+                                            <img src="<?php echo htmlspecialchars($motorizadoOrden['foto']); ?>" class="rounded-circle mr-3" alt="" style="width: 56px; height: 56px; object-fit: cover;">
+                                        <?php } ?>
+                                        <div>
+                                            <div style="font-size: 16px; font-weight: 600;"><?php echo htmlspecialchars($motorizadoOrden['nombre']); ?></div>
+                                            <?php if ($motorizadoOrden['placa']) { ?>
+                                                <div style="font-size: 12px; color: #888ea8;">Placa <?php echo htmlspecialchars($motorizadoOrden['placa']); ?></div>
+                                            <?php } ?>
+                                            <?php if ($motorizadoOrden['proceso']) { ?>
+                                                <span class="badge badge-info mt-1"><?php echo htmlspecialchars($motorizadoOrden['proceso']); ?></span>
+                                            <?php } ?>
+                                        </div>
+                                        <?php if ($motorizadoOrden['telefono']) { ?>
+                                            <a class="ml-auto" href="tel:<?php echo htmlspecialchars($motorizadoOrden['telefono']); ?>" title="Llamar">
+                                                <i data-feather="phone"></i> <?php echo htmlspecialchars($motorizadoOrden['telefono']); ?>
+                                            </a>
+                                        <?php } ?>
+                                    </div>
+                                <?php } else if ($is_envio == 1 && $estado == 'ASIGNADA') { ?>
+                                    <div class="p-3 rounded" style="background: #f1f2f3;">Buscando motorizado....</div>
+                                <?php } ?>
+
+                                <div style="text-align: right;" class="mt-3">
+                                    <a class="btn btn-primary" href="orden_tracking.php?id=<?php echo $id; ?>">
+                                        Ver m&aacute;s
+                                    </a>
                                 </div>
                             </div>
                         <?php
                             }
                         }
                         ?>
-                        
+
                         <!-- TimeLine -->
                         <div class="widget-content widget-content-area br-6" style="margin-top: 15px;<?php echo $styleLinea; ?>">
                             <div>
                                 <h4>L&iacute;nea de Tiempo</h4>
                             </div>
                             <div class="mt-container mx-auto">
-                                <div class="timeline-line">
+                                <div class="tl-pasos">
                                     <?php
-                                    /*--NUEVO--*/
-
-                                    $queryH = "SELECT o.fecha as fecha_ FROM tb_orden_cabecera o where o.cod_orden = " . $id;
-                                    $respH = Conexion::buscarVariosRegistro($queryH);
-                                    $cl = "primary";
-                                    $text = "Cliente realizo la orden";
-                                    $fecha = datetimeShort($respH[0]['fecha_']);
-                                    echo '<div class="item-timeline">
-                                                      <p class="t-time">' . $fecha . '</p>
-                                                      <div class="t-dot t-dot-' . $cl . '">
-                                                      </div>
-                                                      <div class="t-text">
-                                                          <p>' . $text . '</p>
-                                                          <p class="t-meta-time"></p>
-                                                      </div>
-                                                  </div>';
-                                    /*HISTORIAL*/
-                                    $queryH = "SELECT h.*,o.fecha as fecha_ FROM `tb_orden_historial` h,tb_orden_cabecera o where o.cod_orden = h.cod_orden and h.estado IN ('ENTRANTE','ASIGNADA','ENVIANDO','ENTREGADA','NO_ENTREGADA', 'ASIGNACION_CANCELADA', 'ANULADA') and h.cod_orden = " . $id;
-                                    $respH = Conexion::buscarVariosRegistro($queryH);
-                                    foreach ($respH as $h) {
-                                        $fecha = datetimeShort($h['fecha']);
-                                        switch ($h['estado']) {
-                                            case "ASIGNADA":
-                                                $cl = "danger";
-                                                $text = "La Orden fue asignada";
-                                                break;
-                                            case "ENVIANDO":
-                                                $cl = "warning";
-                                                $text = "Motorizado empez&oacute; la carrera";
-                                                break;
-                                            case "ENTREGADA":
-                                                $cl = "success";
-                                                $text = "Orden Entregada";
-                                                break;
-                                            case "ASIGNACION_CANCELADA":
-                                                $cl = "danger";
-                                                $text = "Asignación al courier cancelada";
-                                                break;
-                                            case "ANULADA":
-                                                $cl = "danger";
-                                                $text = "Orden Cancelada";
-                                                break;
-                                        }
-
-                                        echo '<div class="item-timeline">
-                                                      <p class="t-time">' . $fecha . '</p>
-                                                      <div class="t-dot t-dot-' . $cl . '">
-                                                      </div>
-                                                      <div class="t-text">
-                                                          <p>' . $text . '</p>
-                                                          <p class="t-meta-time"></p>
-                                                      </div>
-                                                  </div>';
-                                    }
-                                    /*-----*/
-
-                                    /*$query = "SELECT oc.*, m.fecha_asignacion, m.fecha_salida, m.fecha_llegada, m.cod_motorizado
-                                                    FROM tb_orden_cabecera oc LEFT JOIN tb_motorizado_asignacion m
-                                                    ON oc.cod_orden = m.cod_orden
-                                                    WHERE oc.cod_orden = 123";
-                                            $row = Conexion::buscarRegistro($query);
-                                            
-                                            $fecha = datetimeShort($row['fecha']);
-                                            echo '<div class="item-timeline">
-                                                    <p class="t-time">'.$fecha.'</p>
-                                                    <div class="t-dot t-dot-primary">
-                                                    </div>
-                                                    <div class="t-text">
-                                                        <p>Cliente realizo la orden</p>
-                                                        <p class="t-meta-time"></p>
-                                                    </div>
-                                                </div>';
-
-                                            if($row['fecha_asignacion'] != NULL){
-
-                                              $nombreMotorizado = "";
-                                              $moto = $Clusuarios->get($row['cod_motorizado']);
-                                              if($moto){
-                                                $nombreMotorizado = " a ".$moto['nombre']." ".$moto['apellido'];
-                                              }
-
-                                              $fecha = datetimeShort($row['fecha_asignacion']);
-                                              echo '<div class="item-timeline">
-                                                      <p class="t-time">'.$fecha.'</p>
-                                                      <div class="t-dot t-dot-danger">
-                                                      </div>
-                                                      <div class="t-text">
-                                                          <p>La orden fue asignada '.$nombreMotorizado.'</p>
-                                                          <p class="t-meta-time"></p>
-                                                      </div>
-                                                  </div>';
-                                            } 
-
-                                            if($row['fecha_salida'] != NULL){
-                                              $fecha = datetimeShort($row['fecha_salida']);
-                                              echo '<div class="item-timeline">
-                                                      <p class="t-time">'.$fecha.'</p>
-                                                      <div class="t-dot t-dot-warning">
-                                                      </div>
-                                                      <div class="t-text">
-                                                          <p>Motorizado empezó la carrera</p>
-                                                          <p class="t-meta-time"></p>
-                                                      </div>
-                                                  </div>';
-                                            }  
-
-                                            if($row['fecha_llegada'] != NULL){
-                                              $fecha = datetimeShort($row['fecha_llegada']);
-                                              echo '<div class="item-timeline">
-                                                      <p class="t-time">'.$fecha.'</p>
-                                                      <div class="t-dot t-dot-success">
-                                                      </div>
-                                                      <div class="t-text">
-                                                          <p>Orden Entregada</p>
-                                                          <p class="t-meta-time"></p>
-                                                      </div>
-                                                  </div>';
-                                            }  */
+                                    $pasosTimeline = timelineOrden($orden, $motorizadoOrden, $flotaOrden);
+                                    foreach ($pasosTimeline as $i => $paso) {
+                                        $esUltimo = $i == count($pasosTimeline) - 1;
                                     ?>
+                                        <div class="tl-paso complete <?php echo $esUltimo ? 'current' : ''; ?> <?php echo $paso['danger'] ? 'danger' : ''; ?>">
+                                            <div class="tl-paso-linea-wrap">
+                                                <div class="tl-paso-dot"></div>
+                                                <?php if (!$esUltimo) { ?><div class="tl-paso-linea"></div><?php } ?>
+                                            </div>
+                                            <div class="tl-paso-contenido">
+                                                <div class="tl-paso-titulo"><?php echo htmlspecialchars($paso['titulo']); ?><?php if ($paso['duracion']) { ?><span class="tl-paso-duracion"><?php echo htmlspecialchars($paso['duracion']); ?></span><?php } ?></div>
+                                                <?php if ($paso['descripcion']) { ?><div class="tl-paso-desc"><?php echo htmlspecialchars($paso['descripcion']); ?></div><?php } ?>
+                                                <div class="tl-paso-fecha"><?php echo $paso['fecha']; ?></div>
+                                            </div>
+                                        </div>
+                                    <?php } ?>
                                 </div>
                             </div>
                         </div>

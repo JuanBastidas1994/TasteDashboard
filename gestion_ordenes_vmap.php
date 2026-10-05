@@ -68,6 +68,7 @@ if ($hour >= 15 || $hour < 9) {
     <!--<link href="plugins/toastr/toastr.min.css" rel="stylesheet" type="text/css" />-->
     <link href="bootstrap/css/custom-sidebar.css" rel="stylesheet" type="text/css" />
     <link href="assets/css/components/timeline/custom-timeline.css" rel="stylesheet" type="text/css" />
+    <link href="assets/css/components/timeline/timeline-pasos.css?v=1" rel="stylesheet" type="text/css" />
     <link href="assets/css/elements/tooltip.css" rel="stylesheet" type="text/css">
     <style type="text/css">
         #client-tab-couriers img {

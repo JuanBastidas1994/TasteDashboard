@@ -97,20 +97,47 @@ function iniciales(nombreCompleto) {
         .join('');
 }
 
+// "+5 min" / "+1 h 20 min" desde el paso anterior — deja ver qué tramo se demoró.
+function formatDuracion(desde, hasta) {
+    const minutos = Math.round((new Date(hasta.replace(' ', 'T')) - new Date(desde.replace(' ', 'T'))) / 60000);
+    if (isNaN(minutos)) return '';
+    if (minutos < 1) return '+<1 min';
+    if (minutos < 60) return `+${minutos} min`;
+    const horas = Math.floor(minutos / 60);
+    const resto = minutos % 60;
+    return `+${horas} h${resto ? ` ${resto} min` : ''}`;
+}
+
 function construirHistorial(orden) {
-    const pasos = [
-        { titulo: 'Asignado', rawFecha: orden.fecha_asignacion },
-        { titulo: 'Camino al local', rawFecha: orden.fecha_aceptacion },
-        { titulo: 'Llegó al local', rawFecha: orden.fecha_llegada_local },
-        { titulo: 'Camino al cliente', rawFecha: orden.fecha_salida },
-        { titulo: 'Entregado', rawFecha: orden.fecha_llegada },
+    const motorizado = [orden.motorizado_nombre, orden.motorizado_apellido].filter(Boolean).join(' ');
+    let pasos = [
+        // Para la flota la orden "entra" cuando el comercio se la envía (tb_ordenes_flota).
+        { titulo: 'Solicitud recibida', descripcion: `Orden recibida de ${orden.empresa_nombre} — ${orden.sucursal_nombre}`, rawFecha: orden.fecha_recepcion },
+        { titulo: 'Motorizado asignado', descripcion: motorizado ? `${motorizado} tomará el pedido` : 'Aún sin motorizado', rawFecha: orden.fecha_asignacion },
+        { titulo: 'Camino al local', descripcion: 'El motorizado aceptó la carrera', rawFecha: orden.fecha_aceptacion },
+        { titulo: 'Llegó al local', descripcion: 'Recogiendo el pedido', rawFecha: orden.fecha_llegada_local },
+        { titulo: 'Camino al cliente', descripcion: 'Salió con el pedido', rawFecha: orden.fecha_salida },
+        { titulo: 'Cerca del cliente', descripcion: 'Llegó a la zona de entrega', rawFecha: orden.fecha_cerca_cliente },
     ];
-    let ultimoCompleto = -1;
-    pasos.forEach((p, i) => {
+    if (orden.estado === 'NO_ENTREGADA' || orden.estado === 'ANULADA') {
+        pasos.push({ titulo: orden.estado === 'ANULADA' ? 'Cancelado' : 'No entregado', descripcion: '', rawFecha: orden.fecha_cierre, danger: true });
+    } else {
+        pasos.push({ titulo: 'Entregado', descripcion: 'El pedido fue entregado', rawFecha: orden.fecha_llegada });
+    }
+
+    // Un paso que se saltó (ej. el geofence no marcó "Cerca del cliente") no se muestra en gris
+    // en medio de pasos ya cumplidos — solo quedan en gris los que todavía faltan.
+    const ultimoConFecha = pasos.map(p => !!p.rawFecha).lastIndexOf(true);
+    pasos = pasos.filter((p, i) => p.rawFecha || i > ultimoConFecha);
+
+    let anterior = null;
+    pasos.forEach(p => {
         p.complete = !!p.rawFecha;
         p.fecha = formatFecha(p.rawFecha);
-        if (p.complete) ultimoCompleto = i;
+        p.duracion = (p.complete && anterior) ? formatDuracion(anterior, p.rawFecha) : '';
+        if (p.complete) anterior = p.rawFecha;
     });
+    const ultimoCompleto = pasos.map(p => p.complete).lastIndexOf(true);
     pasos.forEach((p, i) => { p.current = i === ultimoCompleto; });
     return pasos;
 }

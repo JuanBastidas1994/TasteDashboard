@@ -67,15 +67,17 @@
 
     <div class="mt-4">
         <div><h3>Línea de tiempo</h3></div>
-        <div class="timeline-line">
+        <div class="tl-pasos">
             {{#each timeline}}
-                <div class="item-timeline">
-                    <p class="t-time" style="max-width: inherit; margin-right: 15px;">{{ fecha }}</p>
-                    <div class="t-dot t-dot-{{colorStatus estado}}">
+                <div class="tl-paso complete {{#if current}}current{{/if}} {{#if danger}}danger{{/if}}">
+                    <div class="tl-paso-linea-wrap">
+                        <div class="tl-paso-dot"></div>
+                        {{#unless @last}}<div class="tl-paso-linea"></div>{{/unless}}
                     </div>
-                    <div class="t-text">
-                        <p>{{ estado }}</p>
-                        <p class="t-meta-time" style="max-width: inherit;">{{ descripcion }}</p>
+                    <div class="tl-paso-contenido">
+                        <div class="tl-paso-titulo">{{#if titulo}}{{titulo}}{{else}}{{estado}}{{/if}}{{#if duracion}}<span class="tl-paso-duracion">{{duracion}}</span>{{/if}}</div>
+                        {{#if descripcion}}<div class="tl-paso-desc">{{descripcion}}</div>{{/if}}
+                        <div class="tl-paso-fecha">{{fecha}}</div>
                     </div>
                 </div>
             {{/each}}

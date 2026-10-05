@@ -1561,7 +1561,7 @@ if(file_exists($folder_demo)){
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script> 
     <script src="assets/js/clipboard/clipboard.min.js"></script>
     <script src="assets/js/jscolor.js"></script>
-    <script src="assets/js/pages/crear_empresas.js?v=10" type="text/javascript"></script>
+    <script src="assets/js/pages/crear_empresas.js?v=12" type="text/javascript"></script>
     
     <!-- BEGIN PAGE LEVEL CUSTOM SCRIPTS -->
     <script src="assets/js/scrollspyNav.js"></script>

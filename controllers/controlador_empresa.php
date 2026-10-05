@@ -561,17 +561,13 @@ function eliminar(){
         return $return;
     }
 
-	extract($_GET);
-
-    $resp = $Clempresas->set_estado($cod_sucursal, $estado);
-    if($resp){
+    $cod_empresa = intval($_GET['cod_empresa']);
+    if($Clempresas->eliminar($cod_empresa)){
     	$return['success'] = 1;
-    	$return['mensaje'] = "Empresa editada correctamente";
-        if($estado == "D")
-            $return['mensaje'] = "Empresa eliminada correctamente";
+    	$return['mensaje'] = "Empresa eliminada correctamente";
     }else{
     	$return['success'] = 0;
-    	$return['mensaje'] = "Error al editar la empresa";
+    	$return['mensaje'] = "Error al eliminar la empresa";
     }
     return $return;
 }

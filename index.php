@@ -180,7 +180,7 @@ $faltaPagos = Conexion::buscarRegistro($query);
     <script src="assets/js/dashboard/metrics.js?v=2" type="text/javascript"></script>
     <script src="assets/js/dashboard/shared.js?v=2" type="text/javascript"></script>
     <script src="assets/js/dashboard/homeReports.js?v=1" type="text/javascript"></script>
-    <script src="assets/js/pages/crear_empresas.js?v=12" type="text/javascript"></script>
+    <script src="assets/js/pages/crear_empresas.js?v=14" type="text/javascript"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <!-- BEGIN PAGE LEVEL PLUGINS/CUSTOM SCRIPTS -->
     <script>

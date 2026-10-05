@@ -555,25 +555,38 @@ function base64ToImage($base64, $name){
 /* Imagen del recortador: llega como archivo ($_FILES[$fileKey]); si no, como base64 en $_POST[$base64Key] */
 function saveCropImage($fileKey, $base64Key, $name){
   if(isset($_FILES[$fileKey]) && $_FILES[$fileKey]['error'] === UPLOAD_ERR_OK){
-    if(@getimagesize($_FILES[$fileKey]['tmp_name']) === false){
-      error_log("[saveCropImage] $fileKey no es una imagen válida");
-      return false;
-    }
     $session = getSession();
-    $files = url_upload.'/assets/empresas/'.$session['alias'].'/';
-    if(!is_dir($files) && !@mkdir($files, 0755, true)){
-      error_log("[saveCropImage] No se pudo crear la carpeta $files (revisa URL_UPLOAD en .env)");
-      return false;
-    }
-    if(!@move_uploaded_file($_FILES[$fileKey]['tmp_name'], $files.$name)){
-      error_log("[saveCropImage] No se pudo escribir ".$files.$name);
-      return false;
-    }
-    return true;
+    return moveCropImage($fileKey, $name, url_upload.'/assets/empresas/'.$session['alias']);
   }
   if(!empty($_POST[$base64Key]))
     return base64ToImage($_POST[$base64Key], $name);
   return false;
+}
+
+/* Igual que saveCropImage pero guardando en una carpeta dada (ej. la de una empresa recién creada) */
+function saveCropImageDir($fileKey, $base64Key, $name, $dir){
+  if(isset($_FILES[$fileKey]) && $_FILES[$fileKey]['error'] === UPLOAD_ERR_OK)
+    return moveCropImage($fileKey, $name, $dir);
+  if(!empty($_POST[$base64Key]))
+    return base64ToImageDir($_POST[$base64Key], $name, $dir);
+  return false;
+}
+
+function moveCropImage($fileKey, $name, $dir){
+  if(@getimagesize($_FILES[$fileKey]['tmp_name']) === false){
+    error_log("[saveCropImage] $fileKey no es una imagen válida");
+    return false;
+  }
+  $files = rtrim($dir, '/').'/';
+  if(!is_dir($files) && !@mkdir($files, 0755, true)){
+    error_log("[saveCropImage] No se pudo crear la carpeta $files (revisa URL_UPLOAD en .env)");
+    return false;
+  }
+  if(!@move_uploaded_file($_FILES[$fileKey]['tmp_name'], $files.$name)){
+    error_log("[saveCropImage] No se pudo escribir ".$files.$name);
+    return false;
+  }
+  return true;
 }
 
 function hasCropImage($fileKey, $base64Key){

@@ -365,7 +365,7 @@ for ($m = 1; $m < $mes_actual; $m++) {
     <script type="text/javascript" src="templates/templates.js"></script>
     <?php js_mandatory(); ?>
     <script src="assets/js/clipboard/clipboard.min.js"></script>
-    <script src="assets/js/pages/crear_empresas.js?v=12" type="text/javascript"></script>
+    <script src="assets/js/pages/crear_empresas.js?v=14" type="text/javascript"></script>
     <script>
         var myTable = $('#style-3').DataTable( {
             dom: '<"row"<"col-md-12"<"row"<"col-md-6"B><"col-md-6"f> > ><"col-md-12"rt> <"col-md-12"<"row"<"col-md-5"i><"col-md-7"p>>> >',

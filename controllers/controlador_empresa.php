@@ -97,8 +97,8 @@ function crear(){
                 mkdir($dir, 0755);
             }
 
-            if($txt_crop != ""){
-                base64ToImageDir($txt_crop, $nameImg, $dir);
+            if(hasCropImage('img_crop', 'txt_crop')){
+                saveCropImageDir('img_crop', 'txt_crop', $nameImg, $dir);
             }else{
                 $img1 = url_upload.'/assets/img/200x200.jpg';
                 $img2 = url_upload.'/assets/empresas/'.$alias.'/'.$nameImg;
@@ -182,8 +182,8 @@ function crear(){
                     @mkdir($dir, 0755);
                 }
 
-                if($txt_crop != ""){
-                    base64ToImageDir($txt_crop, $data['logo'], $dir);
+                if(hasCropImage('img_crop', 'txt_crop')){
+                    saveCropImageDir('img_crop', 'txt_crop', $data['logo'], $dir);
                 }
                 $return['imagen'] = "editada";
             }

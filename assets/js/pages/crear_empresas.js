@@ -31,11 +31,14 @@ $(document).ready(function() {
           }*/
     
           var formData = new FormData($("#frmSave")[0]);
-          
+          // El logo recortado viaja como archivo (igual que en crear productos): el base64 en un campo
+          // de texto es muy pesado y el WAF del hosting lo rechaza (406). El archivo original no se usa.
+          formData.delete('img_product');
+          if ($("#txt_crop").val() != "")
+              formData.append('img_crop', dataURLtoBlob($("#txt_crop").val()), 'crop');
+
           var formaPago = $("#frmFormaPago").serializeArray();
           var frmweb = $("#frmWeb").serializeArray();
-          
-          formData.append('txt_crop', $("#txt_crop").val());
           
           for (var i=0; i<formaPago.length; i++)
               formData.append(formaPago[i].name, formaPago[i].value);
@@ -2399,3 +2402,14 @@ $(document).ready(function() {
     
     
     
+
+// Convierte el base64 del recortador (data:image/...;base64,...) en un Blob para enviarlo como archivo
+function dataURLtoBlob(dataURL) {
+    var partes = dataURL.split(',');
+    var mime = partes[0].match(/:(.*?);/)[1];
+    var binario = atob(partes[1]);
+    var bytes = new Uint8Array(binario.length);
+    for (var i = 0; i < binario.length; i++)
+        bytes[i] = binario.charCodeAt(i);
+    return new Blob([bytes], { type: mime });
+}

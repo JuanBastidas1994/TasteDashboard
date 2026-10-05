@@ -80,16 +80,16 @@ $(document).ready(function() {
                         sendMail(event);
                         window.history.pushState(response, "Crear Empresa", "crear_empresa.php?id="+response['alias']);
                     }
-                  } 
+                  }
                   else
                   {
-                    messageDone(response['mensaje'],'error');
-                  } 
-                                           
+                    messageDone(response['mensaje'] || 'Respuesta inválida del servidor', 'error');
+                  }
+
               },
               error: function(data){
                 console.log(data);
-                 
+                messageDone('Error del servidor al guardar (' + data.status + ')', 'error');
               },
               complete: function(resp)
               {
@@ -112,6 +112,51 @@ $(document).ready(function() {
     
     $("#btnBack").on("click",function(event){
         window.location.href = "empresas.php";
+    });
+
+    $("body").on("click", ".btnEliminar", function(event){
+        event.preventDefault();
+        var cod_empresa = parseInt($(this).attr("data-value"));
+        if(!(cod_empresa > 0))
+            return;
+        var element = $(this);
+
+        Swal.fire({
+            title: '¿Estas seguro?',
+            text: 'La empresa dejará de aparecer en el listado',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Eliminar',
+            cancelButtonText: 'Cancelar',
+            padding: '2em'
+        }).then(function(result) {
+            if (!result.value) return;
+            $.ajax({
+                beforeSend: function(){
+                    OpenLoad("Eliminando empresa, por favor espere...");
+                },
+                url: 'controllers/controlador_empresa.php?metodo=eliminar',
+                type: 'GET',
+                data: { "cod_empresa": cod_empresa },
+                success: function(response){
+                    if(response['success'] == 1){
+                        messageDone(response['mensaje'], 'success');
+                        var myTable = $('#style-3').DataTable();
+                        myTable.row(element.parents("tr")[0]).remove().draw();
+                    }
+                    else{
+                        messageDone(response['mensaje'], 'error');
+                    }
+                },
+                error: function(data){
+                    console.log(data);
+                    messageDone('Ocurrió un error al eliminar la empresa', 'error');
+                },
+                complete: function(){
+                    CloseLoad();
+                }
+            });
+        });
     });
 
     //COMPONENTES
@@ -2109,8 +2154,8 @@ $(document).ready(function() {
 
     /* FALTAS DE PAGO */
     function getMessagePayment() {
-        const id = $("#id").val();
-        if(id === 0)
+        const id = parseInt($("#id").val());
+        if(!(id > 0))
             return;
 
         fetch(`controllers/controlador_empresa.php?metodo=getFaltaPagos&id=${id}`,{
@@ -2169,8 +2214,8 @@ $(document).ready(function() {
     }
 
     function removeMessagePayment() {
-        const id = $("#id").val();
-        if(id === 0)
+        const id = parseInt($("#id").val());
+        if(!(id > 0))
             return;
 
         OpenLoad("Eliminando...");

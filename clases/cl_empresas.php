@@ -990,6 +990,7 @@ class cl_empresas
 		}
 
 		public function getMessagePayment($id) {
+			$id = intval($id);
 			$query = "SELECT * FROM tb_empresa_pagos WHERE cod_empresa = {$id}";
 			return Conexion::buscarRegistro($query);
 		}
@@ -997,13 +998,14 @@ class cl_empresas
 		public function setMessagePayment($id, $title, $message) {
 			$date = fecha();
 
-			$this->removeMessagePayment($this->cod_empresa);
+			$this->removeMessagePayment($id);
 			
 			$query = "INSERT INTO tb_empresa_pagos SET cod_empresa = {$id}, titulo = '{$title}', mensaje = '{$message}', fecha_create = '{$date}'";
 			return Conexion::ejecutar($query, null);
 		}
 
 		public function removeMessagePayment($id) {
+			$id = intval($id);
 			$query = "DELETE FROM tb_empresa_pagos WHERE cod_empresa = {$id}";
 			return Conexion::ejecutar($query, null);
 		}
@@ -1067,11 +1069,16 @@ class cl_empresas
 				);
 
 				//INACTIVAR EMPRESA
-				Conexion::ejecutar(
+				$ok = Conexion::ejecutar(
 					"UPDATE tb_empresas SET estado = 'D' WHERE cod_empresa = :cod",
 					[':cod' => $cod_empresa]
 				);
+				if (!$ok) {
+					throw new Exception('No se pudo inactivar la empresa');
+				}
 
+				Conexion::commit();
+				return true;
 			} catch (Exception $e) {
 				Conexion::rollback();
 				return false;

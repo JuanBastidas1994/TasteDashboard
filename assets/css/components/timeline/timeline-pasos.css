@@ -1,0 +1,29 @@
+/*
+ * Línea de tiempo por pasos — estándar compartido por flota_gestion_pro, el modal de Tracking de
+ * gestión de órdenes y orden_detalle. Cada paso: .tl-paso (+ .complete / .current / .danger).
+ */
+.tl-pasos { padding: 8px 4px; }
+.tl-paso { display: flex; gap: 14px; }
+.tl-paso-linea-wrap { display: flex; flex-direction: column; align-items: center; width: 20px; }
+.tl-paso-dot { width: 16px; height: 16px; border-radius: 50%; background: #e0e0e0; flex-shrink: 0; }
+.tl-paso.complete .tl-paso-dot { background: #6777ef; }
+.tl-paso.current .tl-paso-dot { background: #6777ef; box-shadow: 0 0 0 4px rgba(103,119,239,.2); }
+.tl-paso.danger .tl-paso-dot { background: #e7515a; }
+.tl-paso.danger.current .tl-paso-dot { box-shadow: 0 0 0 4px rgba(231,81,90,.2); }
+.tl-paso-linea { width: 2px; flex: 1; background: #e0e0e0; min-height: 28px; }
+.tl-paso.complete .tl-paso-linea { background: #6777ef; }
+.tl-paso-contenido { padding-bottom: 20px; }
+.tl-paso-titulo { font-weight: 600; }
+.tl-paso:not(.complete) .tl-paso-titulo { color: #999; font-weight: 400; }
+.tl-paso-duracion {
+    display: inline-block;
+    margin-left: 6px;
+    padding: 0 6px;
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #6777ef;
+    background: rgba(103,119,239,.1);
+}
+.tl-paso-desc { font-size: 13px; color: #666; }
+.tl-paso-fecha { font-size: 12px; color: #999; }

@@ -17,6 +17,7 @@ $apikey = $empresa ? $empresa['api_key'] : '';
 <html lang="en">
 <head><meta charset="utf-8">
     <?php css_mandatory(); ?>
+    <link href="assets/css/components/timeline/timeline-pasos.css?v=1" rel="stylesheet" type="text/css" />
     <style type="text/css">
 
     .badgeCustom{
@@ -153,19 +154,6 @@ $apikey = $empresa ? $empresa['api_key'] : '';
     .btn-icon-sutil:hover { background: #f0f0f0; color: #444; }
     .btn-icon-sutil:disabled { opacity: .35; cursor: not-allowed; }
     .btn-icon-sutil svg { width: 16px; height: 16px; }
-
-    .flota-timeline { padding: 8px 4px; }
-    .flota-timeline-step { display: flex; gap: 14px; }
-    .flota-timeline-step .flota-timeline-line-wrap { display: flex; flex-direction: column; align-items: center; width: 20px; }
-    .flota-timeline-dot { width: 16px; height: 16px; border-radius: 50%; background: #e0e0e0; flex-shrink: 0; }
-    .flota-timeline-step.complete .flota-timeline-dot { background: #6777ef; }
-    .flota-timeline-step.current .flota-timeline-dot { background: #6777ef; box-shadow: 0 0 0 4px rgba(103,119,239,.2); }
-    .flota-timeline-line { width: 2px; flex: 1; background: #e0e0e0; min-height: 28px; }
-    .flota-timeline-step.complete .flota-timeline-line { background: #6777ef; }
-    .flota-timeline-content { padding-bottom: 24px; }
-    .flota-timeline-title { font-weight: 600; }
-    .flota-timeline-step:not(.complete) .flota-timeline-title { color: #999; font-weight: 400; }
-    .flota-timeline-fecha { font-size: 12px; color: #999; }
 
     .flota-marker-label {
         background: #fff;
@@ -343,16 +331,17 @@ $apikey = $empresa ? $empresa['api_key'] : '';
                         <div class="tab-pane fade" id="tab-historial">
                             <div id="pedido-historial"></div>
                             <script id="pedido-historial-template" type="text/x-handlebars-template">
-                                <div class="flota-timeline">
+                                <div class="tl-pasos">
                                     {{#each this}}
-                                    <div class="flota-timeline-step {{#if complete}}complete{{/if}} {{#if current}}current{{/if}}">
-                                        <div class="flota-timeline-line-wrap">
-                                            <div class="flota-timeline-dot"></div>
-                                            {{#unless @last}}<div class="flota-timeline-line"></div>{{/unless}}
+                                    <div class="tl-paso {{#if complete}}complete{{/if}} {{#if current}}current{{/if}} {{#if danger}}danger{{/if}}">
+                                        <div class="tl-paso-linea-wrap">
+                                            <div class="tl-paso-dot"></div>
+                                            {{#unless @last}}<div class="tl-paso-linea"></div>{{/unless}}
                                         </div>
-                                        <div class="flota-timeline-content">
-                                            <div class="flota-timeline-title">{{titulo}}</div>
-                                            <div class="flota-timeline-fecha">{{fecha}}</div>
+                                        <div class="tl-paso-contenido">
+                                            <div class="tl-paso-titulo">{{titulo}}{{#if duracion}}<span class="tl-paso-duracion">{{duracion}}</span>{{/if}}</div>
+                                            {{#if descripcion}}<div class="tl-paso-desc">{{descripcion}}</div>{{/if}}
+                                            {{#if complete}}<div class="tl-paso-fecha">{{fecha}}</div>{{/if}}
                                         </div>
                                     </div>
                                     {{/each}}
@@ -629,7 +618,7 @@ $apikey = $empresa ? $empresa['api_key'] : '';
     <?php js_mandatory(); ?>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.7.7/handlebars.min.js"></script>
     <script src="//maps.googleapis.com/maps/api/js?key=AIzaSyAWo6DXlAmrqEiKiaEe9UyOGl3NJ208lI8"></script>
-    <script src="assets/js/pages/flota_gestion_pro.js?v=1" type="text/javascript"></script>
+    <script src="assets/js/pages/flota_gestion_pro.js?v=2" type="text/javascript"></script>
 
     <script>
         $(function () {

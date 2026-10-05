@@ -44,6 +44,7 @@ $Clsucursales = new cl_sucursales(NULL);
     <link href="plugins/toastr/toastr.min.css" rel="stylesheet" type="text/css" />
     <link href="bootstrap/css/custom-sidebar.css" rel="stylesheet" type="text/css" />
     <link href="assets/css/components/timeline/custom-timeline.css" rel="stylesheet" type="text/css" />
+    <link href="assets/css/components/timeline/timeline-pasos.css?v=1" rel="stylesheet" type="text/css" />
     <link href="assets/css/elements/tooltip.css" rel="stylesheet" type="text/css">
     <style type="text/css">
         .indicator-box {

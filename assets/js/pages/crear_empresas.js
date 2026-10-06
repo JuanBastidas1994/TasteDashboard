@@ -80,7 +80,6 @@ $(document).ready(function() {
                     $("#infoAlias").html(response['html']);
                     console.log(response['html']);
                     if(id == 0){
-                        sendMail(event);
                         window.history.pushState(response, "Crear Empresa", "crear_empresa.php?id="+response['alias']);
                     }
                   }
@@ -101,17 +100,6 @@ $(document).ready(function() {
           });
     });
     
-    function sendMail(event)
-    {
-        var id = $("#id").val();
-        var pass = $("#txt_password").val();
-        event.preventDefault();
-        //ENVIAR CORREO
-	            $.ajax({
-	            	url: 'correos/nuevo_usuario.php?id='+id+'&pass='+pass,
-	            	type:'GET',
-	            });
-    }
     
     $("#btnBack").on("click",function(event){
         window.location.href = "empresas.php";

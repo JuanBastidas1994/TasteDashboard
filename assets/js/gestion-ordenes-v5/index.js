@@ -175,7 +175,7 @@ function getConfigBySucursal(office_id){
                 'Casher-Id':casherId
             }
         })
-        .then(res => res.json())
+        .then(apiJson)
         .then(response => {
             // console.log(response);
             if(response.success == 1){
@@ -186,7 +186,7 @@ function getConfigBySucursal(office_id){
             }
         })
         .catch(error=>{
-            reject('Ocurrió un error al obtener información de la configuracion');
+            reject(mensajeErrorApi(error, 'Ocurrió un error al obtener información de la configuracion'));
         });
     });
     return promesa;
@@ -264,7 +264,7 @@ function getListaOrdenes(){
             },
             body: JSON.stringify(info)
         })
-        .then(res => res.json())
+        .then(apiJson)
         .then(response => {
             CloseLoad();
             // console.log(response);
@@ -329,7 +329,7 @@ function getOrden(order_id){
             'Api-Key':ApiKey
             }
         })
-        .then(res => res.json())
+        .then(apiJson)
         .then(response => {
             // console.log(response);
             if(response.success == 1)
@@ -339,7 +339,7 @@ function getOrden(order_id){
         })
         .catch(error=>{
             console.log(error);
-            reject('Ocurrió un error al obtener información de la orden');
+            reject(mensajeErrorApi(error, 'Ocurrió un error al obtener información de la orden'));
         });
     });
     return promesa;
@@ -481,7 +481,7 @@ function asignarOrden(order_id, courier_id, motorizado_id){
             },
             body: JSON.stringify(info)
         })
-        .then(res => res.json())
+        .then(apiJson)
         .then(response => {
             CloseLoad();
             // console.log(response);
@@ -501,7 +501,7 @@ function asignarOrden(order_id, courier_id, motorizado_id){
         .catch(error=>{
             CloseLoad();
             console.log(error);
-            messageDone('Ocurrió un error','error');
+            messageDone(mensajeErrorApi(error),'error');
         });
 }
 
@@ -517,7 +517,7 @@ function asignarOrdenFlota(order_id, flota_id){
             },
             body: JSON.stringify(info)
         })
-        .then(res => res.json())
+        .then(apiJson)
         .then(response => {
             CloseLoad();
             // console.log(response);
@@ -537,7 +537,7 @@ function asignarOrdenFlota(order_id, flota_id){
         .catch(error=>{
             CloseLoad();
             console.log(error);
-            messageDone('Ocurrió un error','error');
+            messageDone(mensajeErrorApi(error),'error');
         });
 }
 
@@ -562,7 +562,7 @@ function cancelarAsignacionOrden(order_id){
             },
             body: JSON.stringify(info)
         })
-        .then(res => res.json())
+        .then(apiJson)
         .then(response => {
             CloseLoad();
             // console.log("ORDEN ANULADA", response);
@@ -579,7 +579,7 @@ function cancelarAsignacionOrden(order_id){
         .catch(error=>{
             CloseLoad();
             console.log(error);
-            messageDone('Ocurrió un error','error');
+            messageDone(mensajeErrorApi(error),'error');
         });
 }
 
@@ -610,7 +610,7 @@ function cancelarOrden(order_id, motivo){
             },
             body: JSON.stringify(info)
         })
-        .then(res => res.json())
+        .then(apiJson)
         .then(response => {
             CloseLoad();
             // console.log("ORDEN ANULADA", response);
@@ -645,7 +645,7 @@ function cancelarOrden(order_id, motivo){
         .catch(error=>{
             CloseLoad();
             console.log(error);
-            messageDone('Ocurrió un error','error');
+            messageDone(mensajeErrorApi(error),'error');
         });
 }
 
@@ -668,7 +668,7 @@ function revertirPago(order_id){
                 },
                 body: JSON.stringify(info)
             })
-            .then(res => res.json())
+            .then(apiJson)
             .then(response => {
                 // console.log("PAGO REGRESADO", response);
                 if(response.success == 1){
@@ -678,7 +678,7 @@ function revertirPago(order_id){
                 }
             })
             .catch(error=>{
-                reject('Error: Ocurrió un error al devolver el dinero');
+                reject(mensajeErrorApi(error, 'Ocurrió un error al devolver el dinero'));
             });
     });
     return promesa;
@@ -718,7 +718,7 @@ function changeStatusOrder(order_id, estado){
             },
             body: JSON.stringify(info)
         })
-        .then(res => res.json())
+        .then(apiJson)
         .then(response => {
             CloseLoad();
             // console.log("ORDEN CAMBIO ESTADO", response);
@@ -745,7 +745,7 @@ function changeStatusOrder(order_id, estado){
         })
         .catch(error=>{
             CloseLoad();
-            messageDone('Ocurrió un error','error');
+            messageDone(mensajeErrorApi(error),'error');
         });
 }
 
@@ -823,7 +823,7 @@ function obtenerHistorialOrdenes() {
             'Api-Key':ApiKey
         },
     })
-    .then(res => res.json())
+    .then(apiJson)
     .then(response => {
         // console.log(response);
         if(response.success == 1){
@@ -977,7 +977,7 @@ function sendNotify(target, topic, title, message, type, cod_usuario = 0){
         },
         body: JSON.stringify(info)
     })
-    .then(res => res.json())
+    .then(apiJson)
     .then(response => {
         // console.log("Notificaciones", response);
     })
@@ -1048,7 +1048,7 @@ function obternerOrdenesAntiguas(){
             'Api-Key':ApiKey
         },
     })
-    .then(res => res.json())
+    .then(apiJson)
     .then(response => {
         // console.log(response);
         let target = $("#ordenes-antiguas");
@@ -1095,7 +1095,7 @@ function finalizarOrdenesAntiguas(){
             'Api-Key':ApiKey
         },
     })
-    .then(res => res.json())
+    .then(apiJson)
     .then(response => {
         // console.log(response);
         if(response.success == 1){
@@ -1159,7 +1159,7 @@ function generarLinkMotorizado(order_id, phoneNumber){
             },
             body: JSON.stringify(info)
         })
-        .then(res => res.json())
+        .then(apiJson)
         .then(response => {
             CloseLoad();
             // console.log("LINK GENERADO", response);
@@ -1208,7 +1208,7 @@ function generarLinkMotorizado(order_id, phoneNumber){
         .catch(error=>{
             CloseLoad();
             console.log(error);
-            messageDone('Ocurrió un error','error');
+            messageDone(mensajeErrorApi(error),'error');
         });
 }
 
@@ -1227,7 +1227,7 @@ function notificarPedidoListo(cod_orden){
         },
         body: JSON.stringify(info)
     })
-    .then(res => res.json())
+    .then(apiJson)
     .then(response => {
         CloseLoad();
         if(response.success == 1)
@@ -1238,7 +1238,7 @@ function notificarPedidoListo(cod_orden){
     .catch(error=>{
         CloseLoad();
         console.log(error);
-        messageDone("Ocurrió un error al enviar la notificación", 'error');
+        messageDone(mensajeErrorApi(error, 'Ocurrió un error al enviar la notificación'), 'error');
     });
 }
 

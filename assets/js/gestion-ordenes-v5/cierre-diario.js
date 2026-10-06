@@ -8,7 +8,7 @@ function getCierreDiario(){
             'Api-Key':ApiKey
         },
     })
-    .then(res => res.json())
+    .then(apiJson)
     .then(response => {
         $("#cierreDiarioModal").modal();
         console.log("Cierre Diario",response);

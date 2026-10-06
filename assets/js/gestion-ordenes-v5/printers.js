@@ -29,7 +29,7 @@ function syncImpresorasFromApi(){
     fetch(`${ApiUrl}/impresoras/${sucursal_id}/${estacionId}`, {
         headers: {'Api-Key': ApiKey}
     })
-        .then(res => res.json())
+        .then(apiJson)
         .then(response => {
             if(response.success == 1 && response.data.length > 0){
                 aplicarImpresorasDesdeApi(response.data);
@@ -73,7 +73,7 @@ function migrarImpresorasLocales(impresorasLocales, estacionId){
                 paginas: item.paginas
             })
         })
-        .then(res => res.json())
+        .then(apiJson)
         .then(response => {
             if(response.success == 1){
                 migradas.push({id: response.cod_impresora, nombre: item.nombre, tipo: item.tipo, size: item.size, paginas: item.paginas});
@@ -117,7 +117,7 @@ function loadPrintersServices(){
 
     //Verificar si el servicio esta activo
     fetch(`${printer.url}/print/lista`)
-        .then(res => res.json())
+        .then(apiJson)
         .then(response => {
             // console.log(response);
             if(response.success == 1){
@@ -180,7 +180,7 @@ function loadPrintersSave(){
 function updateUrl(){
     let url = $("#txtPrintUrl").val();
     fetch(`${url}/print`)
-        .then(res => res.json())
+        .then(apiJson)
         .then(response => {
             // console.log(response);
             if(response.success == 1){
@@ -220,7 +220,7 @@ function addPrinter(nombre, tipo){
                 paginas: 1
             })
         })
-        .then(res => res.json())
+        .then(apiJson)
         .then(response => {
             CloseLoad();
             if(response.success == 1){
@@ -258,7 +258,7 @@ function testAndAssignPrinter(nombre){
             method: 'POST',
             body: JSON.stringify(printerInfo)
         })
-        .then(res => res.json())
+        .then(apiJson)
         .then(()=>{
             Swal.fire({
                 title: '¿Imprimió correctamente?',
@@ -322,7 +322,7 @@ function printOrder(order_id){
             },
             body: JSON.stringify(info)
         })
-        .then(res => res.json())
+        .then(apiJson)
         .then(response => {
             CloseLoad();
             // console.log(response);
@@ -334,7 +334,7 @@ function printOrder(order_id){
                         method: 'POST',
                         body: JSON.stringify(printerInfo)
                     })
-                    .then(res => res.json())
+                    .then(apiJson)
                     .then(response => {
                         notify("Impresión correcta", "success", 2);
                         // console.log(response);
@@ -350,7 +350,7 @@ function printOrder(order_id){
         .catch(error=>{
             CloseLoad();
             console.log(error);
-            notify('Ocurrió un error', "error", 2);
+            notify(mensajeErrorApi(error), "error", 2);
         });
 }
 
@@ -386,7 +386,7 @@ $("body").on("click", ".btnTestPrinter", function(){
             method: 'POST',
             body: JSON.stringify(printerInfo)
         })
-        .then(res => res.json())
+        .then(apiJson)
         .then(response => {
             notify("Impresión correcta", "success", 2);
             // console.log(response);
@@ -427,7 +427,7 @@ function deletePrinter(id) {
             headers: {'Api-Key': ApiKey},
             body: JSON.stringify({cod_impresora: id})
         })
-        .then(res => res.json())
+        .then(apiJson)
         .then(response => {
             if(response.success == 1){
                 let printers = JSON.parse(localStorage.getItem("printer"));

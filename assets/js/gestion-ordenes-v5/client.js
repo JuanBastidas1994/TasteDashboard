@@ -11,7 +11,7 @@ function getUserById(user_id, orden_id, openTab){
             'Api-Key':ApiKey
             }
         })
-        .then(res => res.json())
+        .then(apiJson)
         .then(response => {
             console.log(response);
             if(response.success == 1){

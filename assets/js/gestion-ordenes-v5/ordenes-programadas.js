@@ -11,7 +11,7 @@ function getOrdenesProgramadas(){
             'Api-Key': ApiKey
         },
     })
-    .then(res => res.json())
+    .then(apiJson)
     .then(response => {
         CloseLoad();
         console.log(response);

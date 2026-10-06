@@ -1,6 +1,6 @@
 -- =====================================================================
 -- DROP de tablas obsoletas (módulos que no son de Taste o ya no se usan).
--- 91 tablas, ~2.9 MB. Ninguna tiene FK ni vistas que dependan de ellas.
+-- 90 tablas (tb_telegram_usuarios se conserva), ~2.9 MB. Ninguna tiene FK ni vistas que dependan de ellas.
 --
 -- IMPORTANTE:
 --   * Desplegar ANTES el código que deja de usarlas (telegram, menú digital,
@@ -39,10 +39,12 @@ DROP TABLE IF EXISTS
     tb_paises, timezones,
     tb_prioridad, tb_tipo_correo;
 
--- B) Telegram y menú digital
+-- B) Telegram (bot de grupos viejo) y menú digital
+-- OJO: tb_telegram_usuarios NO se borra. La usan las notificaciones por Telegram a administradores
+-- (permiso NOTIFY_TELEGRAM): aviso de nueva orden (api) y de orden asignada a la flota (api_gestion_ordenes).
 DROP TABLE IF EXISTS
     tb_telegram, tb_telegram_grupos, tb_telegram_sucursal,
-    tb_telegram_usuarios, tb_telegram_usuarios_ubicacion,
+    tb_telegram_usuarios_ubicacion,
     tb_menu_digital, tb_menu_digital_imagenes;
 
 -- C) Módulos de otros giros / funcionalidades muertas

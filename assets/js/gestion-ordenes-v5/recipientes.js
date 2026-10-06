@@ -32,7 +32,7 @@ function getRecipientesByOrden(order_id){
             'Api-Key':ApiKey
             }
         })
-        .then(res => res.json())
+        .then(apiJson)
         .then(response => {
             CloseLoad();
             console.log(response);
@@ -71,7 +71,7 @@ function setRecipienteToOrden(order_id, recipiente_id, cant){
             },
             body: JSON.stringify(info)
         })
-        .then(res => res.json())
+        .then(apiJson)
         .then(response => {
             CloseLoad();
             console.log(response);

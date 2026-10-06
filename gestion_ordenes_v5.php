@@ -45,7 +45,7 @@ $permisos = $Clempresas->getIdPermisionByBusiness($session['cod_empresa']);
     <link rel="stylesheet" type="text/css" href="plugins/editors/quill/quill.snow.css">
     <link href="assets/css/apps/mailbox.css" rel="stylesheet" type="text/css" />
 
-    <script src="plugins/sweetalerts/promise-polyfill.js"></script>
+    <script src="plugins/sweetalerts/promise-polyfill.js?v=1"></script>
     <!--<link href="plugins/sweetalerts/sweetalert2-v11.min.css" rel="stylesheet" type="text/css" />-->
     <link href="
         https://cdn.jsdelivr.net/npm/sweetalert2@11.7.27/dist/sweetalert2.min.css
@@ -1580,50 +1580,51 @@ $permisos = $Clempresas->getIdPermisionByBusiness($session['cod_empresa']);
             return options.inverse(this);
         });
     </script>
-    <script type="text/javascript" src="plugins/carousel/owl.carousel.min.js" defer></script>
+    <script type="text/javascript" src="plugins/carousel/owl.carousel.min.js?v=1" defer></script>
     <?php js_mandatory(); ?>
     <!-- END GLOBAL MANDATORY SCRIPTS -->
-    <script src="assets/js/ie11fix/fn.fix-padStart.js"></script>
-    <script src="plugins/editors/quill/quill.js"></script>
+    <script src="assets/js/ie11fix/fn.fix-padStart.js?v=1"></script>
+    <script src="plugins/editors/quill/quill.js?v=1"></script>
     <!--<script src="plugins/sweetalerts/sweetalert2-v11.min.js"></script>-->
     <script src="
         https://cdn.jsdelivr.net/npm/sweetalert2@11.7.27/dist/sweetalert2.all.min.js
         "></script>
-    <script src="plugins/notification/snackbar/snackbar.min.js"></script>
+    <script src="plugins/notification/snackbar/snackbar.min.js?v=1"></script>
     <!--<script src="plugins/ion.sound/ion.sound.js"></script>-->
     <!--<script src="assets/js/apps/custom-mailbox.js"></script>-->
     <script src="//maps.googleapis.com/maps/api/js?key=AIzaSyAWo6DXlAmrqEiKiaEe9UyOGl3NJ208lI8"></script>
-    <script src="plugins/maps-latlon/jquery-gmaps-latlon-picker.js"></script>
+    <script src="plugins/maps-latlon/jquery-gmaps-latlon-picker.js?v=1"></script>
 
-    <script src="bootstrap/js/popper.min.js"></script>
+    <script src="bootstrap/js/popper.min.js?v=1"></script>
 
-    <script src='plugins/toastr/toastr.min.js'></script>
-    <script src="assets/js/clipboard/clipboard.min.js"></script>
-    <script src="assets/js/moment.min.js"></script>
+    <script src='plugins/toastr/toastr.min.js?v=1'></script>
+    <script src="assets/js/clipboard/clipboard.min.js?v=1"></script>
+    <script src="assets/js/moment.min.js?v=1"></script>
     <!--<script src="assets/js/gestion-ordenes-v5/sounds.js" type="text/javascript"></script>-->
     <!--<script src="assets/js/gestion-ordenes-v5/toastJc.js?v=7" type="text/javascript"></script>-->
-    <script src="assets/js/gestion-ordenes-v5/index.js?v=18" type="text/javascript"></script>
-    <script src="assets/js/gestion-ordenes-v5/facturacion.js?v=7" type="text/javascript"></script>
-    <script src="assets/js/gestion-ordenes-v5/tracking.js?v=8" type="text/javascript"></script>
-    <script src="assets/js/gestion-ordenes-v5/recipientes.js?v=7" type="text/javascript"></script>
-    <script src="assets/js/gestion-ordenes-v5/mis-motorizados.js" type="text/javascript"></script>
-    <script src="assets/js/gestion-ordenes-v5/client.js" type="text/javascript"></script>
-    <script src="assets/js/gestion-ordenes-v5/office.js" type="text/javascript"></script>
-    <script src="assets/js/gestion-ordenes-v5/printers.js?v=11" type="text/javascript"></script>
-    <script src="assets/js/gestion-ordenes-v5/firebase.js?v=7" type="text/javascript"></script>
-    <script src="assets/js/gestion-ordenes-v5/cierre-diario.js?v=7" type="text/javascript"></script>
-    <script src="assets/js/gestion-ordenes-v5/facturas-hoy.js?v=1" type="text/javascript"></script>
-    <script src="assets/js/gestion-ordenes-v5/ordenes-programadas.js" type="text/javascript"></script>
-    <script src="assets/js/gestion-ordenes-v5/autoasignar.js?v=7" type="text/javascript"></script>
+    <script src="assets/js/gestion-ordenes-v5/api-helper.js?v=1" type="text/javascript"></script>
+    <script src="assets/js/gestion-ordenes-v5/index.js?v=19" type="text/javascript"></script>
+    <script src="assets/js/gestion-ordenes-v5/facturacion.js?v=8" type="text/javascript"></script>
+    <script src="assets/js/gestion-ordenes-v5/tracking.js?v=9" type="text/javascript"></script>
+    <script src="assets/js/gestion-ordenes-v5/recipientes.js?v=8" type="text/javascript"></script>
+    <script src="assets/js/gestion-ordenes-v5/mis-motorizados.js?v=1" type="text/javascript"></script>
+    <script src="assets/js/gestion-ordenes-v5/client.js?v=1" type="text/javascript"></script>
+    <script src="assets/js/gestion-ordenes-v5/office.js?v=1" type="text/javascript"></script>
+    <script src="assets/js/gestion-ordenes-v5/printers.js?v=12" type="text/javascript"></script>
+    <script src="assets/js/gestion-ordenes-v5/firebase.js?v=8" type="text/javascript"></script>
+    <script src="assets/js/gestion-ordenes-v5/cierre-diario.js?v=8" type="text/javascript"></script>
+    <script src="assets/js/gestion-ordenes-v5/facturas-hoy.js?v=2" type="text/javascript"></script>
+    <script src="assets/js/gestion-ordenes-v5/ordenes-programadas.js?v=1" type="text/javascript"></script>
+    <script src="assets/js/gestion-ordenes-v5/autoasignar.js?v=8" type="text/javascript"></script>
 
-    <script src="assets/js/gestion-ordenes-v5/fidelizacion/index.js?v=7" type="text/javascript"></script>
-    <script src="assets/js/gestion-ordenes-v5/fidelizacion/pip.js?v=7" type="text/javascript"></script>
+    <script src="assets/js/gestion-ordenes-v5/fidelizacion/index.js?v=8" type="text/javascript"></script>
+    <script src="assets/js/gestion-ordenes-v5/fidelizacion/pip.js?v=8" type="text/javascript"></script>
 
     <!--<script src="assets/js/pages/gestion_ordenes_fidelizacion.js?v=1" type="text/javascript"></script>-->
     <!-- <script src="assets/js/pages/gestion_ordenes_impresion.js?v=1" type="text/javascript"></script> -->
-    <script type="text/javascript" src="emoji/dist/emojionearea.js"></script>
+    <script type="text/javascript" src="emoji/dist/emojionearea.js?v=1"></script>
     <link rel="stylesheet" type="text/css" href="emoji/dist/emojionearea.min.css" media="screen">
-    <script src="assets/js/pages/notificaciones.js?v=2" type="text/javascript"></script>
+    <script src="assets/js/pages/notificaciones.js?v=3" type="text/javascript"></script>
     <script>
         $(function() {
             $(".textRecordatorio").emojioneArea({

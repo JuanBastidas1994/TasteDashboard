@@ -53,7 +53,7 @@ function facturarUnificada(cod_orden, crear){
         },
         body: JSON.stringify({ id: cod_orden })
     })
-    .then(res => res.json())
+    .then(apiJson)
     .then(response => {
         console.log(response);
         if(response.success === 1){
@@ -90,7 +90,7 @@ function llamarComanda(ruta, cod_orden){
         },
         body: JSON.stringify({ id: cod_orden })
     })
-    .then(res => res.json())
+    .then(apiJson)
     .then(response => {
         console.log(response);
         if(response.success === 1 && !response.skipped){
@@ -122,7 +122,7 @@ function facturaElectronica(cod_orden, crear){
         },
         body: JSON.stringify(info)
     })
-    .then(res => res.json())
+    .then(apiJson)
     .then(response => {
         console.log(response);
         if(response.success === 1){
@@ -146,7 +146,7 @@ function setInventario(cod_orden, tipo) {
         },
         body: JSON.stringify({cod_orden})
     })
-    .then(res => res.json())
+    .then(apiJson)
     .then(response => {
         console.log(response);
         if(response.success == 1){

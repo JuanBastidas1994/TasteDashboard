@@ -26,7 +26,7 @@ function cargarFacturasHoy(){
     fetch(`controllers/controlador_facturas.php?metodo=getFacturasUnificadas&fecha_inicio=${hoy}&fecha_fin=${hoy}&sucursal=${sucursal_id}`, {
         method: 'GET'
     })
-    .then(res => res.json())
+    .then(apiJson)
     .then(response => {
         if(response.success == 1){
             facturasHoyActuales = response.data;
@@ -99,7 +99,7 @@ function reenviarFacturaHoy(cod_orden){
         },
         body: JSON.stringify({ id: cod_orden })
     })
-    .then(res => res.json())
+    .then(apiJson)
     .catch(error => {
         console.log(error);
         return { success: 0 };

@@ -28,7 +28,7 @@ function getTrackingByOrden(order_id, e){
         })
         .catch(error=>{
             CloseLoad();
-            messageDone(error,'error');
+            messageDone(typeof error === 'string' ? error : mensajeErrorApi(error),'error');
         });
 }
 
@@ -86,7 +86,7 @@ function tracking(order){
             'Api-Key':ApiKey
             }
         })
-        .then(res => res.json())
+        .then(apiJson)
         .then(response => {
             if(response.success == 1){
                 let orden = response.data;

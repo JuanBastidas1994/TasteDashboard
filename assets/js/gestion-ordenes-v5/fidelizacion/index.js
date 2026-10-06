@@ -35,7 +35,7 @@ function getClientePuntos(){
             method: 'GET',
             headers: { 'Api-Key':$("#apikey_empresa").val() },
         })
-        .then(res => res.json())
+        .then(apiJson)
         .then(response => {
             console.log(response);
             hideSteps();
@@ -77,7 +77,7 @@ function calcularPuntosUsuarioByOrden(order_id){
                 'Api-Key':ApiKey
                 }
             })
-            .then(res => res.json())
+            .then(apiJson)
             .then(response => {
                 console.log(response);
                 if(response.success == 1){
@@ -134,7 +134,7 @@ function saveDataFidelizacion(){
             },
             body: JSON.stringify(dataToSend)
         })
-        .then(res => res.json())
+        .then(apiJson)
         .then(response => {
             console.log(response);
             if(response.success == 1){
@@ -146,7 +146,7 @@ function saveDataFidelizacion(){
         })
         .catch(error=>{
             console.log(error);
-            alert("Ocurrió un error al registrar la orden");
+            messageDone(mensajeErrorApi(error, "Ocurrió un error al registrar la orden"), "error");
         });
 }
 

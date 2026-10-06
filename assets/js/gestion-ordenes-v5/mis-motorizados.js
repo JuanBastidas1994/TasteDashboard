@@ -120,7 +120,7 @@ function getMotorizadosByOrden(order_id){
             'Api-Key':ApiKey
             }
         })
-        .then(res => res.json())
+        .then(apiJson)
         .then(response => {
             console.log(response);
             if(response.success == 1){
@@ -130,7 +130,7 @@ function getMotorizadosByOrden(order_id){
             }
         })
         .catch(error=>{
-            reject('Ocurrió un error al obtener información de la configuracion');
+            reject(mensajeErrorApi(error, 'Ocurrió un error al obtener información de la configuracion'));
         });
     });
     return promesa;

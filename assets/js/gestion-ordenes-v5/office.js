@@ -33,7 +33,7 @@ function closeOffice(){
                         },
                         body: JSON.stringify(info)
                     })
-                    .then(res => res.json())
+                    .then(apiJson)
                     .then(response => {
                         console.log(response);
                         if(response.success == 1){
@@ -48,7 +48,7 @@ function closeOffice(){
                     })
                     .catch(error=>{
                         console.log(error);
-                        messageDone('Ocurrió un error al cerrar la sucursal', "error");
+                        messageDone(mensajeErrorApi(error, 'Ocurrió un error al cerrar la sucursal'), "error");
                     });
             }
         });
@@ -68,7 +68,7 @@ function deleteRestrictionOffice(){
                         },
                         body: JSON.stringify(info)
                     })
-                    .then(res => res.json())
+                    .then(apiJson)
                     .then(response => {
                         console.log(response);
                         if(response.success == 1){
@@ -82,7 +82,7 @@ function deleteRestrictionOffice(){
                         }
                     })
                     .catch(error=>{
-                        messageDone('Error: Ocurrió un error al cerrar la sucursal', "error");
+                        messageDone(mensajeErrorApi(error, 'Ocurrió un error al cerrar la sucursal'), "error");
                     });
             }
         });
@@ -104,7 +104,7 @@ function storeAltaDemanda(){
                         },
                         body: JSON.stringify(info)
                     })
-                    .then(res => res.json())
+                    .then(apiJson)
                     .then(response => {
                         console.log(response);
                         if(response.success == 1){
@@ -116,7 +116,7 @@ function storeAltaDemanda(){
                     })
                     .catch(error=>{
                         console.log(error);
-                        messageDone('Ocurrió un error al activar la alta demanda', "error");
+                        messageDone(mensajeErrorApi(error, 'Ocurrió un error al activar la alta demanda'), "error");
                     });
             }
         });
@@ -136,7 +136,7 @@ function deleteAltaDemanda(){
                         },
                         body: JSON.stringify(info)
                     })
-                    .then(res => res.json())
+                    .then(apiJson)
                     .then(response => {
                         console.log(response);
                         if(response.success == 1){
@@ -147,7 +147,7 @@ function deleteAltaDemanda(){
                         }
                     })
                     .catch(error=>{
-                        messageDone('Error: Ocurrió un error al remover la alta demanda', "error");
+                        messageDone(mensajeErrorApi(error, 'Ocurrió un error al remover la alta demanda'), "error");
                     });
             }
         });

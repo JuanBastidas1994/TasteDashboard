@@ -1,6 +1,6 @@
 -- Schema completo de Taste. GENERADO con: php bin/migrate.php schema:dump
 -- No editar a mano: los cambios van en database/migrations/ y luego se regenera este archivo.
--- Generado: 2026-10-05 06:01:17 desde la BD 'prod_snapshot_20261001'
+-- Generado: 2026-10-05 18:07:50 desde la BD 'prod_snapshot_20261001'
 
 SET FOREIGN_KEY_CHECKS = 0;
 
@@ -1444,7 +1444,8 @@ CREATE TABLE `tb_orden_motorizado` (
   `foto` varchar(150) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci NOT NULL,
   `telefono` varchar(20) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci NOT NULL,
   `proceso` varchar(150) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci NOT NULL,
-  PRIMARY KEY (`cod_orden_motorizado`)
+  PRIMARY KEY (`cod_orden_motorizado`),
+  KEY `idx_orden_motorizado_orden` (`cod_orden`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
 
 CREATE TABLE `tb_orden_pagos` (
@@ -1487,7 +1488,9 @@ CREATE TABLE `tb_ordenes_flota` (
   `cod_flota` int DEFAULT NULL,
   `cod_orden` int DEFAULT NULL,
   `fecha_creacion` datetime DEFAULT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `idx_ordenes_flota_flota_orden` (`cod_flota`,`cod_orden`),
+  KEY `idx_ordenes_flota_orden` (`cod_orden`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
 
 CREATE TABLE `tb_pagina_rol` (
@@ -2377,3 +2380,6 @@ INSERT INTO `schema_migrations` (`migration`, `batch`, `checksum`) VALUES ('2026
 INSERT INTO `schema_migrations` (`migration`, `batch`, `checksum`) VALUES ('2026_10_01_000008_limpieza_huerfanos_y_logs.sql', 0, '9591e618ed81a9b914b919821cdf134f');
 INSERT INTO `schema_migrations` (`migration`, `batch`, `checksum`) VALUES ('2026_10_01_000009_limpieza_preordenes_y_seguimiento.sql', 0, 'd18b405f945dd9cc17b0fd4a944908d6');
 INSERT INTO `schema_migrations` (`migration`, `batch`, `checksum`) VALUES ('2026_10_01_000010_drop_anuncios_y_esquema_web.sql', 0, 'e6f856e790036133a6bfa7720fa95591');
+INSERT INTO `schema_migrations` (`migration`, `batch`, `checksum`) VALUES ('2026_10_05_000001_menu_flota_reporte_cobro.sql', 0, '43ed54a4765390dad41469a47346d4fb');
+INSERT INTO `schema_migrations` (`migration`, `batch`, `checksum`) VALUES ('2026_10_05_000002_index_ordenes_flota.sql', 0, 'af78bae0365d6d0db13ea722990cae5c');
+INSERT INTO `schema_migrations` (`migration`, `batch`, `checksum`) VALUES ('2026_10_05_000003_index_orden_motorizado_cod_orden.sql', 0, '448aae6c5ba1b7065ab74261d59c0e08');

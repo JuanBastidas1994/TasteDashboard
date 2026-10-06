@@ -1,6 +1,6 @@
 -- Schema completo de Taste. GENERADO con: php bin/migrate.php schema:dump
 -- No editar a mano: los cambios van en database/migrations/ y luego se regenera este archivo.
--- Generado: 2026-10-05 18:07:50 desde la BD 'prod_snapshot_20261001'
+-- Generado: 2026-10-06 21:16:04 desde la BD 'prod_snapshot_20261001'
 
 SET FOREIGN_KEY_CHECKS = 0;
 
@@ -2120,6 +2120,17 @@ CREATE TABLE `tb_taste_portafolio` (
   PRIMARY KEY (`cod_taste_portafolio`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
 
+CREATE TABLE `tb_telegram_usuarios` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `cod_usuario` int DEFAULT NULL,
+  `chat_id` varchar(50) COLLATE utf8mb3_unicode_ci NOT NULL,
+  `user_id` varchar(50) COLLATE utf8mb3_unicode_ci NOT NULL,
+  `code` varchar(15) COLLATE utf8mb3_unicode_ci NOT NULL,
+  `estado` enum('A','P','I','D') COLLATE utf8mb3_unicode_ci NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_telegram_usuarios_usuario` (`cod_usuario`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+
 CREATE TABLE `tb_tipo_dinero` (
   `cod_tipo_pago` int NOT NULL AUTO_INCREMENT,
   `nombre` varchar(150) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci DEFAULT NULL,
@@ -2375,7 +2386,7 @@ INSERT INTO `schema_migrations` (`migration`, `batch`, `checksum`) VALUES ('2026
 INSERT INTO `schema_migrations` (`migration`, `batch`, `checksum`) VALUES ('2026_10_01_000003_recreate_view_asignacion_motorizado.sql', 0, 'e53c7409691d3effa79f6c47583418b6');
 INSERT INTO `schema_migrations` (`migration`, `batch`, `checksum`) VALUES ('2026_10_01_000004_colapso_historico_global_hasta_2025.sql', 0, 'a1cf3dd60456b3e748493bca27e3c086');
 INSERT INTO `schema_migrations` (`migration`, `batch`, `checksum`) VALUES ('2026_10_01_000005_limpieza_ordenes_hasta_2025.sql', 0, '693b6b91a3bc95a60fe9c26ee0409804');
-INSERT INTO `schema_migrations` (`migration`, `batch`, `checksum`) VALUES ('2026_10_01_000006_drop_tablas_obsoletas.sql', 0, '51aac558b3dbcedc6946ae38433ef5f4');
+INSERT INTO `schema_migrations` (`migration`, `batch`, `checksum`) VALUES ('2026_10_01_000006_drop_tablas_obsoletas.sql', 0, '188482668eff56f32b014f5595af1bd4');
 INSERT INTO `schema_migrations` (`migration`, `batch`, `checksum`) VALUES ('2026_10_01_000007_menu_quitar_paginas_obsoletas.sql', 0, '2db4846661a01fca6cb1e6b54f598955');
 INSERT INTO `schema_migrations` (`migration`, `batch`, `checksum`) VALUES ('2026_10_01_000008_limpieza_huerfanos_y_logs.sql', 0, '9591e618ed81a9b914b919821cdf134f');
 INSERT INTO `schema_migrations` (`migration`, `batch`, `checksum`) VALUES ('2026_10_01_000009_limpieza_preordenes_y_seguimiento.sql', 0, 'd18b405f945dd9cc17b0fd4a944908d6');
@@ -2383,3 +2394,4 @@ INSERT INTO `schema_migrations` (`migration`, `batch`, `checksum`) VALUES ('2026
 INSERT INTO `schema_migrations` (`migration`, `batch`, `checksum`) VALUES ('2026_10_05_000001_menu_flota_reporte_cobro.sql', 0, '43ed54a4765390dad41469a47346d4fb');
 INSERT INTO `schema_migrations` (`migration`, `batch`, `checksum`) VALUES ('2026_10_05_000002_index_ordenes_flota.sql', 0, 'af78bae0365d6d0db13ea722990cae5c');
 INSERT INTO `schema_migrations` (`migration`, `batch`, `checksum`) VALUES ('2026_10_05_000003_index_orden_motorizado_cod_orden.sql', 0, '448aae6c5ba1b7065ab74261d59c0e08');
+INSERT INTO `schema_migrations` (`migration`, `batch`, `checksum`) VALUES ('2026_10_06_000001_recrear_tb_telegram_usuarios.sql', 0, '0a6504b6a873406375f0818a6beeca45');

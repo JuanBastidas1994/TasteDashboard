@@ -297,7 +297,7 @@ if(isLogin()){
     </div>
 
     <?php js_mandatory(); ?>
-    <script src="assets/js/pages/login.js?v=5"></script>
+    <script src="assets/js/pages/login.js?v=6"></script>
     <script>
         document.getElementById('toggle-password').addEventListener('click', function () {
             var input = document.getElementById('password');

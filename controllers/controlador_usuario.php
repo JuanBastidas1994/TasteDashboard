@@ -399,44 +399,6 @@ function set_password(){
     return $return;
 }
 
-function recuperar_password(){
-    global $Clusuario;
-    if(!isset($_GET['usuario'])){
-        $return['success'] = 0;
-        $return['mensaje'] = "Falta informacion";
-        return $return;
-    }
-
-    extract($_GET);
-
-    $usuario = $Clusuario->getByUsuario($usuario);
-    if($usuario){
-        if($usuario['estado']=="A"){
-            $password = passRandom();
-            if($Clusuario->set_password($usuario['cod_usuario'], $password)){
-                $return['success'] = 1;
-                $return['mensaje'] = "Clave reestablecida, hemos enviado un correo electronico con tu nueva clave para que puedas acceder al sistema, recuerda cambiarla para mayor seguridad";
-                $return['password'] = $password;
-                if($Clusuario->crearKeystore($usuario['cod_usuario'], $password, 1))
-                    $return['keystore'] = "Se creó";
-                else
-                    $return['keystore'] = "No se creó";
-            }else{
-                $return['success'] = 0;
-                $return['mensaje'] = "No hemos podido reestablecerte una clave, intentalo nuevamente. Si el problema persiste comunicate con soporte";
-            }
-        }else{
-            $return['success'] = 0;
-            $return['mensaje'] = "Tu usuario ha sido deshabilitado, comunicate con el administrador o con Soporte.";
-        }
-    }else{
-        $return['success'] = 0;
-        $return['mensaje'] = "El usuario no existe, por favor verifica si la informacion ingresada es correcta";
-    }
-
-    return $return;
-}
-
 function lista_motorizados(){
     global $Clusuario;
     $lista = $Clusuario->lista_motorizados();

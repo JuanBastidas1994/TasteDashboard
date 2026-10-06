@@ -66,45 +66,6 @@ $(document).ready(function(){
             }
         });
     });
-
-
-    $(".btnRecuperar").on("click", function(event){
-        event.preventDefault();
-        var correo = $("#email").val();
-        var parametros = {
-            "usuario": correo
-        }
-        $.ajax({
-            url:'controllers/controlador_usuario.php?metodo=recuperar_password',
-            data: parametros,
-            type: "GET",
-            success: function(response){
-                console.log(response);
-                if(response['success']==1){
-                    var pass = response['password'];
-                    messageDone(response['mensaje'],'success');
-                    //ENVIAR CORREO
-                    $.ajax({
-                        url: 'correos/recuperar_password.php?id='+correo+'&pass='+pass,
-                        type:'GET',
-                    });
-                    setTimeout(function () {
-                      window.location.href = './login.php';
-                    }, 1500);
-                }else{
-                    messageDone(response['mensaje'],'error');
-                }
-            },
-            error: function(data){
-              console.log(data);  
-            },
-            complete: function()
-            {
-              
-            }
-        });
-
-    });
 });
 
 

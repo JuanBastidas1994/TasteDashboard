@@ -55,7 +55,8 @@ class TelegramBot
 
         $chat_id = (string) $chat['id'];
         $person_id = (string) ($mensaje['from']['id'] ?? '');
-        $texto = trim($mensaje['text']);
+        // Algunos teclados agregan espacios no separables o caracteres invisibles
+        $texto = trim(preg_replace('/[\x{00A0}\x{200B}-\x{200D}\x{FEFF}]/u', ' ', $mensaje['text']));
 
         // Chat ya vinculado
         if ($this->chatVerificado($chat_id)) {
@@ -63,10 +64,16 @@ class TelegramBot
             return 'chat ya vinculado';
         }
 
-        // "/start" solo, o "/start <código>" (enlace "Hablar con el bot" del Perfil)
+        // Comandos: "/start" solo, o "/start <código>" (enlace "Hablar con el bot" del Perfil)
         $codigo = $texto;
-        if (preg_match('/^\/start(?:@\w+)?(?:\s+(.*))?$/i', $texto, $m)) {
-            $codigo = isset($m[1]) ? trim($m[1]) : '';
+        if (strpos($texto, '/') === 0) {
+            $partes = preg_split('/\s+/', $texto, 2);
+            $comando = strtolower($partes[0]);
+            if ($comando !== '/start' && strpos($comando, '/start@') !== 0) {
+                $this->sendMessage($chat_id, "Ese comando no está disponible. Para vincularte ingresa el código generado en tu Perfil del dashboard (sección Telegram).");
+                return 'comando desconocido (' . $this->forma($comando) . ')';
+            }
+            $codigo = trim(isset($partes[1]) ? $partes[1] : '');
             if ($codigo === '') {
                 $this->sendMessage($chat_id, "Bienvenido al asesor de ordenes de Taste, debes ingresar el código generado en tu Perfil del dashboard (sección Telegram).");
                 return 'start sin código';
@@ -75,15 +82,15 @@ class TelegramBot
         $codigo = strtoupper($codigo);
 
         // Código con formato imposible: no se consulta la BD
-        if (!preg_match('/^[A-Z0-9]{4,15}$/', $codigo)) {
+        if (!preg_match('/^[A-Z0-9_-]{4,15}$/', $codigo)) {
             $this->sendMessage($chat_id, "El codigo ingresado es incorrecto, por favor ingresa el código proporcionado en tu Perfil del dashboard (sección Telegram).");
-            return 'código con formato inválido';
+            return 'código con formato inválido (' . $this->forma($codigo) . ')';
         }
 
         $usuario = $this->validarCodigoAsignacion($codigo);
         if (!$usuario) {
             $this->sendMessage($chat_id, "El codigo ingresado es incorrecto, por favor ingresa el código proporcionado en tu Perfil del dashboard (sección Telegram).");
-            return 'código incorrecto';
+            return 'código incorrecto (' . $this->forma($codigo) . ')';
         }
         if (!in_array((int) $usuario['cod_rol'], self::ROLES_PERMITIDOS, true)) {
             $this->sendMessage($chat_id, "No tienes permisos para usar el bot, consulta con el administrador del comercio");
@@ -96,6 +103,12 @@ class TelegramBot
         }
         $this->sendMessage($chat_id, "Ocurrió un error, intentalo nuevamente");
         return 'error al vincular';
+    }
+
+    // Estructura de un texto para el log, sin su contenido: "ABC-885" => "AAA-999" (letras->A, dígitos->9)
+    private function forma($texto)
+    {
+        return substr(preg_replace(['/[A-Za-z]/', '/\d/'], ['A', '9'], $texto), 0, 20) . ' len=' . strlen($texto);
     }
 
     /* ---------------- Base de datos (todas con consultas preparadas) ---------------- */

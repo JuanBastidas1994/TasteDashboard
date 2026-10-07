@@ -36,12 +36,14 @@ class cl_telegram
         return Conexion::ejecutar($query, [':cod_usuario' => intval($cod_usuario)]);
     }
 
-    // 3 letras al azar + el código de usuario (ej. KQT1234); el bot busca por este código
-    private function generarCodigoAleatorio($longitud = 3)
+    // 6 caracteres al azar (sin 0/O/1/I para no confundirlos al escribirlos) + el código de usuario, ej. KQT7M31234.
+    // El código es la única llave para vincular un chat con el usuario: por eso no debe poder adivinarse.
+    private function generarCodigoAleatorio($longitud = 6)
     {
+        $alfabeto = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
         $codigo = '';
         for ($i = 0; $i < $longitud; $i++) {
-            $codigo .= chr(random_int(65, 90)); // A-Z
+            $codigo .= $alfabeto[random_int(0, strlen($alfabeto) - 1)];
         }
         return $codigo;
     }

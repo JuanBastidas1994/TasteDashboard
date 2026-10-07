@@ -294,7 +294,7 @@ if ($hour >= 15 || $hour < 9) {
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.7.7/handlebars.min.js"></script>
     <?php js_mandatory(); ?>
     <script src="./assets/js/map-gestion-ordenes/index.js"></script>
-    <script src="./assets/js/map-gestion-ordenes/ordenes.js"></script>
+    <script src="./assets/js/map-gestion-ordenes/ordenes.js?v=2"></script>
     <script src="./assets/js/map-gestion-ordenes/poligonos.js"></script>
     <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
     <!-- Mapas -->

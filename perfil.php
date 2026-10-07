@@ -178,6 +178,14 @@ if(in_array("NOTIFY_TELEGRAM", $permisos)){
                                             <?php
                                             $resp = $ClTelegram->listaTelegramUsuarios($session['cod_usuario']);
                                             $datTelegram = $resp ? $resp[0] : ['id' => '', 'code' => '', 'nombre' => '', 'estado' => 'P'];
+                                            // Enlace al bot (TELEGRAM_BOT_USERNAME en el .env); con el código incluido basta tocar "Iniciar" en Telegram
+                                            $botUsuario = ltrim(trim((string) env('TELEGRAM_BOT_USERNAME', '')), '@');
+                                            $enlaceBot = '';
+                                            if($botUsuario !== ''){
+                                                $enlaceBot = 'https://t.me/'.rawurlencode($botUsuario);
+                                                if($datTelegram['estado'] == 'P' && $datTelegram['code'] !== '')
+                                                    $enlaceBot .= '?start='.rawurlencode($datTelegram['code']);
+                                            }
                                             $badge='primary';
                                             if($datTelegram['estado'] == 'P')
                                                 $badge='warning';
@@ -198,7 +206,7 @@ if(in_array("NOTIFY_TELEGRAM", $permisos)){
                                     <div style="text-align:center">
                                         
                                         <form method="POST" action="">
-                                            <a class="btn btn-primary" href="https://t.me/tasteordenes_bot" target="_blank">Hablar con el bot</a>
+                                            <?php if($enlaceBot !== ''){ ?><a class="btn btn-primary" href="<?php echo htmlspecialchars($enlaceBot); ?>" target="_blank">Hablar con el bot</a><?php } ?>
                                             <?php
                                             if($datTelegram['estado'] == 'A'){
                                             ?>

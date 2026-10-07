@@ -1,5 +1,6 @@
 let urlApi = "https://api.mie-commerce.com/gestion-errores/v1";
-let urlApi2 = "https://api.mie-commerce.com/taste/v2";
+const { API_TASTE } = window.__CONFIG__;
+let urlApi2 = API_TASTE;
 let apikey = "";
 
 $(function() {

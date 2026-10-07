@@ -118,7 +118,7 @@ if(isset($_GET["id"])) {
     <script src="./assets/js/libs/handlebars/handlebars.js"></script>
     <script src="./assets/js/libs/handlebars/helpers.js"></script>
     <script src="./assets/js/libs/moment/moment.min.js"></script>
-    <script src="assets/js/pages/orden-no-procesada.js" type="text/javascript"></script>
+    <script src="assets/js/pages/orden-no-procesada.js?v=2" type="text/javascript"></script>
     <script id="no-orden-no-procesada-template" type="text/x-handlebars-template">
         <tr>
             <td colspan="4">{{ text }}</td>

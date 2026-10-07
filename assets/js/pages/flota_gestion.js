@@ -1,6 +1,6 @@
 const { API_TASTE, API_MOTORIZADOS } = window.__CONFIG__;
 let ApiUrl = API_TASTE;
-// let ApiUrl = "https://api.mie-commerce.com/taste/v2";
+// let ApiUrl = API_TASTE;
 let ApiKey = "";
 
 $(function() {

@@ -1,4 +1,5 @@
-let ApiUrl = "https://api.mie-commerce.com/taste/v2";
+const { API_TASTE } = window.__CONFIG__;
+let ApiUrl = API_TASTE;
 let sucursal_id = 50;
 let ApiKey = "";
 

@@ -584,6 +584,26 @@ $("body").on('click', '#btnQuitarAsignacion', function () {
         .catch(error => console.error('Error al quitar asignación:', error));
 });
 
+// Alternativa al flujo de la app de flotas: genera el link del flujo legacy (flota_gestion.js::asignarOrden)
+// para un pedido que YA tiene motorizado asignado, y abre WhatsApp con ese link.
+$("body").on('click', '#btnEnlaceRapido', function () {
+    fetch(`${ApiUrl}/flotas/enlace-rapido`, {
+        method: 'POST',
+        headers: { 'Api-Key': ApiKey },
+        body: JSON.stringify({ cod_orden: pedidoActualId }),
+    })
+        .then(res => res.json())
+        .then(response => {
+            if (response.success == 1) {
+                const link = `https://pedidos.demo.mie-commerce.com/pedidos/?id=${response.token}`;
+                window.open(`https://api.whatsapp.com/send?phone=${response.telefono}&text=${link}`, '_blank');
+            } else {
+                alert(response.mensaje || 'No se pudo generar el enlace');
+            }
+        })
+        .catch(error => console.error('Error al generar enlace rápido:', error));
+});
+
 $("body").on('click', '#btnResolverIncidencia', function () {
     const comentario = prompt('¿Cómo se resolvió? (opcional, deja en blanco para omitir)') || '';
     if (!confirm('¿Confirmas que el problema se resolvió y el pedido continúa?')) return;

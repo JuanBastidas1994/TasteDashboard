@@ -71,3 +71,17 @@ if (!function_exists('env')) {
         return $value;
     }
 }
+
+if (!function_exists('taste_api_base')) {
+    // /taste/v2 ya no existe en nginx: el preflight OPTIONS responde 405 y el navegador lo ve como CORS.
+    function taste_api_base($url, $replacementPath)
+    {
+        $url = rtrim((string) $url, '/');
+        $legacy = '/taste/v2';
+        if (substr($url, -strlen($legacy)) === $legacy) {
+            return substr($url, 0, -strlen($legacy)) . $replacementPath;
+        }
+
+        return $url;
+    }
+}

@@ -57,3 +57,9 @@ fi
 chmod -R ug+rwX "$SHARED/assets/empresas" "$SHARED/assets/demos" "$SHARED/assets/portfolio" "$SHARED/logs" "$SHARED/replicador/zip" 2>/dev/null || true
 
 $ACTIVATE_RELEASE()
+
+# Sin este reload, OPcache sigue ejecutando el release anterior.
+( flock -w 10 9 || exit 1
+    echo 'Recargando PHP-FPM...'
+    sudo -n service "${FORGE_PHP_FPM:-php8.4-fpm}" reload
+) 9>/tmp/fpmlock

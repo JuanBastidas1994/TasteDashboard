@@ -66,56 +66,10 @@ function loadMapTracking(order){
         icon: 'assets/img/marker-moto.png'
         });
 
-    if(order.estado == "ASIGNADA" || order.estado == "ENVIANDO"){
-        console.log("LLAMANDO A TRACKING", order);
-        //EMPEZAR TRACKING
-        tracking(order);
-        intervalTrackingId = setInterval(function () {
-            tracking(order);
-        }, 8000);
-    }
+    // Solo lectura y sin consultar otros APIs: se muestra la ruta (local -> cliente) y el timeline.
+    // El seguimiento en vivo del motorizado depende de la Api-Key de la empresa dueña de la orden.
 }
 
-function tracking(order){
-    fetch(`https://api.mie-commerce.com/v8/tracking/${order.id}`,{
-            method: 'GET',
-            headers: {
-            'Api-Key':ApiKey
-            }
-        })
-        .then(res => res.json())
-        .then(response => {
-            if(response.success == 1){
-                let orden = response.data;
-                console.log("TRACKINGGGGGG", orden);
-                if(orden.is_envio == 1){
-                    if(orden.guia === undefined){
-                        var track = orden.tracking;
-                        console.log("TRACKINGGGGGG", track);
-                        if(track !== null){
-                            /*ACTUALIZAR MARKER MOTORIZADO*/
-                            if( (track.latitud != null && track.latitud != "") && (track.longitud != null && track.longitud != "")  ){
-                                
-                                var latlng = new google.maps.LatLng(track.latitud, track.longitud);
-                                console.log("DEBE DIBUJAR MARKER", latlng);
-                                markerMoto.setPosition(latlng);
-                                mapTrack.setCenter(latlng);
-                            }else
-                                markerMoto.setMap(null);
-                        }
-                    }
-                }
-            }else{
-                messageDone(response.mensaje,'error');
-            }
-        })
-        .catch(error=>{
-            console.log(error);
-        });
-}
-
-$('#trackingModal').on('hidden.bs.modal', function (e) {
-    // do something...
-    console.log("SE CERRO MODAL TRACKING, DEBE DETENER EL TIMEOUT");
+$('#trackingModal').on('hidden.bs.modal', function () {
     clearInterval(intervalTrackingId);
 })

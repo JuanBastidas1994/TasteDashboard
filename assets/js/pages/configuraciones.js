@@ -378,47 +378,51 @@ $(".btnNiveles").on("click",function(event){
     
     
 /*FUNCIONES CUMPLE*/
-var resize = null;
+var resizeCumple = null;
 $("#image_cumple").on("change", function(){
-    if (resize != null)
-        resize.destroy();
+    if (resizeCumple != null)
+        resizeCumple.destroy();
 
     if(this.files.length > 0){
-        $("#modalCroppie").modal({
-            closeExisting: false,
+        $("#modalCroppieCumple").modal({
             backdrop: 'static',
             keyboard: false,
         });
     }
 });
 
-$('#modalCroppie').on('shown.bs.modal', function() {
+$('#modalCroppieCumple').on('shown.bs.modal', function() {
     var aux = $("#image_cumple").get(0);
     var file = aux.files[0];
     var reader = new FileReader();
-    reader.onload = function (e) { 
-      $('#my-image').attr('src', e.target.result);
-      
-      resize = new Croppie($('#my-image')[0], {
-        viewport: { width: 500, height: 500 }, //tamaño de la foto que se va a obtener
-        boundary: { width: 600, height: 600 }, //la imagen total
-        showZoomer: true, // hacer zoom a la foto
-        enableResize: false,
-        enableOrientation: true, // para q funcione girar la imagen 
-        mouseWheelZoom: 'ctrl'
-      });
-      $('#crop-get').on('click', function() { // boton recortar
-        resize.result({type: 'base64', size: 'viewport', format : 'jpeg', quality: 0.8, backgroundColor: '#FFFFFF'}).then(function(dataImg) {
-          uploadImageCumple(dataImg);
-        });
-      });
-      $('.crop-rotate').on('click', function(ev) {
-        resize.rotate(parseInt($(this).data('deg')));
-      });
+    reader.onload = function (e) {
+        $('#my-image-cumple').attr('src', e.target.result);
 
-      
-    } 
+        resizeCumple = new Croppie($('#my-image-cumple')[0], {
+            viewport: { width: 560, height: 280 }, // ratio 2:1 para 1200x600
+            boundary: { width: 620, height: 380 },
+            showZoomer: true,
+            enableResize: false,
+            enableOrientation: true,
+            mouseWheelZoom: 'ctrl'
+        });
+
+        $('#cumple-crop-get').off('click').on('click', function() {
+            resizeCumple.result({type: 'base64', size: 'viewport', format: 'jpeg', quality: 0.85, backgroundColor: '#FFFFFF'}).then(function(dataImg) {
+                uploadImageCumple(dataImg);
+            });
+        });
+
+        $('.cumple-rotate').off('click').on('click', function() {
+            resizeCumple.rotate(parseInt($(this).data('deg')));
+        });
+    };
     reader.readAsDataURL(file);
+});
+
+$('#modalCroppieCumple').on('hidden.bs.modal', function() {
+    if (resizeCumple) { resizeCumple.destroy(); resizeCumple = null; }
+    $("#image_cumple").val('');
 });
 
 function uploadImageCumple(base64){
@@ -436,8 +440,8 @@ function uploadImageCumple(base64){
         success: function(response){
             console.log(response);
             if( response['success'] == 1){
-                $("#imgCumple").attr("src",base64);
-                $("#modalCroppie").modal('hide');
+                $("#imgCumple").attr("src", base64).show();
+                $("#modalCroppieCumple").modal('hide');
                 messageDone(response['mensaje'],'success');
             }
             else{

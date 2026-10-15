@@ -30,11 +30,11 @@ if(in_array("PRODUCTO_INGREDIENTES", $permisos))
 <body>
     
     <!--  BEGIN NAVBAR  -->
-    <?php echo top() ?>
+    <?php top() ?>
     <!--  END NAVBAR  -->
 
     <!--  BEGIN NAVBAR  -->
-    <?php echo navbar(); ?>
+    <?php navbar(); ?>
     <!--  END NAVBAR  -->
 
     <!--  BEGIN MAIN CONTAINER  -->
@@ -44,7 +44,7 @@ if(in_array("PRODUCTO_INGREDIENTES", $permisos))
         <div class="search-overlay"></div>
 
         <!--  BEGIN SIDEBAR  -->
-        <?php echo sidebar(); ?>
+        <?php sidebar(); ?>
         <!--  END SIDEBAR  -->
 
         <!--  BEGIN CONTENT AREA  -->
@@ -66,7 +66,7 @@ if(in_array("PRODUCTO_INGREDIENTES", $permisos))
                                     <hr/>
                                 </div>
                             </div> 
-                            <div class="table-responsive mb-4 mt-4">
+                            <div class="mb-4 mt-4">
                                 <table id="style-3" class="table style-3  table-hover">
                                         <thead>
                                             <tr>
@@ -101,7 +101,7 @@ if(in_array("PRODUCTO_INGREDIENTES", $permisos))
                                                     </td>
                                                     <td>'.$productos['nombre'].'</td>
                                                     <td style="'.$displayPrecios.'">$'.number_format($productos['precio'],2).'</td>
-                                                    <td>'.$productos['desc_corta'].'</td>
+                                                    <td><div class="desc-corta-cell">'.$productos['desc_corta'].'</div></td>
                                                     <td class="text-center"><span class="shadow-none badge badge-'.$badge.'">'.getEstado($productos['estado']).'</span></td>
                                                     <td class="text-center">
                                                         <ul class="table-controls">
@@ -133,6 +133,7 @@ if(in_array("PRODUCTO_INGREDIENTES", $permisos))
     <script src="assets/js/pages/productos.js" type="text/javascript"></script>
     <script>
         var myTable = $('#style-3').DataTable( {
+            scrollX: true,
             dom: '<"row"<"col-md-12"<"row"<"col-md-6"B><"col-md-6"f> > ><"col-md-12"rt> <"col-md-12"<"row"<"col-md-5"i><"col-md-7"p>>> >',
             buttons: {
                 buttons: [

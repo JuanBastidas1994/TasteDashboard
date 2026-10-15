@@ -46,3 +46,383 @@
 .btn-transparent{
     background-color: transparent !important;
 }
+
+/* ================================================================
+   TASTE PALETTE  —  #FD6550 · #FFDAD4 · #E4E3EA · #E9E9E9 · #202020
+   ================================================================ */
+
+/* --- Navbar: blanco en lugar de #0e1726 dark ------------------- */
+.navbar {
+    background: #ffffff !important;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.07) !important;
+}
+.header-container {
+    border-bottom: 1px solid #E9E9E9 !important;
+}
+/* Iconos y texto del navbar que eran blancos → oscuros */
+.navbar .navbar-item .nav-item .nav-link svg,
+.navbar .navbar-item .nav-item a svg,
+.navbar .sidebarCollapse svg,
+.navbar .hamburger svg {
+    color: #202020 !important;
+    fill: rgba(32,32,32,0.07) !important;
+}
+.navbar .navbar-item .nav-item .nav-link {
+    color: #202020 !important;
+}
+.navbar .theme-brand li .brand-name {
+    color: #202020 !important;
+}
+/* Badge notificación */
+.navbar .navbar-item .nav-item .nav-link .badge {
+    background: #FD6550 !important;
+}
+/* Título en dropdowns del navbar */
+.navbar .navbar-item .nav-item.dropdown .dropdown-menu .media-body h4,
+.navbar .navbar-item .nav-item.dropdown .dropdown-menu .media-body .user-name {
+    color: #FD6550 !important;
+}
+
+/* --- Sidebar: item activo con fondo sólido #FD6550 ------------- */
+#sidebar ul.menu-categories li.menu > .dropdown-toggle[data-active="true"] {
+    background-color: #FD6550 !important;
+    color: #ffffff !important;
+    border-radius: 6px !important;
+    box-shadow: 0 4px 15px rgba(253,101,80,0.30) !important;
+}
+#sidebar ul.menu-categories li.menu > .dropdown-toggle[data-active="true"] svg {
+    color: #ffffff !important;
+    fill: rgba(255,255,255,0.18) !important;
+}
+/* Submenú items activos */
+#sidebar ul.menu-categories ul.submenu > li.active a {
+    color: #FD6550 !important;
+}
+#sidebar ul.menu-categories li.menu ul.submenu > li.active a:before {
+    background-color: #FD6550 !important;
+}
+#sidebar ul.menu-categories ul.submenu > li a:hover {
+    color: #FD6550 !important;
+}
+#sidebar ul.menu-categories ul.submenu > li a:hover:before {
+    background-color: #FD6550 !important;
+}
+#sidebar ul.menu-categories li.menu > .dropdown-toggle[aria-expanded="true"]:not([data-active="true"]) svg {
+    color: #FD6550 !important;
+    fill: rgba(253,101,80,0.18) !important;
+}
+
+/* --- btn-outline-primary --------------------------------------- */
+.btn-outline-primary {
+    color: #FD6550 !important;
+    border-color: #FD6550 !important;
+    background-color: transparent !important;
+}
+.btn-outline-primary:hover,
+.btn-outline-primary:focus,
+.btn-outline-primary:active,
+.btn-outline-primary.active,
+.btn-outline-primary:not(:disabled):not(.disabled).active,
+.show > .btn-outline-primary.dropdown-toggle {
+    background-color: #FD6550 !important;
+    border-color: #FD6550 !important;
+    color: #fff !important;
+}
+
+/* --- btn-primary ----------------------------------------------- */
+.btn-primary,
+.btn-primary:not(:disabled):not(.disabled).active,
+.btn-primary:not(:disabled):not(.disabled):active,
+.show > .btn-primary.dropdown-toggle,
+.open > .dropdown-toggle.btn-primary {
+    background-color: #FD6550 !important;
+    border-color: #FD6550 !important;
+    color: #fff !important;
+    box-shadow: none !important;
+}
+.btn-primary:hover,
+.btn-primary:focus {
+    background-color: #e5523d !important;
+    border-color: #e5523d !important;
+    color: #fff !important;
+    box-shadow: none !important;
+}
+.btn-primary.active.focus, .btn-primary.active:focus, .btn-primary.active:hover,
+.btn-primary.focus:active, .btn-primary:active:focus, .btn-primary:active:hover {
+    background-color: #c94030 !important;
+    border-color: #c94030 !important;
+    color: #fff !important;
+}
+.btn-primary.disabled, .btn-primary.btn[disabled], .btn-primary:disabled {
+    background-color: #FD6550 !important;
+    border-color: #FD6550 !important;
+}
+.btn-group.open .btn-primary.dropdown-toggle {
+    background-color: #FFDAD4 !important;
+    border-color: #FFDAD4 !important;
+}
+
+/* --- Select2 -------------------------------------------------- */
+.select2-container--default .select2-selection--single,
+.select2-container--default .select2-selection--multiple {
+    border-color: #dee2e6 !important;
+}
+.select2-container--default.select2-container--open .select2-selection--single,
+.select2-container--default.select2-container--open .select2-selection--multiple,
+.select2-container--default.select2-container--focus .select2-selection--single,
+.select2-container--default.select2-container--focus .select2-selection--multiple {
+    border-color: #FD6550 !important;
+    box-shadow: 0 0 0 2px rgba(253,101,80,0.15) !important;
+    outline: none !important;
+}
+.select2-dropdown {
+    border-color: #FD6550 !important;
+}
+.select2-container--default .select2-results__option--highlighted[aria-selected],
+.select2-container--default .select2-results__option--highlighted[data-selected] {
+    background-color: #FD6550 !important;
+    color: #fff !important;
+}
+.select2-container--default .select2-results__option[aria-selected=true] {
+    background-color: #FFDAD4 !important;
+    color: #202020 !important;
+}
+.select2-container--default .select2-search--dropdown .select2-search__field:focus {
+    border-color: #FD6550 !important;
+    outline: none !important;
+}
+
+/* --- Input focus ----------------------------------------------- */
+.form-control:focus {
+    border-color: #FD6550 !important;
+    box-shadow: 0 0 0 2px rgba(253,101,80,0.15) !important;
+}
+.input-group:hover .input-group-prepend .input-group-text svg,
+.input-group:hover .input-group-append .input-group-text svg {
+    color: #FD6550 !important;
+    fill: rgba(253,101,80,0.18) !important;
+}
+
+/* --- Badge primario (ENTRANTE, ENVIANDO): color oscuro del palette --- */
+.badge-primary {
+    background-color: #202020 !important;
+    border-color: #202020 !important;
+    color: #fff !important;
+}
+
+/* --- Otros utilitarios de color -------------------------------- */
+.bg-primary     { background-color: #FD6550 !important; }
+.text-primary   { color: #FD6550 !important; }
+.border-primary { border-color: #FD6550 !important; }
+
+/* --- Tabla: headers y hover ------------------------------------ */
+.table > thead > tr > th {
+    color: #202020 !important;
+}
+table.dataTable thead th,
+table.dataTable thead td {
+    color: #202020 !important;
+}
+/* Ícono de sort de DataTables */
+table.dataTable thead .sorting:before,
+table.dataTable thead .sorting:after,
+table.dataTable thead .sorting_asc:before,
+table.dataTable thead .sorting_asc:after,
+table.dataTable thead .sorting_desc:before,
+table.dataTable thead .sorting_desc:after {
+    color: #888ea8 !important;
+    opacity: 0.6;
+}
+/* Hover de filas */
+.table-hover:not(.table-dark) tbody tr:hover,
+table.dataTable tbody tr:hover {
+    background-color: #FFF5F4 !important;
+}
+
+/* --- DataTables buttons --------------------------------------- */
+div.dt-buttons .dt-button,
+div.dt-buttons .dt-button.btn,
+div.dt-buttons .dt-button.btn-primary,
+.dt-button.btn-primary {
+    background: #FD6550 !important;
+    background-color: #FD6550 !important;
+    border-color: #FD6550 !important;
+    color: #fff !important;
+    box-shadow: none !important;
+}
+div.dt-buttons .dt-button:hover,
+div.dt-buttons .dt-button.btn:hover,
+div.dt-buttons .dt-button.btn-primary:hover {
+    background: #e5523d !important;
+    background-color: #e5523d !important;
+    border-color: #e5523d !important;
+    color: #fff !important;
+}
+
+/* --- DataTable hover: N. column en naranja, resto en oscuro --- */
+table.dataTable tbody tr:hover td { color: #202020 !important; }
+table.dataTable tbody tr:hover td:first-child,
+table.dataTable tbody tr:hover td.sorting_1 { color: #FD6550 !important; }
+
+/* --- Paginación (Bootstrap + DataTables) ---------------------- */
+/* Página activa */
+.page-item.active .page-link,
+.dataTables_wrapper .dataTables_paginate .paginate_button.current,
+.dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+    background: #FD6550 !important;
+    background-color: #FD6550 !important;
+    color: #fff !important;
+    border-color: #FD6550 !important;
+}
+/* Hover en páginas inactivas */
+.page-link:hover,
+.dataTables_wrapper .dataTables_paginate .paginate_button:not(.current):not(.disabled):hover {
+    background: transparent !important;
+    background-color: transparent !important;
+    color: #FD6550 !important;
+    border-color: #FD6550 !important;
+}
+/* Texto páginas inactivas */
+.page-link,
+.dataTables_wrapper .dataTables_paginate .paginate_button:not(.current):not(.disabled) {
+    color: #202020 !important;
+}
+/* Scrollbar nativo */
+::-webkit-scrollbar-thumb { background-color: rgba(253,101,80,0.30) !important; border-radius: 4px !important; }
+::-webkit-scrollbar-track  { background-color: #E9E9E9 !important; }
+/* Perfect-scrollbar (JS) que usa el tema */
+.ps__thumb-x,
+.ps__thumb-y { background-color: rgba(253,101,80,0.30) !important; }
+.ps__rail-x:hover > .ps__thumb-x,
+.ps__rail-y:hover > .ps__thumb-y { background-color: rgba(253,101,80,0.55) !important; }
+/* Info text "Showing X to Y of Z entries" */
+.dataTables_wrapper .dataTables_info { color: #202020 !important; }
+/* Línea / borde azul del DataTable scroll */
+.dataTables_scrollBody { border-bottom-color: #E9E9E9 !important; }
+/* Focus ring en links de paginación */
+.page-link:focus { box-shadow: 0 0 0 2px rgba(253,101,80,0.25) !important; color: #FD6550 !important; }
+
+/* --- Order status badges -------------------------------------- */
+/* ENTRANTE: outline coral (like ASIGNADA but with #FD6550) */
+.badge-status-entrante {
+    background-color: transparent !important;
+    border: 1px solid #FD6550 !important;
+    color: #FD6550 !important;
+}
+/* ENTREGADA: solid #FD6550 fill */
+.badge-status-entregada {
+    background-color: #FD6550 !important;
+    border-color: #FD6550 !important;
+    color: #ffffff !important;
+}
+/* ACEPTADA: #E4E3EA background, dark text */
+.badge-status-aceptada {
+    background-color: #E4E3EA !important;
+    border-color: #E4E3EA !important;
+    color: #202020 !important;
+}
+/* ENVIANDO: slightly darker than #E9E9E9 */
+.badge-status-enviando {
+    background-color: #C9C9D3 !important;
+    border-color: #C9C9D3 !important;
+    color: #202020 !important;
+}
+
+/* --- Selección de texto --------------------------------------- */
+::-moz-selection { color: #FD6550 !important; background: transparent; }
+::selection      { color: #FD6550 !important; background: transparent; }
+
+/* ================================================================
+   RESPONSIVE  (≤ 767 px)
+   ================================================================ */
+
+/* --- Descripción corta en tabla productos: máx 2 líneas -------- */
+.desc-corta-cell {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    line-clamp: 2;
+    overflow: hidden;
+    max-width: 220px;
+}
+
+@media (max-width: 767px) {
+
+    /* --- crear_sucursales: Día + Activar en la misma fila ------ */
+    .itemDisponibilidad {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        align-items: center !important;
+        margin-bottom: 6px !important;
+    }
+    /* Día → 50 % izquierda, primero */
+    .itemDisponibilidad > div:nth-child(1) {
+        order: 1;
+        flex: 0 0 50% !important;
+        max-width: 50% !important;
+        margin-bottom: 0 !important;
+    }
+    /* Activar → 50 % derecha, segundo */
+    .itemDisponibilidad > div:nth-child(4) {
+        order: 2;
+        flex: 0 0 50% !important;
+        max-width: 50% !important;
+        text-align: right !important;
+        margin-bottom: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: flex-end !important;
+    }
+    /* Hora ini → tercero */
+    .itemDisponibilidad > div:nth-child(2) {
+        order: 3;
+        flex: 0 0 50% !important;
+        max-width: 50% !important;
+    }
+    /* Hora fin → cuarto */
+    .itemDisponibilidad > div:nth-child(3) {
+        order: 4;
+        flex: 0 0 50% !important;
+        max-width: 50% !important;
+    }
+    .itemDisponibilidad h6 {
+        display: inline-block !important;
+        margin: 0 6px 0 0 !important;
+        font-size: 13px !important;
+        white-space: nowrap;
+    }
+    .itemDisponibilidad .switch { margin-bottom: 0 !important; }
+
+    /* --- DataTables: buttons, search y paginación sticky
+         al hacer scroll horizontal de la tabla ------------------- */
+    .dataTables_wrapper .dt-buttons,
+    .dataTables_wrapper .dataTables_filter,
+    .dataTables_wrapper .dataTables_info,
+    .dataTables_wrapper .dataTables_paginate {
+        position: sticky !important;
+        left: 0 !important;
+        z-index: 4 !important;
+    }
+    /* La fila de info + paginación en fondo blanco para que no
+       se solape con el contenido de la tabla al hacer scroll */
+    .dataTables_wrapper .dataTables_info,
+    .dataTables_wrapper .dataTables_paginate {
+        background: #fff;
+    }
+
+    /* --- DataTables: columna Acciones sticky a la izquierda
+         para que siempre sea visible (aparece "al principio"
+         al hacer scroll horizontal) ----------------------------- */
+    .table-responsive table.dataTable thead th:last-child,
+    .table-responsive table.dataTable tbody td:last-child {
+        position: sticky !important;
+        left: 0 !important;
+        z-index: 2 !important;
+        background: #fff !important;
+        box-shadow: 2px 0 6px rgba(0,0,0,0.07) !important;
+    }
+    .table-hover .table-responsive table.dataTable tbody tr:hover td:last-child {
+        background: #FFF5F4 !important;
+    }
+}
+/* ================================================================ */

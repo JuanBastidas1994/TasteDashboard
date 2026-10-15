@@ -176,50 +176,57 @@ $alias = $session['alias'];
 
     <script src="plugins/apex/apexcharts.min.js"></script>
     <script src="assets/js/dashboard/dash_1.js"></script>
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAWo6DXlAmrqEiKiaEe9UyOGl3NJ208lI8&libraries=visualization"></script>
     <!-- END PAGE LEVEL CUSTOM SCRIPTS -->
      <script>
     let map;
-    let heatmap;
+    let heatCircles = [];
 
-    function initMap() {
-        map = new google.maps.Map(document.getElementById('map'), {
+    async function initMap() {
+        const { Map } = await google.maps.importLibrary("maps");
+        map = new Map(document.getElementById('map'), {
             zoom: 12,
             center: { lat: -2.1753280, lng: -79.90624 },
             mapTypeId: 'roadmap'
         });
-
-        heatmap = new google.maps.visualization.HeatmapLayer({
-            data: [],
-            radius: 30,
-            opacity: 0.7
-        });
-
-        heatmap.setMap(map);
     }
 
-    // 🔄 Función para refrescar puntos con AJAX
-    function refreshHeatmap(officeId = 0, dateStart, dateEnd) {
+    function refreshHeatmap(officeId, dateStart, dateEnd) {
+        officeId = officeId || 0;
+        if (!map) { messageDone('El mapa aún no está listo, intenta de nuevo.', 'warning'); return; }
         $.ajax({
             url: 'controllers/controlador_reporte_mapa_calor.php?metodo=getLocationsOrders',
             type: 'POST',
             contentType: 'application/json',
-            data: JSON.stringify({ office_id: officeId, dateStart, dateEnd }),
+            dataType: 'json',
+            data: JSON.stringify({ office_id: officeId, dateStart: dateStart, dateEnd: dateEnd }),
             success: function(response) {
-                const points = response.map(p => new google.maps.LatLng(parseFloat(p.latitud), parseFloat(p.longitud)));
-                heatmap.setData(points);
+                heatCircles.forEach(function(c) { c.setMap(null); });
+                heatCircles = [];
 
-                if(points.length > 0){
-                    map.setCenter(points[0]); // centra en el primer punto
+                if (!Array.isArray(response) || response.length === 0) {
+                    messageDone('No hay datos para el rango seleccionado.', 'warning');
+                    return;
                 }
+
+                response.forEach(function(p) {
+                    var lat = parseFloat(p.latitud);
+                    var lng = parseFloat(p.longitud);
+                    if (isNaN(lat) || isNaN(lng)) return;
+                    heatCircles.push(new google.maps.Circle({
+                        strokeColor: 'transparent',
+                        fillColor: '#FF4400',
+                        fillOpacity: 0.08,
+                        map: map,
+                        center: { lat: lat, lng: lng },
+                        radius: 300
+                    }));
+                });
+
+                map.setCenter({ lat: parseFloat(response[0].latitud), lng: parseFloat(response[0].longitud) });
             }
         });
     }
 
-    // Inicia mapa
-    initMap();
-
-    // Ejemplo: refrescar al cambiar filtro
     $(".btnReporte").on('click', function(){
         const officeId = parseInt($('#sucursalSelect').val());
         const dateStart = $("#fecha_inicio").val();
@@ -242,6 +249,7 @@ $alias = $session['alias'];
         dateFormat: "Y-m-d"
     });
     </script>
+    <script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAWo6DXlAmrqEiKiaEe9UyOGl3NJ208lI8&loading=async&callback=initMap"></script>
 
 </body>
 

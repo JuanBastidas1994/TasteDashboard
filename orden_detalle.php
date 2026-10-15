@@ -372,6 +372,50 @@ function timelineOrden($orden, $motorizado, $flota)
             font-size: 15px;
             font-weight: bold;
         }
+
+        /* ---- Responsive móvil ---------------------------------- */
+        @media (max-width: 767px) {
+
+            /* Metadatos de la orden: flex-wrap limpio */
+            .btnAcciones {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 6px 12px;
+                margin-bottom: 12px;
+            }
+            .btnAcciones span {
+                margin-right: 0 !important;
+                font-size: 14px !important;
+            }
+
+            /* Título más compacto */
+            h3#titulo { font-size: 1.25rem; }
+
+            /* Reordenar columnas: datos cliente arriba en mobile */
+            .row.layout-top-spacing { display: flex; flex-direction: column; }
+            .col-xl-7 { order: 2; }
+            .col-xl-5 { order: 1; }
+
+            /* Quitar padding lateral extra en mobile */
+            .col-xl-7, .col-xl-5 {
+                padding-left: 8px !important;
+                padding-right: 8px !important;
+            }
+
+            /* Tabla detalle: columnas DESC y Precio menos anchas */
+            .table-detalle-orden th:nth-child(3),
+            .table-detalle-orden td:nth-child(3),
+            .table-detalle-orden th:nth-child(4),
+            .table-detalle-orden td:nth-child(4) {
+                display: none;
+            }
+
+            /* Timeline: texto más compacto */
+            .item-timeline .t-time { font-size: 11px; }
+
+            /* Widget cards con menos padding vertical */
+            .widget-content-area { padding: 14px 14px !important; }
+        }
     </style>
 </head>
 
@@ -433,11 +477,11 @@ function timelineOrden($orden, $motorizado, $flota)
     </div>
     
     <!--  BEGIN NAVBAR  -->
-    <?php echo top() ?>
+    <?php top() ?>
     <!--  END NAVBAR  -->
 
     <!--  BEGIN NAVBAR  -->
-    <?php echo navbar(false); ?>
+    <?php navbar(false); ?>
     <!--  END NAVBAR  -->
 
     <!--  BEGIN MAIN CONTAINER  -->
@@ -447,7 +491,7 @@ function timelineOrden($orden, $motorizado, $flota)
         <div class="search-overlay"></div>
 
         <!--  BEGIN SIDEBAR  -->
-        <?php echo sidebar(); ?>
+        <?php sidebar(); ?>
         <!--  END SIDEBAR  -->
 
         <!--  BEGIN CONTENT AREA  -->
@@ -517,7 +561,8 @@ function timelineOrden($orden, $motorizado, $flota)
                             <form name="frmSave" id="frmSave" autocomplete="off">
                                 <div class="x_content">
 
-                                    <table class="table">
+                                    <div class="table-responsive">
+                                    <table class="table table-detalle-orden">
                                         <thead>
                                             <tr>
                                                 <th>Producto</th>
@@ -601,6 +646,7 @@ function timelineOrden($orden, $motorizado, $flota)
                                             </tr>
                                         </tbody>
                                     </table>
+                                    </div><!-- /table-responsive -->
 
                                     <div class="">
                                         <div class="inv--total-amounts text-sm-right">
@@ -666,7 +712,7 @@ function timelineOrden($orden, $motorizado, $flota)
                             <div>
                                 <h4>Formas de Pago</h4>
                             </div>
-                            <div class="row">
+                            <div class="table-responsive">
                                 <table class="table">
                                     <thead>
                                         <tr>
@@ -674,73 +720,53 @@ function timelineOrden($orden, $motorizado, $flota)
                                             <th>Monto</th>
                                         </tr>
                                     </thead>
-                                    <tbody>
-                                        <?php
-                                        foreach ($orden['pagos'] as $pagos) {
-                                            
-                                            echo '<tr>
-                                                <td>' . $pagos['descripcion'] . ' ' . $pagos['observacion'] . ' <i data-feather="eye" onclick="getDetailPayPaymentez('.$id.')"></i> </td>
-                                                <td>$' . number_format($pagos['monto'], 2) . '</td>
-                                              </tr>';
+                                    <?php
+                                    // Una sola query — reutilizada para badge inline y widget inferior
+                                    $idTransaction    = "";
+                                    $todosDevolucion  = [];
+                                    $devExitosa       = null;
+                                    $isAnulada        = 0;
+                                    foreach ($orden['pagos'] as $p) {
+                                        if ($p['forma_pago'] == "T" && !empty($p['observacion'])) {
+                                            $idTransaction   = $p['observacion'];
+                                            $todosDevolucion = $Clordenes->getDetalleAnulada($idTransaction) ?: [];
+                                            foreach ($todosDevolucion as $d) {
+                                                if ($d['estado'] == 'success') {
+                                                    $devExitosa = $d;
+                                                    $isAnulada  = 1;
+                                                    break;
+                                                }
+                                            }
+                                            break;
                                         }
-                                        ?>
+                                    }
+                                    ?>
+                                    <tbody>
+                                        <?php foreach ($orden['pagos'] as $pagos): ?>
+                                        <tr>
+                                            <td>
+                                                <?= htmlspecialchars($pagos['descripcion']) ?>
+                                                <?= htmlspecialchars($pagos['observacion']) ?>
+                                                <?php if ($pagos['forma_pago'] == 'T'): ?>
+                                                    <i data-feather="eye" style="cursor:pointer;width:14px;height:14px;vertical-align:middle;" onclick="getDetailPayPaymentez(<?= $id ?>)"></i>
+                                                    <?php if ($devExitosa): ?>
+                                                        <span style="display:inline-flex;align-items:center;gap:4px;background:#DCFCE7;color:#16a34a;border-radius:20px;padding:2px 10px;font-size:11px;font-weight:600;margin-left:6px;vertical-align:middle;">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                                            Devuelto &middot; <?= date('d/m/Y H:i', strtotime($devExitosa['fecha'])) ?>
+                                                        </span>
+                                                    <?php endif; ?>
+                                                <?php endif; ?>
+                                            </td>
+                                            <td>$<?= number_format($pagos['monto'], 2) ?></td>
+                                        </tr>
+                                        <?php endforeach; ?>
                                     </tbody>
                                 </table>
-
                             </div>
                         </div>
 
-                        <?php
-                        $isAnulada = 0;
-                        $idTransaction = "";
-                        foreach ($orden['pagos'] as $pagos) {
-                            if ($pagos['forma_pago'] == "T") {
-                                $idTransaction = $pagos['observacion'];
-                            }
-                        }
-                        if ($idTransaction <> "" && $idTransaction <> null) {
-                            $datosAnulacion = $Clordenes->getDetalleAnulada($idTransaction);
-                            if ($datosAnulacion) {
-                                $trAnulacion = "";
 
-                                foreach ($datosAnulacion as $datAnula) {
-                                    $badge = "success";
-                                    $isAnulada = 1;
-                                    if ($datAnula['estado'] <> "success") {
-                                        $badge = "danger";
-                                        $isAnulada = 0;
-                                    }
-                                    $trAnulacion .= '  <tr>
-                                                  <td>' . $datAnula['fecha'] . '</td>
-                                                  <td><span class="shadow-none badge badge-' . $badge . '">' . $datAnula['estado'] . '</td>
-                                                  <td>' . $datAnula['respuesta'] . '</td>
-                                                </tr>';
-                                }
-                                echo '<!-- Estado del Pago -->
-                            <div class="widget-content widget-content-area br-6" style="margin-top: 15px;">
-                                <div><h4>Estado de anulaci&oacute;n del Pago</h4></div>
-                                <div class="row">
-                                  <table class="table style-3">
-                                    <thead>
-                                      <tr>
-                                        <th>Fecha</th>
-                                        <th>Estado</th>
-                                        <th>Respuesta</th>
-                                      </tr>
-                                    </thead>
-                                    <tbody>
-                                      ' . $trAnulacion . '
-                                    </tbody>
-                                  </table>
-                                  <div class="col-sm-12 col-xs-12" style="text-align: right;">
-                                    <button type="button" class="btn btn-danger btn-anular" data-value="' . $id . '" data-estado="ANULADA">Anular</button>
-                                  </div>
-                                </div>
-                            </div> ';
-                            }
-                        }
-
-                        $factElectronica = $Clordenes->getFacturaElectronica($id);
+                        <?php $factElectronica = $Clordenes->getFacturaElectronica($id);
                         if ($factElectronica) {
                             $badge = "success";
                             if ($factElectronica['estado'] == "ANULADA")

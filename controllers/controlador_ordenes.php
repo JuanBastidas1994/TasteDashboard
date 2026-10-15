@@ -181,11 +181,19 @@ function datatable(){
         array( 'dt' => 9, 'db' => 'estado',
             'formatter' => function($d, $row){
                 $status = $row['estado'];
+                $inline = [
+                    'ENTRANTE'  => 'background:transparent;border:1px solid #FD6550;color:#FD6550;',
+                    'ENTREGADA' => 'background:#FD6550;border-color:#FD6550;color:#fff;',
+                    'ACEPTADA'  => 'background:#E4E3EA;border-color:#E4E3EA;color:#202020;',
+                    'ENVIANDO'  => 'background:#C9C9D3;border-color:#C9C9D3;color:#202020;',
+                ];
+                if (isset($inline[$status])) {
+                    return '<span class="shadow-none badge" style="'.$inline[$status].'">'.$status.'</span>';
+                }
                 $colors = [
-                    'ENTREGADA' => 'success',
-                    'ASIGNADA' => 'warning',
+                    'ASIGNADA'  => 'warning',
                     'CANCELADA' => 'danger',
-                    'ANULADA' => 'danger'
+                    'ANULADA'   => 'danger'
                 ];
                 $badge = isset($colors[$status]) ? $colors[$status] : 'primary';
                 return '<span class="shadow-none badge badge-'.$badge.'">'.$status.'</span>';

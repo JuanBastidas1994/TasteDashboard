@@ -1,5 +1,8 @@
+/* La sucursal factura si está configurada en Contifico o Runfood (config.facturacion viene del api).
+   Reglas fijas por sistema, resueltas en el api:
+   - Contifico: factura al ENTREGAR.
+   - Runfood: abre el pedido (comanda) al aceptar/asignar y factura al ENTREGAR. */
 let isFacturacion = false;
-let await_status = "";
 $(function(){
     getInfoFacturacion();
 });
@@ -7,36 +10,13 @@ $(function(){
 function getInfoFacturacion(){
     let config = getConfigGestionOrdenes();
     let facturacionConfig = config.facturacion;
-    if(facturacionConfig !== undefined && facturacionConfig !== null){
-        if(facturacionConfig.length > 0){
-            isFacturacion = true;
-            await_status = facturacionConfig[0].await_status;
-        }
-    }
+    isFacturacion = Array.isArray(facturacionConfig) && facturacionConfig.length > 0;
 }
 
 function facturar_inventario(cod_orden, estado){
     getInfoFacturacion();
-    if(isFacturacion){
-
-        if(await_status == estado){
-            facturarUnificada(cod_orden, true);
-        }else{
-            console.log("AUN NO ES HORA DE FACTURAR");
-            notify("AUN NO ES HORA DE FACTURAR",'warning',2);
-        }
-    }
-}
-
-function anular_facturar_inventario(cod_orden) {
-    getInfoFacturacion();
-    console.log('ANULAR FACTURACION E INVENTARIO');
-    console.log(await_status);
-    if(isFacturacion){
-
-        if(await_status == "ASIGNADA"){
-            facturarUnificada(cod_orden, false);
-        }
+    if(isFacturacion && estado == "ENTREGADA"){
+        facturarUnificada(cod_orden, true);
     }
 }
 
@@ -80,6 +60,67 @@ function anularComanda(cod_orden){
     getInfoFacturacion();
     if(!isFacturacion) return;
     llamarComanda(`${ApiUrl}/facturacion/anular-comanda`, cod_orden);
+}
+
+/* Reenvío manual desde el detalle de la orden (cuando la tarjeta muestra "Sin comanda Runfood"). */
+$("body").on("click", ".btnReenviarComanda", function(){
+    let $btn = $(this);
+    let cod_orden = $btn.data("id");
+    $btn.prop("disabled", true);
+    fetch(`${ApiUrl}/facturacion/comanda`,{
+        method: 'POST',
+        headers: { 'Api-Key': ApiKey },
+        body: JSON.stringify({ id: cod_orden })
+    })
+    .then(res => res.json())
+    .then(response => {
+        if(response.success === 1){
+            notify(response.mensaje,'success',2);
+        }else{
+            notify(response.mensaje,'error',5);
+        }
+        // Refresca el detalle y la lista para que el indicador muestre el estado real
+        openOrden(cod_orden);
+        getListaOrdenes();
+    })
+    .catch(error=>{
+        $btn.prop("disabled", false);
+        console.log(error);
+    });
+});
+
+/* Red de seguridad: cada pocos minutos reenvía las comandas que quedaron sin crear en Runfood
+   (red caída, Runfood sin responder...). Lo que siga fallando queda marcado en la tarjeta. */
+const MINUTOS_REINTENTO_COMANDAS = 5;
+let intervaloComandas = null;
+
+function iniciarReintentoComandas(){
+    if(intervaloComandas) return;
+    let config = getConfigGestionOrdenes();
+    let sistema = (config.facturacion && config.facturacion[0]) ? config.facturacion[0].cod_sistema_facturacion : null;
+    if(sistema != 3) return;   // solo Runfood maneja comandas
+
+    setTimeout(reintentarComandasPendientes, 30 * 1000);
+    intervaloComandas = setInterval(reintentarComandasPendientes, MINUTOS_REINTENTO_COMANDAS * 60 * 1000);
+}
+
+function reintentarComandasPendientes(){
+    fetch(`${ApiUrl}/facturacion/reintentar-comandas`,{
+        method: 'POST',
+        headers: { 'Api-Key': ApiKey },
+        body: JSON.stringify({ sucursal_id: sucursal_id })
+    })
+    .then(res => res.json())
+    .then(response => {
+        if(response.success !== 1) return;
+        if(response.enviadas.length > 0){
+            notify(`Runfood: ${response.enviadas.length} comanda(s) reenviada(s)`,'success',3);
+            getListaOrdenes();
+        }
+    })
+    .catch(error=>{
+        console.log("Error reintentando comandas", error);
+    });
 }
 
 function llamarComanda(ruta, cod_orden){

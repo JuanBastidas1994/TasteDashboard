@@ -48,6 +48,13 @@ class cl_runfood
         return Conexion::ejecutar($query,NULL);
     }
 
+    public function setFacturar($cod_sucursal, $facturar){
+        $cod_sucursal = intval($cod_sucursal);
+        $facturar = $facturar ? 1 : 0;
+        $query = "UPDATE tb_runfood_sucursal SET facturar = $facturar WHERE cod_sucursal = $cod_sucursal";
+        return Conexion::ejecutar($query,NULL);
+    }
+
     public function setApiKey($cod_sucursal, $api_key){
         $query = "UPDATE tb_runfood_sucursal SET api_key = '$api_key' WHERE cod_sucursal = $cod_sucursal";
         return Conexion::ejecutar($query,NULL);

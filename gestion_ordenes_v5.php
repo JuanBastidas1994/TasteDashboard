@@ -1603,8 +1603,8 @@ $permisos = $Clempresas->getIdPermisionByBusiness($session['cod_empresa']);
     <!--<script src="assets/js/gestion-ordenes-v5/sounds.js" type="text/javascript"></script>-->
     <!--<script src="assets/js/gestion-ordenes-v5/toastJc.js?v=7" type="text/javascript"></script>-->
     <script src="assets/js/gestion-ordenes-v5/api-helper.js?v=1" type="text/javascript"></script>
-    <script src="assets/js/gestion-ordenes-v5/index.js?v=19" type="text/javascript"></script>
-    <script src="assets/js/gestion-ordenes-v5/facturacion.js?v=8" type="text/javascript"></script>
+    <script src="assets/js/gestion-ordenes-v5/index.js?v=20" type="text/javascript"></script>
+    <script src="assets/js/gestion-ordenes-v5/facturacion.js?v=9" type="text/javascript"></script>
     <script src="assets/js/gestion-ordenes-v5/tracking.js?v=9" type="text/javascript"></script>
     <script src="assets/js/gestion-ordenes-v5/recipientes.js?v=8" type="text/javascript"></script>
     <script src="assets/js/gestion-ordenes-v5/mis-motorizados.js?v=1" type="text/javascript"></script>

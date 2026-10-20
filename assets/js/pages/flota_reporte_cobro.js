@@ -13,7 +13,8 @@ function leerFiltros() {
     return {
         cod_empresa: $("#cmbComercio").val(),
         fechaInicio: $("#txtFechaInicio").val(),
-        fechaFin: $("#txtFechaFin").val()
+        fechaFin: $("#txtFechaFin").val(),
+        forma_pago: $("#cmbFormaPago").val()
     };
 }
 
@@ -21,13 +22,15 @@ function pintarIndicadores(ind) {
     $("#indOrdenesEmpresa").text(ind.ordenes_empresa);
     $("#indNombreEmpresa").text($("#cmbComercio option:selected").text());
     $("#indOrdenesTodas").text(ind.ordenes_todas);
+    $("#indTotalGenerado").text(dinero(ind.total_generado));
+    $("#indTotalACobrar").text(dinero(ind.total_a_cobrar));
     $("#indTotalTaste").text(dinero(ind.total_taste));
     $("#indFormulaTaste").text(ind.ordenes_todas + ' órdenes x ' + dinero(ind.tarifa_taste));
 }
 
 function pintarDetalle(detalle) {
     if (detalle.length === 0) {
-        $("#cobroBody").html('<tr><td colspan="7" class="text-center text-muted">No hay órdenes de esta empresa en este lapso de tiempo</td></tr>');
+        $("#cobroBody").html('<tr><td colspan="8" class="text-center text-muted">No hay órdenes de esta empresa en este lapso de tiempo</td></tr>');
         return;
     }
 
@@ -39,6 +42,7 @@ function pintarDetalle(detalle) {
                 <td>${escapeHtml(d.fecha)}</td>
                 <td>${escapeHtml(d.motorizado)}</td>
                 <td><span class="badge ${badge}">${d.estado}</span></td>
+                <td>${escapeHtml(d.forma_pago_nombre)}</td>
                 <td class="text-right">${dinero(d.subtotal)}</td>
                 <td class="text-right">${d.grava_iva ? dinero(d.iva) : '-'}</td>
                 <td class="text-right">${dinero(d.envio)}</td>
@@ -49,7 +53,7 @@ function pintarDetalle(detalle) {
 
 function pintarTotales(tot) {
     const fila = (titulo, valor, clase = '') =>
-        `<tr class="${clase}"><th colspan="6">${titulo}</th><th>${dinero(valor)}</th></tr>`;
+        `<tr class="${clase}"><th colspan="7">${titulo}</th><th>${dinero(valor)}</th></tr>`;
 
     let footer = '';
     // Si algún envío cobra IVA se desglosa; si no, solo el total
@@ -59,8 +63,30 @@ function pintarTotales(tot) {
         footer += fila('Subtotal IVA', tot.subtotal_iva);
         footer += fila('IVA', tot.iva);
     }
-    footer += fila('TOTAL A COBRAR', tot.total, 'total-final');
+    footer += fila('TOTAL GENERADO', tot.total, 'total-final');
     $("#cobroFooter").html(footer);
+}
+
+// El desglose siempre cubre todas las órdenes del lapso, aunque la tabla esté filtrada
+function pintarDesglose(desglose) {
+    let filas = '';
+    let ordenes = 0;
+    let envios = 0;
+    desglose.forEach(d => {
+        ordenes += d.ordenes;
+        envios += d.envios;
+        const situacion = d.ya_cobrado
+            ? '<span class="badge badge-success">Ya cobrado al despachar</span>'
+            : '<span class="badge badge-danger">Por cobrar</span>';
+        filas += `<tr>
+                <td>${escapeHtml(d.nombre)}</td>
+                <td class="text-right">${d.ordenes}</td>
+                <td class="text-right">${dinero(d.envios)}</td>
+                <td>${situacion}</td>
+            </tr>`;
+    });
+    $("#desgloseBody").html(filas);
+    $("#desgloseFooter").html(`<tr><th>Total</th><th class="text-right">${ordenes}</th><th class="text-right">${dinero(envios)}</th><th></th></tr>`);
 }
 
 $("#btnGenerar").on("click", function () {
@@ -87,6 +113,7 @@ $("#btnGenerar").on("click", function () {
                 pintarIndicadores(response.indicadores);
                 pintarDetalle(response.detalle);
                 pintarTotales(response.totales);
+                pintarDesglose(response.desglose);
                 $("#resultado").show();
 
                 filtrosGenerados = filtros;
@@ -112,6 +139,14 @@ $("#btnGenerar").on("click", function () {
 $("#cmbComercio, #txtFechaInicio, #txtFechaFin").on("change", function () {
     filtrosGenerados = null;
     $("#btnExcel").prop("disabled", true);
+});
+
+// El filtro de forma de pago acota la tabla ya generada: se vuelve a pedir el reporte (si los otros
+// filtros cambiaron, filtrosGenerados es null y hay que pulsar Generar)
+$("#cmbFormaPago").on("change", function () {
+    if (filtrosGenerados) {
+        $("#btnGenerar").trigger("click");
+    }
 });
 
 $("#btnExcel").on("click", function () {

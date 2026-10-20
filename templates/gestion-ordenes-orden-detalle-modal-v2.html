@@ -407,6 +407,28 @@
                     <span class="badge badge-warning ml-2"><i data-feather="alert-triangle" style="color:white;"></i> ALTA DEMANDA </span>
             {{/eq}}
         </div>
+        {{#if comanda}}
+        <!-- Comanda en Runfood: si no se creó, se muestra el motivo y se puede reenviar -->
+        <div class="mt-1">
+            {{#if comanda.pendiente}}
+                <span class="badge badge-danger"><i data-feather="alert-triangle" style="color:white;"></i> Comanda Runfood no enviada</span>
+                <button type="button" class="btn btn-sm btn-outline-danger ml-1 btnReenviarComanda" data-id="{{id}}"
+                    style="font-size: 12px; padding: 2px 8px;">
+                    <i data-feather="refresh-cw"></i> Reenviar comanda
+                </button>
+                {{#if comanda.error}}
+                    <div class="text-danger mt-1" style="font-size: 12px; max-width: 520px;">{{comanda.error}}</div>
+                {{/if}}
+            {{else}}
+                {{#eq comanda.estado "ANULADA"}}
+                    <span class="badge badge-secondary">Comanda Runfood #{{comanda.order_number}} anulada</span>
+                {{else}}
+                    <span class="badge badge-success">Comanda Runfood #{{comanda.order_number}}</span>
+                    {{#eq comanda.estado "FACTURADA"}}<span class="badge badge-info ml-1">Facturada</span>{{/eq}}
+                {{/eq}}
+            {{/if}}
+        </div>
+        {{/if}}
     </div>
     <div class="ml-auto text-right  d-flex align-items-center">
         <div style="font-size: 12px;" class="p-1 rounded bg-{{colorStatus estado}}">{{ estado }}</div>

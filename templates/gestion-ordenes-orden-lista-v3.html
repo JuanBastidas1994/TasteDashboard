@@ -96,6 +96,28 @@
                                     </div>
                                 {{/eq}}
                             {{/eq}}
+                            {{#if comanda}}
+                                <!-- Comanda en Runfood: pedido abierto al aceptar/asignar -->
+                                {{#if comanda.pendiente}}
+                                    <div class="tagsOrderList bg-danger bs-tooltip" data-toggle="tooltip" data-placement="top"
+                                        title="{{#if comanda.error}}{{comanda.error}}{{else}}Aún no se crea el pedido en Runfood{{/if}}">
+                                        <i data-feather="alert-triangle"></i>
+                                        <span>Sin comanda Runfood</span>
+                                    </div>
+                                {{else}}
+                                    {{#eq comanda.estado "ANULADA"}}
+                                        <div class="tagsOrderList bg-secondary">
+                                            <i data-feather="x-circle"></i>
+                                            <span>Runfood #{{comanda.order_number}} anulada</span>
+                                        </div>
+                                    {{else}}
+                                        <div class="tagsOrderList bg-success">
+                                            <i data-feather="check-circle"></i>
+                                            <span>Runfood #{{comanda.order_number}}</span>
+                                        </div>
+                                    {{/eq}}
+                                {{/if}}
+                            {{/if}}
                             <div class="ml-auto">
                                 {{#diferent estado "ENTRANTE"}}
                                     {{#in_array ../permisos "GESTIONAR_RECIPIENTES"}}

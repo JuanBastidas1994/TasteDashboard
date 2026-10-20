@@ -55,6 +55,8 @@ Handlebars.registerHelper('labelEstado', estado => ESTADO_TRABAJO_LABEL[estado] 
 Handlebars.registerHelper('motivoLabel', motivo => MOTIVO_INCIDENCIA_LABEL[motivo] || motivo);
 Handlebars.registerHelper('fechaFormateada', raw => formatFecha(raw));
 Handlebars.registerHelper('fechaRelativa', raw => formatFechaRelativa(raw));
+Handlebars.registerHelper('fechaHace', raw => raw ? formatFechaRelativa(raw) : '--');
+Handlebars.registerHelper('dinero', valor => (parseFloat(valor) || 0).toFixed(2));
 Handlebars.registerHelper('resueltoPorLabel', quien => RESUELTO_POR_LABEL[quien] || quien);
 Handlebars.registerHelper('if_eq', function (a, b, options) {
     return a === b ? options.fn(this) : options.inverse(this);

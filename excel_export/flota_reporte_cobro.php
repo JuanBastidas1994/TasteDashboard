@@ -13,9 +13,10 @@ if (!isLogin()) {
 $cod_empresa = $_GET['cod_empresa'] ?? '';
 $fechaInicio = $_GET['fechaInicio'] ?? '';
 $fechaFin = $_GET['fechaFin'] ?? '';
+$formaPago = $_GET['forma_pago'] ?? '';
 
 $clReporte = new cl_reporte_flota_cobro();
-$error = $clReporte->validarFiltros($cod_empresa, $fechaInicio, $fechaFin);
+$error = $clReporte->validarFiltros($cod_empresa, $fechaInicio, $fechaFin, $formaPago);
 if ($error) {
     echo $error;
     exit;
@@ -23,7 +24,7 @@ if ($error) {
 
 $cod_empresa = intval($cod_empresa);
 $empresa = $clReporte->nombreEmpresa($cod_empresa);
-$reporte = $clReporte->generar($cod_empresa, $fechaInicio, $fechaFin);
+$reporte = $clReporte->generar($cod_empresa, $fechaInicio, $fechaFin, $formaPago);
 $ind = $reporte['indicadores'];
 $tot = $reporte['totales'];
 
@@ -39,17 +40,20 @@ $data = [];
 $data[] = ['<b>Reporte de cobro de envíos</b>'];
 $data[] = ['Empresa', $empresa];
 $data[] = ['Rango', $fechaInicio . ' al ' . $fechaFin];
+$data[] = ['Forma de pago', $formaPago !== '' ? cl_reporte_flota_cobro::FORMAS_PAGO[$formaPago] : 'Todas'];
 $data[] = [];
 
 // Indicadores
 $data[] = [$encabezado('Indicadores'), $encabezado('')];
+$data[] = ['Total generado por este comercio (suma de todos los envíos)', $dinero($ind['total_generado'])];
+$data[] = ['Total a cobrar (no incluye efectivo, ya cobrado)', $dinero($ind['total_a_cobrar'])];
 $data[] = ['Órdenes de esta empresa', $ind['ordenes_empresa']];
 $data[] = ['Órdenes de todas las empresas', $ind['ordenes_todas']];
 $data[] = ['Total para Taste (' . $ind['ordenes_todas'] . ' x $' . number_format($ind['tarifa_taste'], 2) . ')', $dinero($ind['total_taste'])];
 $data[] = [];
 
 // Detalle
-$data[] = array_map($encabezado, ['Orden', 'Fecha', 'Sucursal', 'Motorizado', 'Estado', 'Subtotal', 'IVA', 'Precio envío']);
+$data[] = array_map($encabezado, ['Orden', 'Fecha', 'Sucursal', 'Motorizado', 'Estado', 'Forma de pago', 'Subtotal', 'IVA', 'Precio envío']);
 foreach ($reporte['detalle'] as $d) {
     $data[] = [
         $d['cod_orden'],
@@ -57,6 +61,7 @@ foreach ($reporte['detalle'] as $d) {
         $d['sucursal'],
         $d['motorizado'],
         $d['estado'],
+        $d['forma_pago_nombre'],
         $dinero($d['subtotal']),
         $dinero($d['iva']),
         $dinero($d['envio']),
@@ -65,10 +70,17 @@ foreach ($reporte['detalle'] as $d) {
 $data[] = [];
 
 // Totales con desglose de IVA
-$data[] = ['', '', '', '', '', '', '<b>Subtotal 0%</b>', $dinero($tot['subtotal_0'])];
-$data[] = ['', '', '', '', '', '', '<b>Subtotal IVA</b>', $dinero($tot['subtotal_iva'])];
-$data[] = ['', '', '', '', '', '', '<b>IVA</b>', $dinero($tot['iva'])];
-$data[] = ['', '', '', '', '', '', '<b>TOTAL A COBRAR</b>', '<b>' . $dinero($tot['total']) . '</b>'];
+$data[] = ['', '', '', '', '', '', '', '<b>Subtotal 0%</b>', $dinero($tot['subtotal_0'])];
+$data[] = ['', '', '', '', '', '', '', '<b>Subtotal IVA</b>', $dinero($tot['subtotal_iva'])];
+$data[] = ['', '', '', '', '', '', '', '<b>IVA</b>', $dinero($tot['iva'])];
+$data[] = ['', '', '', '', '', '', '', '<b>TOTAL GENERADO</b>', '<b>' . $dinero($tot['total']) . '</b>'];
+
+// Desglose por forma de pago (siempre de todas las órdenes del lapso)
+$data[] = [];
+$data[] = array_map($encabezado, ['Desglose por forma de pago', 'Órdenes', 'Envíos', 'Situación']);
+foreach ($reporte['desglose'] as $d) {
+    $data[] = [$d['nombre'], $d['ordenes'], $dinero($d['envios']), $d['ya_cobrado'] ? 'Ya cobrado al despachar' : 'Por cobrar'];
+}
 
 // Crear xlsx
 $xlsx = SimpleXLSXGen::fromArray($data, 'Cobro envíos')
@@ -78,8 +90,9 @@ $xlsx = SimpleXLSXGen::fromArray($data, 'Cobro envíos')
     ->setColWidth(4, 28)
     ->setColWidth(5, 12)
     ->setColWidth(6, 12)
-    ->setColWidth(7, 18)
-    ->setColWidth(8, 14);
+    ->setColWidth(7, 12)
+    ->setColWidth(8, 18)
+    ->setColWidth(9, 14);
 
 // Descargar
 $nombreArchivo = preg_replace('/[^A-Za-z0-9_-]+/', '_', $empresa ?: 'empresa');

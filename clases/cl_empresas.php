@@ -611,12 +611,23 @@ class cl_empresas
         
         
         /*------------- FACTURACION ELECTRONICA ---------------*/
+        /**
+         * Sistema de facturación que usan las sucursales de la empresa (el de cada sucursal sale del
+         * módulo de RUCs donde está configurada: Contifico o Runfood). Si hubiera sucursales con
+         * ambos, devuelve el primero (Contifico).
+         */
         public function getProveedorFact($cod_empresa){
             $query = "SELECT f.*
-                    FROM tb_empresa_facturacion ef, tb_sistema_facturacion f
-                    WHERE ef.cod_sistema_facturacion = f.cod_sistema_facturacion
-                    AND ef.cod_empresa = $cod_empresa
-                    AND f.estado = 'A'";
+                    FROM tb_sistema_facturacion f
+                    WHERE f.estado = 'A'
+                    AND (
+                        (f.cod_sistema_facturacion = 1 AND EXISTS (SELECT 1 FROM tb_contifico_sucursal cs
+                            INNER JOIN tb_sucursales s ON s.cod_sucursal = cs.cod_sucursal WHERE s.cod_empresa = $cod_empresa))
+                        OR (f.cod_sistema_facturacion = 3 AND EXISTS (SELECT 1 FROM tb_runfood_sucursal rs
+                            INNER JOIN tb_sucursales s ON s.cod_sucursal = rs.cod_sucursal WHERE s.cod_empresa = $cod_empresa))
+                    )
+                    ORDER BY f.cod_sistema_facturacion
+                    LIMIT 1";
             return Conexion::buscarRegistro($query,NULL);
         }
 

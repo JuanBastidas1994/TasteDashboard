@@ -12,19 +12,21 @@ function getReporte() {
     $cod_empresa = $_POST['cod_empresa'] ?? '';
     $fechaInicio = $_POST['fechaInicio'] ?? '';
     $fechaFin = $_POST['fechaFin'] ?? '';
+    $formaPago = $_POST['forma_pago'] ?? '';
 
     $clReporte = new cl_reporte_flota_cobro();
-    $error = $clReporte->validarFiltros($cod_empresa, $fechaInicio, $fechaFin);
+    $error = $clReporte->validarFiltros($cod_empresa, $fechaInicio, $fechaFin, $formaPago);
     if ($error) {
         return ["success" => 0, "mensaje" => $error];
     }
 
-    $reporte = $clReporte->generar(intval($cod_empresa), $fechaInicio, $fechaFin);
+    $reporte = $clReporte->generar(intval($cod_empresa), $fechaInicio, $fechaFin, $formaPago);
     return [
         "success" => 1,
         "mensaje" => count($reporte['detalle']) > 0 ? 'Información encontrada' : 'No hay órdenes de esta empresa en este lapso de tiempo',
         "indicadores" => $reporte['indicadores'],
         "detalle" => $reporte['detalle'],
         "totales" => $reporte['totales'],
+        "desglose" => $reporte['desglose'],
     ];
 }

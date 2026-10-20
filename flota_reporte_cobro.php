@@ -23,6 +23,12 @@ $comercios = $Clempresas->getComercios($session['cod_empresa']);
         .indicador .ind-nota { color: #888ea8; font-size: 12px; }
         .indicador.taste { border-color: #1b55e2; background: #f1f5ff; }
         .indicador.taste .ind-valor { color: #1b55e2; }
+        .indicador.cobrar { border-color: #e7515a; background: #fff5f5; }
+        .indicador.cobrar .ind-valor { color: #e7515a; }
+        .indicador.generado { border-color: #8dbf42; background: #f6fbee; }
+        .indicador.generado .ind-valor { color: #5c8a1e; }
+        #tablaDesglose th, #tablaDesglose td { padding: 8px 12px; }
+        #tablaDesglose tfoot th { border-top: 2px solid #3b3f5c; }
         #tablaCobro tfoot th { text-align: right; border-top: none; }
         #tablaCobro tfoot tr.total-final th { font-size: 18px; border-top: 2px solid #3b3f5c; }
     </style>
@@ -62,7 +68,7 @@ $comercios = $Clempresas->getComercios($session['cod_empresa']);
 
                             <!-- FILTROS -->
                             <div class="row">
-                                <div class="col-md-4 col-12 mb-md-0 mb-4">
+                                <div class="col-md-3 col-12 mb-md-0 mb-4">
                                     <label>Empresa <span class="asterisco">*</span></label>
                                     <select id="cmbComercio" class="form-control basic">
                                         <option value="">Seleccione una empresa</option>
@@ -79,7 +85,16 @@ $comercios = $Clempresas->getComercios($session['cod_empresa']);
                                     <label>Fecha fin <span class="asterisco">*</span></label>
                                     <input type="date" id="txtFechaFin" class="form-control" value="<?= date('Y-m-d') ?>">
                                 </div>
-                                <div class="col-md-2 col-12 mb-md-0 mb-4 d-flex align-items-end">
+                                <div class="col-md-2 col-12 mb-md-0 mb-4">
+                                    <label>Forma de pago</label>
+                                    <select id="cmbFormaPago" class="form-control">
+                                        <option value="">Todas</option>
+                                        <option value="E">Efectivo</option>
+                                        <option value="T">Tarjeta</option>
+                                        <option value="TB">Transferencia</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-1 col-12 mb-md-0 mb-4 d-flex align-items-end">
                                     <button class="btn btn-primary btn-block" id="btnGenerar" type="button">Generar</button>
                                 </div>
                                 <div class="col-md-2 col-12 mb-md-0 mb-4 d-flex align-items-end">
@@ -90,6 +105,27 @@ $comercios = $Clempresas->getComercios($session['cod_empresa']);
                             <div id="resultado" style="display: none;">
                                 <!-- INDICADORES -->
                                 <div class="row mt-4">
+                                    <div class="col-md-4 col-12 mb-3">
+                                        <div class="indicador generado">
+                                            <div class="ind-titulo">Total generado por este comercio</div>
+                                            <div class="ind-valor" id="indTotalGenerado">$0.00</div>
+                                            <div class="ind-nota">Es la suma de todos los envíos</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 col-12 mb-3">
+                                        <div class="indicador cobrar">
+                                            <div class="ind-titulo">Total a cobrar</div>
+                                            <div class="ind-valor" id="indTotalACobrar">$0.00</div>
+                                            <div class="ind-nota">No se incluyen los valores en efectivo porque ya fueron cobrados</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 col-12 mb-3">
+                                        <div class="indicador taste">
+                                            <div class="ind-titulo">Total para Taste</div>
+                                            <div class="ind-valor" id="indTotalTaste">$0.00</div>
+                                            <div class="ind-nota" id="indFormulaTaste"></div>
+                                        </div>
+                                    </div>
                                     <div class="col-md-4 col-12 mb-3">
                                         <div class="indicador">
                                             <div class="ind-titulo">Órdenes de esta empresa</div>
@@ -104,13 +140,6 @@ $comercios = $Clempresas->getComercios($session['cod_empresa']);
                                             <div class="ind-nota">Todos los comercios de tu flota</div>
                                         </div>
                                     </div>
-                                    <div class="col-md-4 col-12 mb-3">
-                                        <div class="indicador taste">
-                                            <div class="ind-titulo">Total para Taste</div>
-                                            <div class="ind-valor" id="indTotalTaste">$0.00</div>
-                                            <div class="ind-nota" id="indFormulaTaste"></div>
-                                        </div>
-                                    </div>
                                 </div>
 
                                 <!-- DETALLE -->
@@ -122,6 +151,7 @@ $comercios = $Clempresas->getComercios($session['cod_empresa']);
                                                 <th>Fecha</th>
                                                 <th>Motorizado</th>
                                                 <th>Estado</th>
+                                                <th>Forma de pago</th>
                                                 <th class="text-right">Subtotal</th>
                                                 <th class="text-right">IVA</th>
                                                 <th class="text-right">Precio envío</th>
@@ -131,6 +161,23 @@ $comercios = $Clempresas->getComercios($session['cod_empresa']);
                                         </tbody>
                                         <tfoot id="cobroFooter">
                                         </tfoot>
+                                    </table>
+                                </div>
+
+                                <!-- DESGLOSE POR FORMA DE PAGO -->
+                                <h5>Desglose por forma de pago</h5>
+                                <div class="table-responsive mb-4">
+                                    <table id="tablaDesglose" class="table table-bordered" style="max-width: 720px;">
+                                        <thead>
+                                            <tr>
+                                                <th>Forma de pago</th>
+                                                <th class="text-right">Órdenes</th>
+                                                <th class="text-right">Envíos</th>
+                                                <th>Situación</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="desgloseBody"></tbody>
+                                        <tfoot id="desgloseFooter"></tfoot>
                                     </table>
                                 </div>
                             </div>
@@ -147,6 +194,6 @@ $comercios = $Clempresas->getComercios($session['cod_empresa']);
     <!-- END MAIN CONTAINER -->
 
     <?php js_mandatory(); ?>
-    <script src="assets/js/pages/flota_reporte_cobro.js?v=1" type="text/javascript"></script>
+    <script src="assets/js/pages/flota_reporte_cobro.js?v=2" type="text/javascript"></script>
 </body>
 </html>

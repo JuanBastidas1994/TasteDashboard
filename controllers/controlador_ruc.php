@@ -11,6 +11,22 @@ define('cod_sistema_facturacion',1);
 
 controller_create();
 
+/**
+ * Una sucursal factura con un solo sistema: no se puede configurar en Contifico si ya está en
+ * Runfood (el api decide el sistema según en qué módulo de RUCs está la sucursal).
+ * Retorna el error listo para devolver, o null si se puede continuar.
+ */
+function validarSucursalesSinRunfood($sucursales){
+    $ids = array_filter(array_map('intval', (array)$sucursales));
+    if(!$ids) return null;
+    $rows = Conexion::buscarVariosRegistro("SELECT s.nombre FROM tb_runfood_sucursal rs
+        INNER JOIN tb_sucursales s ON s.cod_sucursal = rs.cod_sucursal
+        WHERE rs.cod_sucursal IN (".implode(",", $ids).")");
+    if(!$rows) return null;
+    $nombres = implode(", ", array_map('html_entity_decode', array_column($rows, 'nombre')));
+    return ['success' => 0, 'mensaje' => "Estas sucursales ya facturan con Runfood: $nombres. Una sucursal solo puede tener un sistema de facturación"];
+}
+
 function getAllProducts(){
     global $Clcontifico;
     global $cod_empresa;
@@ -103,6 +119,9 @@ function setOfficesToContifico(){
         return $return;
     }
     
+    $error = validarSucursalesSinRunfood([$office_id]);
+    if($error) return $error;
+
     if(setBodega($ruc_id, $office_id, $contifico_id, $contifico_name)){
         $return['success'] = 1;
         $return['mensaje'] = "Bodega ligada correctamente";
@@ -166,6 +185,9 @@ function savePosToken(){
         return $return;
     }
     
+    $error = validarSucursalesSinRunfood($offices);
+    if($error) return $error;
+
     if(storePosToken($ruc_id, $cod_empresa, $api_token, $emisor, $emision, $sec_fac, $sec_dna)){
         $cod_postoken = Conexion::lastId();
         foreach($offices as $office){
@@ -669,6 +691,9 @@ function updatePosToken(){
         $return['mensaje'] = "Debes asignar como mínimo una sucursal";
         return $return;
     }
+
+    $error = validarSucursalesSinRunfood($offices);
+    if($error) return $error;
 
     $isFacturar = (!empty($facturar)) ? 1 : 0;
     $api_token = addslashes($api_token);

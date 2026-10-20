@@ -18,7 +18,16 @@ function setOffices(){
     
    $POST = json_decode(file_get_contents('php://input'), true);
     extract($POST);
-    
+
+    // Una sucursal factura con un solo sistema: si ya está en Contifico no se puede configurar aquí.
+    $sucursal = intval($sucursal);
+    $enContifico = Conexion::buscarRegistro("SELECT s.nombre FROM tb_contifico_sucursal cs
+        INNER JOIN tb_sucursales s ON s.cod_sucursal = cs.cod_sucursal
+        WHERE cs.cod_sucursal = $sucursal");
+    if($enContifico){
+        return ['success' => 0, 'mensaje' => "La sucursal " . html_entity_decode($enContifico['nombre']) . " ya factura con Contifico. Una sucursal solo puede tener un sistema de facturación"];
+    }
+
     if($Clrunfood->setSucursal($sucursal, $dominio, $usuario)){
         $id_ruc = Conexion::lastId();
         $return['success'] = 1;
@@ -215,6 +224,31 @@ function setOpcion(){
         $return['mensaje'] = "Error al ligar el producto";
     }
     return $return;
+}
+
+/**
+ * Activa o desactiva el envío a Runfood de la sucursal (comanda al aceptar/asignar y factura al entregar).
+ * Para activar se exige API Key: sin ella todas las llamadas a Runfood fallarían.
+ */
+function setFacturar(){
+    global $Clrunfood;
+
+    $input = json_decode(file_get_contents('php://input'), true);
+    $office_id = intval($input['office_id'] ?? 0);
+    $facturar = !empty($input['facturar']);
+
+    $sucursal = $Clrunfood->getSucursal($office_id);
+    if(!$sucursal || !$sucursal['cod_runfood_sucursal']){
+        return ['success' => 0, 'mensaje' => 'La sucursal no está configurada con Runfood'];
+    }
+    if($facturar && empty($sucursal['api_key'])){
+        return ['success' => 0, 'mensaje' => 'Primero guarda la API Key de Runfood de esta sucursal'];
+    }
+
+    if($Clrunfood->setFacturar($office_id, $facturar)){
+        return ['success' => 1, 'mensaje' => $facturar ? 'Facturación con Runfood activada' : 'Facturación con Runfood desactivada'];
+    }
+    return ['success' => 0, 'mensaje' => 'No se pudo actualizar la facturación'];
 }
 
 function setApiKey(){

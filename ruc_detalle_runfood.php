@@ -716,6 +716,31 @@ $permisos = $Clempresas->getIdPermisionByBusiness($cod_empresa);
                                             </div>
                                         </div>
 
+                                        <!-- Activar facturación -->
+                                        <div class="col-4 mt-4">
+                                           <div class="card style-4 ">
+                                               <div class="card-body pt-3">
+                                                    <div class="media mt-0 mb-3">
+                                                        <div class="media-body">
+                                                            <h4 class="media-heading mb-0">Facturación</h4>
+                                                            <p class="media-text">Configuración</p>
+                                                        </div>
+                                                    </div>
+                                                    <p class="card-text mt-4 mb-0">
+                                                        Activa el envío de órdenes a <b>Runfood</b> para esta sucursal: al aceptar o asignar
+                                                        se abre el pedido (comanda en cocina) y al entregar se factura.
+                                                    </p>
+                                                    <div class="d-flex align-items-center mt-3">
+                                                        <label class="switch s-icons s-outline s-outline-success mb-0 mr-2">
+                                                            <input type="checkbox" id="chkFacturarRunfood" <?= !empty($ruc['facturar']) ? 'checked' : ''; ?>>
+                                                            <span class="slider round"></span>
+                                                        </label>
+                                                        <span id="txtFacturarRunfood"><?= !empty($ruc['facturar']) ? 'Activa' : 'Inactiva'; ?></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
 
                                     </div>
                             </div>

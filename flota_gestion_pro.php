@@ -213,7 +213,12 @@ $apikey = $empresa ? $empresa['api_key'] : '';
                                         </div>
                                     </div>
                                     <div class="col-md-6 col-12">
-                                        <h5>Forma de Pago</h5>
+                                        <h5>Pedido</h5>
+                                        <div>Creado: {{fechaHace fecha}} <span class="text-muted">({{fechaFormateada fecha}})</span></div>
+                                        <div><strong style="color:#1b55e2;">Precio de envío: ${{dinero envio}}</strong></div>
+                                        <div>Total: ${{dinero total}}</div>
+
+                                        <h5 class="mt-4">Forma de Pago</h5>
                                         <div>{{pago_label}} — ${{pago.monto}}</div>
 
                                         <h5 class="mt-4">Ítems</h5>
@@ -593,7 +598,8 @@ $apikey = $empresa ? $empresa['api_key'] : '';
                                     {{#if empresa_logo}}<img src="{{empresa_logo}}">{{/if}}
                                     {{empresa_nombre}} — {{sucursal_nombre}}
                                 </div>
-                                <div class="flota-card-cliente">{{cliente_nombre}} · ${{total}}</div>
+                                <div class="flota-card-cliente">{{cliente_nombre}} · {{fechaHace fecha}}</div>
+                                <div class="flota-card-cliente mt-1"><strong style="color:#1b55e2;">Envío: ${{dinero envio}}</strong> · Total: ${{dinero total}}</div>
                                 {{#if motorizado_nombre}}
                                     <div class="flota-card-cliente mt-1 d-flex align-items-center" style="gap:6px;">
                                         {{#if motorizado_imagen}}
@@ -619,7 +625,7 @@ $apikey = $empresa ? $empresa['api_key'] : '';
     <?php js_mandatory(); ?>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.7.7/handlebars.min.js"></script>
     <script src="//maps.googleapis.com/maps/api/js?key=AIzaSyAWo6DXlAmrqEiKiaEe9UyOGl3NJ208lI8"></script>
-    <script src="assets/js/pages/flota_gestion_pro.js?v=3" type="text/javascript"></script>
+    <script src="assets/js/pages/flota_gestion_pro.js?v=4" type="text/javascript"></script>
 
     <script>
         $(function () {

@@ -464,7 +464,7 @@ function asignarOrden(order_id, courier_id, motorizado_id){
                 messageDone(response.mensaje,'success');
                 notify(response.mensaje, "success", 2);
                 updateOrderFirebase(order_id, 'ASIGNADA');
-                facturar_inventario(order_id, 'ASIGNADA');
+                enviarComanda(order_id);
                 openRecipientes(order_id);
             }else{
                 messageDone(response.mensaje,'error');
@@ -499,7 +499,7 @@ function asignarOrdenFlota(order_id, flota_id){
                 messageDone(response.mensaje,'success');
                 notify(response.mensaje, "success", 2);
                 updateOrderFirebase(order_id, 'ASIGNADA');
-                facturar_inventario(order_id, 'ASIGNADA');
+                enviarComanda(order_id);
                 openRecipientes(order_id);
             }else{
                 messageDone(response.mensaje,'error');
@@ -542,7 +542,6 @@ function cancelarAsignacionOrden(order_id){
                 openOrden(order_id);
                 notify(response.mensaje, "success", 2);
                 updateOrderFirebase(order_id, 'ANULADA');
-                anular_facturar_inventario(order_id, "ASIGNADA");
             }else{
                 messageDone(response.mensaje,'error');
             }
@@ -589,7 +588,7 @@ function cancelarOrden(order_id, motivo){
                 $("#anulacionOrdenModal").modal();
                 notify(response.mensaje, "success", 2);
                 updateOrderFirebase(order_id, 'ANULADA');
-                anular_facturar_inventario(order_id, 'ASIGNADA');
+                anularComanda(order_id);
 
                 var templateStatus = Handlebars.compile($("#anular-detalle-template").html());
                 if(response.anularPago !== false){
@@ -697,10 +696,12 @@ function changeStatusOrder(order_id, estado){
                     if(estado == "ENTREGADA") {
                         calcularPuntosUsuarioByOrden(order_id);
                         if(response.is_envio == 0){
-                            facturar_inventario(order_id, 'ASIGNADA');
                             facturar_inventario(order_id, 'ENTREGADA');
                         }
                     }
+                }
+                if(estado != "ENTREGADA" && estado != "NO_ENTREGADA"){
+                    enviarComanda(order_id);
                 }
                 notify(response.mensaje, "success", 2);
                 $("#OrdenDetailModal").modal('hide');
@@ -1086,7 +1087,7 @@ function generarLinkMotorizado(order_id, phoneNumber){
                 $("#OrdenDetailModal").modal('hide');
                 notify(response.mensaje, "success", 2);
                 updateOrderFirebase(order_id, 'ASIGNADA');
-                facturar_inventario(order_id, 'ASIGNADA');
+                enviarComanda(order_id);
                 openRecipientes(order_id);
                 
                 //ENviar link al motorizado

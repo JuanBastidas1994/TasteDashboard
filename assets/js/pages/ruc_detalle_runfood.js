@@ -737,6 +737,30 @@ $("body").on("click", ".btnSetOpciones", function(){
 });
 
 /*----------------API Key-----------------------*/
+/*----------------Activar facturación-----------------------*/
+$("body").on("change", "#chkFacturarRunfood", function(){
+    let $chk = $(this);
+    let facturar = $chk.is(':checked');
+    fetch(`controllers/controlador_runfood.php?metodo=setFacturar`,{
+            method: 'POST',
+            body: JSON.stringify({ office_id: OfficeId, facturar: facturar })
+        })
+        .then(res => res.json())
+        .then(response => {
+            if(response.success == 1){
+                $("#txtFacturarRunfood").text(facturar ? "Activa" : "Inactiva");
+                notify(response.mensaje,'success',2);
+            }else{
+                $chk.prop('checked', !facturar);
+                messageDone(response.mensaje,'error');
+            }
+        })
+        .catch(error=>{
+            $chk.prop('checked', !facturar);
+            messageDone(error,'error');
+        });
+});
+
 $("body").on("click", "#btnGuardarApiKey", function(){
     let apiKey = $("#inputApiKey").val();
     fetch(`controllers/controlador_runfood.php?metodo=setApiKey`,{

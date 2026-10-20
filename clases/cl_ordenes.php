@@ -739,8 +739,8 @@ class cl_ordenes
 		 * Listado de Reenvío de facturas: órdenes ENTREGADA facturadas y no facturadas, para
 		 * cualquier proveedor (Contifico, Runfood). Una orden tiene una sola factura vigente sin
 		 * importar el proveedor, así que no hace falta cruzar con la config de cada uno.
-		 * cod_sistema_facturacion sale de la factura; si aún no tiene, del proveedor activo de la
-		 * empresa. Con eso el front decide por fila qué aplica (inventario solo existe en Contifico).
+		 * cod_sistema_facturacion sale de la factura; si aún no tiene, del módulo de RUCs donde está
+		 * configurada la sucursal. Con eso el front decide por fila qué aplica (inventario solo Contifico).
 		 */
 		public function getFacturasUnificadas($cod_empresa, $fechaInicio, $fechaFin, $sucursal = '', $cliente = '', $documento = '', $estado = '') {
 			$params = [
@@ -761,9 +761,10 @@ class cl_ordenes
 							ofe.tipo, ofe.num_factura, ofe.estado AS estado_factura, ofe.fecha AS fecha_envio,
 							ofe.estado_inventario,
 							COALESCE(ofe.cod_sistema_facturacion,
-								(SELECT ef.cod_sistema_facturacion FROM tb_empresa_facturacion ef
-									WHERE ef.cod_empresa = oc.cod_empresa AND ef.estado = 'A'
-									ORDER BY ef.prioridad LIMIT 1)) AS cod_sistema_facturacion,
+								CASE
+									WHEN EXISTS (SELECT 1 FROM tb_contifico_sucursal cs WHERE cs.cod_sucursal = oc.cod_sucursal) THEN 1
+									WHEN EXISTS (SELECT 1 FROM tb_runfood_sucursal rs WHERE rs.cod_sucursal = oc.cod_sucursal) THEN 3
+								END) AS cod_sistema_facturacion,
 							(SELECT c.estado FROM tb_orden_comanda c
 								WHERE c.cod_orden = oc.cod_orden
 								ORDER BY c.cod_orden_comanda DESC LIMIT 1) AS estado_comanda,

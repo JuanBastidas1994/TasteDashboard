@@ -240,8 +240,11 @@ $("body").on("click", ".btnAsignarProducto", function(){
    $("#titleProductosModal").html("Ligar producto");
    $(".btnSetProducto").show();
    
+   let miProducto = misProductosMap[data.id];
+   mostrarItemSeleccionado(miProducto ? miProducto.nombre : '', miProducto ? miProducto.precio : null);
+
    $("#modalProductosContifico").modal();
-   
+
    typeImportContificoProduct = "PRODUCTO";
    $trContificoConfirm = $(this).parents("tr").find(".info-contifico");
 });
@@ -317,7 +320,8 @@ $("body").on("click", ".btnAsignarIngrediente", function(){
    hideButtonsProducts();
    $("#titleProductosModal").html("Ligar Ingrediente");
    $(".btnSetIngrediente").show();
-   
+   mostrarItemSeleccionado($(this).parents("tr").find("td:first").text().trim(), null);
+
    $("#modalProductosContifico").modal();
    
    typeImportContificoProduct = "INGREDIENTE";
@@ -364,7 +368,8 @@ $("body").on("click", ".btnImportarIngredientes", function(){
    hideButtonsProducts();
    $("#titleProductosModal").html("Importar ingrediente");
     $(".btnImportar").show();
-   
+   mostrarItemSeleccionado('');
+
    $("#modalProductosContifico").modal();
    typeImportContificoProduct = "IMPORTAR";
 });
@@ -437,9 +442,10 @@ $("body").on("click", ".btnAsignarRecipiente", function(){
    hideButtonsProducts();
    $("#titleProductosModal").html("Ligar Recipientes");
    $(".btnSetRecipiente").show();
-   
+   mostrarItemSeleccionado($(this).parents("tr").find("td:first").text().trim(), null);
+
    $("#modalProductosContifico").modal();
-   
+
    typeImportContificoProduct = "RECIPIENTE";
    $trContificoConfirm = $(this).parents("tr").find(".info-contifico-recipientes");
 });
@@ -484,6 +490,7 @@ $("body").on("click", ".btnImportarRecipientes", function(){
    hideButtonsProducts();
    $("#titleProductosModal").html("Importar recipiente");
     $(".btnSaveRecipiente").show();
+   mostrarItemSeleccionado('');
    $("#modalProductosContifico").modal();
    typeImportContificoProduct = "IMPORTAR_RECIPIENTES";
 });
@@ -586,7 +593,8 @@ $("body").on("click", ".btnAsignarDomiciliouAdicionales", function(){
    typeImportContificoProduct = "DOMICILIO";
    hideButtonsProducts();
    $(".btnSetDomiciliouAdicionales").show();
-   
+   mostrarItemSeleccionado('');
+
    $("#modalProductosContifico").modal();
    
 });
@@ -679,7 +687,8 @@ $("body").on("click", ".btnAsignarOpciones", function(){
    hideButtonsProducts();
    $("#titleProductosModal").html("Ligar opción");
    $(".btnSetOpciones").show();
-   
+   mostrarItemSeleccionado(data.nombre, data.precio);
+
    $("#modalProductosContifico").modal();
    
    typeImportContificoProduct = "OPCIONES";
@@ -779,6 +788,21 @@ $("body").on("click", "#btnGuardarApiKey", function(){
             messageDone(error,'error');
         });
 });
+
+// Muestra arriba del modal a qué item nuestro se le está escogiendo el equivalente en Runfood
+function mostrarItemSeleccionado(nombre, precio){
+    let $info = $("#infoItemSeleccionado");
+    if(!nombre){
+        $info.hide().empty();
+        return;
+    }
+    let texto = $("<b>").text(nombre);
+    $info.empty().append("Asignando: ", texto);
+    if(precio !== null && precio !== undefined && precio !== ''){
+        $info.append(" - $" + precio);
+    }
+    $info.show();
+}
 
 function hideButtonsProducts(){
     $(".btnSetProducto").hide();

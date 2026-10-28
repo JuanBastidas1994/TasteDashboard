@@ -209,7 +209,7 @@ $permisos = $Clempresas->getIdPermisionByBusiness($cod_empresa);
                                                             <span class="badge badge-warning">Producto sin ligar: lígalo en la pestaña Productos</span>
                                                         {{/if}}
                                                     {{else}}
-                                                        <button class="btn btn-outline-primary btnAsignarOpciones" data-id="{{cod_producto_opciones_detalle}}">
+                                                        <button class="btn btn-outline-primary btnAsignarOpciones" data-id="{{cod_producto_opciones_detalle}}" data-nombre="{{item}}" data-precio="{{precio}}">
                                                             <i data-feather="plus-circle"></i> Asignar
                                                         </button>
                                                     {{/eq}}
@@ -265,8 +265,9 @@ $permisos = $Clempresas->getIdPermisionByBusiness($cod_empresa);
                         </button>
                     </div>
                     <div class="modal-body">
-                        <div class="x_content">    
-                            
+                        <div class="x_content">
+                            <div id="infoItemSeleccionado" class="alert alert-info" style="display: none;"></div>
+
                             <!--Table-->
                             <script id="product-contifico-template" type="text/x-handlebars-template">
                             {{#each this}}
@@ -466,6 +467,7 @@ $permisos = $Clempresas->getIdPermisionByBusiness($cod_empresa);
                                             <tr>
                                                 <td><img src="{{image_min}}" style="width: 50px;"/></td>
                                                 <td><a href="crear_productos.php?id={{alias}}" target="_blank">{{nombre}}</a></td>
+                                                <td class="text-right">${{precio}}</td>
                                                 <td class="text-right info-contifico">
                                                     {{#if id}}
                                                     {{name_in_contifico}}
@@ -495,6 +497,7 @@ $permisos = $Clempresas->getIdPermisionByBusiness($cod_empresa);
                                                     <tr>
                                                         <th>&nbsp;</th>
                                                         <th>Nombre</th>
+                                                        <th class="text-right">Precio</th>
                                                         <th>Id Runfood</th>
                                                         <th class="text-center">Acciones</th>
                                                     </tr>
@@ -774,7 +777,7 @@ $permisos = $Clempresas->getIdPermisionByBusiness($cod_empresa);
     </script>
     <?php js_mandatory(); ?>
      <script src="assets/js/scrollspyNav.js"></script>
-    <script src="assets/js/pages/ruc_detalle_runfood.js" type="text/javascript"></script>
+    <script src="assets/js/pages/ruc_detalle_runfood.js?v=2" type="text/javascript"></script>
     <!-- END PAGE LEVEL CUSTOM SCRIPTS -->
 </body>
 </html>

@@ -818,6 +818,17 @@ function guardarMesaTipo() {
     return ['success' => 0, 'mensaje' => 'Error al guardar la configuración de mesa'];
 }
 
+function guardarMaxCarreras() {
+    global $Clempresas, $session;
+    if (!isset($_POST['max']) || !is_numeric($_POST['max']) || intval($_POST['max']) < 0 || intval($_POST['max']) > 20) {
+        return ['success' => 0, 'mensaje' => 'Ingrese un valor entre 0 y 20'];
+    }
+    if ($Clempresas->setMaxCarreras($session['cod_empresa'], intval($_POST['max']))) {
+        return ['success' => 1, 'mensaje' => 'Configuración de motorizados guardada correctamente'];
+    }
+    return ['success' => 0, 'mensaje' => 'Error al guardar la configuración de motorizados'];
+}
+
 function guardarPrepTimeBadge() {
     global $Clempresas, $session;
     $minutos = isset($_POST['minutos']) ? intval($_POST['minutos']) : 0;

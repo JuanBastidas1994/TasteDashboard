@@ -871,6 +871,26 @@ $("#btnGuardarMesaTipo").on("click", function () {
     });
 });
 
+// ── Tab Courier: carreras a la vez por motorizado ──────────────────────────
+$("#btnGuardarMaxCarreras").on("click", function () {
+    var max = parseInt($("#txt_max_carreras").val());
+    if (isNaN(max) || max < 0 || max > 20) {
+        messageDone("Ingrese un valor entre 0 y 20", "error");
+        return;
+    }
+    OpenLoad();
+    $.ajax({
+        url: "controllers/controlador_configuraciones.php?metodo=guardarMaxCarreras",
+        type: "POST",
+        data: { max: max },
+        success: function (response) {
+            messageDone(response["mensaje"], response["success"] == 1 ? "success" : "error");
+        },
+        error: function () { messageDone("Error al conectar con el servidor", "error"); },
+        complete: function () { CloseLoad(); }
+    });
+});
+
 // ── Tab Productos: umbral del indicador de tiempo de preparación ───────────
 $("#btnGuardarPrepTimeBadge").on("click", function () {
     var minutos = parseInt($("#txt_prep_time_badge").val());

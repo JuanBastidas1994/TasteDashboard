@@ -2,7 +2,7 @@
 class cl_app_versiones
 {
 		public $session;
-		public $cod_empresa, $name, $code, $texto, $obligatorio, $aplicacion, $descripción;
+		public $cod_empresa, $name, $code, $texto, $obligatorio, $aplicacion, $descripción, $url;
 		
 		public function __construct()
 		{
@@ -31,9 +31,9 @@ class cl_app_versiones
             $query = "INSERT INTO tb_empresas_versiones_app 
                         SET cod_empresa = $cod_empresa, name = '$this->name', code = $this->code, texto = '$this->texto',
                         obligatorio = $this->obligatorio, aplicacion = '$this->aplicacion', 
-                        descripcion = '$this->descripcion', fecha_modificacion = '$fecha'";
+                        descripcion = '$this->descripcion', fecha_modificacion = '$fecha', url = :url";
             //echo $query;
-            return Conexion::ejecutar($query, null);
+            return Conexion::ejecutar($query, ['url' => $this->url ?: null]);
         }
 
         public function eliminar($cod_empresa_version){

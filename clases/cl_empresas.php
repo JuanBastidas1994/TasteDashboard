@@ -1051,6 +1051,13 @@ class cl_empresas
 			return Conexion::ejecutar($query, null);
 		}
 
+		/** Carreras que un motorizado de la empresa puede tener aceptadas a la vez (0 = sin límite). Lo lee api/riders. */
+		public function setMaxCarreras($cod_empresa, $max) {
+			$max = max(0, min(20, (int) $max));
+			$query = "UPDATE tb_empresas SET max_carreras = $max WHERE cod_empresa = $cod_empresa";
+			return Conexion::ejecutar($query, null);
+		}
+
 		public function setPrepTimeBadgeMinutes($cod_empresa, $minutos) {
 			$minutos = (int) $minutos;
 			$query = "UPDATE tb_empresas SET prep_time_badge_minutes = $minutos WHERE cod_empresa = $cod_empresa";

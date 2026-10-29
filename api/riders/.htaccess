@@ -1,0 +1,9 @@
+# Apache/Laragon: /api/riders/v1/... -> index.php. En Forge (Nginx) esto lo hace .forge/nginx-snippet.conf.
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    # Apache no pasa la cabecera Authorization a PHP por defecto
+    RewriteCond %{HTTP:Authorization} .
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^v1/ index.php [L,QSA]
+</IfModule>

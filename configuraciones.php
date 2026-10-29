@@ -800,6 +800,27 @@ $tieneOfficInsite = in_array('OFFICE_INSITE', $permisosEmpresa);
                                             </div>
                                         </div>
                                     </div>
+
+                                    <h5>Motorizados</h5>
+                                    <hr>
+                                    <p class="text-muted">
+                                        Cuántas carreras puede tener <strong>aceptadas a la vez</strong> cada motorizado de tu empresa. Se valida cuando el
+                                        motorizado pulsa "Empezar": puedes asignarle varias, pero solo acepta las que puede llevar. Un motorizado puede tener su propio tope.
+                                    </p>
+                                    <div class="row mt-3">
+                                        <div class="form-group col-md-4">
+                                            <label>Carreras a la vez por motorizado <span class="asterisco">*</span></label>
+                                            <input type="number" id="txt_max_carreras" class="form-control" value="<?= (int) ($empresa['max_carreras'] ?? 1) ?>" min="0" max="20" step="1">
+                                            <small class="text-muted">0 = sin límite</small>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-12 text-right mt-2 mb-3">
+                                            <button class="btn btn-primary" id="btnGuardarMaxCarreras">
+                                                <i data-feather="save"></i> Guardar configuración
+                                            </button>
+                                        </div>
+                                    </div>
                                     <br />
                                 </div>
 
@@ -1013,7 +1034,7 @@ $tieneOfficInsite = in_array('OFFICE_INSITE', $permisosEmpresa);
     <?php js_mandatory(); ?>
     <script src="assets/js/scrollspyNav.js"></script>
     <script src="plugins/croppie/croppie.js"></script>
-    <script src="assets/js/pages/configuraciones.js?v=2" type="text/javascript"></script>
+    <script src="assets/js/pages/configuraciones.js?v=3" type="text/javascript"></script>
     <script src="assets/js/pages/sucursales/config_couriers.js" type="text/javascript"></script>
     <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script> -->
     <!-- END PAGE LEVEL CUSTOM SCRIPTS -->

@@ -18,6 +18,7 @@ function crear(){
     $ClappVersiones->texto = $txt_texto;
     $ClappVersiones->obligatorio = $txt_obligatorio;
     $ClappVersiones->aplicacion = $cmb_aplicacion;
+    $ClappVersiones->url = trim($txt_url ?? '');
     $ClappVersiones->descripción = $txt_descripcion;
 
     if($ClappVersiones->crear($cod_empresa)){

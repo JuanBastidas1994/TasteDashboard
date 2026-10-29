@@ -109,6 +109,13 @@ else{
                                     </div>
 
                                     <div class="form-group col-md-12 col-sm-12 col-xs-12">
+                                        <div class="form-group col-md-12 col-sm-12 col-xs-12">
+                                            <label for="">URL de descarga</label>
+                                            <input class="form-control" type="url" id="txt_url" name="txt_url" maxlength="255" placeholder="APK o tienda donde la app descarga la nueva versión (app de motorizados)">
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group col-md-12 col-sm-12 col-xs-12">
                                         <div class="form-group col-md-12 col-sm-12 col-xs-12" style="text-align: right;">
                                             <button type="button" class="btn btn-primary" id="btnGuardar">Guardar</button>
                                         </div>

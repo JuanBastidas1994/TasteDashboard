@@ -777,7 +777,7 @@ $permisos = $Clempresas->getIdPermisionByBusiness($cod_empresa);
     </script>
     <?php js_mandatory(); ?>
      <script src="assets/js/scrollspyNav.js"></script>
-    <script src="assets/js/pages/ruc_detalle_runfood.js?v=2" type="text/javascript"></script>
+    <script src="assets/js/pages/ruc_detalle_runfood.js?v=3" type="text/javascript"></script>
     <!-- END PAGE LEVEL CUSTOM SCRIPTS -->
 </body>
 </html>

@@ -207,6 +207,20 @@ function setFormaPago(){
     return $return;
 }
 
+function getOpcionesProducto(){
+    global $Clrunfood;
+
+    if(!isset($_GET['id']) || !isset($_GET['office_id'])){
+        return ['success' => 0, 'mensaje' => "Falta informacion"];
+    }
+
+    $opciones = $Clrunfood->getOpcionesProducto($_GET['id'], $_GET['office_id']);
+    if(!$opciones){
+        return ['success' => 0, 'mensaje' => "No hay opciones creadas para este producto"];
+    }
+    return ['success' => 1, 'mensaje' => "Opciones del producto", 'opciones' => $opciones];
+}
+
 function setOpcion(){
     global $Clrunfood;
     global $cod_empresa;

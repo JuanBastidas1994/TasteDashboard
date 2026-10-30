@@ -830,11 +830,8 @@ $("body").on('click', ".btnVerOpciones", function(){
 });
 
 function getOpcionesByProduct(product_id){
-    fetch(`${ApiUrl}/productos/opciones/${product_id}`,{
-        method: 'GET',
-        headers: {
-            'Api-Key':ApiKey
-        },
+    fetch(`controllers/controlador_runfood.php?metodo=getOpcionesProducto&id=${product_id}&office_id=${OfficeId}`,{
+        method: 'GET'
     })
     .then(res => res.json())
     .then(response => {

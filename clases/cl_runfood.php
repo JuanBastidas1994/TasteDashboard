@@ -298,7 +298,55 @@ class cl_runfood
     	return Conexion::ejecutar($query,NULL);	
     }
 
-    function setOpcion($office_id, $cod_producto, $id_contifico, $contifico_name, $es_principal = 0, $sku = null){
+    /**
+     * Grupos de opciones de un producto con sus items, ingredientes y el mapeo de facturación
+     * de la sucursal Runfood ($office_id). Las opciones tipo producto (isDatabase=1) traen el
+     * nombre/código del producto real; las abiertas, el texto del item.
+     */
+    function getOpcionesProducto($cod_producto, $office_id){
+        $cod_producto = intval($cod_producto);
+        $office_id = intval($office_id);
+
+        $query = "SELECT cod_producto_opcion as id, titulo, isDatabase
+                FROM tb_productos_opciones WHERE cod_producto = $cod_producto ORDER BY posicion ASC";
+        $opciones = Conexion::buscarVariosRegistro($query);
+        if(!$opciones) return [];
+
+        foreach($opciones as $key => $opcion){
+            $opciones[$key]['titulo'] = html_entity_decode($opcion['titulo']);
+            $id = intval($opcion['id']);
+            if($opcion['isDatabase'] == 1){
+                $query = "SELECT po.cod_producto_opciones_detalle, p.nombre as item, po.aumentar_precio, po.precio, p.precio as precio_real, p.cod_producto, po.debitInventario
+                        FROM tb_productos_opciones_detalle po
+                        INNER JOIN tb_productos p ON po.item = p.cod_producto
+                        WHERE po.cod_producto_opcion = $id
+                        ORDER BY po.posicion ASC";
+            }else{
+                $query = "SELECT cod_producto_opciones_detalle, item, aumentar_precio, precio, debitInventario
+                        FROM tb_productos_opciones_detalle
+                        WHERE cod_producto_opcion = $id
+                        ORDER BY posicion ASC";
+            }
+            $items = Conexion::buscarVariosRegistro($query);
+            if(!$items) $items = [];
+
+            foreach($items as $k => $item){
+                $detalle = intval($item['cod_producto_opciones_detalle']);
+                $items[$k]['ingredientes'] = Conexion::buscarVariosRegistro(
+                    "SELECT pi.cod_producto_opcion_ingrediente, i.cod_ingrediente, i.ingrediente, i.cod_unidad_medida, pi.valor
+                     FROM tb_productos_opciones_ingredientes pi
+                     INNER JOIN tb_ingredientes i ON pi.cod_ingrediente = i.cod_ingrediente
+                     WHERE pi.cod_producto_opcion = $detalle");
+                $items[$k]['facturacion'] = Conexion::buscarRegistro(
+                    "SELECT * FROM tb_productos_opciones_detalle_facturacion
+                     WHERE cod_producto_opciones_detalle = $detalle AND cod_contifico_empresa = $office_id");
+            }
+            $opciones[$key]['items'] = $items;
+        }
+        return $opciones;
+    }
+
+    function setOpcion($office_id, $cod_producto,$id_contifico, $contifico_name, $es_principal = 0, $sku = null){
         $query = "DELETE FROM tb_productos_opciones_detalle_facturacion WHERE cod_producto_opciones_detalle = $cod_producto AND cod_contifico_empresa = $office_id";
         Conexion::ejecutar($query,NULL);
 

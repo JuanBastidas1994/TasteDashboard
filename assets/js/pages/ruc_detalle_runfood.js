@@ -171,7 +171,7 @@ function loadProductosRunfood(){
                     "pageLength": 25,
                     "drawCallback": function( settings ) {
                         console.log( 'DataTables has redrawn the table', settings, typeImportContificoProduct );
-                        if(typeImportContificoProduct == "PRODUCTO"){
+                        if(typeImportContificoProduct == "PRODUCTO" || typeImportContificoProduct == "COMPONENTE"){
                             hideButtonsProducts();
                             $(".btnSetProducto").show();
                         }else if(typeImportContificoProduct == "INGREDIENTE"){
@@ -249,6 +249,43 @@ $("body").on("click", ".btnAsignarProducto", function(){
    $trContificoConfirm = $(this).parents("tr").find(".info-contifico");
 });
 
+// Un producto (combo) que se factura como varios artículos de Runfood: el precio se reparte entre ellos
+$("body").on("click", ".btnAgregarComponente", function(){
+   let data = $(this).data();
+   productSelected = data.id;
+
+   hideButtonsProducts();
+   $("#titleProductosModal").html("Agregar componente");
+   $(".btnSetProducto").show();
+
+   let miProducto = misProductosMap[data.id];
+   mostrarItemSeleccionado(miProducto ? miProducto.nombre : '', miProducto ? miProducto.precio : null);
+
+   $("#modalProductosContifico").modal();
+
+   typeImportContificoProduct = "COMPONENTE";
+});
+
+$("body").on("click", ".btnQuitarComponente", function(){
+    let data = $(this).data();
+    fetch(`controllers/controlador_runfood.php?metodo=delComponente`,{
+            method: 'POST',
+            body: JSON.stringify({ cod_componente: data.id })
+        })
+        .then(res => res.json())
+        .then(response => {
+            if(response.success == 1){
+                notify(response.mensaje,'success',2);
+                loadMisProductos();
+            }else{
+                messageDone(response.mensaje,'error');
+            }
+        })
+        .catch(error=>{
+            messageDone(error,'error');
+        });
+});
+
 $("body").on("click", ".btnDesasignarProducto", function(){
     let data = $(this).data();
     messageConfirm("¿Estás seguro de eliminar la asignación?", "", "question")
@@ -284,6 +321,28 @@ $("body").on("click", ".btnSetProducto", function(){
         "sku": data.sku
     }
     console.log(info);
+
+    if(typeImportContificoProduct == "COMPONENTE"){
+        fetch(`controllers/controlador_runfood.php?metodo=addComponente`,{
+                method: 'POST',
+                body: JSON.stringify(info)
+            })
+            .then(res => res.json())
+            .then(response => {
+                if(response.success == 1){
+                    notify(response.mensaje,'success',2);
+                    $("#modalProductosContifico").modal('hide');
+                    loadMisProductos();
+                }else{
+                    messageDone(response.mensaje,'error');
+                }
+            })
+            .catch(error=>{
+                messageDone(error,'error');
+            });
+        return;
+    }
+
    fetch(`controllers/controlador_runfood.php?metodo=setProduct`,{
             method: 'POST',
             body: JSON.stringify(info)

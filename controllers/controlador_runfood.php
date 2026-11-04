@@ -137,6 +137,39 @@ function setProduct(){
     return $return;
 }
 
+function addComponente(){
+    global $Clrunfood;
+
+    $input = json_decode(file_get_contents('php://input'), true);
+    extract($input);
+
+    $sku = isset($sku) ? $sku : null;
+    if($Clrunfood->addComponente(intval($office_id), intval($product_id), $contifico_id, $contifico_name, $sku)){
+        $return['success'] = 1;
+        $return['mensaje'] = "Componente agregado correctamente";
+    }else{
+        $return['success'] = 0;
+        $return['mensaje'] = "Error al agregar el componente";
+    }
+    return $return;
+}
+
+function delComponente(){
+    global $Clrunfood;
+
+    $input = json_decode(file_get_contents('php://input'), true);
+    extract($input);
+
+    if($Clrunfood->delComponente($cod_componente)){
+        $return['success'] = 1;
+        $return['mensaje'] = "Componente eliminado correctamente";
+    }else{
+        $return['success'] = 0;
+        $return['mensaje'] = "Error al eliminar el componente";
+    }
+    return $return;
+}
+
 function desasignarProducto(){
     global $Clrunfood;
 

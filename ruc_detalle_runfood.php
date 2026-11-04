@@ -477,6 +477,15 @@ $permisos = $Clempresas->getIdPermisionByBusiness($cod_empresa);
                                                       <dd><a href="javascript:void(0);" class="btnDesasignarProducto" data-id="{{cod_producto}}">Desasignar</a></dd>
                                                     </dl>
                                                     {{/if}}
+                                                    {{#if tiene_componentes}}
+                                                    <small class="text-muted">Se factura como {{componentes.length}} artículos (precio repartido en partes iguales):</small>
+                                                    <dl>
+                                                      {{#each componentes}}
+                                                      <dd>{{nombre_runfood}} <small>(SKU: {{sku}})</small>
+                                                        <a href="javascript:void(0);" class="btnQuitarComponente text-danger" data-id="{{cod_componente}}">Quitar</a></dd>
+                                                      {{/each}}
+                                                    </dl>
+                                                    {{/if}}
                                                 </td>
                                                 <td class="text-center">
                                                     {{#if tiene_opciones}}
@@ -484,8 +493,13 @@ $permisos = $Clempresas->getIdPermisionByBusiness($cod_empresa);
                                                         Opciones
                                                     </button>
                                                     {{/if}}
+                                                    {{#unless tiene_componentes}}
                                                     <button class="btn btn-secondary btnAsignarProducto" data-id="{{cod_producto}}">
                                                         Asignar
+                                                    </button>
+                                                    {{/unless}}
+                                                    <button class="btn btn-outline-secondary btnAgregarComponente" data-id="{{cod_producto}}" title="Se factura como varios artículos de Runfood">
+                                                        + Componente
                                                     </button>
                                                 </td>
                                             </tr>
@@ -777,7 +791,7 @@ $permisos = $Clempresas->getIdPermisionByBusiness($cod_empresa);
     </script>
     <?php js_mandatory(); ?>
      <script src="assets/js/scrollspyNav.js"></script>
-    <script src="assets/js/pages/ruc_detalle_runfood.js?v=3" type="text/javascript"></script>
+    <script src="assets/js/pages/ruc_detalle_runfood.js?v=4" type="text/javascript"></script>
     <!-- END PAGE LEVEL CUSTOM SCRIPTS -->
 </body>
 </html>

@@ -71,13 +71,39 @@ class cl_runfood
                 WHERE p.cod_empresa = $cod_empresa
                 AND p.estado IN ('A', 'I')";
         $resp = Conexion::buscarVariosRegistro($query);
+
+        $componentes = [];
+        $filas = Conexion::buscarVariosRegistro("SELECT * FROM tb_productos_facturacion_componentes
+                WHERE cod_contifico_empresa = " . intval($cod_sucursal) . " ORDER BY cod_componente ASC");
+        foreach(($filas ?: []) as $c){
+            $componentes[$c['cod_producto']][] = $c;
+        }
+
         foreach($resp as $key => $item){
             $resp[$key]['image_min'] = $dir.$item['image_min'];
             $resp[$key]['tiene_opciones'] = ((int)$item['num_opciones'] > 0);
+            $resp[$key]['componentes'] = isset($componentes[$item['cod_producto']]) ? $componentes[$item['cod_producto']] : [];
+            $resp[$key]['tiene_componentes'] = !empty($resp[$key]['componentes']);
         }
         return $resp;
     }
-    
+
+    /**
+     * Agrega un artículo de Runfood a un producto que se factura como varios (combo). Al tener
+     * componentes el producto deja de usar su mapeo único, así que ese se elimina.
+     */
+    function addComponente($office_id, $cod_producto, $id_runfood, $nombre, $sku = null){
+        Conexion::ejecutar("DELETE FROM tb_productos_facturacion WHERE cod_producto = $cod_producto AND cod_contifico_empresa = $office_id", NULL);
+        $skuValue = $sku ? "'" . $sku . "'" : "NULL";
+        $query = "INSERT INTO tb_productos_facturacion_componentes(cod_producto, cod_contifico_empresa, id_runfood, sku, nombre_runfood)
+                  VALUES($cod_producto, $office_id, '$id_runfood', $skuValue, '$nombre')";
+        return Conexion::ejecutar($query,NULL);
+    }
+
+    function delComponente($cod_componente){
+        return Conexion::ejecutar("DELETE FROM tb_productos_facturacion_componentes WHERE cod_componente = " . intval($cod_componente), NULL);
+    }
+
     function getAllIngredientes($id){
         $cod_empresa = $this->cod_empresa;
         $query = "SELECT i.cod_ingrediente, i.ingrediente as nombre, i.precio, i.cod_unidad_medida, igf.id, igf.name_in_contifico, igf.cod_sistema_facturacion 
@@ -163,6 +189,7 @@ class cl_runfood
     function desligarProducto($cod_producto, $office_id){
         $query = "DELETE FROM tb_productos_facturacion WHERE cod_producto = $cod_producto AND cod_contifico_empresa = $office_id";
         Conexion::ejecutar($query,NULL);
+        Conexion::ejecutar("DELETE FROM tb_productos_facturacion_componentes WHERE cod_producto = $cod_producto AND cod_contifico_empresa = $office_id", NULL);
 
         $query = "UPDATE tb_productos SET sku = '' WHERE cod_producto = $cod_producto";
         return Conexion::ejecutar($query,NULL);

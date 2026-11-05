@@ -172,6 +172,7 @@ function crearFlota(){
             if($cmbRol == 17){ //Es un motorizado
                 $Clusuario->setUserLocation($id, -2.1724405, -79.8946697);
             }
+            if($cmbRol == 17 && isset($cmbMaxCarreras)) $Clusuario->setMaxCarreras($id, $cmbMaxCarreras);
             $return['usuario'] = $Clusuario->getWithOffice($id);
         }else{
             $return['success'] = 0;
@@ -207,6 +208,7 @@ function crearFlota(){
             if($usuario)
                 uploadFile($_FILES["img_profile"], $usuario['imagen']);
             
+            if($cmbRol == 17 && isset($cmbMaxCarreras)) $Clusuario->setMaxCarreras($cod_usuario, $cmbMaxCarreras);
             $return['usuario'] = $Clusuario->getWithOffice($cod_usuario);
         }else{
             $return['success'] = 0;
@@ -251,6 +253,18 @@ function restablecer(){
         $return['mensaje'] = "Error al editar el usuario";
     }
     return $return;
+}
+
+/** Tope de carreras a la vez para toda la flota (0 = sin límite). Lo lee api/riders. */
+function guardarMaxCarrerasFlota(){
+    global $Clempresas, $session;
+    if(!isset($_POST['max']) || !is_numeric($_POST['max']) || intval($_POST['max']) < 0 || intval($_POST['max']) > 20){
+        return ['success' => 0, 'mensaje' => 'Valor no válido'];
+    }
+    if($Clempresas->setMaxCarreras($session['cod_empresa'], intval($_POST['max']))){
+        return ['success' => 1, 'mensaje' => 'Guardado correctamente'];
+    }
+    return ['success' => 0, 'mensaje' => 'No se pudo guardar'];
 }
 
 function get(){

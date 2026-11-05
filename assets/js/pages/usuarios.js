@@ -316,6 +316,7 @@ $(document).ready(function() {
                     $("#txt_placa").val(data['placa']);
                     $("#txt_correo").val(data['correo']);
                     $("#cmbSucursal").val(data['cod_sucursal']);
+                    $("#cmbMaxCarreras").val(data['max_carreras'] === null || data['max_carreras'] === undefined ? '' : String(data['max_carreras']));
 
                     $(".dropify-render img").attr("src",data['imagen']);
                     $("#crearModal").modal();

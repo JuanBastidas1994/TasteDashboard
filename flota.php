@@ -130,6 +130,20 @@ $apikey = $empresa['api_key'] ?? '';
                                   ?>
                               </select>
                           </div>
+                          <?php if ($isBusinessCourier): ?>
+                          <div class="col-md-4 col-sm-4 col-xs-12" style="margin-bottom:10px;">
+                              <label>Carreras a la vez</label>
+                              <select class="form-control" id="cmbMaxCarreras" name="cmbMaxCarreras">
+                                  <option value="">La de la flota</option>
+                                  <option value="1">1</option>
+                                  <option value="2">2</option>
+                                  <option value="3">3</option>
+                                  <option value="4">4</option>
+                                  <option value="5">5</option>
+                                  <option value="0">Sin l&iacute;mite</option>
+                              </select>
+                          </div>
+                          <?php endif; ?>
                           
                       </div>
                   
@@ -237,6 +251,32 @@ $apikey = $empresa['api_key'] ?? '';
                                 </div>
                             </div> 
                             
+                            <?php if ($isBusinessCourier): ?>
+                            <div class="col-xl-12 col-md-12 col-sm-12 col-12 mb-3">
+                                <div class="row align-items-center">
+                                    <div class="col-md-8">
+                                        <h6 class="mb-1">Carreras a la vez por motorizado</h6>
+                                        <p class="text-muted mb-0">
+                                            Cu&aacute;ntas carreras puede aceptar un motorizado sin haber entregado la anterior. Si tu operaci&oacute;n no lo permite,
+                                            d&eacute;jalo en 1. Puedes dar un tope distinto a un motorizado en su ficha.
+                                        </p>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <?php
+                                            $maxFlota = (int) ($empresa['max_carreras'] ?? 1);
+                                            $opcionesTope = [1 => '1 (una a la vez)', 2 => '2', 3 => '3', 4 => '4', 5 => '5', 0 => 'Sin l&iacute;mite'];
+                                            if (!isset($opcionesTope[$maxFlota])) $opcionesTope[$maxFlota] = (string) $maxFlota;
+                                        ?>
+                                        <select class="form-control" id="cmbMaxCarrerasFlota">
+                                            <?php foreach ($opcionesTope as $valor => $etiqueta): ?>
+                                                <option value="<?= $valor ?>" <?= $valor === $maxFlota ? 'selected' : '' ?>><?= $etiqueta ?></option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    </div>
+                                </div>
+                                <hr/>
+                            </div>
+                            <?php endif; ?>
                             <div class="table-responsive mb-4 mt-4">
                                 <table id="style-3" class="table style-3 table-hover">
                                     <thead>
@@ -357,10 +397,23 @@ $apikey = $empresa['api_key'] ?? '';
     
     <?php js_mandatory(); ?>
     <script src="./assets/js/libs/handlebars/handlebars.js"></script>
-    <script src="assets/js/pages/usuarios.js?v=5" type="text/javascript"></script>
+    <script src="assets/js/pages/usuarios.js?v=6" type="text/javascript"></script>
     <script src="assets/js/pages/flota_codigos.js?v=1" type="text/javascript"></script>
     <script>
         const isBusinessCourier = <?= $isBusinessCourier ? 'true' : 'false' ?>;
+
+        $("#cmbMaxCarrerasFlota").on("change", function () {
+            var select = $(this);
+            $.ajax({
+                url: "controllers/controlador_usuario.php?metodo=guardarMaxCarrerasFlota",
+                type: "POST",
+                data: { max: select.val() },
+                success: function (response) {
+                    messageDone(response["mensaje"], response["success"] == 1 ? "success" : "error");
+                },
+                error: function () { messageDone("Error al conectar con el servidor", "error"); }
+            });
+        });
         let tablaUsuarios;
         tablaUsuarios = $('#style-3').DataTable( {
             dom: '<"row"<"col-md-12"<"row"<"col-md-6"><"col-md-6"f> > ><"col-md-12"rt> <"col-md-12"<"row"<"col-md-5"i><"col-md-7"p>>> >',

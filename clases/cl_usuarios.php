@@ -523,6 +523,17 @@ class cl_usuarios
 		}
 
 
+		/** Tope propio del motorizado: '' = usa el de la flota (NULL), 0 = sin límite. Solo motorizados de esta empresa/flota. */
+		public function setMaxCarreras($cod_usuario, $max){
+			$cod_usuario = (int) $cod_usuario;
+			$valor = ($max === '' || $max === null) ? 'NULL' : max(0, min(20, (int) $max));
+			$cod_empresa = (int) $this->cod_empresa;
+			$query = "UPDATE tb_usuarios u SET u.max_carreras = $valor
+					WHERE u.cod_usuario = $cod_usuario AND u.cod_rol = 17
+					AND (u.cod_empresa = $cod_empresa OR EXISTS (SELECT 1 FROM tb_motorizado_empresa me WHERE me.cod_usuario = u.cod_usuario AND me.cod_empresa = $cod_empresa AND me.estado = 'A'))";
+			return Conexion::ejecutar($query, NULL);
+		}
+
 		/**
 		 * Un motorizado puede pertenecer a esta empresa de dos formas: el modelo viejo
 		 * (u.cod_empresa fijo, motorizado creado a mano desde este panel) o el nuevo multi-flota

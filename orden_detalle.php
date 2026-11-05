@@ -283,6 +283,22 @@ function timelineOrden($orden, $motorizado, $flota)
         'ANULADA' => ['Anulada', 'La orden fue anulada', 'danger'],
     ];
 
+    // Si marcó a mano estando lejos (llegada al local / entrega), el paso lo dice, igual que el dashboard nuevo.
+    $lejos = Conexion::buscarRegistro("SELECT llegada_local_distancia_m, llegada_local_lejos, entrega_distancia_m, entrega_lejos
+                FROM tb_motorizado_asignacion WHERE cod_orden = " . (int) $orden['cod_orden'] . " ORDER BY cod_motorizado_asignacion DESC LIMIT 1");
+    $distanciaTexto = function ($m) {
+        $m = (int) $m;
+        return $m < 1000 ? "$m m" : number_format($m / 1000, 1, ',', '') . ' km';
+    };
+    if ($lejos && $lejos['llegada_local_lejos']) {
+        $pasos['PUNTO_RECOGIDA'][1] = 'Lo marcó a mano a ' . $distanciaTexto($lejos['llegada_local_distancia_m']) . ' del local';
+        $pasos['PUNTO_RECOGIDA'][2] = 'warning';
+    }
+    if ($lejos && $lejos['entrega_lejos']) {
+        $pasos['ENTREGADA'][1] = 'Lo marcó a mano a ' . $distanciaTexto($lejos['entrega_distancia_m']) . ' del cliente';
+        $pasos['ENTREGADA'][2] = 'warning';
+    }
+
     $cod_orden = (int) $orden['cod_orden'];
     $historial = Conexion::buscarVariosRegistro("SELECT estado, fecha FROM tb_orden_historial WHERE cod_orden = $cod_orden ORDER BY fecha ASC");
     if (!$historial) $historial = [];

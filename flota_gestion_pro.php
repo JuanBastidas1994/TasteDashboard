@@ -625,7 +625,7 @@ $apikey = $empresa ? $empresa['api_key'] : '';
     <?php js_mandatory(); ?>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.7.7/handlebars.min.js"></script>
     <script src="//maps.googleapis.com/maps/api/js?key=AIzaSyAWo6DXlAmrqEiKiaEe9UyOGl3NJ208lI8"></script>
-    <script src="assets/js/pages/flota_gestion_pro.js?v=4" type="text/javascript"></script>
+    <script src="assets/js/pages/flota_gestion_pro.js?v=5" type="text/javascript"></script>
 
     <script>
         $(function () {

@@ -252,6 +252,12 @@ $tieneOfficInsite = in_array('OFFICE_INSITE', $permisosEmpresa);
                                     </a>
                                 </li>
                                 <li class="nav-item">
+                                    <a class="nav-link" data-toggle="tab" href="#tab-motorizados" role="tab" aria-selected="false">
+                                        <i data-feather="truck"></i>
+                                        Motorizados
+                                    </a>
+                                </li>
+                                <li class="nav-item">
                                     <a class="nav-link" data-toggle="tab" href="#tab-impuesto" role="tab" aria-selected="false">
                                         <i data-feather="percent"></i>
                                         Impuesto
@@ -800,7 +806,12 @@ $tieneOfficInsite = in_array('OFFICE_INSITE', $permisosEmpresa);
                                             </div>
                                         </div>
                                     </div>
+                                    <br />
+                                </div>
 
+                                <!-- Tab Motorizados -->
+                                <div class="tab-pane fade" id="tab-motorizados" role="tabpanel">
+                                    <br>
                                     <h5>Motorizados</h5>
                                     <hr>
                                     <p class="text-muted">

@@ -123,14 +123,14 @@ function construirHistorial(orden) {
         { titulo: 'Solicitud recibida', descripcion: `Orden recibida de ${orden.empresa_nombre} — ${orden.sucursal_nombre}`, rawFecha: orden.fecha_recepcion },
         { titulo: 'Motorizado asignado', descripcion: motorizado ? `${motorizado} tomará el pedido` : 'Aún sin motorizado', rawFecha: orden.fecha_asignacion },
         { titulo: 'Camino al local', descripcion: 'El motorizado aceptó la carrera', rawFecha: orden.fecha_aceptacion },
-        { titulo: 'Llegó al local', descripcion: Number(orden.llegada_local_lejos) ? `Lo marcó a mano a ${formatDistancia(orden.llegada_local_distancia_m)} del local` : 'Recogiendo el pedido', rawFecha: orden.fecha_llegada_local },
+        { titulo: 'Llegó al local', descripcion: Number(orden.llegada_local_lejos) ? `Lo marcó a mano a ${formatDistancia(orden.llegada_local_distancia_m)} del local` : 'Recogiendo el pedido', warning: !!Number(orden.llegada_local_lejos), rawFecha: orden.fecha_llegada_local },
         { titulo: 'Camino al cliente', descripcion: 'Salió con el pedido', rawFecha: orden.fecha_salida },
         { titulo: 'Cerca del cliente', descripcion: 'Llegó a la zona de entrega', rawFecha: orden.fecha_cerca_cliente },
     ];
     if (orden.estado === 'NO_ENTREGADA' || orden.estado === 'ANULADA') {
         pasos.push({ titulo: orden.estado === 'ANULADA' ? 'Cancelado' : 'No entregado', descripcion: '', rawFecha: orden.fecha_cierre, danger: true });
     } else {
-        pasos.push({ titulo: 'Entregado', descripcion: Number(orden.entrega_lejos) ? `Lo marcó a mano a ${formatDistancia(orden.entrega_distancia_m)} del cliente` : 'El pedido fue entregado', rawFecha: orden.fecha_llegada });
+        pasos.push({ titulo: 'Entregado', descripcion: Number(orden.entrega_lejos) ? `Lo marcó a mano a ${formatDistancia(orden.entrega_distancia_m)} del cliente` : 'El pedido fue entregado', warning: !!Number(orden.entrega_lejos), rawFecha: orden.fecha_llegada });
     }
 
     // Un paso que se saltó (ej. el geofence no marcó "Cerca del cliente") no se muestra en gris

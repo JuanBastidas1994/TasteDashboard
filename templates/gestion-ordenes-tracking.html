@@ -69,7 +69,7 @@
         <div><h3>Línea de tiempo</h3></div>
         <div class="tl-pasos">
             {{#each timeline}}
-                <div class="tl-paso complete {{#if current}}current{{/if}} {{#if danger}}danger{{/if}}">
+                <div class="tl-paso complete {{#if current}}current{{/if}} {{#if danger}}danger{{/if}} {{#if warning}}warning{{/if}}">
                     <div class="tl-paso-linea-wrap">
                         <div class="tl-paso-dot"></div>
                         {{#unless @last}}<div class="tl-paso-linea"></div>{{/unless}}

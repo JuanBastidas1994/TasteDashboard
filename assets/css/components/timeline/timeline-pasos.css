@@ -27,3 +27,10 @@
 }
 .tl-paso-desc { font-size: 13px; color: #666; }
 .tl-paso-fecha { font-size: 12px; color: #999; }
+
+/* Marcado a mano estando lejos (llegada al local / entrega): ámbar, igual que el dashboard nuevo. */
+.tl-paso.warning .tl-paso-dot { background: #e5a23d; }
+.tl-paso.warning.current .tl-paso-dot { box-shadow: 0 0 0 4px rgba(229,162,61,.25); }
+.tl-paso.warning .tl-paso-titulo { color: #d9902b; }
+.tl-paso.warning .tl-paso-duracion { color: #d9902b; background: rgba(229,162,61,.15); }
+.tl-paso.warning .tl-paso-linea { background: #f1d29c; }

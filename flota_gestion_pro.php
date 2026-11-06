@@ -17,7 +17,7 @@ $apikey = $empresa ? $empresa['api_key'] : '';
 <html lang="en">
 <head><meta charset="utf-8">
     <?php css_mandatory(); ?>
-    <link href="assets/css/components/timeline/timeline-pasos.css?v=1" rel="stylesheet" type="text/css" />
+    <link href="assets/css/components/timeline/timeline-pasos.css?v=2" rel="stylesheet" type="text/css" />
     <style type="text/css">
 
     .badgeCustom{
@@ -339,7 +339,7 @@ $apikey = $empresa ? $empresa['api_key'] : '';
                             <script id="pedido-historial-template" type="text/x-handlebars-template">
                                 <div class="tl-pasos">
                                     {{#each this}}
-                                    <div class="tl-paso {{#if complete}}complete{{/if}} {{#if current}}current{{/if}} {{#if danger}}danger{{/if}}">
+                                    <div class="tl-paso {{#if complete}}complete{{/if}} {{#if current}}current{{/if}} {{#if danger}}danger{{/if}} {{#if warning}}warning{{/if}}">
                                         <div class="tl-paso-linea-wrap">
                                             <div class="tl-paso-dot"></div>
                                             {{#unless @last}}<div class="tl-paso-linea"></div>{{/unless}}
@@ -625,7 +625,7 @@ $apikey = $empresa ? $empresa['api_key'] : '';
     <?php js_mandatory(); ?>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.7.7/handlebars.min.js"></script>
     <script src="//maps.googleapis.com/maps/api/js?key=AIzaSyAWo6DXlAmrqEiKiaEe9UyOGl3NJ208lI8"></script>
-    <script src="assets/js/pages/flota_gestion_pro.js?v=5" type="text/javascript"></script>
+    <script src="assets/js/pages/flota_gestion_pro.js?v=6" type="text/javascript"></script>
 
     <script>
         $(function () {

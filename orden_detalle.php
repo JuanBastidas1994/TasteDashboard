@@ -286,17 +286,18 @@ function timelineOrden($orden, $motorizado, $flota)
     // Si marcó a mano estando lejos (llegada al local / entrega), el paso lo dice, igual que el dashboard nuevo.
     $lejos = Conexion::buscarRegistro("SELECT llegada_local_distancia_m, llegada_local_lejos, entrega_distancia_m, entrega_lejos
                 FROM tb_motorizado_asignacion WHERE cod_orden = " . (int) $orden['cod_orden'] . " ORDER BY cod_motorizado_asignacion DESC LIMIT 1");
+    $marcadosLejos = [];
     $distanciaTexto = function ($m) {
         $m = (int) $m;
         return $m < 1000 ? "$m m" : number_format($m / 1000, 1, ',', '') . ' km';
     };
     if ($lejos && $lejos['llegada_local_lejos']) {
         $pasos['PUNTO_RECOGIDA'][1] = 'Lo marcó a mano a ' . $distanciaTexto($lejos['llegada_local_distancia_m']) . ' del local';
-        $pasos['PUNTO_RECOGIDA'][2] = 'warning';
+        $marcadosLejos[] = 'PUNTO_RECOGIDA';
     }
     if ($lejos && $lejos['entrega_lejos']) {
         $pasos['ENTREGADA'][1] = 'Lo marcó a mano a ' . $distanciaTexto($lejos['entrega_distancia_m']) . ' del cliente';
-        $pasos['ENTREGADA'][2] = 'warning';
+        $marcadosLejos[] = 'ENTREGADA';
     }
 
     $cod_orden = (int) $orden['cod_orden'];
@@ -325,6 +326,7 @@ function timelineOrden($orden, $motorizado, $flota)
             'titulo' => $paso[0],
             'descripcion' => $paso[1],
             'danger' => $paso[2] == 'danger',
+            'warning' => in_array($h['estado'], $marcadosLejos),
             'fecha' => datetimeShort($h['fecha']),
             'duracion' => $anterior ? duracionEntre($anterior, $h['fecha']) : '',
         ];
@@ -342,7 +344,7 @@ function timelineOrden($orden, $motorizado, $flota)
     <meta charset="utf8">
     <?php css_mandatory(); ?>
     <link href="assets/css/components/timeline/custom-timeline.css" rel="stylesheet" type="text/css" />
-    <link href="assets/css/components/timeline/timeline-pasos.css?v=1" rel="stylesheet" type="text/css" />
+    <link href="assets/css/components/timeline/timeline-pasos.css?v=2" rel="stylesheet" type="text/css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha512-SfTiTlX6kk+qitfevl/7LibUOeJWlt9rbyDn92a1DqWOw9vWG2MFoays0sgObmWazO5BQPiFucnnEAjpAB+/Sw==" crossorigin="anonymous" />
     <style type="text/css">
         .respGalery>div {
@@ -1042,7 +1044,7 @@ function timelineOrden($orden, $motorizado, $flota)
                                     foreach ($pasosTimeline as $i => $paso) {
                                         $esUltimo = $i == count($pasosTimeline) - 1;
                                     ?>
-                                        <div class="tl-paso complete <?php echo $esUltimo ? 'current' : ''; ?> <?php echo $paso['danger'] ? 'danger' : ''; ?>">
+                                        <div class="tl-paso complete <?php echo $esUltimo ? 'current' : ''; ?> <?php echo $paso['danger'] ? 'danger' : ''; ?> <?php echo $paso['warning'] ? 'warning' : ''; ?>">
                                             <div class="tl-paso-linea-wrap">
                                                 <div class="tl-paso-dot"></div>
                                                 <?php if (!$esUltimo) { ?><div class="tl-paso-linea"></div><?php } ?>

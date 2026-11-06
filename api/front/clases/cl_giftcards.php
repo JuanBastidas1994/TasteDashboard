@@ -1,0 +1,126 @@
+<?php
+
+class cl_giftcards
+{
+	var $session;
+	var $cod_producto, $cod_producto_padre, $cod_empresa, $alias, $nombre, $desc_corta, $desc_larga, $image_min, $image_max, $fecha_create, $user_create, $estado, $precio, $codigo;
+	
+	public function __construct($pcod_producto=null)
+	{
+		if($pcod_producto != null)
+			$this->cod_producto = $pcod_producto;
+	}
+	
+	public function lista(){
+		$query = "SELECT * FROM tb_giftcards WHERE estado='A' AND cod_empresa = ".cod_empresa." ORDER BY posicion ASC";
+		$resp = Conexion::buscarVariosRegistro($query);
+		$return = [];
+		$x=0;
+		foreach ($resp as $gift) {
+			$gift['imagen'] = url.$gift['imagen'];
+			$montos = explode(",",$gift['montos']);
+			$gift['monto'] = $montos[0];
+			$return[$x]=$gift;
+			$x++;
+		}    
+		return $return;
+	}
+
+	public function lista_compradas($cod_usuario){
+		$query = "SELECT ug.cod_usuario_giftcard as id, g.imagen, g.nombre, ug.monto, ug.codigo, ug.fecha, ug.cod_usuario_receptor
+		FROM tb_usuario_giftcard ug, tb_giftcards g
+		WHERE ug.cod_giftcard = g.cod_giftcard
+		AND ug.cod_usuario = $cod_usuario";
+		$resp = Conexion::buscarVariosRegistro($query);
+		foreach ($resp as $key => $giftcard) {
+			$resp[$key]['imagen'] = url.$giftcard['imagen'];
+			$resp[$key]['fecha'] = fechaLatinoShort($giftcard['fecha']);
+		}
+		return $resp;
+	}
+
+	public function lista_mis_giftcards($cod_usuario){
+		$query = "SELECT ug.cod_usuario_giftcard as id, g.imagen, g.nombre, ug.monto, ug.codigo, ug.fecha
+		FROM tb_usuario_giftcard ug, tb_giftcards g
+		WHERE ug.cod_giftcard = g.cod_giftcard
+		AND ug.cod_usuario_receptor = $cod_usuario;";
+		$resp = Conexion::buscarVariosRegistro($query);
+		foreach ($resp as $key => $giftcard) {
+			$resp[$key]['imagen'] = url.$giftcard['imagen'];
+			$resp[$key]['fecha'] = fechaLatinoShort($giftcard['fecha']);
+		}
+		return $resp;
+	}
+
+	public function getUserGiftcardByCode($code){
+		$query = "SELECT ug.*
+		FROM tb_usuario_giftcard ug, tb_usuarios u
+		WHERE ug.cod_usuario = u.cod_usuario
+		AND ug.codigo = '$code'
+		AND ug.estado = 'A'
+		AND u.cod_empresa = ".cod_empresa;
+		return Conexion::buscarRegistro($query);
+	}
+
+	public function getGitcardEmpresaById($id){
+		$query = "SELECT * FROM tb_giftcards WHERE estado='A' AND cod_empresa = ".cod_empresa." AND cod_giftcard = $id";
+		return Conexion::buscarRegistro($query);
+	}
+
+	public function getGitcardUsuario($cod_usuario, $id){
+		$query = "SELECT ug.cod_usuario_giftcard as id, g.imagen, g.nombre as producto, ug.monto, ug.codigo, ug.cod_usuario, ug.cod_usuario_receptor, ug.fecha, ug.fecha_utilizacion, ug.estado
+		FROM tb_usuario_giftcard ug, tb_giftcards g
+		WHERE ug.cod_giftcard = g.cod_giftcard
+		AND ug.cod_usuario_giftcard = $id";
+		$resp = Conexion::buscarRegistro($query);
+		if($resp){
+			// Solo el comprador o el beneficiario pueden ver el detalle de esta giftcard
+			if($resp['cod_usuario'] != $cod_usuario && intval($resp['cod_usuario_receptor']) != intval($cod_usuario)){
+				return null;
+			}
+			if($resp['cod_usuario'] == $cod_usuario)
+				$resp['tipo'] = "comprador";
+			else
+				$resp['tipo'] = "beneficiario";
+			$resp['imagen'] = url.$resp['imagen'];
+			$resp['fecha'] = fechaLatinoShort($resp['fecha']);
+			$resp['fecha_utilizacion'] = fechaLatinoShort($resp['fecha_utilizacion']);
+			$resp['comprador'] = $this->getUserInfo($resp['cod_usuario']);
+			if(intval($resp['cod_usuario_receptor']) > 0)
+				$resp['beneficiario'] = $this->getUserInfo($resp['cod_usuario_receptor']);
+			else
+				$resp['beneficiario'] = null;	
+			unset($resp['cod_usuario']);
+			unset($resp['cod_usuario_receptor']);
+		}
+		return $resp;
+	}
+
+	public function setUserGiftcard($cod_beneficiario, $cod_usuario_giftcard){
+		$query = "UPDATE tb_usuario_giftcard SET 
+			cod_usuario_receptor = $cod_beneficiario,
+			fecha_utilizacion = NOW()
+			WHERE cod_usuario_giftcard = $cod_usuario_giftcard";
+		return Conexion::ejecutar($query,NULL);
+	}
+
+	public function getUserInfo($cod_usuario){
+		$query = "SELECT cod_usuario as id, nombre, correo, usuario, fecha_nacimiento, telefono
+		FROM tb_usuarios WHERE cod_usuario = $cod_usuario";
+		return Conexion::buscarRegistro($query);
+	}
+
+	public function crear($monto, $cod_giftcard, $cod_usuario, $codigo, $cod_preorden = null, $paymentId = null, $paymentAuth = null, $payment_provider = null){
+		$query = "INSERT INTO tb_usuario_giftcard(cod_usuario, cod_giftcard, codigo, monto, fecha, estado, cod_preorden, paymentId, paymentAuth, payment_provider) ";
+		$query.= "VALUES(?, ?, ?, ?, NOW(), 'A', ?, ?, ?, ?)";
+		return Conexion::ejecutar($query, [$cod_usuario, $cod_giftcard, $codigo, $monto, $cod_preorden, $paymentId, $paymentAuth, $payment_provider]);
+	}
+
+	//Idempotencia: saber si una preorden ya generó una giftcard (evita duplicar en reintentos)
+	public function getGiftcardByPreorden($cod_preorden){
+		$query = "SELECT * FROM tb_usuario_giftcard WHERE cod_preorden = ?";
+		return Conexion::buscarRegistro($query, [$cod_preorden]);
+	}
+
+}
+?>

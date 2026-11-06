@@ -1,0 +1,223 @@
+<?php
+	/*	Variables Heredadas del Index
+		$method - POST, GET, PUT, DELETE, etc.
+		$request - Url y variables GET
+		$input - Solo metodo POST, PUT */
+require_once "helpers/calcularPuntosCliente.php";
+
+require_once "clases/cl_empresas.php";
+require_once "clases/cl_clientes.php";
+$Clempresas = new cl_empresas();
+
+$divisor = 0;
+$puntosxdivisor = 0;
+$config = $Clempresas->getFidelizacion();
+if($config){
+    $divisor = $config['divisor_puntos'];
+    $puntosxdivisor = $config['monto_puntos'];
+}
+
+	if($method == "GET"){
+		$num_variables = count($request);
+		if($num_variables == 2){
+			$return = getInfo($request[1]);
+			showResponse($return);
+		}
+		if($num_variables == 3){
+            if($request[1] == "purchase-code"){
+				$return = CodePurchase($request[2]);
+				showResponse($return);
+			}
+			if($request[1] == "historial"){
+				$return = getHistorialPuntosCliente($request[2]);
+				showResponse($return);
+			}
+		}
+
+		$return['success']= 0;
+		$return['mensaje']= "Evento no existente";
+		showResponse($return);
+	}
+	else{
+		$return['success']= 0;
+		$return['mensaje']= "El metodo ".$method." para puntos no esta disponible.";
+		showResponse($return);
+	}
+
+
+/*FUNCIONES*/
+function getInfo($user_id){
+	$Clclientes = new cl_clientes();
+    
+    require_once "clases/cl_usuarios.php";
+    $Clusuarios = new cl_usuarios();
+    
+    $usuario = $Clusuarios->get($user_id);
+    if(!$usuario){
+        responseError("Usuario no existe", "CLIENTE_INEXISTENTE");
+    }
+    
+    $cod_usuario = $usuario['cod_usuario'];
+    if(!$Clclientes->getByUser($cod_usuario)){
+		$cod_cliente = 0;
+		$Clclientes->create($cod_usuario, $usuario['nombre'], $cod_cliente, "");
+		$Clclientes->getByUser($cod_usuario);
+		// return [ 'success' => 0, 'mensaje' => 'Usuario no tiene un cliente creado'];
+	}
+    
+    $wallet = getWallet($cod_usuario);
+		
+	$saldo = $wallet['saldo'];
+	$nivel = $wallet['nivel'];
+    $nivelImg = url_resource."nivel".$nivel['posicion'].".png";
+    if($nivel['imagen'] !== "")
+        $nivelImg = url.$nivel['imagen'];
+
+	$loyalty = [
+	    'total_dinero' => number_format($wallet['dinero'],2,".",""),
+	    'total_puntos' => $wallet['puntos'],
+	    'total_saldo' => floor($saldo),
+	    'total_saldo_real' => $saldo,
+	    'cod_nivel' => $nivel['cod_nivel'],
+	    'num_nivel' => $nivel['posicion'],
+	    'nivel' => strtoupper(html_entity_decode($nivel['nombre'])),
+        'imagen' => $nivelImg,
+	    'puntaje_minimo' => $nivel['punto_inicial'],
+	    'puntaje_maximo' => $nivel['punto_final'],
+    	'cliente' => [
+    	    'cod_cliente' => $Clclientes->cod_cliente,
+    	    'nombre' => $Clclientes->nombre,
+    	    'num_documento' => $Clclientes->cedula,
+    	    'fecha_nac' => $Clclientes->fecha_nac,
+    	],
+	    'fecha_act' => fecha(),
+        'nivelcomplete' => $nivel,
+        'historial_puntos' => formatHistorial($Clclientes->getHistorialPuntos($cod_usuario, 5)),
+        'texto_caducidad_puntos' => textoCaducidadPuntos(),
+	];
+	
+	return [
+	    'success' => 1,
+	    'mensaje' => 'Informacion del cliente',
+	    'data' => $loyalty
+	];
+}
+
+/* GET fidelizacion/historial/{user_id}?tipo=ACUMULADO|UTILIZADO|VENCIDO&page=1&limit=20 */
+function getHistorialPuntosCliente($user_id){
+	$Clclientes = new cl_clientes();
+
+    require_once "clases/cl_usuarios.php";
+    $Clusuarios = new cl_usuarios();
+
+    $usuario = $Clusuarios->get($user_id);
+    if(!$usuario){
+        responseError("Usuario no existe", "CLIENTE_INEXISTENTE");
+    }
+
+    $cod_usuario = $usuario['cod_usuario'];
+    $page = (isset($_GET['page']) && intval($_GET['page']) > 0) ? intval($_GET['page']) : 1;
+    $limit = (isset($_GET['limit']) && intval($_GET['limit']) > 0) ? min(intval($_GET['limit']), 100) : 20;
+    $tipo = (isset($_GET['tipo'])) ? strtoupper($_GET['tipo']) : null;
+
+    $historial = [];
+    $hasMore = false;
+    if($Clclientes->getByUser($cod_usuario)){
+        //Se pide un registro extra para saber si hay mas paginas
+        $historial = $Clclientes->getHistorialPuntos($cod_usuario, $limit + 1, ($page - 1) * $limit, $tipo);
+        $hasMore = count($historial) > $limit;
+        $historial = array_slice($historial, 0, $limit);
+    }
+
+    return [
+        'success' => 1,
+        'mensaje' => 'Historial de puntos',
+        'data' => [
+            'historial' => formatHistorial($historial),
+            'page' => $page,
+            'limit' => $limit,
+            'has_more' => $hasMore,
+            'texto_caducidad_puntos' => textoCaducidadPuntos(),
+        ]
+    ];
+}
+
+function formatHistorial($historial){
+    $titulos = [
+        'COMPRA_TIENDA' => 'Compra en tienda',
+        'COMPRA_APP' => 'Compra en app',
+        'REDENCION_BENEFICIO' => 'Redención de puntos',
+        'PUNTOS_VENCIDOS' => 'Puntos vencidos',
+    ];
+
+    $items = [];
+    foreach($historial as $item){
+        $items[] = [
+            'tipo' => $item['tipo'],
+            'titulo' => $titulos[$item['tipo']],
+            'movimiento' => $item['movimiento'],
+            'signo' => ($item['movimiento'] == 'ACUMULADO') ? '+' : '-',
+            'valor' => number_format($item['valor'],2,".",""),
+            'unidad' => $item['unidad'],
+            'fecha' => $item['fecha'],
+            'cod_orden' => $item['cod_orden'],
+        ];
+    }
+    return $items;
+}
+
+function textoCaducidadPuntos(){
+    global $config;
+    $dias = ($config) ? intval($config['cant_dias_caducidad_puntos']) : 0;
+    if($dias <= 0)
+        return "";
+
+    if($dias >= 30){
+        $meses = round($dias / 30.4);
+        $tiempo = $meses." ".($meses == 1 ? "mes" : "meses");
+    }else{
+        $tiempo = $dias." ".($dias == 1 ? "día" : "días");
+    }
+    return "Los puntos vencen después de ".$tiempo." de haber sido acreditados.";
+}
+
+function CodePurchase($user_id){
+    require_once "clases/cl_usuarios.php";
+    $Clusuarios = new cl_usuarios();
+    
+    $usuario = $Clusuarios->get($user_id);
+    if($usuario){
+        $code = $Clusuarios->getPurchaseCodeActive($user_id);
+        if(!$code){
+            //3 letras + 3 numeros, apto para codigo de barras (Code128), no depende de num_documento
+            do {
+                $codigo = giftcardCode();
+            } while($Clusuarios->purchaseCodeExists($codigo));
+            $saveCode = $Clusuarios->createPurchaseCodeActive($user_id, $codigo, '00:10:00');
+            if($saveCode){
+                $code = $Clusuarios->getPurchaseCodeActive($user_id);
+                $mensaje = "Código nuevo generado";
+            }else{
+                $return['success'] = 0;
+                $return['mensaje'] = "No se pudo generar el codigo";
+                return $return;
+            }
+        }else{
+            $mensaje = "Código con tiempo aún disponible";
+        }
+        $code['expiracion'] = "Expira a las ".date("H:i", strtotime($code['fecha_expiracion']));
+        $code['tiempo'] = minutesRestantes($code['fecha_expiracion']);
+		$horaExpiracion = explode(" ",$code['fecha_expiracion'])[1];
+        $code['tiempo_restante'] = minutesRestantes2(fecha(), $horaExpiracion);
+        $code['expiracion_fecha'] = date_format(date_create($code['fecha_expiracion']), "m/d/Y");
+        $code['expiracion_hora'] = date_format(date_create($code['fecha_expiracion']), "H:i:s");
+        
+        $return['success'] = 1;
+        $return['mensaje'] = $mensaje;
+        $return['code'] = $code;
+    }else{
+        responseError("Usuario no existente", "USUARIO_INEXISTENTE");
+    }
+    return $return;
+}
+?>

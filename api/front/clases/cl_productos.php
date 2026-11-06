@@ -1,0 +1,984 @@
+<?php
+
+class cl_productos
+{
+		var $cod_producto = 0, $cod_sucursal = 0, $officeTaxable = 1;
+		public $promosByProducto = [];
+		private $prepTimesByProducto = null; // cod_producto => minutos (solo los que superan el umbral)
+		var $filtroEntrega;
+		
+		public function __construct($pcod_producto=null)
+		{
+			if($pcod_producto != null)
+				$this->cod_producto = $pcod_producto;
+			$this->cod_sucursal = sucursaldefault;
+			$this->filtroEntrega = $this->scopeDeliveryType();
+		}
+
+		public function setSucursal($cod_sucursal){
+		    $this->cod_sucursal = $cod_sucursal;
+			//Verificar si la sucursal grava iva
+			$this->officeTaxable = $this->sucursalGravaIva($cod_sucursal);
+		}
+
+		private function scopeDeliveryType() {
+			// Si la constante no está definida o es null, no filtramos nada
+			if (!defined('delivery_type') || delivery_type === null) {
+				return "";
+			}
+
+			switch (delivery_type) {
+				case 'delivery':
+					return " AND p.venta_delivery = 1";
+				case 'pickup':
+					return " AND p.venta_pickup = 1";
+				case 'onsite':
+					return " AND p.venta_mesa = 1";
+				default:
+					return "";
+			}
+		}
+		
+		public function first($id){
+		    $query = "SELECT * FROM tb_productos WHERE cod_producto = $id AND estado = 'A' AND cod_empresa = ".cod_empresa;
+		    return Conexion::buscarRegistro($query);
+		}
+		
+		//UN PRODUCTO
+		public function getInfo($cod_producto){
+		    $cod_sucursal = $this->cod_sucursal;
+			$query = "SELECT p.cod_producto, p.cod_producto_padre, p.alias, p.nombre, p.desc_corta, p.image_min, p.image_max, p.agotado_inicio, p.agotado_fin, p.cod_sucursal, p.precio_no_tax, p.iva_valor, p.precio, p.precio_anterior, p.open_detalle
+					FROM vw_producto_sucursal p
+					WHERE p.estado IN ('A')
+					AND p.cod_sucursal IN(0, $cod_sucursal)
+					AND p.cod_producto = $cod_producto
+					AND p.cod_empresa = ".cod_empresa;
+            $producto = Conexion::buscarRegistro($query);
+            if($producto){
+                $producto = $this->infoProductComplete($producto);
+            }
+            return $producto;
+		}
+		
+		public function get($cod_producto, $cod_sucursal){
+		    // $cod_sucursal = $this->cod_sucursal;
+			$query = "SELECT p.cod_producto, p.cod_producto_padre, p.alias, p.nombre, p.desc_corta, p.image_min, p.image_max, p.agotado_inicio, p.agotado_fin, p.cod_sucursal, p.precio_no_tax, p.iva_valor, p.precio, p.precio_anterior, p.open_detalle, p.cobra_iva
+					FROM vw_producto_sucursal p
+					WHERE p.estado IN ('A')
+					AND p.cod_sucursal IN(0, $cod_sucursal)
+					AND p.cod_producto = $cod_producto
+					AND p.cod_empresa = ".cod_empresa;
+            $producto = Conexion::buscarRegistro($query);
+			// var_dump($producto);
+            if($producto){
+                $producto = $this->infoProductComplete($producto);
+            }
+			// var_dump($producto);
+            return $producto;
+		}
+
+		public function getInfoBasic($cod_producto){ //FUNCION USADA EN CARRITO
+		    $cod_sucursal = $this->cod_sucursal;
+			$query = "SELECT p.cod_producto, p.cod_producto_padre, p.alias, p.nombre, p.image_min, p.image_max, p.agotado_inicio, p.agotado_fin, p.cod_sucursal, p.precio_no_tax, p.iva_valor, p.precio, p.precio_anterior, p.cobra_iva, p.peso
+					FROM vw_producto_sucursal p
+					WHERE p.estado IN ('A')
+					AND p.cod_sucursal IN(0, $cod_sucursal)
+					AND p.cod_producto = $cod_producto
+					$this->filtroEntrega
+					AND p.cod_empresa = ".cod_empresa;
+            $producto = Conexion::buscarRegistro($query);
+            if($producto){
+				$precio = $producto['precio'];
+				$precio_no_tax = $producto['precio_no_tax'];
+                $producto = $this->infoProductHalf($producto, false);
+				$producto['precio'] = number_format($precio,2);
+				$producto['precio_no_tax'] = number_format($precio_no_tax,2);
+				unset($producto['agotado_inicio']);
+				unset($producto['agotado_fin']);
+				unset($producto['cod_producto_padre']);
+            }
+            return $producto;
+		}
+		
+		public function getInfoByAlias($alias){
+			$cod_sucursal = $this->cod_sucursal;
+			$query = "SELECT p.cod_producto, p.cod_producto_padre, p.alias, p.nombre, p.desc_corta, p.image_min, p.image_max, p.agotado_inicio, p.agotado_fin, p.cod_sucursal, p.precio_no_tax, p.iva_valor, p.precio, p.precio_anterior, p.open_detalle
+					FROM vw_producto_sucursal p
+					WHERE p.estado IN ('A')
+					AND p.cod_sucursal IN(0, $cod_sucursal)
+					AND p.alias = '$alias'
+					AND p.cod_empresa = ".cod_empresa;
+            $producto = Conexion::buscarRegistro($query);
+            if($producto){
+                $producto = $this->infoProductComplete($producto);
+            }
+            return $producto;
+		}
+
+		public function getByAliasDetectVariants($alias){
+			$cod_sucursal = $this->cod_sucursal;
+			$query = "SELECT p.cod_producto, p.cod_producto_padre, p.alias, p.nombre, p.desc_corta, p.image_min, p.image_max, p.agotado_inicio, p.agotado_fin, p.cod_sucursal, p.precio_no_tax, p.iva_valor, p.precio, p.precio_anterior, p.open_detalle
+					FROM vw_producto_sucursal p
+					WHERE p.estado IN ('A')
+					AND p.cod_sucursal IN(0, $cod_sucursal)
+					AND p.alias = '$alias'
+					AND p.cod_empresa = ".cod_empresa;
+            $producto = Conexion::buscarRegistro($query);
+            if($producto){
+				$variantes = $this->listaVariantes($producto['cod_producto']);
+				if($variantes){
+					$producto = $this->infoProductComplete($variantes[0]);
+					$producto['image_max'] = $variantes[0]['image_max'];
+				}else{
+					$producto = $this->infoProductComplete($producto);
+				}
+            }
+            return $producto;
+		}
+		
+		function isVisibleDate($cod_producto){
+		    $query = "SELECT 1 FROM tb_productos_dias WHERE cod_producto = $cod_producto LIMIT 1";
+		    $tieneReglas = Conexion::buscarRegistro($query);
+		    if(!$tieneReglas) return true; // Sin reglas: siempre visible
+
+		    $dias = [1=>'lunes',2=>'martes',3=>'miercoles',4=>'jueves',5=>'viernes',6=>'sabado',7=>'domingo'];
+		    $dia  = $dias[date('N')];
+		    $hora = date('H:i:s');
+
+		    $query = "SELECT 1 FROM tb_productos_dias
+		             WHERE cod_producto = $cod_producto
+		             AND dia = '$dia'
+		             AND '$hora' BETWEEN hora_inicio AND hora_fin
+		             LIMIT 1";
+		    return (bool) Conexion::buscarRegistro($query);
+		}
+		
+		public function getTiempoPreparacion($ids){
+			// var_dump($ids);
+		    if (empty($ids)) {
+                return 0;
+            }
+            
+		    $allIds = implode(",",$ids);
+		    $query = "SELECT MAX(tiempo_preparacion) as total_tiempo FROM tb_productos WHERE cod_producto IN ($allIds)";
+		    $resp = Conexion::buscarRegistro($query);
+		    return $resp && $resp['total_tiempo'] !== null
+                ? (int)$resp['total_tiempo']
+                : 0;
+		}
+
+		/**
+		 * Indicador de tiempo de preparación para tarjeta, detalle y carrito.
+		 * Retorna null si el producto no alcanza el umbral configurado en tb_empresas.prep_time_badge_minutes.
+		 */
+		public function getPreparacion($cod_producto){
+			if($this->prepTimesByProducto === null){
+				$this->prepTimesByProducto = [];
+
+				$empresa = Conexion::buscarRegistro("SELECT prep_time_badge_minutes FROM tb_empresas WHERE cod_empresa = ".cod_empresa);
+				$umbral = ($empresa && (int)$empresa['prep_time_badge_minutes'] > 0) ? (int)$empresa['prep_time_badge_minutes'] : 120;
+
+				$query = "SELECT cod_producto, tiempo_preparacion
+						FROM tb_productos
+						WHERE cod_empresa = ".cod_empresa."
+						AND tiempo_preparacion >= $umbral";
+				$resp = Conexion::buscarVariosRegistro($query);
+				if($resp){
+					foreach ($resp as $row) {
+						$this->prepTimesByProducto[$row['cod_producto']] = (int)$row['tiempo_preparacion'];
+					}
+				}
+			}
+
+			$minutos = $this->prepTimesByProducto[$cod_producto] ?? null;
+			if($minutos === null) return null;
+
+			return [
+				'minutos' => $minutos,
+				'texto'   => $this->formatPrepTime($minutos),
+			];
+		}
+
+		// Siempre en horas: 120 => "2h", 90 => "1h30", 1560 => "26h", 2880 => "48h", 45 => "45min"
+		private function formatPrepTime($minutos){
+			if($minutos < 60) return $minutos."min";
+			$horas = intdiv($minutos, 60);
+			$resto = $minutos % 60;
+			return ($resto > 0) ? $horas."h".str_pad($resto, 2, "0", STR_PAD_LEFT) : $horas."h";
+		}
+
+		//LISTAS
+		public function lista(){
+			$query = "SELECT p.cod_producto, p.cod_producto_padre, p.alias, p.nombre, p.desc_corta, p.image_min, p.image_max, p.agotado_inicio, p.agotado_fin, p.cod_sucursal, p.precio_no_tax, p.iva_valor, p.precio, p.precio_anterior, p.open_detalle
+					FROM vw_producto_sucursal p, tb_productos_categorias pc
+					WHERE p.cod_producto = pc.cod_producto
+					AND p.estado IN ('A')
+					AND p.cod_producto_padre = 0
+					AND p.cod_sucursal IN(0, ".sucursaldefault.")
+					$this->filtroEntrega
+					AND p.cod_empresa = ".cod_empresa;
+            $resp = Conexion::buscarVariosRegistro($query);
+            foreach ($resp as $key => $producto) {
+            	$resp[$key] = $this->infoProductComplete($producto);
+            }
+            return $resp;
+		}
+
+		public function listaByCategoria($cod_categoria){
+			$cod_sucursal = $this->cod_sucursal;
+			$query = "SELECT p.cod_producto, p.cod_producto_padre, p.alias, p.nombre, p.desc_corta, p.image_min, p.image_max, p.agotado_inicio, p.agotado_fin, p.cod_sucursal, p.precio_no_tax, p.iva_valor, p.precio, p.precio_anterior, p.open_detalle
+					FROM vw_producto_sucursal p, tb_productos_categorias pc
+					WHERE p.cod_producto = pc.cod_producto
+					AND p.estado IN ('A')
+					AND pc.cod_categoria = $cod_categoria
+					AND p.cod_producto_padre = 0
+					AND p.cod_sucursal IN(0, $cod_sucursal)
+					AND p.cod_empresa = ".cod_empresa."
+					$this->filtroEntrega
+					ORDER BY p.posicion";
+            $resp = Conexion::buscarVariosRegistro($query);
+            foreach ($resp as $key => $producto) {
+            	if(!$this->isVisibleDate($producto['cod_producto'])){
+            	    unset($resp[$key]);
+            	}else{
+            	    $resp[$key] = $this->infoProductComplete($producto);
+            	    
+            	    if(cod_empresa == 121){ //Oahu
+                	    $resp[$key]['oahu_arma_bowl'] = $this->getArmaBowl($producto['cod_producto']);
+                	}else{
+                	    $resp[$key]['oahu_arma_bowl'] = false;
+                	}
+            	}
+            }
+            return $resp;
+		}
+		
+		public function listaBasicaByCategoria($cod_categoria){
+			//delivery_type puede ser pickup, delivery, onsite
+			$cod_sucursal = $this->cod_sucursal;
+			$query = "SELECT p.cod_producto, p.cod_producto_padre, p.alias, p.nombre, p.desc_corta, p.image_min, p.image_max, p.agotado_inicio, p.agotado_fin, p.cod_sucursal, p.precio_no_tax, p.iva_valor, p.precio, p.precio_anterior, p.open_detalle
+					FROM vw_producto_sucursal p, tb_productos_categorias pc
+					WHERE p.cod_producto = pc.cod_producto
+					AND p.estado IN ('A')
+					AND pc.cod_categoria = $cod_categoria
+					AND p.cod_producto_padre = 0
+					AND p.cod_sucursal IN(0, $cod_sucursal)
+					AND p.cod_empresa = ".cod_empresa."
+					$this->filtroEntrega
+					ORDER BY p.posicion";
+            $resp = Conexion::buscarVariosRegistro($query);
+            $respAux = [];
+			if($resp) {
+				foreach ($resp as $key => $producto) {
+					if($this->isVisibleDate($producto['cod_producto'])) {
+						$respAux[] = $this->infoProductHalf($producto, false);
+					}
+				}
+			}
+			return $respAux;
+		}
+		
+		public function getNumProductsByCategoria($cod_categoria){
+		    $cod_sucursal = $this->cod_sucursal;
+			$dias = [1=>'lunes',2=>'martes',3=>'miercoles',4=>'jueves',5=>'viernes',6=>'sabado',7=>'domingo'];
+		    $dia_hoy  = $dias[date('N')];
+		    $condiciones_dia = "(
+                    (pd.dia IS NULL) OR
+                    (pd.dia = '$dia_hoy')
+                )";
+                        
+		    $query = "SELECT COUNT(p.cod_producto) as cantidad
+                      FROM vw_producto_sucursal p
+                      LEFT JOIN tb_productos_dias pd ON p.cod_producto = pd.cod_producto
+                      JOIN tb_productos_categorias pc ON p.cod_producto = pc.cod_producto
+                      WHERE p.estado IN ('A')
+                        AND pc.cod_categoria = $cod_categoria
+                        AND p.cod_producto_padre = 0
+                        AND p.cod_sucursal IN (0, $cod_sucursal)
+                        AND p.cod_empresa = ".cod_empresa."
+						$this->filtroEntrega
+                        AND $condiciones_dia";
+			// echo $query;
+            $resp = Conexion::buscarRegistro($query);
+            if($resp){
+                return $resp['cantidad'];
+            }
+            return 0;
+		}
+		
+		public function listaByFilter($busqueda){
+		    $cod_sucursal = $this->cod_sucursal;
+		    $busqueda = str_replace(" ","%",$busqueda);
+			$query = "SELECT p.*
+					FROM vw_producto_sucursal p
+					WHERE p.estado = 'A'
+					AND p.cod_producto_padre = 0
+					AND p.nombre LIKE '%$busqueda%'
+					AND p.cod_sucursal IN(0,".$cod_sucursal.")
+					$this->filtroEntrega
+					AND p.cod_empresa = ".cod_empresa;
+			
+			$query .= " UNION SELECT p.*
+					FROM vw_producto_sucursal p, tb_productos_tags pt
+					WHERE p.cod_producto = pt.cod_producto 
+					AND p.estado = 'A'
+					AND p.cod_producto_padre = 0
+					AND pt.tag = '$busqueda'
+					AND p.cod_sucursal IN(0,".$cod_sucursal.")
+					$this->filtroEntrega
+					AND p.cod_empresa = ".cod_empresa;		
+            $resp = Conexion::buscarVariosRegistro($query);
+            foreach ($resp as $key => $producto) {
+            	$resp[$key]=$producto = $this->infoProductComplete($producto);
+            }
+            return $resp;
+		}
+		
+		public function listaByFilterTag($busqueda){
+			$cod_sucursal = $this->cod_sucursal;
+			$ar1 = explode(",", $busqueda);
+			$busqueda = "'" . implode ( "', '", $ar1 ) . "'";
+			$query = "SELECT DISTINCT p.*
+					FROM vw_producto_sucursal p, tb_productos_tags t
+					WHERE p.cod_producto = t.cod_producto
+					AND p.estado = 'A'
+					AND p.cod_producto_padre = 0
+					AND t.tag IN ($busqueda)
+					AND p.cod_sucursal IN(0,".$cod_sucursal.")
+					$this->filtroEntrega
+					AND p.cod_empresa = ".cod_empresa;
+			$resp = Conexion::buscarVariosRegistro($query);
+			foreach ($resp as $key => $producto) {
+				$resp[$key]=$producto = $this->infoProductComplete($producto);
+			}
+			return $resp;
+		}
+
+		public function listaByCategoriaAlias($alias){	
+			$cod_sucursal = $this->cod_sucursal;
+			$query = "SELECT p.cod_producto, p.cod_producto_padre, p.alias, p.nombre, p.desc_corta, p.image_min, p.image_max, p.agotado_inicio, p.agotado_fin, p.cod_sucursal, p.precio_no_tax, p.iva_valor, p.precio, p.precio_anterior, p.open_detalle
+					FROM vw_producto_sucursal p, tb_productos_categorias pc, tb_categorias c
+					WHERE p.cod_producto = pc.cod_producto
+					AND pc.cod_categoria = c.cod_categoria
+					AND p.estado IN ('A')
+					AND c.alias = '$alias'
+					AND p.cod_producto_padre = 0
+					AND p.cod_sucursal IN(0, $cod_sucursal)
+					$this->filtroEntrega
+					AND p.cod_empresa = ".cod_empresa;
+            $resp = Conexion::buscarVariosRegistro($query);
+            foreach ($resp as $key => $producto) {
+            	$resp[$key]=$producto = $this->infoProductHalf($producto);
+            }
+            return $resp;
+		}
+
+		public function listaModuloWeb($cod_modulo){
+			$cod_sucursal = $this->cod_sucursal;
+			$query = "SELECT p.cod_producto, p.alias, p.nombre, p.desc_corta, p.image_min, p.image_max, p.agotado_inicio, p.agotado_fin, p.precio_no_tax, p.precio, p.precio_anterior, p.open_detalle
+					FROM vw_producto_sucursal p, tb_web_modulos_productos_detalle w 
+					WHERE p.cod_producto = w.cod_producto 
+					AND p.estado ='A' 
+					AND p.cod_sucursal IN(0,".$cod_sucursal.") 
+					AND w.cod_web_modulos_producto = $cod_modulo
+					AND p.cod_empresa = ".cod_empresa." 
+					AND NOT EXISTS (
+						SELECT 1
+						FROM tb_productos_opciones o
+						WHERE o.cod_producto = p.cod_producto
+					)
+					ORDER BY w.posicion ASC";
+            $resp = Conexion::buscarVariosRegistro($query);
+            foreach ($resp as $key => $producto) {
+                $item = $this->infoProductHalf($producto);
+                if($item['categoria']){
+                    $item['categoryName'] = $item['categoria']['categoria'];
+                }
+            	$resp[$key] = $item;
+            }
+            return $resp;
+		}
+		
+		public function listaFromPaginaDetalle($cod_pagina_detalle){
+			$cod_sucursal = $this->cod_sucursal;
+			$query = "SELECT c.id, p.cod_producto, p.alias, p.nombre, p.desc_corta, p.image_min, p.image_max, p.agotado_inicio, p.agotado_fin, p.precio_no_tax, p.precio, p.precio_anterior, p.open_detalle
+                    FROM vw_producto_sucursal p, tb_front_pagina_detalle_contenido c 
+                    WHERE p.cod_producto = c.accion_desc 
+                    AND p.estado ='A' 
+                    AND p.cod_sucursal IN(0,".$cod_sucursal.") 
+                    AND c.cod_front_pagina_detalle = $cod_pagina_detalle
+					$this->filtroEntrega
+                    AND p.cod_empresa = ".cod_empresa." ORDER BY c.posicion ASC";
+            $resp = Conexion::buscarVariosRegistro($query);
+            $respAux = [];
+            foreach ($resp as $key => $producto) {
+                if($this->isVisibleDate($producto['cod_producto'])) {
+                    if(isset($producto['categoria'])){
+                        $producto['categoryName'] = $producto['categoria']['categoria'];
+                    }
+					$respAux[] = $this->infoProductHalf($producto, false);
+				}
+            }
+            return $respAux;
+		}
+		
+		public function listaVariantes($cod_producto){		
+			$cod_sucursal = $this->cod_sucursal;
+			$query = "SELECT p.cod_producto, p.cod_producto_padre, p.alias, p.nombre, p.desc_corta, p.image_min, p.image_max, p.agotado_inicio, p.agotado_fin, p.cod_sucursal, p.precio_no_tax, p.iva_valor, p.precio, p.precio_anterior
+					FROM vw_producto_sucursal p
+					WHERE p.estado IN ('A')
+					AND p.cod_producto_padre = $cod_producto
+					AND p.cod_sucursal IN(0, $cod_sucursal)
+					AND p.cod_empresa = ".cod_empresa;
+            $resp = Conexion::buscarVariosRegistro($query);
+            foreach ($resp as $key => $producto) {
+            	$resp[$key]=$producto = $this->infoProductHalf($producto);
+            }
+            return $resp;
+		}
+
+        //OPCIONES
+		public function listaOpciones($tipo){
+			$query = "SELECT p.nombre,p.precio,p.image_max,p.image_min
+				FROM tb_productos p, tb_productos_categorias pc , tb_categorias c
+				WHERE c.cod_categoria = pc.cod_categoria and pc.cod_producto = p.cod_producto and p.estado IN('A') 
+				AND c.cod_empresa = ".cod_empresa." AND c.alias ='".$tipo."' " ;
+            $resp = Conexion::buscarVariosRegistro($query);
+            return $resp;
+		}
+
+		public function opciones($cod_producto){
+			$query = "SELECT * FROM tb_productos_opciones WHERE cod_producto = $cod_producto ORDER BY posicion ASC";
+			$resp = Conexion::buscarVariosRegistro($query);
+			if($resp){
+			    foreach ($resp as $key => $opciones) {
+					$resp[$key]['titulo'] = html_entity_decode($opciones['titulo']);
+			        if($opciones['isDatabase'] == 1)
+			            $resp[$key]['items'] = $this->detalle_opciones_Productos($opciones['cod_producto_opcion']);
+			        else       
+			            $resp[$key]['items'] = $this->detalle_opciones_noProductos($opciones['cod_producto_opcion']);
+			    }       
+			}
+			return $resp;
+		}
+		
+		public function opcionById($cod_producto, $cod_opcion){
+			$query = "SELECT * FROM tb_productos_opciones WHERE cod_producto = $cod_producto AND cod_producto_opcion = $cod_opcion ORDER BY posicion ASC";
+			$resp = Conexion::buscarVariosRegistro($query);
+			if($resp){
+			    foreach ($resp as $key => $opciones) {
+					$resp[$key]['titulo'] = html_entity_decode($opciones['titulo']);
+			        if($opciones['isDatabase'] == 1)
+			            $resp[$key]['items'] = $this->detalle_opciones_Productos($opciones['cod_producto_opcion']);
+			        else       
+			            $resp[$key]['items'] = $this->detalle_opciones_noProductos($opciones['cod_producto_opcion']);
+			    }       
+			}
+			return $resp;
+		}
+		
+		public function detalle_opciones_noProductos($cod_producto_opcion){
+			$query = "SELECT cod_producto_opciones_detalle,item, detalle, aumentar_precio,precio FROM tb_productos_opciones_detalle WHERE cod_producto_opcion = $cod_producto_opcion ORDER BY posicion ASC";
+			$resp = Conexion::buscarVariosRegistro($query);
+			if($resp){
+			    foreach ($resp as $key => $opciones) {
+			        $resp[$key]['disponible'] = true;
+			    }       
+			}
+            return $resp;
+		}
+
+		public function detalle_opciones_Productos($cod_producto_opcion){
+		    $cod_sucursal = $this->cod_sucursal;
+			$query = "SELECT po.cod_producto_opciones_detalle, p.nombre as item, po.detalle, po.aumentar_precio, po.precio, p.agotado_fin, p.precio as precio_real
+					FROM tb_productos_opciones_detalle po, vw_producto_sucursal p
+					WHERE po.item = p.cod_producto
+                    AND p.cod_sucursal = ".$cod_sucursal."
+					AND po.cod_producto_opcion = $cod_producto_opcion
+					ORDER BY po.posicion ASC";
+			$resp = Conexion::buscarVariosRegistro($query);
+			if($resp){
+			    foreach ($resp as $key => $opciones) {
+			        if(cod_empresa == 24){  //SOLO DANILO
+			            $resp[$key]['precio'] = $opciones['precio_real'];
+			        }
+					$resp[$key]['disponible'] = $this->disponible($opciones['agotado_fin']);
+			    }       
+			}
+            return $resp;
+		}
+		
+		//GET OPCIONES
+		public function getOpcion($cod_opcion){
+		    $query = "SELECT * FROM tb_productos_opciones WHERE cod_producto_opcion = $cod_opcion";
+		    return Conexion::buscarRegistro($query);
+		}
+
+		public function getVarianteByCaracteristicas($caracteristicas){
+			$atributos = implode(",", $caracteristicas);
+			$numItems = count($caracteristicas);
+			$query = "SELECT cod_producto, count(cod_producto) as total
+					FROM tb_variante_caracteristica
+					WHERE cod_caracteristica_detalle IN($atributos)
+					GROUP BY cod_producto
+					HAVING total = $numItems";
+			return Conexion::buscarRegistro($query);
+		}
+
+		public function getFirstCategory($cod_producto){
+			$query = "SELECT c.cod_categoria, c.alias, c.categoria
+					FROM tb_categorias c, tb_productos_categorias pc
+					WHERE pc.cod_categoria = c.cod_categoria
+					AND pc.cod_producto = $cod_producto 
+					ORDER BY c.cod_categoria DESC";
+			return Conexion::buscarRegistro($query);		
+		}
+
+		/*CARACTERISTICAS*/
+		public function getCaracteristicas($cod_producto){
+		    $query = "SELECT cod_producto_caracteristica, caracteristica, tipo 
+					FROM tb_producto_caracteristica WHERE cod_producto = $cod_producto";
+			$resp = Conexion::buscarVariosRegistro($query);
+			foreach($resp as $key => $item){
+			    $resp[$key]['detalle'] = $this->getCaracteristicasDetalle($item['cod_producto_caracteristica']);
+			}
+			return $resp;
+		}
+		
+		public function getCaracteristicasDetalle($cod_caracteristica){
+		    $query = "SELECT cod_producto_caracteristica_detalle as id, detalle, detalle2 
+					FROM tb_producto_caracteristica_detalle WHERE cod_producto_caracteristica = $cod_caracteristica";
+			return Conexion::buscarVariosRegistro($query);
+		}
+
+
+		/*PROMOCIONES*/
+		public function isPromocion($cod_producto)
+		{
+			$cod_sucursal = $this->cod_sucursal;
+			$fecha = date('Y-m-d H:i:s');
+			$hora  = date('H:i:s');
+			$diaNumero   = date('N'); // 1 = lunes ... 7 = domingo
+			$dias = [
+				1 => 'lunes',
+				2 => 'martes',
+				3 => 'miercoles',
+				4 => 'jueves',
+				5 => 'viernes',
+				6 => 'sabado',
+				7 => 'domingo'
+			];
+			$dia  = $dias[$diaNumero];
+
+			$query = "
+				SELECT 
+					p.cod_promocion,
+					p.descripcion,
+					p.is_porcentaje,
+					p.valor,
+					p.texto,
+					p.fecha_inicio,
+					p.fecha_fin,
+					p.cantidad,
+					p.is_distintivo
+				FROM promociones p
+				INNER JOIN promocion_producto pp 
+					ON p.cod_promocion = pp.cod_promocion
+				INNER JOIN promocion_sucursal ps 
+					ON p.cod_promocion = ps.cod_promocion
+				WHERE
+					pp.cod_producto = :cod_producto
+					AND ps.cod_sucursal = :cod_sucursal
+					AND p.cod_empresa = :cod_empresa
+					AND :fecha BETWEEN p.fecha_inicio AND p.fecha_fin
+					AND (
+						NOT EXISTS (
+							SELECT 1
+							FROM promocion_recurrente pr2
+							WHERE pr2.cod_promocion = p.cod_promocion
+						)
+						OR
+						EXISTS (
+							SELECT 1
+							FROM promocion_recurrente pr
+							WHERE pr.cod_promocion = p.cod_promocion
+							AND pr.dia_semana = :dia
+							AND :hora BETWEEN pr.hora_inicio AND pr.hora_fin
+						)
+					)
+					AND (
+						:delivery_type IS NULL
+						OR
+						NOT EXISTS (
+							SELECT 1
+							FROM promocion_tipo_entrega pte2
+							WHERE pte2.cod_promocion = p.cod_promocion
+						)
+						OR
+						EXISTS (
+							SELECT 1
+							FROM promocion_tipo_entrega pte
+							WHERE pte.cod_promocion = p.cod_promocion
+							AND pte.tipo_entrega = :delivery_type
+						)
+					)
+				LIMIT 1
+			";
+
+			$params = [
+				':cod_producto' => $cod_producto,
+				':cod_sucursal' => $cod_sucursal,
+				':cod_empresa'  => cod_empresa,
+				':fecha'        => $fecha,
+				':hora'         => $hora,
+				':dia'          => $dia,
+				':delivery_type'=> delivery_type
+			];
+
+			return Conexion::buscarRegistro($query, $params);
+		}
+
+		public function getPromocionesActivas($cod_sucursal)
+		{
+			$fecha = date('Y-m-d H:i:s');
+			$hora  = date('H:i:s');
+			$diaNumero = date('N');
+
+			$dias = [
+				1 => 'lunes', 2 => 'martes',  3 => 'miercoles',
+				4 => 'jueves', 5 => 'viernes', 6 => 'sabado', 7 => 'domingo'
+			];
+
+			$dia = $dias[$diaNumero];
+			$deliveryType = delivery_type;
+
+			$query = "
+				SELECT 
+					pp.cod_producto,
+					p.cod_promocion,
+					p.descripcion,
+					p.is_porcentaje,
+					p.valor,
+					p.texto,
+					p.fecha_inicio,
+					p.fecha_fin,
+					p.cantidad,
+					p.imagen,
+					p.is_distintivo
+				FROM promociones p
+				INNER JOIN promocion_producto pp ON p.cod_promocion = pp.cod_promocion
+				INNER JOIN promocion_sucursal ps ON p.cod_promocion = ps.cod_promocion
+				WHERE
+					ps.cod_sucursal = :cod_sucursal
+					AND p.cod_empresa = :cod_empresa
+					AND :fecha BETWEEN p.fecha_inicio AND p.fecha_fin
+					AND p.estado = 'A'
+					AND (
+						NOT EXISTS (
+							SELECT 1 FROM promocion_recurrente pr2
+							WHERE pr2.cod_promocion = p.cod_promocion
+						)
+						OR EXISTS (
+							SELECT 1 FROM promocion_recurrente pr
+							WHERE pr.cod_promocion = p.cod_promocion
+							AND pr.dia_semana = :dia
+							AND :hora BETWEEN pr.hora_inicio AND pr.hora_fin
+						)
+					)
+					AND (
+						:delivery_type IS NULL
+						OR NOT EXISTS (
+							SELECT 1 FROM promocion_tipo_entrega pte2
+							WHERE pte2.cod_promocion = p.cod_promocion
+						)
+						OR EXISTS (
+							SELECT 1 FROM promocion_tipo_entrega pte
+							WHERE pte.cod_promocion = p.cod_promocion
+							AND pte.tipo_entrega = :delivery_type
+						)
+					)
+			";
+
+			$params = [
+				':cod_sucursal'  => $cod_sucursal,
+				':cod_empresa'   => cod_empresa,
+				':fecha'         => $fecha,
+				':hora'          => $hora,
+				':dia'           => $dia,
+				':delivery_type' => $deliveryType
+			];
+
+			$result = Conexion::buscarVariosRegistro($query, $params);
+
+			$promosByProducto  = [];  // promos normales: porcentaje / NxM
+			$promosAvanzadas   = [];  // promos avanzadas: compra_x_lleva_y / monto_minimo (indexadas por cod_promocion)
+
+			if ($result) {
+				foreach ($result as $promo) {
+					$tipo = $promo['texto'];
+
+					if (in_array($tipo, ['compra_x_lleva_y', 'monto_minimo'])) {
+						// Agrupar productos participantes por cod_promocion
+						if (!isset($promosAvanzadas[$promo['cod_promocion']])) {
+							// Primera vez que vemos esta promo avanzada: cargar producto regalo
+							$regalo = Conexion::buscarRegistro(
+								"SELECT cod_producto_regalo, cantidad_regalo
+								FROM promocion_recompensa
+								WHERE cod_promocion = :cod LIMIT 1",
+								[':cod' => $promo['cod_promocion']]
+							);
+
+							$promosAvanzadas[$promo['cod_promocion']] = [
+								'cod_promocion'       => $promo['cod_promocion'],
+								'descripcion'         => $promo['descripcion'],
+								'texto'               => $tipo,
+								'valor'               => $promo['valor'], // monto mínimo si aplica
+								'fecha_fin'           => $promo['fecha_fin'],
+								'imagen'       		  => $promo['imagen'],
+								'cod_producto_regalo' => $regalo ? $regalo['cod_producto_regalo'] : null,
+								'cantidad_regalo'     => $regalo ? $regalo['cantidad_regalo'] : 1,
+								'productos_participantes' => [],
+							];
+						}
+						// Acumular productos participantes
+						$promosAvanzadas[$promo['cod_promocion']]['productos_participantes'][] = $promo['cod_producto'];
+
+					} else {
+						// Promo normal: porcentaje o NxM — igual que antes
+						$promosByProducto[$promo['cod_producto']] = $promo;
+					}
+				}
+			}
+
+			return [
+				'normales'   => $promosByProducto,   // keyed by cod_producto
+				'avanzadas'  => array_values($promosAvanzadas), // array plano
+			];
+		}
+
+		private function getEventoProducto($cod_producto) {
+			$query = "SELECT dias_anticipacion, dias_fin, titulo, descripcion 
+					FROM tb_producto_evento 
+					WHERE cod_producto = $cod_producto 
+					AND activo = 1";
+			
+			$evento = Conexion::buscarRegistro($query);
+			
+			if (!$evento) return false;
+			
+			$hoy = new DateTime();
+			
+			$fechaInicio = clone $hoy;
+			$fechaInicio->modify("+{$evento['dias_anticipacion']} days");
+			
+			$fechaFin = clone $hoy;
+			$fechaFin->modify("+{$evento['dias_fin']} days");
+			
+			return [
+				'titulo' => $evento['titulo'],
+				'descripcion' => $evento['descripcion'],
+				'dias_anticipacion' => (int)$evento['dias_anticipacion'],
+				'dia_inicio' => $fechaInicio->format('Y-m-d'),
+				'dia_final'  => $fechaFin->format('Y-m-d'),
+			];
+		}
+
+		
+		private function sucursalGravaIva($cod_sucursal) {
+			$query = "SELECT grava_iva FROM tb_sucursales WHERE cod_sucursal = $cod_sucursal";
+			$resp = Conexion::buscarRegistro($query);
+			if($resp) {
+				return $resp["grava_iva"];
+			}
+			return 0;
+		}
+
+		/*FUNCIONES MAS IMPORTANTES DE PRODUCTOS*/
+		public function disponible($agotado){
+		    if($agotado != NULL){
+        		$fecha = fecha();
+        		if(strtotime($agotado) > strtotime($fecha)){
+        			return false;
+        		}
+        		return true;
+        	}
+        	return true;
+		}
+		
+		public function infoProductComplete($producto){
+        	$producto['precio'] = number_format($producto['precio'],2);
+			$producto['image_min'] = ($producto['image_min'] !== "") ? url.$producto['image_min'] : "";
+			$producto['image_max'] = ($producto['image_max'] !== "") ? url.$producto['image_max'] : "";
+			$producto['precio_anterior'] = number_format($producto['precio_anterior'],2);
+			$producto['cobra_iva'] = isset($producto['cobra_iva']) ? $producto['cobra_iva'] : 1;
+			$producto['cobra_iva'] = ($this->officeTaxable == 0) ? 0 : $producto['cobra_iva'];
+			
+			if(!$this->isVisibleDate($producto['cod_producto'])){
+				$producto['disponible'] = false;
+			}else{
+				$producto['disponible'] = $this->disponible($producto['agotado_fin']);
+			}
+			
+			$cantidadPromo = 0;
+			$producto['promocion'] = "";
+        	$producto['nxm'] = false;
+			$producto['is_distintivo'] = 0;
+			if($producto['disponible'] == true){
+				$promocion = $this->isPromocion($producto['cod_producto']);
+				if($promocion){
+					$precio = number_format($producto['precio'],2);
+					$texto = $promocion['texto'];
+					$producto['promocion'] = $texto;
+					$producto['is_distintivo'] = $promocion['is_distintivo'];
+					if($promocion['is_porcentaje']==1){
+						$producto['precio_anterior'] = $precio;
+						$valor = $promocion['valor'];
+			
+						$descuento = $precio * ($valor/100);
+						$precio = $precio - $descuento;
+						$precio = number_format($precio, 2);
+			
+						$producto['precio'] = $precio;
+						$producto['nxm'] = false;
+					}else{
+						$producto['nxm'] = true;
+						if($texto == '2x1')
+							$cantidadPromo = 2;
+						else if($texto == '3x2')
+							$cantidadPromo = 3;
+						else if($texto == '4x3')
+							$cantidadPromo = 4;
+						else if($texto == '5x4')
+							$cantidadPromo = 5;
+					}
+					$producto['promo_fin'] = $promocion['fecha_fin'];
+				}
+			}
+			$producto['cantidadPromo'] = $cantidadPromo;
+        	
+			$variantes = $this->listaVariantes($producto['cod_producto_padre'] > 0 ? $producto['cod_producto_padre'] : $producto['cod_producto']);
+			$producto['variantes'] = $variantes;
+			$producto['opciones'] = $this->opciones($producto['cod_producto']);
+			$producto['addcart'] = true;
+			$producto['evento'] = $this->getEventoProducto($producto['cod_producto']);
+			$producto['preparacion'] = $this->getPreparacion($producto['cod_producto']);
+        	
+        	if($producto['cod_producto_padre'] > 0)
+        	    $producto['categoria'] = $this->getFirstCategory($producto['cod_producto_padre']);
+        	else
+        	    $producto['categoria'] = $this->getFirstCategory($producto['cod_producto']);
+        	    
+        	if(service_percentage > 0){
+        	    $producto['precio'] = number_format($producto['precio'] + ($producto['precio_no_tax'] * (service_percentage / 100)),2);
+        	}
+        	return $producto;
+        }
+        
+        public function infoProductHalf($producto, $infoAdicional = true){
+			$producto['nombre'] = html_entity_decode($producto['nombre'], ENT_QUOTES | ENT_HTML5, 'UTF-8');
+			$producto['precio'] = number_format($producto['precio'],2);
+        	$producto['image_min'] = ($producto['image_min'] !== "") ? url.$producto['image_min'] : "";
+			$producto['image_max'] = ($producto['image_max'] !== "") ? url.$producto['image_max'] : "";
+			$producto['precio_anterior'] = number_format($producto['precio_anterior'],2);
+			$producto['cobra_iva'] = isset($producto['cobra_iva']) ? $producto['cobra_iva'] : 1;
+			$producto['cobra_iva'] = ($this->officeTaxable == 0) ? 0 : $producto['cobra_iva'];
+			
+			if(!$this->isVisibleDate($producto['cod_producto'])){
+				$producto['disponible'] = false;
+			}else{
+				$producto['disponible'] = $this->disponible($producto['agotado_fin']);
+			}
+			
+			$cantidadPromo = 0;
+			$producto['promocion'] = "";
+			$producto['nxm'] = false;
+			$producto['promo_dias'] = "";
+			if($producto['disponible'] == true){
+				// $promocion = $this->isPromocion($producto['cod_producto']);
+				$promocion = $this->promosByProducto[$producto['cod_producto']] ?? null;
+				if($promocion){
+					$precio = number_format($producto['precio'],2);
+					$texto = $promocion['texto'];
+					$producto['promocion'] = $texto;
+					$producto['is_distintivo'] = $promocion['is_distintivo'];
+	
+					if($promocion['is_porcentaje']==1){
+						$producto['precio_anterior'] = $precio;
+						$valor = $promocion['valor'];
+	
+						$descuento = $precio * ($valor/100);
+						$precio = $precio - $descuento;
+						$precio = number_format($precio, 2);
+			
+						$producto['precio'] = $precio;
+						$producto['nxm'] = false;
+					}else{
+						$producto['nxm'] = true;
+						if($texto == '2x1')
+							$cantidadPromo = 2;
+						else if($texto == '3x2')
+							$cantidadPromo = 3;
+						else if($texto == '4x3')
+							$cantidadPromo = 4;
+						else if($texto == '5x4')
+							$cantidadPromo = 5;
+					}
+					$producto['promo_fin'] = $promocion['fecha_fin'];
+					$promo_dias = diasRestantes($promocion['fecha_fin']);
+					if($promo_dias <= 7)
+						$producto['promo_dias'] = $promo_dias;
+					 else
+						$producto['promo_dias'] = "";
+				}
+			}
+			$producto['cantidadPromo'] = $cantidadPromo;
+        	
+        	if($infoAdicional){
+        	    $producto['categoria'] = $this->getFirstCategory($producto['cod_producto']);
+        	}
+        	
+        	if(service_percentage > 0){
+        	    $producto['precio'] = number_format($producto['precio'] + ($producto['precio_no_tax'] * (service_percentage / 100)),2);
+        	}
+        	
+        	$producto['empaque'] = $this->getEmpaque($producto['cod_producto']);
+        	$producto['tag'] = $this->getTag($producto['cod_producto']);
+        	$producto['preparacion'] = $this->getPreparacion($producto['cod_producto']);
+
+        	return $producto;
+        }
+        
+        public function getEmpaque($cod_producto){
+            $query = "SELECT * FROM tb_producto_empaque_detalle WHERE cod_producto = $cod_producto";
+            $resp = Conexion::buscarRegistro($query);
+            if($resp){
+                $alto = $resp['alto'];
+                $resp['alto'] = ($alto == intval($alto)) ? intval($alto) : $alto;
+            }
+            return $resp;
+        }
+
+        public function getTag($cod_producto){
+            $query = "SELECT  t.icono, t.nombre, t.color
+					FROM tb_productos_tags pt
+					INNER JOIN tb_tags t 
+						ON pt.tag_id = t.id
+					WHERE pt.cod_producto = $cod_producto";
+            $resp = Conexion::buscarRegistro($query);
+			return $resp;
+        }
+        
+        public function getArmaBowl($cod_producto){
+			$query = "SELECT oahu_arma_bowl FROM tb_productos WHERE cod_producto = $cod_producto";
+			$resp = Conexion::buscarRegistro($query);
+			if($resp){
+				$arma_bowl = $resp['oahu_arma_bowl'];
+				if($arma_bowl == 1)
+					return true;
+				else
+					return false;
+			}else
+				return false;
+		}
+}
+?>

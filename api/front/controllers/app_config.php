@@ -1,0 +1,257 @@
+<?php
+/*	Variables Heredadas del Index
+		$method - POST, GET, PUT, DELETE, etc.
+		$request - Url y variables GET
+		$input - Solo metodo POST, PUT */
+require_once "clases/cl_usuarios.php";
+require_once "clases/cl_productos.php";
+require_once "clases/cl_categorias.php";
+$Clproductos = new cl_productos();
+$Clcategorias = new cl_categorias();
+
+	if($method == "GET"){
+		$num_variables = count($request);
+		if($num_variables == 2){
+			$first = $request[1];
+			if($first=="home2"){ //HOME CON CODIGO SUCURSAL
+				$return = infoHome2();
+				showResponse($return);
+			}
+			if($first=="categorias"){
+				$return = infoCategorias();
+				showResponse($return);
+			}
+			if($first=="banners"){
+				$return = lstBanners();
+				showResponse($return);
+			}
+			if($first=="portfolio"){
+			   $return = getPortfolio(); 
+			   showResponse($return);
+			}
+		}
+		if($num_variables == 3){
+			$first = $request[1];
+			if($first=="pagina"){ //PAGINA INDICAR ALIAS
+			    $aliasPagina = $request[2];
+				$return = infoHome2(0, $aliasPagina);
+				showResponse($return);
+			}
+			if($first=="sugerencias-checkout"){
+			    $cod_sucursal = $request[2];
+			   $return = SugerenciasCheckout($cod_sucursal);
+			   showResponse($return);
+			}
+		}
+		
+		$return['success']= 0;
+		$return['mensaje']= "Url no valida para configuracion, por favor revisar los parametros";
+		showResponse($return);
+	}
+	else{
+		$return['success']= 0;
+		$return['mensaje']= "El metodo ".$method." para configuracion aun no esta disponible.";
+		showResponse($return);
+	}
+	
+	
+/*FUNCIONES*/
+function infoHome2($cod_sucursal = 0, $aliasPage = ''){
+    global $Clproductos;
+	global $Clcategorias;
+	$cod_empresa = cod_empresa;
+	$usuario = null;
+    
+    if($cod_sucursal == 0){
+        $cod_sucursal = sucursaldefault;
+    }
+	$Clproductos->cod_sucursal = $cod_sucursal;
+	
+	$data = [];
+	$x=0;
+	
+	$where = ($aliasPage === '') ? 'AND f.home = 1' : "AND f.alias = '$aliasPage'";
+
+	//OTRAS OPCIONES
+	$query = "SELECT fd.cod_front_pagina_detalle as id, fd.cod_tipo as tipo, fd.titulo, fd.forma, fd.detalle, fd.detalle2, fd.cod_detalle, fd.html, fd.showTitle, fd.extra_params  
+			FROM tb_front_paginas f, tb_front_pagina_detalle fd
+			WHERE f.cod_front_pagina = fd.cod_front_pagina
+			AND fd.forma != 'banner'
+			AND f.cod_empresa = $cod_empresa
+			$where 
+			ORDER BY fd.posicion ASC";
+	$resp = Conexion::buscarVariosRegistro($query);
+	foreach ($resp as $secciones) {
+	    $data[$x] = $secciones;
+	    
+	    $id = $secciones['id'];
+		$tipo = $secciones['tipo'];
+		$forma = $secciones['forma'];
+		$cod = $secciones['cod_detalle'];
+		
+        if($tipo == "banner"){
+		    $data[$x]['items'] = getBanners('WEB');
+		    $x++;
+
+		    $bannersApp = $secciones;
+		    $bannersApp['tipo'] = 'banner_app';
+		    $bannersApp['items'] = getBanners('APP');
+		    $data[$x] = $bannersApp;
+		}
+		if($tipo == "ordenar"){
+		    $data[$x]['items'] = $Clproductos->listaFromPaginaDetalle($id);
+		}
+		if($tipo == "anuncios" ){
+		    $query = "SELECT * FROM tb_front_pagina_detalle_contenido WHERE cod_front_pagina_detalle = $id";
+		    $resp = Conexion::buscarVariosRegistro($query);
+		    foreach ($resp as $key => $anuncio) {
+            	$resp[$key]['imagen'] = url.$anuncio['imagen'];
+            	$resp[$key]['image_min'] = $resp[$key]['imagen'];
+            }
+		    
+			$data[$x]['items'] = $resp;
+
+		}
+		if($tipo == "blog"){
+		    $query = "SELECT n.alias, n.titulo, n.desc_corta, n.image_min as imagen, DATE(n.fecha_create) as fecha 
+		            FROM tb_front_pagina_detalle_contenido f INNER JOIN tb_noticias n ON f.accion_desc = n.cod_noticia AND n.estado = 'A' AND n.cod_empresa = $cod_empresa 
+		            WHERE f.cod_front_pagina_detalle = $id ORDER BY f.posicion ASC;";
+		    $resp = Conexion::buscarVariosRegistro($query);
+		    foreach ($resp as $key => $anuncio) {
+            	$resp[$key]['imagen'] = url.$anuncio['imagen'];
+            	$resp[$key]['fechasplit'] = fechaLatinoSplit($anuncio['fecha']);
+            }
+		    
+			$data[$x]['items'] = $resp;
+
+		}
+		if($tipo == "categorias"){
+		    $data[$x]['items'] = getCategorias($cod_sucursal);
+		}
+		if($tipo == 'custom'){
+		    $extra_params = $secciones['extra_params'];
+		    $extra_params = ($extra_params !== "") ? json_decode($extra_params, true) : "";
+		    $data[$x]['extra_params'] = $extra_params; 
+		}
+		$x++;
+	}	
+
+	$return['success'] = 1;
+	$return['sucursal'] = $cod_sucursal;
+	$return['mensaje'] = "App Home";
+	$return['data'] = $data;
+    return $return;
+}
+
+function getCategorias($cod_sucursal){
+    global $Clcategorias;
+    global $Clproductos;
+    
+    if($cod_sucursal == 0){
+        return  $Clcategorias->listaBasica();
+    }else{
+        $respCategorias = null;
+        $x=0;
+        
+    	$categorias = $Clcategorias->listaBasica();
+    	foreach ($categorias as $key => $categoria) {
+    	    $cantidad = $Clproductos->getNumProductsByCategoria($categoria['cod_categoria'], $cod_sucursal);
+    	    if($cantidad>0){
+    		    $respCategorias[$x] = $categorias[$key]; 
+    		    $x++;
+    	    }
+    	}
+    	return $respCategorias;
+    }
+}
+
+function getBanners($tipoBanner = 'WEB'){
+    $query = "SELECT titulo, subtitulo, descuento as text_adicional, text_boton, url_boton, image_min as imagen, posicion, ubicacion
+			FROM tb_banner
+			WHERE estado IN('A') AND tipo = '$tipoBanner' AND cod_empresa = ".cod_empresa." ORDER BY posicion ASC LIMIT 0,5";
+	$resp = Conexion::buscarVariosRegistro($query);
+	foreach ($resp as $key=>$banner) {
+		$resp[$key]['imagen'] = url.$banner['imagen'];
+	}
+	return $resp;
+}
+
+function infoCategorias(){
+    require_once "clases/cl_categorias.php";
+    $Clcategorias = new cl_categorias();
+    
+    $respCategorias = $Clcategorias->lista();
+    
+    $return['success'] = 1;
+	$return['mensaje'] = "Correcto";
+	$return['data'] = $respCategorias;
+	return $return;
+}
+
+function lstBanners(){
+	$resp = getBanners('WEB');
+
+	$return['success'] = 1;
+	$return['mensaje'] = "Correcto";
+	$return['data'] = $resp;
+	return $return; 
+}
+
+function ordenarItems($id, $cod_sucursal){
+    global $Clproductos;
+	$Clproductos->cod_sucursal = $cod_sucursal;
+    return $Clproductos->listaModuloWeb($id);
+}
+
+function SugerenciasCheckout($cod_sucursal){
+    $cod_empresa = cod_empresa;
+    $query = "SELECT * FROM tb_web_modulos_productos WHERE cod_empresa = $cod_empresa AND modulo = 'SUGERENCIAS'";
+    $resp = Conexion::buscarRegistro($query);
+    if($resp){
+        $return['success']= 1;
+		$return['mensaje']= "Lista de sugerencias";
+		$return['data']= ordenarItems($resp['cod_web_modulos_producto'], $cod_sucursal);
+		showResponse($return);
+    }else{
+        $return['success']= 0;
+		$return['mensaje']= "No hay sugerencias activas";
+		showResponse($return);
+    }
+}
+
+function fillArrayItemsNoRepeat(&$fill, $newArray){
+	foreach($newArray as $key => $item){
+		if(!in_array($item, $fill)){
+			$fill[] = $item;
+		}
+	}
+}
+
+function getPortfolio(){
+	$query = "SELECT e.nombre as title, e.url_web as link, t.path, t.categories, t.cities 
+				FROM tb_taste_portafolio t
+				INNER JOIN tb_empresas e 
+					ON t.cod_empresa = e.cod_empresa
+				WHERE e.estado = 'A'";
+	$resp = Conexion::buscarVariosRegistro($query);
+
+	if(!$resp){
+	    $return['success'] = 0;
+	    $return['mensaje'] = "Error al obtener datos del portafolio";
+	    $return['data'] = [];
+	    return $return;
+	}
+
+	foreach ($resp as $key => $r) {
+		$categories = json_decode($r['categories'], true);
+		$cities = json_decode($r['cities'], true);
+		$resp[$key]['categories'] = $categories ? $categories : [];
+		$resp[$key]['cities'] = $cities ? $cities : [];
+	}
+
+	$return['success'] = 1;
+	$return['mensaje'] = "Lista Portafolio";
+	$return['data'] = $resp;
+	return $return;
+}
+?>

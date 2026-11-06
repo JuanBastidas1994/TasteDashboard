@@ -221,6 +221,8 @@ $(document).ready(function () {
         // La imagen va como archivo binario: en base64 (texto) el POST crece y ModSecurity lo rechaza (406)
         formData.delete('txt_crop');
         formData.delete('txt_crop_min');
+        // No enviar la foto original (la de la cámara pesa varios MB y excede límites del servidor); solo van los recortes
+        formData.delete('img_product');
         if ($("#txt_crop").val() != "" && $("#txt_crop_min").val() != "") {
             formData.append('img_crop', dataURLtoBlob($("#txt_crop").val()), 'crop');
             formData.append('img_crop_min', dataURLtoBlob($("#txt_crop_min").val()), 'crop_min');
@@ -319,6 +321,7 @@ $(document).ready(function () {
         }
         // Imagen como archivo binario (ver comentario en guardar producto)
         formData.delete('txt_crop_galeria');
+        formData.delete('img_galery'); // foto original, solo se envía el recorte
         if ($("#txt_crop_galeria").val() != "")
             formData.append('img_crop_galeria', dataURLtoBlob($("#txt_crop_galeria").val()), 'crop');
 

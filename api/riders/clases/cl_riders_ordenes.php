@@ -90,7 +90,7 @@ class cl_riders_ordenes {
                 'total' => (float) $f['total'],
                 'is_envio' => 1,
                 // Envío y forma de pago a la vista en la lista (lo que gana y si debe llevar efectivo)
-                'pago' => self::pago($pagos[$f['cod_orden']] ?? [], (float) $f['envio'] + (float) $f['envio_iva']),
+                'pago' => self::pago($pagos[$f['cod_orden']] ?? [], (float) $f['envio']),
                 'telefono' => $f['telefono'],
                 'referencia' => $f['referencia'],
                 'referencia2' => $f['referencia2'],
@@ -178,7 +178,7 @@ class cl_riders_ordenes {
             'empresa_logo' => urlAssetEmpresa($f['empresa_alias'], $f['empresa_logo']),
             'cod_flota' => $f['cod_flota'] ? (int) $f['cod_flota'] : null,
         ] + self::tiempos($f) + [
-            'pago' => self::pago($pagos[$cod_orden] ?? [], (float) $f['envio'] + (float) $f['envio_iva']),
+            'pago' => self::pago($pagos[$cod_orden] ?? [], (float) $f['envio']),
             'items' => $this->items($cod_orden),
             'soporte_admins' => $flota ? $this->adminsFlota($flota) : [],
             'incidencia_pendiente' => $pendiente,

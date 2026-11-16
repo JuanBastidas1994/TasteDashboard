@@ -302,20 +302,24 @@ for ($m = 1; $m < $mes_actual; $m++) {
                                                 <th>Impuesto</th>
                                                 <th>Folder</th>
                                                 <th class="text-center">Estado</th>
+                                                <th class="text-center">Dashboard</th>
                                                 <th class="text-center">Prod</th>
                                                 <th class="text-center">Acciones</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <?php
-                                            $query = "SELECT cod_empresa, nombre, alias, folder,  representante_nombre, logo, url_web, api_key, impuesto, ambiente, estado
+                                            $query = "SELECT cod_empresa, nombre, alias, folder,  representante_nombre, logo, url_web, api_key, impuesto, ambiente, estado, nuevo_dashboard
                                                         FROM tb_empresas
                                                         WHERE estado IN ('A', 'I')";
                                             $resp = Conexion::buscarVariosRegistro($query);
                                             foreach ($resp as $empresa) {
                                                 $imagen = $files.$empresa['alias'].'/'.$empresa['logo'];
                                                 $badge= ($empresa['estado'] == 'A') ? 'primary' : 'danger';
-                                                $production = ($empresa['ambiente'] == 'production') ? '<i data-feather="check-circle"></i>' : '';
+                                                $badgeDash = ($empresa['nuevo_dashboard'] == 1)
+                                                    ? '<span class="shadow-none badge badge-success">ACTUALIZADO</span>'
+                                                    : '<span class="shadow-none badge badge-warning">LEGACY</span>';
+                                                $production =($empresa['ambiente'] == 'production') ? '<i data-feather="check-circle"></i>' : '';
                                                 $chk_checked = ($empresa['ambiente'] == 'production') ? 'checked' : '';
 
                                                 echo '<tr>
@@ -335,6 +339,7 @@ for ($m = 1; $m < $mes_actual; $m++) {
                                                         <a class="btnCopiar" href="javascript:;" data-clipboard-action="copy" data-clipboard-text="'.$empresa['folder'].'"><i data-feather="copy"></i></a>
                                                         '.$empresa['folder'].'</td>
                                                     <td class="text-center"><span class="shadow-none badge badge-'.$badge.'">'.getEstado($empresa['estado']).'</span></td>
+                                                    <td class="text-center">'.$badgeDash.'</td>
                                                     <td class="text-center">'.$production.'</td>
                                                     <td class="text-center">
                                                         <ul class="table-controls">
@@ -365,7 +370,7 @@ for ($m = 1; $m < $mes_actual; $m++) {
     <script type="text/javascript" src="templates/templates.js"></script>
     <?php js_mandatory(); ?>
     <script src="assets/js/clipboard/clipboard.min.js"></script>
-    <script src="assets/js/pages/crear_empresas.js?v=14" type="text/javascript"></script>
+    <script src="assets/js/pages/crear_empresas.js?v=15" type="text/javascript"></script>
     <script>
         var myTable = $('#style-3').DataTable( {
             dom: '<"row"<"col-md-12"<"row"<"col-md-6"B><"col-md-6"f> > ><"col-md-12"rt> <"col-md-12"<"row"<"col-md-5"i><"col-md-7"p>>> >',

@@ -37,6 +37,7 @@ $chkFidelizacion = "";
 $chkGiftcard = "";
 $chkProduccion = "";
 $ckStartOnMenu = "";
+$chkNuevoDashboard = "";
 
 $imgPdf = "";
 $urlPDF = "";
@@ -87,6 +88,7 @@ if(isset($_GET['id'])){
     $chkGiftcard = ($empresa['giftcard'] == 1) ? 'checked' : '';
     $chkProduccion = ($empresa['ambiente'] == 'production') ? 'checked' : '';
     $ckStartOnMenu = ($empresa['iniciar_en_menu'] == 1) ? 'checked' : '';
+    $chkNuevoDashboard = ($empresa['nuevo_dashboard'] == 1) ? 'checked' : '';
     
     $infoU=$Clusuarios->user_administrador($cod_empresa);
     if($infoU){
@@ -654,6 +656,15 @@ if(file_exists($folder_demo)){
                                                                         <span class="slider round"></span>
                                                                     </label>
                                                                 </div>
+                                                        </div>
+                                                        <div class="form-group col-md-4 col-sm-4 col-xs-12">
+                                                            <label>Nuevo dashboard <a href="javascript:void(0);" class="bs-tooltip" data-toggle="tooltip" data-placement="top" title="" data-original-title="Al activarlo, la empresa es redirigida a admin.tastelatam.com y ya no puede crear órdenes desde el front actual"><i data-feather="help-circle"></i></a></label>
+                                                            <div>
+                                                                <label class="switch s-icons s-outline  s-outline-success mr-2">
+                                                                    <input type="checkbox" name="chk_nuevo_dashboard" id="chk_nuevo_dashboard" data-empresa="<?= $cod_empresa?>" <?= $chkNuevoDashboard?>>
+                                                                    <span class="slider round"></span>
+                                                                </label>
+                                                            </div>
                                                         </div>
                                                         
                                                     </div>
@@ -1561,7 +1572,7 @@ if(file_exists($folder_demo)){
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script> 
     <script src="assets/js/clipboard/clipboard.min.js"></script>
     <script src="assets/js/jscolor.js"></script>
-    <script src="assets/js/pages/crear_empresas.js?v=15" type="text/javascript"></script>
+    <script src="assets/js/pages/crear_empresas.js?v=16" type="text/javascript"></script>
     
     <!-- BEGIN PAGE LEVEL CUSTOM SCRIPTS -->
     <script src="assets/js/scrollspyNav.js"></script>

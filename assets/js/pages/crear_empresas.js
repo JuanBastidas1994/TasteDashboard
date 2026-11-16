@@ -1756,6 +1756,42 @@ $(document).ready(function() {
         });
     });
 
+    $("#chk_nuevo_dashboard").on("change", function(){
+        let checkb = $(this);
+
+        var id = parseInt($("#id").val());
+        if(id == 0){
+            checkb.prop("checked", false);
+            notify("Primero debes crear la empresa para pasarla al nuevo dashboard", "error", 2);
+            return;
+        }
+
+        let activar = checkb.is(":checked");
+        if(activar && !confirm("La empresa será redirigida al nuevo dashboard y no podrá crear órdenes desde el front actual. ¿Continuar?")){
+            checkb.prop("checked", false);
+            return;
+        }
+
+        $.ajax({
+            url:'controllers/controlador_empresa.php?metodo=setNuevoDashboard',
+            data: {"cod_empresa": checkb.data("empresa"), "nuevo_dashboard": activar ? 1 : 0},
+            type: "GET",
+            success: function(response){
+                if(response['success']==1){
+                    notify(response['mensaje'], "success", 2);
+                }
+                else{
+                    checkb.prop("checked", !activar);
+                    notify(response['mensaje'], "error", 2);
+                }
+            },
+            error: function(){
+                checkb.prop("checked", !activar);
+                notify("Error de conexión", "error", 2);
+            },
+        });
+    });
+
     if($(".btnCopiar").length > 0){
         var clipboard = new Clipboard('.btnCopiar');
         clipboard.on('success', function(e) {

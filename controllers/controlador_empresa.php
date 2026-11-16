@@ -1223,6 +1223,22 @@ function setAmbienteEmpresa(){
     return $return;
 }
 
+function setNuevoDashboard(){
+    global $Clempresas;
+    extract($_GET);
+
+    $valor = (isset($nuevo_dashboard) && $nuevo_dashboard == 1) ? 1 : 0;
+    if($Clempresas->setNuevoDashboard($cod_empresa, $valor)){
+        $return['success'] = 1;
+        $return['mensaje'] = $valor ? "Empresa pasada al nuevo dashboard" : "Empresa devuelta al dashboard legacy";
+    }
+    else{
+        $return['success'] = 0;
+        $return['mensaje'] = "Error al actualizar";
+    }
+    return $return;
+}
+
 function setPedidosYa() {
     global $Clempresas;
     

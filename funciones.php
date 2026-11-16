@@ -21,6 +21,33 @@ require_once "conexion.php";
 require_once "design.php";
 require_once "clases/cl_usuarios.php";
 $regenerarSesion = isLogin();
+redirigirNuevoDashboard();
+
+/* Empresas migradas (tb_empresas.nuevo_dashboard = 1): las páginas del legacy redirigen al nuevo dashboard.
+   Solo páginas de la raíz (no controllers/ ni ajax) y excepto login/logout. */
+function redirigirNuevoDashboard(){
+    if(PHP_SAPI === 'cli' || !isset($_SESSION[name_session]) || !is_array($_SESSION[name_session]))
+        return;
+    if(!isset($_SERVER['REQUEST_METHOD']) || $_SERVER['REQUEST_METHOD'] !== 'GET')
+        return;
+    if(isset($_SERVER['HTTP_X_REQUESTED_WITH']))
+        return;
+    $script = isset($_SERVER['SCRIPT_FILENAME']) ? realpath($_SERVER['SCRIPT_FILENAME']) : false;
+    if(!$script || dirname($script) !== realpath(__DIR__))
+        return;
+    $pagina = basename($script);
+    if(in_array($pagina, array('login.php', 'logout.php')))
+        return;
+    $cod_empresa = isset($_SESSION[name_session]['cod_empresa']) ? intval($_SESSION[name_session]['cod_empresa']) : 0;
+    if($cod_empresa <= 0)
+        return;
+    $row = Conexion::buscarRegistro("SELECT nuevo_dashboard FROM tb_empresas WHERE cod_empresa = $cod_empresa");
+    if(!$row || $row['nuevo_dashboard'] != 1)
+        return;
+    $destino = ($pagina === 'gestion_ordenes_v5.php') ? 'https://admin.tastelatam.com/orders/live' : 'https://admin.tastelatam.com/';
+    header("Location: ".$destino);
+    exit;
+}
 
 function controller_create(){
    if(isset($_GET['metodo'])){

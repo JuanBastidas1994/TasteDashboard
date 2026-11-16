@@ -743,6 +743,14 @@ class cl_empresas
 			return Conexion::ejecutar($query, null);
 		}
 
+		public function setNuevoDashboard($cod_empresa, $valor){
+			$valor = ($valor == 1) ? 1 : 0;
+			$query = "UPDATE tb_empresas
+						SET nuevo_dashboard = $valor
+						WHERE cod_empresa = ".intval($cod_empresa);
+			return Conexion::ejecutar($query, null);
+		}
+
 		public function setPermisoRecordatorio($cod_empresa, $recordar_ordenes){
 			$query = "UPDATE tb_empresas
 						SET recordar_ordenes = $recordar_ordenes

@@ -900,6 +900,15 @@ function getOpcionesByProduct(product_id){
             // $("#productInformation").html(template1(response));
             
             // Opciones que son productos: se muestran con el mapeo del producto, no se ligan aparte
+            // PHP 8.1+ devuelve enteros nativos y el helper eq de Handlebars compara con ===: se normaliza a string
+            response.opciones.forEach(opcion => {
+                opcion.isDatabase = String(opcion.isDatabase);
+                opcion.items.forEach(item => {
+                    item.debitInventario = String(item.debitInventario);
+                    if(item.facturacion) item.facturacion.es_principal = String(item.facturacion.es_principal);
+                });
+            });
+
             response.opciones.forEach(opcion => {
                 if(opcion.isDatabase != "1") return;
                 opcion.items.forEach(item => {

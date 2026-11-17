@@ -276,7 +276,9 @@ $permisos = $Clempresas->getIdPermisionByBusiness($cod_empresa);
                                     <td>
                                         {{name}}
                                         <dl>
-                                          <dd>{{#if active}}Activo{{else}}Inactivo{{/if}}{{#if tax_applicable}} - Grava IVA{{/if}}</dd>
+                                          <dd>{{#if active}}Activo{{else}}Inactivo{{/if}}
+                                            {{#if vat_applicable}}<span class="badge badge-success ml-1">Grava IVA</span>{{else}}<span class="badge badge-warning ml-1">Sin IVA</span>{{/if}}
+                                          </dd>
                                         </dl>
                                     </td>
                                     <td class="text-right">${{price}}</td>
@@ -791,7 +793,7 @@ $permisos = $Clempresas->getIdPermisionByBusiness($cod_empresa);
     </script>
     <?php js_mandatory(); ?>
      <script src="assets/js/scrollspyNav.js"></script>
-    <script src="assets/js/pages/ruc_detalle_runfood.js?v=4" type="text/javascript"></script>
+    <script src="assets/js/pages/ruc_detalle_runfood.js?v=5" type="text/javascript"></script>
     <!-- END PAGE LEVEL CUSTOM SCRIPTS -->
 </body>
 </html>
